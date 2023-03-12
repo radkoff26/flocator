@@ -1,10 +1,12 @@
 package com.example.flocator.fragments.main
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.example.flocator.R
 import com.example.flocator.adapters.CarouselViewPagerAdapter
@@ -20,7 +22,6 @@ class AddMarkFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        (dialog as BottomSheetDialog?)?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
         val fragment = inflater.inflate(R.layout.fragment_add_mark, container, false)
 
         val viewPager = fragment.findViewById(R.id.photo_carousel) as ViewPager2
@@ -39,6 +40,8 @@ class AddMarkFragment : BottomSheetDialogFragment() {
 
         return fragment
     }
+
+
 
     companion object {
         const val TAG = "ModalBottomSheet"
