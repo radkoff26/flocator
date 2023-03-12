@@ -1,3 +1,11 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">FLocator</string>
+    <string name="community_button">Community</string>
+    <string name="target_button">Target</string>
+    <string name="settings_button">Settings</string>
+    <string name="add_mark">Добавить метку</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add">Добавить</string>
+    <string name="cancel">Отменить</string>
 </resources>
