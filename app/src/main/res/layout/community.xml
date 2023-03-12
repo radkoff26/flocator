@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/buttonBack"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/back" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/avatar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonBack" />
+
+        <TextView
+            android:id="@+id/nameAndSurname"
+            android:layout_width="280dp"
+            android:layout_height="27dp"
+            android:layout_marginTop="4dp"
+            android:text="Ильгиз Дусeeв"
+            android:textColor="#121212"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintBottom_toTopOf="@+id/addFriend"
+            app:layout_constraintStart_toStartOf="@+id/addFriend"
+            app:layout_constraintTop_toTopOf="@+id/viewSurnameAndButtonAddFriend"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/addFriend"
+            android:layout_width="144dp"
+            android:layout_height="31dp"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/custom_button"
+            android:text="Добавить друга"
+            android:textAllCaps="false"
+            android:textColor="#121212"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/viewSurnameAndButtonAddFriend"
+            app:layout_constraintEnd_toEndOf="@+id/viewSurnameAndButtonAddFriend"
+            app:layout_constraintStart_toStartOf="@+id/viewSurnameAndButtonAddFriend" />
+
+        <View
+            android:id="@+id/viewSurnameAndButtonAddFriend"
+            android:layout_width="150dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="12dp"
+            app:layout_constraintBottom_toBottomOf="@+id/profileImage"
+            app:layout_constraintStart_toEndOf="@+id/profileImage"
+            app:layout_constraintTop_toTopOf="@+id/profileImage" />
+
+        <TextView
+            android:id="@+id/friendRequests"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:text="Заявки в друзья"
+            android:textColor="#121212"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/profileImage" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/newFriendsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:scrollbars="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/friendRequests"
+            tools:listitem="@layout/item_person_new_friend" />
+
+        <Button
+            android:id="@+id/buttonViewAll"
+            android:layout_width="138dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/transparent"
+            android:text="Показать всех"
+            android:textAllCaps="false"
+            android:textColor="@color/tint"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/newFriendsRecyclerView" />
+
+        <Button
+            android:id="@+id/buttonNotViewAll"
+            android:layout_width="138dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@android:color/transparent"
+            android:text="Свернуть"
+            android:textAllCaps="false"
+            android:textColor="@color/tint"
+            android:textSize="13sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/friendRequests"
+            app:layout_constraintStart_toEndOf="@+id/friendRequests"
+            app:layout_constraintTop_toTopOf="@+id/friendRequests" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Ваши друзья"
+            android:textColor="#121212"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonViewAll" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/yourFriendsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView2"
+            tools:listitem="@layout/item_person_your_friend"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
+
+
