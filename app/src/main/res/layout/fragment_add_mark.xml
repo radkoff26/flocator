@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:backgroundTint="@color/transparent"
+    android:background="@color/white"
     tools:context=".fragments.main.AddMarkFragment">
 
     <LinearLayout
@@ -15,9 +15,6 @@
         android:backgroundTint="@color/white"
         android:orientation="vertical"
         android:padding="24dp"
-        app:behavior_hideable="true"
-        app:behavior_skipCollapsed="true"
-        app:behavior_saveFlags="hideable|skipCollapsed"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <com.google.android.material.bottomsheet.BottomSheetDragHandleView

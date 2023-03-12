@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.viewpager2.widget.ViewPager2
 import com.example.flocator.R
@@ -22,26 +23,25 @@ class AddMarkFragment : BottomSheetDialogFragment() {
 
         dialog.setContentView(R.layout.fragment_add_mark)
 
-        val viewPager = dialog.findViewById(R.id.photo_carousel) as ViewPager2
-        viewPager.adapter = CarouselViewPagerAdapter()
-
-        val addMarkButton = dialog.findViewById(R.id.add_mark_btn) as MaterialButton
-        val cancelMarkButton = dialog.findViewById(R.id.cancel_mark_btn) as MaterialButton
-
-        addMarkButton.setOnClickListener {
-            dismiss()
-        }
-
-        cancelMarkButton.setOnClickListener {
-            dismiss()
-        }
-
         dialog.setOnShowListener {
-            (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
+            val view = (it as BottomSheetDialog).findViewById<LinearLayout>(R.id.bs) ?: return@setOnShowListener
 
-        dialog.setOnDismissListener {
-            (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            val behavior = BottomSheetBehavior.from(view)
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+            val viewPager = view.findViewById(R.id.photo_carousel) as ViewPager2
+            viewPager.adapter = CarouselViewPagerAdapter()
+
+            val addMarkButton = view.findViewById(R.id.add_mark_btn) as MaterialButton
+            val cancelMarkButton = view.findViewById(R.id.cancel_mark_btn) as MaterialButton
+
+            addMarkButton.setOnClickListener {
+                dismiss()
+            }
+
+            cancelMarkButton.setOnClickListener {
+                dismiss()
+            }
         }
 
         return dialog
