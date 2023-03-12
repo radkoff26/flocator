@@ -17,18 +17,16 @@ import com.google.android.material.button.MaterialButton
 
 class AddMarkFragment : BottomSheetDialogFragment() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val fragment = inflater.inflate(R.layout.fragment_add_mark, container, false)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
 
-        val viewPager = fragment.findViewById(R.id.photo_carousel) as ViewPager2
+        dialog.setContentView(R.layout.fragment_add_mark)
+
+        val viewPager = dialog.findViewById(R.id.photo_carousel) as ViewPager2
         viewPager.adapter = CarouselViewPagerAdapter()
 
-        val addMarkButton = fragment.findViewById(R.id.add_mark_btn) as MaterialButton
-        val cancelMarkButton = fragment.findViewById(R.id.cancel_mark_btn) as MaterialButton
+        val addMarkButton = dialog.findViewById(R.id.add_mark_btn) as MaterialButton
+        val cancelMarkButton = dialog.findViewById(R.id.cancel_mark_btn) as MaterialButton
 
         addMarkButton.setOnClickListener {
             dismiss()
@@ -37,6 +35,24 @@ class AddMarkFragment : BottomSheetDialogFragment() {
         cancelMarkButton.setOnClickListener {
             dismiss()
         }
+
+        dialog.setOnShowListener {
+            (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        dialog.setOnDismissListener {
+            (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        return dialog
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val fragment = inflater.inflate(R.layout.fragment_add_mark, container, false)
 
         return fragment
     }

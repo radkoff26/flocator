@@ -17,6 +17,7 @@
         android:padding="24dp"
         app:behavior_hideable="true"
         app:behavior_skipCollapsed="true"
+        app:behavior_saveFlags="hideable|skipCollapsed"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <com.google.android.material.bottomsheet.BottomSheetDragHandleView
