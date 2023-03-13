@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoundedButton">
+        <attr name="rb_round_corners" format="dimension"/>
+        <attr name="rb_bg_color" format="color"/>
+    </declare-styleable>
+</resources>

@@ -18,7 +18,21 @@
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp" />
+        android:layout_marginBottom="0dp"/>
+
+    <com.example.flocator.views.RoundedButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="Text"
+        android:textColor="@color/white"
+        app:rb_bg_color="@color/tint"
+        app:rb_round_corners="12dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/open_add_mark_fragment"
@@ -70,7 +84,6 @@
         android:background="@drawable/main_fragment_btn_bg"
         android:contentDescription="@string/settings_button"
         android:src="@drawable/settings_image" />
-
 
 
 </RelativeLayout>
