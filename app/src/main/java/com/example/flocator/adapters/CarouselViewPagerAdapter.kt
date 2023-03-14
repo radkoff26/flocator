@@ -7,10 +7,11 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 
-class CarouselViewPagerAdapter: RecyclerView.Adapter<CarouselViewPagerAdapter.CarouselViewHolder>() {
+class CarouselViewPagerAdapter :
+    RecyclerView.Adapter<CarouselViewPagerAdapter.CarouselViewHolder>() {
     private val list = mutableListOf<String>()
 
-    class CarouselViewHolder(view: View): RecyclerView.ViewHolder(view) {
+    class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: AppCompatImageView
 
         init {
@@ -19,7 +20,8 @@ class CarouselViewPagerAdapter: RecyclerView.Adapter<CarouselViewPagerAdapter.Ca
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarouselViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.carousel_item, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.carousel_item, parent, false)
         return CarouselViewHolder(view)
     }
 
