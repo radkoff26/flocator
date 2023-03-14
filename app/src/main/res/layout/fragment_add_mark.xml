@@ -66,7 +66,8 @@
             android:paddingBottom="12dp"
             android:text="@string/add"
             android:textColor="@color/white"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:rippleColor="#5757CD" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel_mark_btn"
@@ -75,7 +76,8 @@
             android:layout_height="wrap_content"
             android:text="@string/cancel"
             android:textColor="@color/danger"
-            app:cornerRadius="10dp" />
+            app:cornerRadius="10dp"
+            app:rippleColor="#E37676" />
 
     </LinearLayout>
 
