@@ -9,20 +9,21 @@ import android.widget.LinearLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
 import com.example.flocator.main.adapters.CarouselRecyclerViewAdapter
+import com.example.flocator.main.data.AddMarkFragmentData
+import com.example.flocator.main.view_models.AddMarkFragmentViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 
 class AddMarkFragment : BottomSheetDialogFragment() {
+    private val addMarkFragmentViewModel = AddMarkFragmentViewModel()
     private lateinit var launcher: ActivityResultLauncher<String>
-    private val stateLiveData = MutableLiveData(State(emptyList()))
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -53,9 +54,10 @@ class AddMarkFragment : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        launcher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
-            stateLiveData.value = State(result)
-        }
+        launcher =
+            registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
+                addMarkFragmentViewModel.updateLiveData(AddMarkFragmentData(result))
+            }
     }
 
     override fun onCreateView(
@@ -80,11 +82,16 @@ class AddMarkFragment : BottomSheetDialogFragment() {
 
         // Add spaces between items of RecyclerView
         val itemDecoration = DividerItemDecoration(requireContext(), HORIZONTAL)
-        itemDecoration.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.rv_divider)!!)
+        itemDecoration.setDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.rv_divider
+            )!!
+        )
         recyclerView.addItemDecoration(itemDecoration)
 
         // Set observer to LiveData
-        stateLiveData.observe(this, carouselRecyclerViewAdapter)
+        addMarkFragmentViewModel.liveData.observe(this, carouselRecyclerViewAdapter)
     }
 
     companion object {

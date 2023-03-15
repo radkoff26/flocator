@@ -2,28 +2,20 @@ package com.example.flocator.main.adapters
 
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
-import com.example.flocator.main.fragments.State
-
-data class CarouselItemState(
-    val isSelectable: Boolean,
-    val isSelected: Boolean,
-    val uri: Uri
-)
+import com.example.flocator.main.data.AddMarkFragmentData
 
 class CarouselRecyclerViewAdapter(private val activityResultLauncher: ActivityResultLauncher<String>) :
     RecyclerView.Adapter<CarouselRecyclerViewAdapter.CarouselViewHolder>(),
-    Observer<State> {
+    Observer<AddMarkFragmentData> {
     private var list: List<Uri> = emptyList()
 
     class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -59,7 +51,7 @@ class CarouselRecyclerViewAdapter(private val activityResultLauncher: ActivityRe
         }
     }
 
-    override fun onChanged(t: State?) {
+    override fun onChanged(t: AddMarkFragmentData?) {
         list = t!!.list
         notifyDataSetChanged()
     }
