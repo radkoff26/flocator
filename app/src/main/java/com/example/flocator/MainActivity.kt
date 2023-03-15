@@ -1,15 +1,12 @@
 package com.example.flocator
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
-import com.example.flocator.fragments.main.MainFragment
-import com.example.flocator.fragments.main.State
+import com.example.flocator.main.fragments.MainFragment
+import com.example.flocator.main.fragments.State
 import com.yandex.mapkit.MapKitFactory
 
 class MainActivity : AppCompatActivity() {

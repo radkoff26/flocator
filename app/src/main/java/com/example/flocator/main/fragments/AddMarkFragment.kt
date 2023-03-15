@@ -1,4 +1,4 @@
-package com.example.flocator.fragments.main
+package com.example.flocator.main.fragments
 
 import android.app.Dialog
 import android.net.Uri
@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.MainActivity
 import com.example.flocator.R
-import com.example.flocator.adapters.CarouselRecyclerViewAdapter
+import com.example.flocator.main.adapters.CarouselRecyclerViewAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
