@@ -1,20 +1,31 @@
 package com.example.flocator.fragments.main
 
 import android.app.Dialog
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.viewpager2.widget.ViewPager2
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.*
+import com.example.flocator.MainActivity
 import com.example.flocator.R
-import com.example.flocator.adapters.CarouselViewPagerAdapter
+import com.example.flocator.adapters.CarouselRecyclerViewAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 
 class AddMarkFragment : BottomSheetDialogFragment() {
+    private lateinit var carouselRecyclerViewAdapter: CarouselRecyclerViewAdapter
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -28,8 +39,17 @@ class AddMarkFragment : BottomSheetDialogFragment() {
             val behavior = BottomSheetBehavior.from(view)
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
 
-            val viewPager = view.findViewById(R.id.photo_carousel) as ViewPager2
-            viewPager.adapter = CarouselViewPagerAdapter()
+            val launcher = (requireActivity() as MainActivity).launcher
+
+            val recyclerView = view.findViewById(R.id.photo_carousel) as RecyclerView
+            carouselRecyclerViewAdapter = CarouselRecyclerViewAdapter(launcher)
+            recyclerView.adapter = carouselRecyclerViewAdapter
+
+            val itemDecoration = DividerItemDecoration(requireContext(), HORIZONTAL)
+            itemDecoration.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.rv_divider)!!)
+            recyclerView.addItemDecoration(itemDecoration)
+
+            (requireActivity() as MainActivity).stateLiveData.observe(this, carouselRecyclerViewAdapter)
 
             val addMarkButton = view.findViewById(R.id.add_mark_btn) as MaterialButton
             val cancelMarkButton = view.findViewById(R.id.cancel_mark_btn) as MaterialButton

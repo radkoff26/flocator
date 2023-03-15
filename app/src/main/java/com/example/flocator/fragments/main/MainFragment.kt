@@ -1,10 +1,13 @@
 package com.example.flocator.fragments.main
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.MutableLiveData
 import com.example.flocator.R
 import com.google.android.material.button.MaterialButton
 import com.yandex.mapkit.Animation
@@ -12,6 +15,10 @@ import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.mapview.MapView
+
+data class State(
+    var list: List<Uri>
+)
 
 class MainFragment : Fragment() {
     lateinit var mapView: MapView
@@ -30,9 +37,9 @@ class MainFragment : Fragment() {
         )
 
         val addMarkBtn = fragment.findViewById(R.id.open_add_mark_fragment) as MaterialButton
-        val addMarkFragment = AddMarkFragment()
 
         addMarkBtn.setOnClickListener {
+            val addMarkFragment = AddMarkFragment()
             addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
         }
 
