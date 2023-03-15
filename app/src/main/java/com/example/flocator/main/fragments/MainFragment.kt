@@ -1,4 +1,4 @@
-package com.example.flocator.fragments.main
+package com.example.flocator.main.fragments
 
 import android.net.Uri
 import android.os.Bundle
@@ -6,8 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.lifecycle.MutableLiveData
 import com.example.flocator.R
 import com.google.android.material.button.MaterialButton
 import com.yandex.mapkit.Animation
