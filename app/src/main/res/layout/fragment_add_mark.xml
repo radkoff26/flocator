@@ -41,11 +41,13 @@
             android:textColor="@color/font"
             android:textSize="16sp" />
 
-        <androidx.viewpager2.widget.ViewPager2
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/photo_carousel"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="horizontal"/>
 
         <androidx.appcompat.widget.AppCompatEditText
             android:layout_width="match_parent"
