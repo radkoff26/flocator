@@ -7,14 +7,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.flocator.databinding.ItemPersonNewFriendBinding
 
-class PersonAdapter(private val personActionListener: PersonActionListener): RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
+class PersonAdapter(private val personActionListener: PersonActionListener) :
+    RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
     var data: List<Person> = emptyList()
-        set(newValue){
+        set(newValue) {
             field = newValue
             notifyDataSetChanged()
         }
 
-    class PersonViewHolder(val binding: ItemPersonNewFriendBinding) : RecyclerView.ViewHolder(binding.root)
+    class PersonViewHolder(val binding: ItemPersonNewFriendBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
@@ -36,7 +38,8 @@ class PersonAdapter(private val personActionListener: PersonActionListener): Rec
         with(holder.binding) {
             newFriendNameAndSurname.text = person.nameAndSurname
 
-            Glide.with(context).load(person.photo).circleCrop() // Отрисовка фотографии пользователя с помощью библиотеки Glide
+            Glide.with(context).load(person.photo)
+                .circleCrop() // Отрисовка фотографии пользователя с помощью библиотеки Glide
                 .error(R.drawable.avatar)
                 .placeholder(R.drawable.avatar).into(profileImage)
         }
@@ -46,7 +49,7 @@ class PersonAdapter(private val personActionListener: PersonActionListener): Rec
     override fun onClick(view: View?) {
         val person: Person = view?.tag as Person // Получаем из тэга человека
 
-        when(view.id){
+        when (view.id) {
             R.id.buttonCancel -> personActionListener.onPersonCancel(person)
             R.id.buttonAccept -> personActionListener.onPersonAccept(person)
             else -> personActionListener.onPersonGetId(person)
