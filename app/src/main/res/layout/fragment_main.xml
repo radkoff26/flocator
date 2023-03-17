@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".main.fragments.MainFragment">
+
+    <com.yandex.mapkit.mapview.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/open_add_mark_fragment"
+        style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#FFFFFF"
+        android:text="@string/add_mark"
+        android:textColor="@color/tint"
+        android:textSize="16sp"
+        app:cornerRadius="20dp"
+        app:icon="@drawable/add_mark_image"
+        app:layout_constraintStart_toStartOf="@+id/map_view"
+        app:layout_constraintTop_toTopOf="@+id/map_view"
+        app:strokeColor="#1F121212" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/community_btn"
+        android:layout_width="64dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/main_fragment_btn_bg"
+        android:contentDescription="@string/community_button"
+        android:src="@drawable/community_image"
+        app:layout_constraintBottom_toBottomOf="@+id/map_view"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/target_btn"
+        android:layout_width="64dp"
+        android:layout_height="56dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/main_fragment_btn_bg"
+        android:contentDescription="@string/target_button"
+        android:src="@drawable/target_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/settings_btn"
+        app:layout_constraintStart_toEndOf="@+id/community_btn" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/settings_btn"
+        android:layout_width="64dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/main_fragment_btn_bg"
+        android:contentDescription="@string/settings_button"
+        android:src="@drawable/settings_image"
+        app:layout_constraintBottom_toBottomOf="@+id/map_view"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

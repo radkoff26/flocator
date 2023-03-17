@@ -1,5 +1,6 @@
-package com.example.flocator
+package com.example.flocator.community.fragments
 
+import com.example.flocator.community.data_classes.Person
 import com.github.javafaker.Faker
 
 typealias PersonListener = (persons: List<Person>) -> Unit

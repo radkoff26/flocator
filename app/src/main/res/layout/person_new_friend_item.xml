@@ -15,7 +15,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:src="@drawable/avatar"
+        android:src="@drawable/base_avatar_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -37,22 +37,22 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/custom_button_reject"
+        android:background="@drawable/cancel_btn_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/cancel" />
+        app:srcCompat="@drawable/cancel_image" />
 
     <ImageButton
         android:id="@+id/buttonAccept"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/custom_button_accept"
+        android:background="@drawable/accept_btn_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonCancel"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/accept" />
+        app:srcCompat="@drawable/accept_image" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

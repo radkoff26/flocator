@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ScrollView"
+    android:id="@+id/community_fragment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fillViewport="true"
-    android:scrollbars="vertical">
+    android:background="@color/white"
+    android:scrollbars="vertical"
+    tools:context=".community.fragments.ProfileFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:background="@android:color/transparent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/back" />
+            app:srcCompat="@drawable/back_image" />
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImage"
@@ -29,7 +29,7 @@
             android:layout_height="100dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:src="@drawable/avatar"
+            android:src="@drawable/base_avatar_image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +56,7 @@
             android:layout_width="144dp"
             android:layout_height="31dp"
             android:layout_marginBottom="4dp"
-            android:background="@drawable/custom_button"
+            android:background="@drawable/add_friend_btn_bg"
             android:text="Добавить друга"
             android:textAllCaps="false"
             android:textColor="#121212"
@@ -96,7 +96,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/friendRequests"
-            tools:listitem="@layout/item_person_new_friend" />
+            tools:listitem="@layout/person_new_friend_item" />
 
         <Button
             android:id="@+id/buttonViewAll"
@@ -149,9 +149,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView2"
-            tools:listitem="@layout/item_person_your_friend"/>
-
-
+            tools:listitem="@layout/person_your_friend_item"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

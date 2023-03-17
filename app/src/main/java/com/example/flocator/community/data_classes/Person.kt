@@ -1,4 +1,4 @@
-package com.example.flocator
+package com.example.flocator.community.data_classes
 
 data class Person(
     val id: Long,

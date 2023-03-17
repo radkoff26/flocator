@@ -1,32 +1,45 @@
-package com.example.flocator
+package com.example.flocator.community.fragments
 
+import android.app.Dialog
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.flocator.databinding.CommunityBinding
+import androidx.recyclerview.widget.RecyclerView
+import com.example.flocator.*
+import com.example.flocator.community.App
+import com.example.flocator.community.adapters.FriendAdapter
+import com.example.flocator.community.adapters.PersonActionListener
+import com.example.flocator.community.adapters.PersonAdapter
+import com.example.flocator.community.data_classes.Person
+import com.example.flocator.databinding.FragmentCommunityBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class ProfileActivity: AppCompatActivity() {
-    private lateinit var binding: CommunityBinding
+class ProfileFragment: Fragment() {
+    private lateinit var binding: FragmentCommunityBinding
     private lateinit var adapter: PersonAdapter // Объект Adapter
     private lateinit var adapterForYourFriends: FriendAdapter
     private val personService: PersonService // Объект PersonService
-        get() = (applicationContext as App).personService
+        get() = (activity?.applicationContext as App).personService
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = CommunityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentCommunityBinding.inflate(layoutInflater)
 
-        val manager = LinearLayoutManager(this) // LayoutManager
-        adapter = PersonAdapter(object: PersonActionListener{
-            override fun onPersonGetId(person: Person) =
-                Toast.makeText(this@ProfileActivity, "Persons ID: ${person.id}", Toast.LENGTH_SHORT).show()
+        val manager = LinearLayoutManager(activity) // LayoutManager
+        adapter = PersonAdapter(object: PersonActionListener {
+            override fun onPersonGetId(person: Person)  = personService.acceptPerson(person)
             override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
             override fun onPersonAccept(person: Person) = personService.acceptPerson(person)
         }) // Создание объекта
-        adapter.data = personService.getPersons() // Заполнение данными
+        adapter.data = PersonService().getPersons() // Заполнение данными
 
         binding.newFriendsRecyclerView.layoutManager = manager
         binding.newFriendsRecyclerView.adapter = adapter
@@ -34,7 +47,7 @@ class ProfileActivity: AppCompatActivity() {
         adapterForYourFriends = FriendAdapter()
         adapterForYourFriends.data = PersonService().getPersons()
 
-        binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(activity)
         binding.yourFriendsRecyclerView.adapter = adapterForYourFriends
 
         binding.buttonViewAll.setOnClickListener{
@@ -52,7 +65,7 @@ class ProfileActivity: AppCompatActivity() {
             binding.buttonViewAll.visibility = View.VISIBLE
             binding.buttonNotViewAll.visibility = View.INVISIBLE
         }
-
+        return inflater.inflate(R.layout.fragment_community, container, false)
     }
 
 }

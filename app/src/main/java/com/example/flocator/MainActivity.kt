@@ -7,6 +7,7 @@ import com.example.flocator.main.fragments.MainFragment
 import com.yandex.mapkit.MapKitFactory
 
 class MainActivity : AppCompatActivity() {
+
     companion object {
         const val API_KEY = "fd3ecdab-a39c-4b8b-a215-44a8458a84bf"
     }

@@ -1,11 +1,13 @@
-package com.example.flocator
+package com.example.flocator.community.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.flocator.databinding.ItemPersonNewFriendBinding
+import com.example.flocator.R
+import com.example.flocator.community.data_classes.Person
+import com.example.flocator.databinding.PersonNewFriendItemBinding
 
 class PersonAdapter(private val personActionListener: PersonActionListener) :
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
@@ -15,13 +17,13 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
             notifyDataSetChanged()
         }
 
-    class PersonViewHolder(val binding: ItemPersonNewFriendBinding) :
+    class PersonViewHolder(val binding: PersonNewFriendItemBinding) :
         RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemPersonNewFriendBinding.inflate(inflater, parent, false)
+        val binding = PersonNewFriendItemBinding.inflate(inflater, parent, false)
 
         binding.root.setOnClickListener(this)
         binding.buttonAccept.setOnClickListener(this)
@@ -40,8 +42,8 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
 
             Glide.with(context).load(person.photo)
                 .circleCrop() // Отрисовка фотографии пользователя с помощью библиотеки Glide
-                .error(R.drawable.avatar)
-                .placeholder(R.drawable.avatar).into(profileImage)
+                .error(R.drawable.base_avatar_image)
+                .placeholder(R.drawable.base_avatar_image).into(profileImage)
         }
     }
 

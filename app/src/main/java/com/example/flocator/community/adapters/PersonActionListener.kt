@@ -1,4 +1,6 @@
-package com.example.flocator
+package com.example.flocator.community.adapters
+
+import com.example.flocator.community.data_classes.Person
 
 interface PersonActionListener {
     fun onPersonGetId(person: Person)
