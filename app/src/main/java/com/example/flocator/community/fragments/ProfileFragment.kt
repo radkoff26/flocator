@@ -19,7 +19,7 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.FragmentCommunityBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class ProfileFragment: Fragment() {
+class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentCommunityBinding
     private lateinit var adapter: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
@@ -34,8 +34,8 @@ class ProfileFragment: Fragment() {
         binding = FragmentCommunityBinding.inflate(layoutInflater)
 
         val manager = LinearLayoutManager(activity)
-        adapter = PersonAdapter(object: PersonActionListener {
-            override fun onPersonGetId(person: Person)  = personService.acceptPerson(person)
+        adapter = PersonAdapter(object : PersonActionListener {
+            override fun onPersonGetId(person: Person) = personService.acceptPerson(person)
             override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
             override fun onPersonAccept(person: Person) = personService.acceptPerson(person)
         }) // Создание объекта
@@ -50,7 +50,7 @@ class ProfileFragment: Fragment() {
         binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(activity)
         binding.yourFriendsRecyclerView.adapter = adapterForYourFriends
 
-        binding.buttonViewAll.setOnClickListener{
+        binding.buttonViewAll.setOnClickListener {
             adapter.data = personService.addPersonsInList(5)
             binding.newFriendsRecyclerView.layoutManager = manager
             binding.newFriendsRecyclerView.adapter = adapter
@@ -58,7 +58,7 @@ class ProfileFragment: Fragment() {
             binding.buttonNotViewAll.visibility = View.VISIBLE
         }
 
-        binding.buttonNotViewAll.setOnClickListener{
+        binding.buttonNotViewAll.setOnClickListener {
             adapter.data = personService.removeExtraPersonsInList()
             binding.newFriendsRecyclerView.layoutManager = manager
             binding.newFriendsRecyclerView.adapter = adapter

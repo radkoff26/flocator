@@ -52,31 +52,32 @@ class PersonService {
         return getPersons()
     }
 
-    fun addOnePersonInList(person: Person){
+    fun addOnePersonInList(person: Person) {
         persons.add(person)
     }
 
     fun removeExtraPersonsInList(): List<Person> {
-        for (i in persons.size - 1 downTo  2){
+        for (i in persons.size - 1 downTo 2) {
             persons.removeAt(i)
         }
         return getPersons()
     }
 
-    fun removeAllPersonsInList(): List<Person>{
+    fun removeAllPersonsInList(): List<Person> {
         persons.clear()
         return getPersons()
     }
 
-    fun cancelPerson(person: Person){
+    fun cancelPerson(person: Person) {
         val index = persons.indexOfFirst { it.id == person.id }
-        if(index == -1){
+        if (index == -1) {
             return
         }
         persons.removeAt(index)
         notifyChanges()
     }
-    fun acceptPerson(person: Person){
+
+    fun acceptPerson(person: Person) {
         val findingPerson: Person
         val index = persons.indexOfFirst { it.id == person.id }
         findingPerson = persons.get(index)
