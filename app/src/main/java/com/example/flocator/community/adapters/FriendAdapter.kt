@@ -27,14 +27,14 @@ class FriendAdapter : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
     override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
-        val person = data[position] // Получение человека из списка данных по позиции
+        val person = data[position]
         val context = holder.itemView.context
 
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.nameAndSurname
 
             Glide.with(context).load(person.photo)
-                .circleCrop() // Отрисовка фотографии пользователя с помощью библиотеки Glide
+                .circleCrop()
                 .error(R.drawable.base_avatar_image)
                 .placeholder(R.drawable.base_avatar_image).into(profileImage)
         }

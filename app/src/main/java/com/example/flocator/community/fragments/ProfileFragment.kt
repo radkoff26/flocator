@@ -21,9 +21,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class ProfileFragment: Fragment() {
     private lateinit var binding: FragmentCommunityBinding
-    private lateinit var adapter: PersonAdapter // Объект Adapter
+    private lateinit var adapter: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
-    private val personService: PersonService // Объект PersonService
+    private val personService: PersonService
         get() = (activity?.applicationContext as App).personService
 
     override fun onCreateView(
@@ -33,13 +33,13 @@ class ProfileFragment: Fragment() {
     ): View? {
         binding = FragmentCommunityBinding.inflate(layoutInflater)
 
-        val manager = LinearLayoutManager(activity) // LayoutManager
+        val manager = LinearLayoutManager(activity)
         adapter = PersonAdapter(object: PersonActionListener {
             override fun onPersonGetId(person: Person)  = personService.acceptPerson(person)
             override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
             override fun onPersonAccept(person: Person) = personService.acceptPerson(person)
         }) // Создание объекта
-        adapter.data = PersonService().getPersons() // Заполнение данными
+        adapter.data = PersonService().getPersons()
 
         binding.newFriendsRecyclerView.layoutManager = manager
         binding.newFriendsRecyclerView.adapter = adapter
