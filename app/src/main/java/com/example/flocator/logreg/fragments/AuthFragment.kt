@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
+import com.example.flocator.main.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
@@ -32,19 +33,25 @@ class AuthFragment : Fragment() {
         forgotPasswordText = view.findViewById(R.id.forgot_password_text)
 
         entranceButton.setOnClickListener {
-            val email = emailInput.editText?.text.toString().trim();
-            val password = passwordInput.editText?.text.toString().trim();
+//            val email = emailInput.editText?.text.toString().trim();
+//            val password = passwordInput.editText?.text.toString().trim();
+//
+//            if (validateFields(email, password)) {
+//                login(email, password)
+//            }
 
-            if (validateFields(email, password)) {
-                login(email, password)
-            }
+            //Мок
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragment_container, MainFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
         }
 
 
 
         registrationButton.setOnClickListener{
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragment_container, RegistrationFragment())
+            transaction.replace(R.id.fragment_container, RegNameFragment())
             transaction.addToBackStack(null)
             transaction.commit()
         }

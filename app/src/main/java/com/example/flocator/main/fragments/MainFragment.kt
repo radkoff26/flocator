@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
-import com.example.flocator.logreg.fragments.AuthFragment
-import com.example.flocator.logreg.fragments.RegistrationFragment
+import com.example.flocator.logreg.fragments.RegNameFragment
 import com.google.android.material.button.MaterialButton
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.mapview.MapView
@@ -34,7 +33,7 @@ class MainFragment : Fragment() {
 //            val addMarkFragment = AddMarkFragment()
 //            addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragment_container, RegistrationFragment())
+            transaction.replace(R.id.fragment_container, RegNameFragment())
             transaction.addToBackStack(null)
             transaction.commit()
         }
