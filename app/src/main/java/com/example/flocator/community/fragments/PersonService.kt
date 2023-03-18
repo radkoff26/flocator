@@ -6,18 +6,25 @@ import com.github.javafaker.Faker
 typealias PersonListener = (persons: List<Person>) -> Unit
 
 class PersonService {
+
+    private var personsCopy = mutableListOf<Person>()
     private var persons = mutableListOf<Person>()
+
     val faker = Faker.instance()
-    private var listeners = mutableListOf<PersonListener>() // Все слушатели
+    private var listeners = mutableListOf<PersonListener>()
 
     init {
-        persons = (0..1).map {
+        personsCopy = (0..10).map {
             Person(
                 id = it.toLong(),
                 nameAndSurname = faker.name().fullName(),
                 photo = IMAGES[it % IMAGES.size]
             )
         }.toMutableList()
+
+        persons.add(personsCopy[0])
+        persons.add(personsCopy[1])
+
     }
 
     companion object {
@@ -39,34 +46,24 @@ class PersonService {
         return persons
     }
 
-    fun addPersonsInList(count: Int): List<Person> {
-        for (i in 2 until count + 2) {
-            persons.add(
-                Person(
-                    id = i.toLong(),
-                    nameAndSurname = faker.name().fullName(),
-                    photo = IMAGES[i % IMAGES.size]
-                )
-            )
-        }
-        return getPersons()
+
+    fun viewAllPersons(): List<Person> {
+        persons.clear()
+        persons.addAll(personsCopy)
+        return persons
+    }
+
+    fun rollUpPersons(): List<Person> {
+        persons.clear()
+        persons.add(personsCopy[0])
+        persons.add(personsCopy[1])
+        return persons
     }
 
     fun addOnePersonInList(person: Person) {
         persons.add(person)
     }
 
-    fun removeExtraPersonsInList(): List<Person> {
-        for (i in persons.size - 1 downTo 2) {
-            persons.removeAt(i)
-        }
-        return getPersons()
-    }
-
-    fun removeAllPersonsInList(): List<Person> {
-        persons.clear()
-        return getPersons()
-    }
 
     fun cancelPerson(person: Person) {
         val index = persons.indexOfFirst { it.id == person.id }
@@ -80,7 +77,7 @@ class PersonService {
     fun acceptPerson(person: Person) {
         val findingPerson: Person
         val index = persons.indexOfFirst { it.id == person.id }
-        findingPerson = persons.get(index)
+        findingPerson = persons[index]
         persons.removeAt(index)
         notifyChanges()
     }

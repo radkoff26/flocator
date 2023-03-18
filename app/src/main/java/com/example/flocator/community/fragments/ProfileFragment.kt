@@ -31,14 +31,14 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCommunityBinding.inflate(layoutInflater)
+        binding = FragmentCommunityBinding.inflate(inflater, container, false)
 
         val manager = LinearLayoutManager(activity)
         adapter = PersonAdapter(object : PersonActionListener {
             override fun onPersonGetId(person: Person) = personService.acceptPerson(person)
             override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
             override fun onPersonAccept(person: Person) = personService.acceptPerson(person)
-        }) // Создание объекта
+        })
         adapter.data = PersonService().getPersons()
 
         binding.newFriendsRecyclerView.layoutManager = manager
@@ -51,21 +51,17 @@ class ProfileFragment : Fragment() {
         binding.yourFriendsRecyclerView.adapter = adapterForYourFriends
 
         binding.buttonViewAll.setOnClickListener {
-            adapter.data = personService.addPersonsInList(5)
-            binding.newFriendsRecyclerView.layoutManager = manager
-            binding.newFriendsRecyclerView.adapter = adapter
+            adapter.data = personService.viewAllPersons()
             binding.buttonViewAll.visibility = View.INVISIBLE
             binding.buttonNotViewAll.visibility = View.VISIBLE
         }
 
         binding.buttonNotViewAll.setOnClickListener {
-            adapter.data = personService.removeExtraPersonsInList()
-            binding.newFriendsRecyclerView.layoutManager = manager
-            binding.newFriendsRecyclerView.adapter = adapter
+            adapter.data = personService.rollUpPersons()
             binding.buttonViewAll.visibility = View.VISIBLE
             binding.buttonNotViewAll.visibility = View.INVISIBLE
         }
-        return inflater.inflate(R.layout.fragment_community, container, false)
+        return binding.root
     }
 
 }

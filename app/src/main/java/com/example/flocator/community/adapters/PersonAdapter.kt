@@ -49,7 +49,7 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
 
 
     override fun onClick(view: View?) {
-        val person: Person = view?.tag as Person // Получаем из тэга человека
+        val person: Person = view?.tag as Person
 
         when (view.id) {
             R.id.buttonCancel -> personActionListener.onPersonCancel(person)
