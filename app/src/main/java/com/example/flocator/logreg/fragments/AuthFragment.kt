@@ -43,7 +43,10 @@ class AuthFragment : Fragment() {
 
 
         registrationButton.setOnClickListener{
-            TODO("Not yet implemented")
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragment_container, RegistrationFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
         }
 
         forgotPasswordText.setOnClickListener {

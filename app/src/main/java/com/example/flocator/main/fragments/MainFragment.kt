@@ -2,11 +2,13 @@ package com.example.flocator.main.fragments
 
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.example.flocator.R
+import com.example.flocator.logreg.fragments.AuthFragment
+import com.example.flocator.logreg.fragments.RegistrationFragment
 import com.google.android.material.button.MaterialButton
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.mapview.MapView
@@ -29,8 +31,12 @@ class MainFragment : Fragment() {
         val addMarkBtn = fragment.findViewById(R.id.open_add_mark_fragment) as MaterialButton
 
         addMarkBtn.setOnClickListener {
-            val addMarkFragment = AddMarkFragment()
-            addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
+//            val addMarkFragment = AddMarkFragment()
+//            addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
+            val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.fragment_container, RegistrationFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()
         }
 
         return fragment
