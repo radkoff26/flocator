@@ -54,11 +54,13 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/tint"
                 android:text="@string/add_photo"
+                android:textColor="@color/white"
                 android:textSize="12sp"
                 app:cornerRadius="8dp"
                 app:icon="@drawable/add_image"
                 app:iconGravity="textStart"
-                app:iconSize="12dp" />
+                app:iconSize="12dp"
+                app:iconTint="@color/white" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/remove_photo_btn"
@@ -81,9 +83,11 @@
         </LinearLayout>
 
         <FrameLayout
+            android:id="@+id/camera_placeholder"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:visibility="gone">
+            android:layout_marginBottom="24dp"
+            android:visibility="visible">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="wrap_content"
@@ -99,6 +103,7 @@
             android:layout_height="150dp"
             android:layout_marginBottom="24dp"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <com.google.android.material.textfield.TextInputLayout

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +27,10 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
     private val addMarkFragmentViewModel = AddMarkFragmentViewModel()
     private lateinit var addPhotoBtn: MaterialButton
     private lateinit var removePhotoBtn: MaterialButton
+    private lateinit var carouselAdapter: CarouselRecyclerViewAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var placeholder: FrameLayout
+    private lateinit var photoAddLauncher: ActivityResultLauncher<String>
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -36,16 +41,18 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
             val view = (it as BottomSheetDialog).findViewById<LinearLayout>(R.id.bs)
                 ?: return@setOnShowListener
 
-            expandBottomSheet(view)
-            adjustRecyclerView(view)
-
             addPhotoBtn = view.findViewById(R.id.add_photo_btn)
             removePhotoBtn = view.findViewById(R.id.remove_photo_btn)
+            recyclerView = view.findViewById(R.id.photo_carousel)
+            placeholder = view.findViewById(R.id.camera_placeholder)
+
 
             addPhotoBtn.setOnClickListener {
-                registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
-                    addMarkFragmentViewModel.updateLiveData(result)
-                }.launch("image/\\*")
+                photoAddLauncher.launch("image/\\*")
+            }
+
+            placeholder.setOnClickListener {
+                photoAddLauncher.launch("image/\\*")
             }
 
             removePhotoBtn.setOnClickListener {
@@ -62,6 +69,9 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
             cancelMarkButton.setOnClickListener {
                 dismiss()
             }
+
+            expandBottomSheet(view)
+            adjustRecyclerView(view)
         }
 
         return dialog
@@ -72,6 +82,10 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        photoAddLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
+            addMarkFragmentViewModel.updateLiveData(result)
+        }
+
         return inflater.inflate(R.layout.fragment_add_mark, container, false)
     }
 
@@ -84,8 +98,8 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         val recyclerView = view.findViewById(R.id.photo_carousel) as RecyclerView
 
         // Assign adapter to RecyclerView
-        val carouselRecyclerViewAdapter = CarouselRecyclerViewAdapter(addMarkFragmentViewModel)
-        recyclerView.adapter = carouselRecyclerViewAdapter
+        carouselAdapter = CarouselRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b)}
+        recyclerView.adapter = carouselAdapter
 
         // Add spaces between items of RecyclerView
         val itemDecoration = DividerItemDecoration(requireContext(), HORIZONTAL)
@@ -98,20 +112,31 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         recyclerView.addItemDecoration(itemDecoration)
 
         // Set observer to LiveData
-        addMarkFragmentViewModel.liveData.observe(this, carouselRecyclerViewAdapter)
         addMarkFragmentViewModel.liveData.observe(this, this)
     }
 
     override fun onChanged(t: AddMarkFragmentData?) {
-        if (t!!.stateList.isEmpty()) {
+        if (t == null) {
+            return
+        }
+        val isEmpty = t.stateList.isEmpty()
+        toggleOnStateEmptinessChange(isEmpty)
+        if (isEmpty) {
             if (removePhotoBtn.visibility != GONE) {
                 animateRemovePhotoButtonOut()
             }
+            recyclerView.visibility = GONE
         } else {
             if (removePhotoBtn.visibility == GONE) {
                 animateRemovePhotoButtonIn()
             }
+            if (addMarkFragmentViewModel.isAnyTaken()) {
+                enableRemovePhotoButton()
+            } else {
+                disableRemovePhotoButton()
+            }
         }
+        carouselAdapter.updateData(t.stateList)
     }
 
     private fun animateRemovePhotoButtonOut() {
@@ -146,6 +171,16 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
                 R.color.danger
             )
         )
+    }
+
+    private fun toggleOnStateEmptinessChange(isEmpty: Boolean) {
+        if (isEmpty) {
+            placeholder.visibility = VISIBLE
+            recyclerView.visibility = GONE
+        } else {
+            placeholder.visibility = GONE
+            recyclerView.visibility = VISIBLE
+        }
     }
 
     companion object {

@@ -1,16 +1,23 @@
 package com.example.flocator.main.view_models
 
 import android.net.Uri
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.main.data.AddMarkFragmentData
 import com.example.flocator.main.data.CarouselItemState
 
 class AddMarkFragmentViewModel: ViewModel() {
-    val liveData = MutableLiveData(AddMarkFragmentData(emptyList()))
+    private val _liveData = MutableLiveData(AddMarkFragmentData(emptyList()))
+    val liveData: LiveData<AddMarkFragmentData> = _liveData
 
     fun updateLiveData(list: List<Uri>) {
-        val stateList = liveData.value!!.stateList.toMutableList()
+        if (_liveData.value == null || _liveData.value!!.stateList.isEmpty()) {
+            _liveData.value = AddMarkFragmentData(list.map { CarouselItemState(it, false) })
+            return
+        }
+        val stateList = _liveData.value!!.stateList.toMutableList()
         val length = stateList.size - 1
         for (uri in list) {
             var isFound = false
@@ -24,17 +31,24 @@ class AddMarkFragmentViewModel: ViewModel() {
                 stateList.add(CarouselItemState(uri, false))
             }
         }
-        liveData.value = AddMarkFragmentData(stateList)
+        _liveData.value = AddMarkFragmentData(stateList)
     }
 
-    fun toggleItem(index: Int) {
-        val list = liveData.value!!.stateList.toMutableList()
-        list[index].isSelected = true
-        liveData.value = AddMarkFragmentData(list)
+    fun toggleItem(uri: Uri, newState: Boolean) {
+        if (_liveData.value == null) {
+            return
+        }
+        val list = _liveData.value!!.stateList.toMutableList()
+        val index = list.indexOfFirst { it.uri == uri }
+        list[index].isSelected = newState
+        _liveData.value = AddMarkFragmentData(list)
     }
 
     fun removeItems() {
-        val list = liveData.value!!.stateList.toMutableList()
+        if (_liveData.value == null || _liveData.value!!.stateList.isEmpty()) {
+            return
+        }
+        val list = _liveData.value!!.stateList.toMutableList()
         var i = 0
         while (i < list.size) {
             if (list[i].isSelected) {
@@ -43,6 +57,14 @@ class AddMarkFragmentViewModel: ViewModel() {
                 i++
             }
         }
-        liveData.value = AddMarkFragmentData(list)
+        Log.d("TAG", "LIST SIZE:" + list.size)
+        _liveData.value = AddMarkFragmentData(list)
+    }
+
+    fun isAnyTaken(): Boolean {
+        if (_liveData.value == null || _liveData.value!!.stateList.isEmpty()) {
+            return false
+        }
+        return _liveData.value!!.stateList.any { it.isSelected }
     }
 }
