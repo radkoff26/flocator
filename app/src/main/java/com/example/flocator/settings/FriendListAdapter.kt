@@ -59,7 +59,14 @@ class FriendListAdapter (
                 notifyItemChanged(i)
             }
         }
-//        notifyDataSetChanged()
+    }
 
+    fun unselectAll() {
+        for ((i, friend) in friends.withIndex()) {
+            if (friend.isChecked) {
+                friend.isChecked = false
+                notifyItemChanged(i)
+            }
+        }
     }
 }
