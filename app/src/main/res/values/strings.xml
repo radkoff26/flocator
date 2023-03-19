@@ -1,5 +1,36 @@
 <resources>
     <string name="app_name">FLocator</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="community_button">Community</string>
+    <string name="target_button">Target</string>
+    <string name="settings_button">Settings</string>
+    <string name="date_with_placeholders">%02d.%02d.%03d</string>
+    <string name="add_mark">Добавить метку</string>
+    <string name="add">Добавить</string>
+    <string name="cancel">Отменить</string>
+    <string name="text">Текст</string>
+    <string name="exit_account">Выйти из аккаунта</string>
+    <string name="close_window">Закрыть окно</string>
+    <string name="sure_exit_account">Вы уверены, что хотите выйти из аккаунта?</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="deleting_account_title">Удаление аккаунта</string>
+    <string name="enter_pass_2_confirm">Введите пароль для подтверждения</string>
+    <string name="pass">Пароль</string>
+    <string name="go_back">Вернуться назад</string>
+    <string name="black_list">Чёрный список</string>
+    <string name="uncheck_everyone">Убрать всех</string>
+    <string name="settings">Настройки</string>
+    <string name="own_profile">Профиль</string>
+    <string name="example_nickname">StrangeNickname</string>
+    <string name="your_nickname">Ваш никнейм</string>
+    <string name="current_location">Точно</string>
+    <string name="approx_location">Примерно</string>
+    <string name="date_of_birth">День рождения</string>
+    <string name="date_of_birth_mock">16.11.2003</string>
+    <string name="blacklist_cnt_mock">12</string>
+    <string name="privacy">Приватность</string>
+    <string name="change_pass">Сменить пароль</string>
+    <string name="log_out">Выйти из аккаунта</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="fix_location">Фикс</string>
+    <string name="unselect_all">Выбрать всех</string>
 </resources>

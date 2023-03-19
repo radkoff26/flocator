@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:text="Настройки"
+        android:text="@string/settings"
         android:textColor="#1515B9"
         android:textStyle="bold"
         android:layout_marginBottom="24dp"
@@ -29,7 +29,8 @@
         android:background="#0000"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@drawable/settings_circle"/>
+        android:src="@drawable/settings_circle"
+        android:contentDescription="@string/own_profile"/>
 
     <EditText
         android:focusableInTouchMode="true"
@@ -37,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="Иван Иванов"
+        android:autofillHints="name"
         android:textSize="24sp"
         android:layout_gravity="center"
         android:layout_marginStart="12dp"
@@ -46,6 +47,7 @@
         android:maxLines="1"
         android:inputType="text"
         android:background="@null"
+        android:hint="@string/your_nickname"
         />
 
     </LinearLayout>
@@ -60,7 +62,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="День рождения"
+            android:text="@string/date_of_birth"
             android:textStyle="bold"
             android:textColor="#000"
             />
@@ -71,7 +73,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:text="16.11.2003"
+            android:text="@string/date_of_birth_mock"
             android:textColor="#5c5c5c"
             />
     </LinearLayout>
@@ -84,7 +86,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Черный список"
+            android:text="@string/black_list"
             android:textStyle="bold"
             android:textColor="#000"
             />
@@ -95,7 +97,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:text="12"
+            android:text="@string/blacklist_cnt_mock"
             android:textColor="#5c5c5c"
             />
     </LinearLayout>
@@ -109,13 +111,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Приватность"
+            android:text="@string/privacy"
             android:textStyle="bold"
             android:textColor="#000"
             />
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/change_password_line"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:layout_width="match_parent"
@@ -123,14 +126,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Сменить пароль"
+            android:text="@string/change_pass"
             android:textStyle="bold"
             android:textColor="#000"
             />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/exit_account"
+        android:id="@+id/exit_account_line"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:layout_width="match_parent"
@@ -138,13 +141,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Выйти из аккаунта"
+            android:text="@string/log_out"
             android:textStyle="bold"
             android:textColor="#000"
             />
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/delete_account_line"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:layout_width="match_parent"
@@ -152,7 +156,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Удалить аккаунт"
+            android:text="@string/delete_account"
             android:textStyle="bold"
             android:textColor="#F00"
             />

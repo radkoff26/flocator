@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".settings.SettingsFragment"
     android:orientation="vertical">
     <LinearLayout
@@ -20,7 +19,8 @@
             android:layout_width="15dp"
             android:layout_height="20dp"
             android:layout_margin="12dp"
-            android:background="@drawable/back_arrow"
+            android:background="@drawable/white_back_arrow"
+            android:contentDescription="@string/go_back"
             />
     </FrameLayout>
 
@@ -32,6 +32,7 @@
         android:paddingBottom="24dp"
         >
         <LinearLayout
+            android:id="@+id/privacy_current_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -47,19 +48,21 @@
                     android:layout_width="67dp"
                     android:layout_height="51dp"
                     android:src="@drawable/privacy_rectangle_button"
-                    android:layout_gravity="bottom|right"/>
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/current_location"/>
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:src="@drawable/location_gal"
-                    android:layout_gravity="center"/>
+                    android:contentDescription="@string/current_location"/>
 
             </FrameLayout>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Точно"
+                android:text="@string/current_location"
                 android:textStyle="bold"
                 android:textColor="#FFF"
                 android:layout_gravity="center"
@@ -67,6 +70,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/privacy_approx_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
@@ -83,14 +87,16 @@
                 <ImageView
                     android:layout_width="67dp"
                     android:layout_height="51dp"
-                    android:layout_gravity="bottom|right"
-                    android:src="@drawable/privacy_rectangle_button" />
+                    android:layout_gravity="center"
+                    android:src="@drawable/privacy_rectangle_button"
+                    android:contentDescription="@string/approx_location" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/location_gal" />
+                    android:src="@drawable/location_aprx"
+                    android:contentDescription="@string/approx_location"/>
 
             </FrameLayout>
 
@@ -98,12 +104,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Примерно"
+                android:text="@string/approx_location"
                 android:textColor="#FFF"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/privacy_fix_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -119,19 +126,21 @@
                     android:layout_width="67dp"
                     android:layout_height="51dp"
                     android:src="@drawable/privacy_rectangle_button"
-                    android:layout_gravity="bottom|end"/>
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/fix_location" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/location_gal"
-                    android:layout_gravity="center"/>
+                    android:src="@drawable/location_fix"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/fix_location" />
 
             </FrameLayout>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Фикс"
+                android:text="@string/fix_location"
                 android:textStyle="bold"
                 android:textColor="#FFF"
                 android:layout_gravity="center"
@@ -149,7 +158,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Выбрать всех"
+            android:text="@string/unselect_all"
             android:layout_marginEnd="32dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp"
