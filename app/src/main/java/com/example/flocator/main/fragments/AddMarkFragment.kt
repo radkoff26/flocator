@@ -1,5 +1,7 @@
 package com.example.flocator.main.fragments
 
+import android.animation.AnimatorSet
+import android.animation.ValueAnimator
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -82,9 +85,10 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        photoAddLauncher = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
-            addMarkFragmentViewModel.updateLiveData(result)
-        }
+        photoAddLauncher =
+            registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
+                addMarkFragmentViewModel.updateLiveData(result)
+            }
 
         return inflater.inflate(R.layout.fragment_add_mark, container, false)
     }
@@ -98,7 +102,8 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         val recyclerView = view.findViewById(R.id.photo_carousel) as RecyclerView
 
         // Assign adapter to RecyclerView
-        carouselAdapter = CarouselRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b)}
+        carouselAdapter =
+            CarouselRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b) }
         recyclerView.adapter = carouselAdapter
 
         // Add spaces between items of RecyclerView
@@ -125,7 +130,6 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
             if (removePhotoBtn.visibility != GONE) {
                 animateRemovePhotoButtonOut()
             }
-            recyclerView.visibility = GONE
         } else {
             if (removePhotoBtn.visibility == GONE) {
                 animateRemovePhotoButtonIn()
@@ -140,11 +144,45 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
     }
 
     private fun animateRemovePhotoButtonOut() {
-        removePhotoBtn.visibility = GONE
+        (removePhotoBtn.layoutParams as LinearLayout.LayoutParams).weight = 1F
+        val animatorSet = getAnimator()
+        animatorSet.doOnEnd {
+            removePhotoBtn.visibility = GONE
+        }
+        animatorSet.start()
     }
 
     private fun animateRemovePhotoButtonIn() {
         removePhotoBtn.visibility = VISIBLE
+        (removePhotoBtn.layoutParams as LinearLayout.LayoutParams).weight = 0F
+        val animatorSet = getAnimator()
+        animatorSet.reverse()
+    }
+
+    private fun getAnimator(): AnimatorSet {
+        val weightValueAnimator = ValueAnimator.ofFloat(1F, 0F)
+        weightValueAnimator.addUpdateListener {
+            (removePhotoBtn.layoutParams as LinearLayout.LayoutParams).weight =
+                it.animatedValue as Float
+            (addPhotoBtn.layoutParams as LinearLayout.LayoutParams).weight =
+                2F - (it.animatedValue as Float)
+            removePhotoBtn.requestLayout()
+            addPhotoBtn.requestLayout()
+        }
+        val marginStartAnimator = ValueAnimator.ofInt(
+            requireContext().resources.getDimensionPixelSize(R.dimen.margin_between_btns),
+            0
+        )
+        marginStartAnimator.addUpdateListener {
+            val layoutParams = removePhotoBtn.layoutParams as LinearLayout.LayoutParams
+            layoutParams.marginStart = it.animatedValue as Int
+            removePhotoBtn.layoutParams = layoutParams
+            removePhotoBtn.requestLayout()
+        }
+        val animationSet = AnimatorSet()
+        animationSet.duration = 600
+        animationSet.playTogether(weightValueAnimator, marginStartAnimator)
+        return animationSet
     }
 
     private fun enableRemovePhotoButton() {
