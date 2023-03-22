@@ -3,6 +3,7 @@ package com.example.flocator.main.fragments
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -120,6 +122,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         addMarkFragmentViewModel.liveData.observe(this, this)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O) // TODO: the same
     override fun onChanged(t: AddMarkFragmentData?) {
         if (t == null) {
             return
@@ -152,6 +155,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         animatorSet.start()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O) // TODO: eliminate this
     private fun animateRemovePhotoButtonIn() {
         removePhotoBtn.visibility = VISIBLE
         (removePhotoBtn.layoutParams as LinearLayout.LayoutParams).weight = 0F
