@@ -2,38 +2,45 @@ package com.example.flocator.main.views
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.view.View
-import android.view.ViewGroup
-import kotlin.math.absoluteValue
+import com.example.flocator.R
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.RoundedCornerTreatment
+import com.google.android.material.shape.ShapeAppearanceModel
 import kotlin.math.roundToInt
 
+class MapFriendView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    bitmap: Bitmap? = null
+) : ShapeableImageView(context, attrs, defStyleAttr) {
+    private val size = dpToPx(48)
+    var mBitmap: Bitmap? = bitmap
+        set(value) {
+            if (value != null) {
+                setImageBitmap(value)
+            }
+        }
 
-class MapFriendView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
-    View(context, attrs, defStyleAttr) {
-    private val paint = Paint()
-    private lateinit var rectF: RectF
-    private var width: Float = 0F
-    private var height: Float = 0F
+    init {
+        this.shapeAppearanceModel = ShapeAppearanceModel.builder()
+            .setAllCorners(RoundedCornerTreatment())
+            .setAllCornerSizes(size.toFloat() / 2)
+            .build()
+
+        scaleType = ScaleType.CENTER_CROP
+
+        if (bitmap == null) {
+            setBackgroundResource(R.drawable.circle_bg)
+        } else {
+            setImageBitmap(bitmap)
+        }
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(MeasureSpec.makeMeasureSpec(dpToPx(24), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(dpToPx(24), MeasureSpec.EXACTLY))
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        width = w.toFloat()
-        height = h.toFloat()
-        rectF = RectF(0F, 0F, width, height)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        canvas?.drawRoundRect(rectF, width, height, paint)
-        super.onDraw(canvas)
+        setMeasuredDimension(size, size)
     }
 
     private fun dpToPx(dp: Int): Int {
