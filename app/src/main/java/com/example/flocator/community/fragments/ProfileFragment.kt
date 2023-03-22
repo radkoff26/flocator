@@ -23,7 +23,7 @@ class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentCommunityBinding
     private lateinit var adapter: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
-    private val personService: PersonService
+    private val personService: PersonRepository
         get() = (activity?.applicationContext as App).personService
 
     override fun onCreateView(
@@ -39,13 +39,13 @@ class ProfileFragment : Fragment() {
             override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
             override fun onPersonAccept(person: Person) = personService.acceptPerson(person)
         })
-        adapter.data = PersonService().getPersons()
+        adapter.data = PersonRepository().getPersons()
 
         binding.newFriendsRecyclerView.layoutManager = manager
         binding.newFriendsRecyclerView.adapter = adapter
 
         adapterForYourFriends = FriendAdapter()
-        adapterForYourFriends.data = PersonService().getPersons()
+        adapterForYourFriends.data = PersonRepository().getPersons()
 
         binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(activity)
         binding.yourFriendsRecyclerView.adapter = adapterForYourFriends

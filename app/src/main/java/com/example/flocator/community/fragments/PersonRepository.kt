@@ -5,7 +5,7 @@ import com.github.javafaker.Faker
 
 typealias PersonListener = (persons: List<Person>) -> Unit
 
-class PersonService {
+class PersonRepository {
 
     private var personsCopy = mutableListOf<Person>()
     private var persons = mutableListOf<Person>()

@@ -17,8 +17,7 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
             notifyDataSetChanged()
         }
 
-    class PersonViewHolder(val binding: PersonNewFriendItemBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    class PersonViewHolder(val binding: PersonNewFriendItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
