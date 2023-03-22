@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatImageButton
+import androidx.fragment.app.FragmentTransaction
+import com.example.flocator.R
+import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.example.flocator.R
 import com.example.flocator.main.api.MockApi
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
@@ -91,6 +94,15 @@ class MainFragment : Fragment(), Observer<List<User>> {
             addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
         }
 
+        val communityBtn = fragment.findViewById(R.id.community_btn) as AppCompatImageButton
+
+        communityBtn.setOnClickListener{
+            val communityFragment: ProfileFragment = ProfileFragment()
+            val transaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.main_fragment, communityFragment)
+            transaction.disallowAddToBackStack()
+            transaction.commit()
+        }
         return fragment
     }
 
