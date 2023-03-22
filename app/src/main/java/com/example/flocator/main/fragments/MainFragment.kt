@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import com.example.flocator.R
 import com.example.flocator.main.api.MockApi
+import com.example.flocator.main.models.CameraStatus
+import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.models.User
 import com.example.flocator.main.utils.LoadUtils
 import com.example.flocator.main.utils.MapUtils
@@ -19,6 +21,9 @@ import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.InertiaMoveListener
+import com.yandex.mapkit.map.Map
+import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.ui_view.ViewProvider
@@ -31,6 +36,22 @@ class MainFragment : Fragment(), Observer<List<User>> {
     private lateinit var mapView: MapView
     private val compositeDisposable = CompositeDisposable()
     private val marks = ConcurrentHashMap<Long, PlacemarkMapObject>()
+    private val listeners = ConcurrentHashMap<Long, MapObjectTapListener>()
+    private val cameraStatusObserver = CameraStatusObserver()
+    private val inertiaMoveListener = object: InertiaMoveListener {
+        override fun onStart(p0: Map, p1: CameraPosition) {
+            mainFragmentViewModel.setCameraFixed()
+            mainFragmentViewModel.cameraStatusLiveData.removeObserver(cameraStatusObserver)
+        }
+
+        override fun onCancel(p0: Map, p1: CameraPosition) {
+
+        }
+
+        override fun onFinish(p0: Map, p1: CameraPosition) {
+        }
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,11 +60,14 @@ class MainFragment : Fragment(), Observer<List<User>> {
         val fragment = inflater.inflate(R.layout.fragment_main, container, false)
 
         mapView = fragment.findViewById(R.id.map_view)
+
         mapView.map.move(
             CameraPosition(Point(59.945933, 30.320045), 11.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 0f),
             null
         )
+
+        mapView.map.addInertiaMoveListener(inertiaMoveListener)
 
         mainFragmentViewModel.friendsLiveData.observe(viewLifecycleOwner, this)
 
@@ -101,6 +125,12 @@ class MainFragment : Fragment(), Observer<List<User>> {
                     viewProvider,
                     user.point
                 )
+                listeners[user.id] = MapObjectTapListener { _, _ ->
+                    mainFragmentViewModel.setCameraFollowOnMark(user.id)
+                    mainFragmentViewModel.cameraStatusLiveData.observeForever(cameraStatusObserver)
+                    true
+                }
+                marks[user.id]!!.addTapListener(listeners[user.id]!!)
                 LoadUtils.loadPictureFromUrl(user.avatarUrl, 40)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { bitmap ->
@@ -110,6 +140,21 @@ class MainFragment : Fragment(), Observer<List<User>> {
                     }
             } else {
                 marks[user.id]!!.geometry = user.point
+            }
+        }
+    }
+
+    inner class CameraStatusObserver : Observer<CameraStatus> {
+        override fun onChanged(t: CameraStatus?) {
+            if (t == null) {
+                return
+            }
+            if (t.cameraStatusType == CameraStatusType.FOLLOW) {
+                mapView.map.move(
+                    CameraPosition(t.point!!, 20.0f, 0.0f, 0.0f),
+                    Animation(Animation.Type.SMOOTH, 0.008f),
+                    null
+                )
             }
         }
     }
