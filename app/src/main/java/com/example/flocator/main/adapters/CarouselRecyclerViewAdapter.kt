@@ -1,38 +1,35 @@
 package com.example.flocator.main.adapters
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.RequiresApi
+import android.widget.CheckBox
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
-import com.example.flocator.main.fragments.State
+import com.example.flocator.main.data.CarouselItemState
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.util.function.BiConsumer
 
-data class CarouselItemState(
-    val isSelectable: Boolean,
-    val isSelected: Boolean,
-    val uri: Uri
-)
-
-class CarouselRecyclerViewAdapter(private val activityResultLauncher: ActivityResultLauncher<String>) :
-    RecyclerView.Adapter<CarouselRecyclerViewAdapter.CarouselViewHolder>(),
-    Observer<State> {
-    private var list: List<Uri> = emptyList()
+class CarouselRecyclerViewAdapter(
+    private val onToggleCallback: BiConsumer<Uri, Boolean>
+) :
+    RecyclerView.Adapter<CarouselRecyclerViewAdapter.CarouselViewHolder>() {
+    private var list: MutableList<CarouselItemState> = ArrayList()
+    private val cache = HashMap<Uri, Bitmap>()
 
     class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: AppCompatImageView
-        val layout: FrameLayout
+        val removeImageCheckbox: CheckBox
 
         init {
             imageView = view.findViewById(R.id.carousel_item_image)
-            layout = view.findViewById(R.id.carousel_item_layout)
+            removeImageCheckbox = view.findViewById(R.id.carousel_item_remove_checkbox)
         }
     }
 
@@ -42,25 +39,46 @@ class CarouselRecyclerViewAdapter(private val activityResultLauncher: ActivityRe
         return CarouselViewHolder(view)
     }
 
-    override fun getItemCount(): Int = list.size + 1
+    override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: CarouselViewHolder, position: Int) {
-        if (position == 0) {
-            holder.imageView.setImageResource(R.drawable.camera_image)
-            holder.layout.setBackgroundColor(holder.layout.context.getColor(R.color.transparent))
-            holder.imageView.setOnClickListener {
-                activityResultLauncher.launch("image/\\*")
-            }
+        val state = list[position]
+        if (cache.containsKey(state.uri)) {
+            val outputBitmap = cache[state.uri]
+            holder.imageView.setImageBitmap(outputBitmap)
         } else {
             val inputStream =
-                holder.imageView.context.contentResolver.openInputStream(list[position - 1])
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            holder.imageView.setImageBitmap(bitmap)
+                holder.imageView.context.contentResolver.openInputStream(state.uri)
+            val outputBitmap = getCompressedBitmap(inputStream!!)
+            cache[state.uri] = outputBitmap
+            inputStream.close()
+            holder.imageView.setImageBitmap(outputBitmap)
+        }
+        holder.removeImageCheckbox.isChecked = state.isSelected
+        holder.removeImageCheckbox.setOnCheckedChangeListener { _, b ->
+            onToggleCallback.accept(state.uri, b)
         }
     }
 
-    override fun onChanged(t: State?) {
-        list = t!!.list
-        notifyDataSetChanged()
+    private fun getCompressedBitmap(inputStream: InputStream): Bitmap {
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val os = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESSION_FACTOR, os)
+        val bytes = os.toByteArray()
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+
+    fun updateData(data: List<CarouselItemState>?) {
+        val diffResult = if (data != null) {
+            DiffUtil.calculateDiff(CarouselAdapterDiffUtilsCallback(list, data))
+        } else {
+            DiffUtil.calculateDiff(CarouselAdapterDiffUtilsCallback(list, list))
+        }
+        list = data?.toMutableList() ?: list
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    companion object {
+        const val COMPRESSION_FACTOR = 40
     }
 }
