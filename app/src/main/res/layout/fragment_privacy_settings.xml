@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".settings.SettingsFragment"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/privacy_rectangle_background"
+        android:orientation="vertical"
+        >
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/back_button">
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="20dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/white_back_arrow"
+            android:contentDescription="@string/go_back"
+            />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="32dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="24dp"
+        >
+        <LinearLayout
+            android:id="@+id/privacy_current_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginEnd="32dp"
+            android:layout_gravity="start">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+
+                <ImageView
+                    android:layout_width="67dp"
+                    android:layout_height="51dp"
+                    android:src="@drawable/privacy_rectangle_button"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/current_location"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/location_gal"
+                    android:contentDescription="@string/current_location"/>
+
+            </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/current_location"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/privacy_approx_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+
+                <ImageView
+                    android:layout_width="67dp"
+                    android:layout_height="51dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/privacy_rectangle_button"
+                    android:contentDescription="@string/approx_location" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/location_aprx"
+                    android:contentDescription="@string/approx_location"/>
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/approx_location"
+                android:textColor="#FFF"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/privacy_fix_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="end"
+            android:layout_marginStart="32dp">
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+
+                <ImageView
+                    android:layout_width="67dp"
+                    android:layout_height="51dp"
+                    android:src="@drawable/privacy_rectangle_button"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/fix_location" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/location_fix"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/fix_location" />
+
+            </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fix_location"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:layout_gravity="center"
+                />
+        </LinearLayout>
+    </FrameLayout>
+    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/select_all_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unselect_all"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:textStyle="bold"
+            android:textColor="#1515B9"
+            android:alpha="0.7"
+            />
+    </FrameLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_gravity="center_horizontal"
+        android:foregroundGravity="center_horizontal"
+        android:id="@+id/friend_list"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"/>
+</LinearLayout>
