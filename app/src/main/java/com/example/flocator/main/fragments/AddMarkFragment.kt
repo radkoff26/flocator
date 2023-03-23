@@ -42,30 +42,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
             val view = (it as BottomSheetDialog).findViewById<LinearLayout>(R.id.bs)
                 ?: return@setOnShowListener
 
-            binding = FragmentAddMarkBinding.bind(view)
-
-            binding.addPhotoBtn.setOnClickListener {
-                photoAddLauncher.launch("image/\\*")
-            }
-
-            binding.cameraPlaceholder.setOnClickListener {
-                photoAddLauncher.launch("image/\\*")
-            }
-
-            binding.removePhotoBtn.setOnClickListener {
-                addMarkFragmentViewModel.removeItems()
-            }
-
-            binding.addMarkBtn.setOnClickListener {
-                dismiss()
-            }
-
-            binding.cancelMarkBtn.setOnClickListener {
-                dismiss()
-            }
-
             expandBottomSheet(view)
-            adjustRecyclerView(view)
         }
 
         return dialog
@@ -84,18 +61,43 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
         return inflater.inflate(R.layout.fragment_add_mark, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentAddMarkBinding.bind(view)
+
+        binding.addPhotoBtn.setOnClickListener {
+            photoAddLauncher.launch("image/\\*")
+        }
+
+        binding.cameraPlaceholder.setOnClickListener {
+            photoAddLauncher.launch("image/\\*")
+        }
+
+        binding.removePhotoBtn.setOnClickListener {
+            addMarkFragmentViewModel.removeItems()
+        }
+
+        binding.addMarkBtn.setOnClickListener {
+            dismiss()
+        }
+
+        binding.cancelMarkBtn.setOnClickListener {
+            dismiss()
+        }
+
+        adjustRecyclerView()
+    }
+
     private fun expandBottomSheet(bottomSheetView: View) {
         val behavior = BottomSheetBehavior.from(bottomSheetView)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
-    private fun adjustRecyclerView(view: View) {
-        val recyclerView = view.findViewById(R.id.photo_carousel) as RecyclerView
-
+    private fun adjustRecyclerView() {
         // Assign adapter to RecyclerView
         carouselAdapter =
             CarouselRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b) }
-        recyclerView.adapter = carouselAdapter
+        binding.photoCarousel.adapter = carouselAdapter
 
         // Add spaces between items of RecyclerView
         val itemDecoration = DividerItemDecoration(requireContext(), HORIZONTAL)
@@ -105,7 +107,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
                 R.drawable.rv_divider
             )!!
         )
-        recyclerView.addItemDecoration(itemDecoration)
+        binding.photoCarousel.addItemDecoration(itemDecoration)
 
         // Set observer to LiveData
         addMarkFragmentViewModel.liveData.observe(this, this)
