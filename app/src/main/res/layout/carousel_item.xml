@@ -11,4 +11,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
+    <CheckBox
+        android:id="@+id/carousel_item_remove_checkbox"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="end|top"
+        android:layout_margin="8dp"/>
+
 </FrameLayout>

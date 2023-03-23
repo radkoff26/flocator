@@ -2,4 +2,7 @@
 <resources>
     <string name="add">Добавить</string>
     <string name="text">Текст</string>
+    <string name="add_photo">Добавить фото</string>
+    <string name="remove">Удалить</string>
+    <string name="save">Сохранить</string>
 </resources>

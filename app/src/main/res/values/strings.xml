@@ -33,4 +33,7 @@
     <string name="delete_account">Удалить аккаунт</string>
     <string name="fix_location">Фикс</string>
     <string name="unselect_all">Выбрать всех</string>
+    <string name="add_photo">Добавить фото</string>
+    <string name="remove">Удалить</string>
+    <string name="save">Сохранить</string>
 </resources>
