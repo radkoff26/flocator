@@ -5,12 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.TextView
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentRegLoginBinding
 import com.example.flocator.logreg.FragmentUtil
-import com.example.flocator.main.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
@@ -65,6 +66,10 @@ class RegLoginFragment : Fragment() {
         binding.regLoginField.hint = "Логин"
         binding.regEmailField.hint = "Email"
         binding.nextBtn.text = "Далее"
+
+        val animation: Animation =
+            AnimationUtils.loadAnimation(context, R.anim.slide_in_left)
+        binding.root.startAnimation(animation)
     }
 
     private fun createAccount(lastName: String, firstName: String) {

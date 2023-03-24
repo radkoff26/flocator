@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
@@ -12,6 +14,7 @@ import com.example.flocator.logreg.FragmentUtil
 import com.example.flocator.main.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
+
 
 class AuthFragment : Fragment() {
     private lateinit var binding: FragmentAuthBinding;
@@ -50,7 +53,7 @@ class AuthFragment : Fragment() {
 
 
 
-        registrationButton.setOnClickListener{
+        registrationButton.setOnClickListener {
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             FragmentUtil.openFragment(transaction, RegNameFragment())
         }
@@ -60,6 +63,13 @@ class AuthFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val animation: Animation =
+            AnimationUtils.loadAnimation(context, R.anim.slide_in_left)
+        binding.root.startAnimation(animation)
     }
 
     private fun login(email: String, password: String) {
