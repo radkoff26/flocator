@@ -40,7 +40,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:hint="Фамилия"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -60,7 +59,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:hint="Имя"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -82,7 +80,6 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:backgroundTint="@color/tint"
-            android:text="Далее"
             android:textSize="16sp"
             app:cornerRadius="9dp" />
 

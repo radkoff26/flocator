@@ -8,12 +8,14 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import com.example.flocator.R
+import com.example.flocator.databinding.FragmentRegLoginBinding
 import com.example.flocator.logreg.FragmentUtil
 import com.example.flocator.main.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
 class RegLoginFragment : Fragment() {
+    private lateinit var binding: FragmentRegLoginBinding
     private lateinit var loginInput: TextInputLayout
     private lateinit var emailInput: TextInputLayout
     private lateinit var nextButton: MaterialButton
@@ -25,13 +27,13 @@ class RegLoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_reg_login, container, false)
+        binding = FragmentRegLoginBinding.inflate(inflater, container, false)
 
-        loginInput = view.findViewById(R.id.reg_login_field)
-        emailInput = view.findViewById(R.id.reg_email_field)
-        nextButton = view.findViewById(R.id.next_btn)
-        alreadyRegistered = view.findViewById(R.id.already_registered_text)
-        backButton = view.findViewById(R.id.back_btn)
+        loginInput = binding.regLoginField
+        emailInput = binding.regEmailField
+        nextButton = binding.nextBtn
+        alreadyRegistered = binding.alreadyRegisteredText
+        backButton = binding.backBtn
 
         nextButton.setOnClickListener {
 //            val login = loginInput.editText?.text.toString().trim();
@@ -39,6 +41,7 @@ class RegLoginFragment : Fragment() {
 //
 //            createAccount(login, email)
 
+            //мок
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             FragmentUtil.openFragment(transaction, RegPasswordFragment())
         }
@@ -54,7 +57,14 @@ class RegLoginFragment : Fragment() {
             FragmentUtil.openFragment(transaction, AuthFragment())
         }
 
-        return view
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.regLoginField.hint = "Логин"
+        binding.regEmailField.hint = "Email"
+        binding.nextBtn.text = "Далее"
     }
 
     private fun createAccount(lastName: String, firstName: String) {
