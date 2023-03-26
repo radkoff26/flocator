@@ -146,11 +146,8 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
     }
 
     @SuppressLint("CheckResult")
-    override fun onChanged(users: kotlin.collections.Map<Long, User>?) {
-        if (users == null) {
-            return
-        }
-        for (userEntry in users) {
+    override fun onChanged(value: kotlin.collections.Map<Long, User>) {
+        for (userEntry in value) {
             val id = userEntry.key
             val user = userEntry.value
             if (friendsViewState[id] == null) {
@@ -190,13 +187,10 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
     }
 
     inner class CameraStatusObserver : Observer<CameraStatus> {
-        override fun onChanged(t: CameraStatus?) {
-            if (t == null) {
-                return
-            }
-            if (t.cameraStatusType == CameraStatusType.FOLLOW) {
+        override fun onChanged(value: CameraStatus) {
+            if (value.cameraStatusType == CameraStatusType.FOLLOW) {
                 binding.mapView.map.move(
-                    CameraPosition(t.point!!, 20.0f, 0.0f, 0.0f),
+                    CameraPosition(value.point!!, 20.0f, 0.0f, 0.0f),
                     Animation(Animation.Type.SMOOTH, 0.008f),
                     null
                 )
@@ -206,11 +200,8 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
 
     inner class MarksObserver : Observer<kotlin.collections.Map<Long, Mark>> {
         @SuppressLint("CheckResult")
-        override fun onChanged(marksList: kotlin.collections.Map<Long, Mark>?) {
-            if (marksList == null) {
-                return
-            }
-            for (entry in marksList) {
+        override fun onChanged(value: kotlin.collections.Map<Long, Mark>) {
+            for (entry in value) {
                 val id = entry.key
                 val mark = entry.value
                 if (marksViewState[id] == null) {
@@ -248,10 +239,7 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
 
     inner class LoadedPhotoObserver : Observer<kotlin.collections.Map<String, Bitmap>> {
         // TODO: come up with less iterative implementation
-        override fun onChanged(photos: kotlin.collections.Map<String, Bitmap>?) {
-            if (photos == null) {
-                return
-            }
+        override fun onChanged(value: kotlin.collections.Map<String, Bitmap>) {
             // Watch mark images change
             for (mark in marksViewState) {
                 // State of current mark
@@ -269,8 +257,8 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                 } else {
                     // Non-nullable image url
                     val thumbnailUrl = liveMark.imageList[0]
-                    if (mark.value.thumbnailUrl != thumbnailUrl && photos[thumbnailUrl] != null) {
-                        mark.value.markMapView.setMarkBitmapImage(photos[thumbnailUrl]!!)
+                    if (mark.value.thumbnailUrl != thumbnailUrl && value[thumbnailUrl] != null) {
+                        mark.value.markMapView.setMarkBitmapImage(value[thumbnailUrl]!!)
                         val viewProvider = ViewProvider(mark.value.markMapView)
                         mark.value.thumbnailUrl = thumbnailUrl
                         viewProvider.snapshot()
@@ -294,8 +282,8 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                     viewProvider.snapshot()
                     mark.value.placemark.setView(viewProvider)
                 } else {
-                    if (photos[url] != null && url != mark.value.avatarUrl) {
-                        mark.value.markMapView.setFriendBitmapImage(photos[url]!!)
+                    if (value[url] != null && url != mark.value.avatarUrl) {
+                        mark.value.markMapView.setFriendBitmapImage(value[url]!!)
                         val viewProvider = ViewProvider(mark.value.markMapView)
                         mark.value.avatarUrl = url
                         viewProvider.snapshot()
@@ -315,8 +303,8 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                     friend.value.placemark.setView(viewProvider)
                     friend.value.avatarUrl = null
                 } else {
-                    if (url != friend.value.avatarUrl && photos[url] != null) {
-                        friend.value.friendMapView.setBitmap(photos[url]!!)
+                    if (url != friend.value.avatarUrl && value[url] != null) {
+                        friend.value.friendMapView.setBitmap(value[url]!!)
                         val viewProvider = ViewProvider(friend.value.friendMapView)
                         viewProvider.snapshot()
                         friend.value.placemark.setView(viewProvider)
