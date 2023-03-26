@@ -7,24 +7,19 @@ typealias PersonListener = (persons: List<Person>) -> Unit
 
 class PersonRepository {
 
-    private var personsCopy = mutableListOf<Person>()
     private var persons = mutableListOf<Person>()
 
     val faker = Faker.instance()
     private var listeners = mutableListOf<PersonListener>()
 
     init {
-        personsCopy = (0..10).map {
+        persons = (0..10).map {
             Person(
                 id = it.toLong(),
                 nameAndSurname = faker.name().fullName(),
                 photo = IMAGES[it % IMAGES.size]
             )
         }.toMutableList()
-
-        persons.add(personsCopy[0])
-        persons.add(personsCopy[1])
-
     }
 
     companion object {
@@ -46,22 +41,9 @@ class PersonRepository {
         return persons
     }
 
-
-    fun viewAllPersons(): List<Person> {
-        persons.clear()
-        persons.addAll(personsCopy)
-        return persons
-    }
-
-    fun rollUpPersons(): List<Person> {
-        persons.clear()
-        persons.add(personsCopy[0])
-        persons.add(personsCopy[1])
-        return persons
-    }
-
-    fun addOnePersonInList(person: Person) {
+    fun addOnePersonInList(person: Person, otherPersons: MutableList<Person>) {
         persons.add(person)
+        notifyChanges()
     }
 
 
@@ -74,11 +56,15 @@ class PersonRepository {
         notifyChanges()
     }
 
-    fun acceptPerson(person: Person) {
+    fun acceptPerson(person: Person, otherPersons: MutableList<Person>, function: () -> Unit) {
         val findingPerson: Person
         val index = persons.indexOfFirst { it.id == person.id }
+        if (index == -1) {
+            return
+        }
         findingPerson = persons[index]
         persons.removeAt(index)
+        otherPersons.add(findingPerson)
         notifyChanges()
     }
 

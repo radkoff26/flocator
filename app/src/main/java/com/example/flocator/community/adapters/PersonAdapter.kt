@@ -10,9 +10,15 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.PersonNewFriendItemBinding
 
 class PersonAdapter(private val personActionListener: PersonActionListener) :
+
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
     var data: List<Person> = emptyList()
         set(newValue) {
+            field = newValue
+            notifyDataSetChanged()
+        }
+    var isOpen = false
+        set(newValue){
             field = newValue
             notifyDataSetChanged()
         }
@@ -30,7 +36,13 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
         return PersonViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = data.size
+    override fun getItemCount(): Int{
+        val limit = 2
+        if(!isOpen){
+            return Math.min(data.size, limit)
+        }
+       return data.size
+    }
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
         val person = data[position]
@@ -44,6 +56,11 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
                 .error(R.drawable.base_avatar_image)
                 .placeholder(R.drawable.base_avatar_image).into(profileImage)
         }
+
+        holder.itemView.tag = person
+        holder.binding.buttonAccept.tag = person
+        holder.binding.buttonCancel.tag = person
+
     }
 
 
