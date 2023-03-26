@@ -1,5 +1,6 @@
 package com.example.flocator.main.api
 
+import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.rxjava3.core.Observable
@@ -30,6 +31,30 @@ class MockApi {
                 "https://sun9-16.userapi.com/impf/c834402/v834402625/8a9e0/mkem4S3O8a4.jpg?size=640x867&quality=96&sign=da195b0b134db8a4b043d721ca81da1a&type=album"
             )
         )
+        private val marks = mutableListOf(
+            Mark(
+                1,
+                1,
+                emptyList(),
+                Point(59.931275, 30.362471)
+            ),
+            Mark(
+                2,
+                2,
+                listOf(
+                    "https://core-pht-proxy.maps.yandex.ru/v1/photos/download?photo_id=k1n-738ZoeI9nTzanSUDGw&image_size=XXXL"
+                ),
+                Point(59.939688, 30.328558)
+            ),
+            Mark(
+                3,
+                3,
+                listOf(
+                    "https://core-pht-proxy.maps.yandex.ru/v1/photos/download?photo_id=zlRj0y_R9u0VfdjXIjUqfg&image_size=XXXL"
+                ),
+                Point(59.971413, 30.347531)
+            )
+        )
         private val listOfDirections = listOf(
             Supplier {
                 Random.nextDouble(0.0, 1.0)
@@ -42,13 +67,13 @@ class MockApi {
             }
         )
 
-        fun getAllFriends(): Single<MutableList<User>> {
+        fun getAllFriends(): Single<List<User>> {
             return Single.create {
-                it.onSuccess(friends)
+                it.onSuccess(friends as List<User>)
             }.subscribeOn(Schedulers.io())
         }
 
-        fun watchFriends(): Observable<MutableList<User>> {
+        fun watchFriends(): Observable<List<User>> {
             return Observable.create {
                 while (true) {
                     for (i in friends.indices) {
@@ -59,10 +84,35 @@ class MockApi {
                         )
                         friend.point = moveWithSpeed(friend.point, pointTo, SPEED)
                         friends[i] = friend
-                        it.onNext(friends)
+                        it.onNext(friends as List<User>)
                     }
                     Thread.sleep(16)
                 }
+            }.subscribeOn(Schedulers.io())
+        }
+
+        fun getAllMarks(): Single<List<Mark>> {
+            return Single.create {
+                it.onSuccess(marks as List<Mark>)
+            }.subscribeOn(Schedulers.io())
+        }
+
+        fun watchMarks(): Observable<List<Mark>> {
+            return Observable.create<List<Mark>> {
+                Thread.sleep(10000)
+                marks.add(
+                    Mark(
+                        4,
+                        3,
+                        listOf(
+                            "https://core-pht-proxy.maps.yandex.ru/v1/photos/download?photo_id=BiUE1vOXRSLoaj4fmQ4hMA&image_size=XL",
+                            "https://core-pht-proxy.maps.yandex.ru/v1/photos/download?photo_id=C7ff9ZOQw6aavEAotXIrrw&image_size=X4L"
+                        ),
+                        Point(59.929211, 30.360768)
+                    )
+                )
+                it.onNext(marks as List<Mark>)
+                it.onComplete()
             }.subscribeOn(Schedulers.io())
         }
 

@@ -113,11 +113,8 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
     }
 
     @RequiresApi(Build.VERSION_CODES.O) // TODO: the same
-    override fun onChanged(t: AddMarkFragmentData?) {
-        if (t == null) {
-            return
-        }
-        val isEmpty = t.stateList.isEmpty()
+    override fun onChanged(value: AddMarkFragmentData) {
+        val isEmpty = value.stateList.isEmpty()
         toggleOnStateEmptinessChange(isEmpty)
         if (isEmpty) {
             if (binding.removePhotoBtn.visibility != GONE) {
@@ -133,7 +130,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), Observer<AddMarkFragmentDat
                 disableRemovePhotoButton()
             }
         }
-        carouselAdapter.updateData(t.stateList)
+        carouselAdapter.updateData(value.stateList)
     }
 
     private fun animateRemovePhotoButtonOut() {

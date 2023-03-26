@@ -1,10 +1,12 @@
 package com.example.flocator
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.flocator.logreg.fragments.AuthFragment
 import com.example.flocator.main.fragments.MainFragment
 import com.yandex.mapkit.MapKitFactory
+
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -20,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, MainFragment())
+            .add(R.id.fragment_container, AuthFragment())
             .commit()
     }
 }

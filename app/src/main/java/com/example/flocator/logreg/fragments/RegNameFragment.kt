@@ -4,15 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
+import com.example.flocator.databinding.FragmentRegNameBinding
 import com.example.flocator.logreg.FragmentUtil
-import com.example.flocator.main.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
 class RegNameFragment : Fragment() {
+    private lateinit var binding: FragmentRegNameBinding
     private lateinit var lastNameInput: TextInputLayout
     private lateinit var firstNameInput: TextInputLayout
     private lateinit var nextButton: MaterialButton
@@ -23,12 +26,12 @@ class RegNameFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_reg_name, container, false)
+        binding = FragmentRegNameBinding.inflate(inflater, container, false)
 
-        lastNameInput = view.findViewById(R.id.lastname_field)
-        firstNameInput = view.findViewById(R.id.firstname_field)
-        nextButton = view.findViewById(R.id.next_btn)
-        alreadyRegistered = view.findViewById(R.id.already_registered_text)
+        lastNameInput = binding.lastnameField
+        firstNameInput = binding.firstnameField
+        nextButton = binding.nextBtn
+        alreadyRegistered = binding.alreadyRegisteredText
 
         nextButton.setOnClickListener {
 //            val lastName = lastNameInput.editText?.text.toString().trim();
@@ -36,6 +39,7 @@ class RegNameFragment : Fragment() {
 //
 //            createAccount(lastName, firstName)
 
+            //мок
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             FragmentUtil.openFragment(transaction, RegLoginFragment())
         }
@@ -45,7 +49,14 @@ class RegNameFragment : Fragment() {
             FragmentUtil.openFragment(transaction, AuthFragment())
         }
 
-        return view
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.lastnameField.hint = "Фамилия"
+        binding.firstnameField.hint = "Имя"
+        binding.nextBtn.text = "Далее"
     }
 
     private fun createAccount(lastName: String, firstName: String) {
