@@ -39,7 +39,7 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
     override fun getItemCount(): Int{
         val limit = 2
         if(!isOpen){
-            return Math.min(data.size, limit)
+            return data.size.coerceAtMost(limit)
         }
        return data.size
     }

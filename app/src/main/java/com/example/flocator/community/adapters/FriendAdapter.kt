@@ -8,8 +8,8 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.PersonYourFriendItemBinding
 import com.example.flocator.R
 
-class FriendAdapter : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
-    var data: List<Person> = emptyList()
+class FriendAdapter() : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
+    var data: MutableList<Person> = mutableListOf()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -38,5 +38,10 @@ class FriendAdapter : RecyclerView.Adapter<FriendAdapter.FriendViewHolder>() {
                 .error(R.drawable.base_avatar_image)
                 .placeholder(R.drawable.base_avatar_image).into(profileImage)
         }
+    }
+
+    fun addFriend(person: Person){
+        data.add(person)
+        notifyDataSetChanged()
     }
 }

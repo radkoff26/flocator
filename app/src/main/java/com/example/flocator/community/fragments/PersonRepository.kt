@@ -41,6 +41,10 @@ class PersonRepository {
         return persons
     }
 
+    fun getPersonsSize(): Int{
+        return persons.size
+    }
+
     fun addOnePersonInList(person: Person, otherPersons: MutableList<Person>) {
         persons.add(person)
         notifyChanges()
@@ -56,16 +60,13 @@ class PersonRepository {
         notifyChanges()
     }
 
-    fun acceptPerson(person: Person, otherPersons: MutableList<Person>, function: () -> Unit) {
+    fun acceptPerson(person: Person): Person {
         val findingPerson: Person
         val index = persons.indexOfFirst { it.id == person.id }
-        if (index == -1) {
-            return
-        }
         findingPerson = persons[index]
         persons.removeAt(index)
-        otherPersons.add(findingPerson)
         notifyChanges()
+        return findingPerson
     }
 
     fun addListener(listener: PersonListener) {
