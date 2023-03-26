@@ -4,16 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
+import com.example.flocator.databinding.FragmentAuthBinding
 import com.example.flocator.logreg.FragmentUtil
 import com.example.flocator.main.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 
-class AuthFragment : Fragment() {
 
+class AuthFragment : Fragment() {
+    private lateinit var binding: FragmentAuthBinding;
     private lateinit var emailInput: TextInputLayout
     private lateinit var passwordInput: TextInputLayout
     private lateinit var entranceButton: MaterialButton
@@ -25,13 +29,14 @@ class AuthFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_auth, container, false)
 
-        emailInput = view.findViewById(R.id.email_login_field)
-        passwordInput = view.findViewById(R.id.password_login_field)
-        entranceButton = view.findViewById(R.id.entrance_btn)
-        registrationButton = view.findViewById(R.id.registration_btn)
-        forgotPasswordText = view.findViewById(R.id.forgot_password_text)
+        binding = FragmentAuthBinding.inflate(inflater, container, false)
+
+        emailInput = binding.emailLoginField
+        passwordInput = binding.passwordLoginField
+        entranceButton = binding.entranceBtn
+        registrationButton = binding.registrationBtn
+        forgotPasswordText = binding.forgotPasswordText
 
         entranceButton.setOnClickListener {
 //            val email = emailInput.editText?.text.toString().trim();
@@ -48,7 +53,7 @@ class AuthFragment : Fragment() {
 
 
 
-        registrationButton.setOnClickListener{
+        registrationButton.setOnClickListener {
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             FragmentUtil.openFragment(transaction, RegNameFragment())
         }
@@ -57,7 +62,7 @@ class AuthFragment : Fragment() {
             TODO("Not yet implemented")
         }
 
-        return view
+        return binding.root
     }
 
     private fun login(email: String, password: String) {
