@@ -57,10 +57,6 @@ class RegNameFragment : Fragment() {
         binding.lastnameField.hint = "Фамилия"
         binding.firstnameField.hint = "Имя"
         binding.nextBtn.text = "Далее"
-
-        val animation: Animation =
-            AnimationUtils.loadAnimation(context, R.anim.slide_in_left)
-        binding.root.startAnimation(animation)
     }
 
     private fun createAccount(lastName: String, firstName: String) {

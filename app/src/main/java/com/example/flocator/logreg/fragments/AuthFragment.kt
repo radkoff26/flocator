@@ -65,13 +65,6 @@ class AuthFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val animation: Animation =
-            AnimationUtils.loadAnimation(context, R.anim.slide_in_left)
-        binding.root.startAnimation(animation)
-    }
-
     private fun login(email: String, password: String) {
         TODO("Not yet implemented")
     }

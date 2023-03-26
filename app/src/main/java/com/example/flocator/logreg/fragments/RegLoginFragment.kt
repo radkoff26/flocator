@@ -66,10 +66,6 @@ class RegLoginFragment : Fragment() {
         binding.regLoginField.hint = "Логин"
         binding.regEmailField.hint = "Email"
         binding.nextBtn.text = "Далее"
-
-        val animation: Animation =
-            AnimationUtils.loadAnimation(context, R.anim.slide_in_left)
-        binding.root.startAnimation(animation)
     }
 
     private fun createAccount(lastName: String, firstName: String) {

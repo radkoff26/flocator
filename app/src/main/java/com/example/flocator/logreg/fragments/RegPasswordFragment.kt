@@ -66,10 +66,6 @@ class RegPasswordFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.regPasswordField.hint = "Пароль"
         binding.regPasswordRepeatField.hint = "Повторите пароль"
-
-        val animation: Animation =
-            AnimationUtils.loadAnimation(context, R.anim.slide_in_left)
-        binding.root.startAnimation(animation)
     }
 
     private fun createAccount(lastName: String, firstName: String) {
