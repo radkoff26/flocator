@@ -9,7 +9,7 @@
     <uses-feature android:name="android.hardware.camera"
         android:required="true" />
     <application
-        android:name=".community.App"
+        android:name=".Application"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,11 +26,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".community.fragments.ProfileActivity"
-            android:exported="true">
         </activity>
     </application>
 

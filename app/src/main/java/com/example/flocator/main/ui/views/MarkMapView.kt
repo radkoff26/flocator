@@ -1,4 +1,4 @@
-package com.example.flocator.main.views
+package com.example.flocator.main.ui.views
 
 import android.content.Context
 import android.graphics.Bitmap

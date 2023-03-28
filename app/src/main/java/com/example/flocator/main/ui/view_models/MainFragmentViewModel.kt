@@ -1,4 +1,4 @@
-package com.example.flocator.main.view_models
+package com.example.flocator.main.ui.view_models
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData

@@ -1,4 +1,4 @@
-package com.example.flocator.main.fragments
+package com.example.flocator.main.ui.fragments
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -17,9 +17,9 @@ import com.example.flocator.main.models.dto.FriendViewDto
 import com.example.flocator.main.models.dto.MarkViewDto
 import com.example.flocator.main.utils.LoadUtils
 import com.example.flocator.main.utils.MapUtils
-import com.example.flocator.main.view_models.MainFragmentViewModel
-import com.example.flocator.main.views.FriendMapView
-import com.example.flocator.main.views.MarkMapView
+import com.example.flocator.main.ui.view_models.MainFragmentViewModel
+import com.example.flocator.main.ui.views.FriendMapView
+import com.example.flocator.main.ui.views.MarkMapView
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point

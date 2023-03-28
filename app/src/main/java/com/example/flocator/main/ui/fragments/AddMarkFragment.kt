@@ -1,4 +1,4 @@
-package com.example.flocator.main.fragments
+package com.example.flocator.main.ui.fragments
 
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
@@ -19,9 +19,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentAddMarkBinding
-import com.example.flocator.main.adapters.CarouselRecyclerViewAdapter
+import com.example.flocator.main.ui.adapters.CarouselRecyclerViewAdapter
 import com.example.flocator.main.data.AddMarkFragmentData
-import com.example.flocator.main.view_models.AddMarkFragmentViewModel
+import com.example.flocator.main.ui.view_models.AddMarkFragmentViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

@@ -24,7 +24,7 @@ class ProfileFragment : Fragment() {
     private lateinit var adapter: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
     private val personService: PersonRepository
-        get() = (activity?.applicationContext as App).personService
+        get() = (activity?.applicationContext as Application).personService
 
     override fun onCreateView(
         inflater: LayoutInflater,
