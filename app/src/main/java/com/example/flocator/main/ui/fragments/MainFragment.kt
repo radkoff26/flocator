@@ -1,6 +1,5 @@
 package com.example.flocator.main.ui.fragments
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +10,6 @@ import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.flocator.databinding.FragmentMainBinding
-import com.example.flocator.main.api.MockApi
 import com.example.flocator.main.models.*
 import com.example.flocator.main.models.dto.FriendViewDto
 import com.example.flocator.main.models.dto.MarkViewDto
@@ -28,20 +26,21 @@ import com.yandex.mapkit.map.InertiaMoveListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.runtime.ui_view.ViewProvider
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.ConcurrentHashMap
 
 class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
     // Binding
-    private lateinit var binding: FragmentMainBinding
+    private var _binding: FragmentMainBinding? = null
+    private val binding: FragmentMainBinding
+        get() = _binding!!
 
     // ViewModel
     private val mainFragmentViewModel = MainFragmentViewModel()
 
-    // Disposable
-    private val compositeDisposable = CompositeDisposable()
+    // Rx
+    val compositeDisposable = CompositeDisposable()
 
     // Map store
     private val friendsViewState = ConcurrentHashMap<Long, FriendViewDto>()
@@ -74,8 +73,7 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMainBinding.inflate(inflater, container, false)
-        requireActivity().actionBar?.show()
+        _binding = FragmentMainBinding.inflate(inflater, container, false)
 
         binding.mapView.map.move(
             CameraPosition(Point(59.945933, 30.320045), 11.0f, 0.0f, 0.0f),
@@ -89,29 +87,6 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
         mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, marksObserver)
         mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, photoObserver)
 
-        compositeDisposable.addAll(
-            MockApi.getAllFriends()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { friends ->
-                    mainFragmentViewModel.updateUsers(friends)
-                },
-            MockApi.watchFriends()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    mainFragmentViewModel.updateUsers(it)
-                },
-            MockApi.getAllMarks()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { marks ->
-                    mainFragmentViewModel.updateMarks(marks)
-                },
-            MockApi.watchMarks()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    mainFragmentViewModel.updateMarks(it)
-                }
-        )
-
         binding.openAddMarkFragment.setOnClickListener {
             val addMarkFragment = AddMarkFragment()
             addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
@@ -121,11 +96,16 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
             val communityFragment = ProfileFragment()
             val transaction = childFragmentManager.beginTransaction()
             transaction.replace(R.id.main_fragment, communityFragment)
-            transaction.disallowAddToBackStack()
             transaction.commit()
         }
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        compositeDisposable.dispose()
     }
 
     override fun onStart() {
@@ -134,18 +114,22 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
         super.onStart()
     }
 
+    override fun onResume() {
+        super.onResume()
+        mainFragmentViewModel.startPolling()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mainFragmentViewModel.stopPolling()
+    }
+
     override fun onStop() {
         binding.mapView.onStop()
         MapKitFactory.getInstance().onStop()
         super.onStop()
     }
 
-    override fun onDestroy() {
-        compositeDisposable.dispose()
-        super.onDestroy()
-    }
-
-    @SuppressLint("CheckResult")
     override fun onChanged(value: kotlin.collections.Map<Long, User>) {
         for (userEntry in value) {
             val id = userEntry.key
@@ -157,7 +141,7 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                     MapUtils.addViewToMap(
                         binding.mapView,
                         viewProvider,
-                        user.point
+                        user.location
                     ),
                     friendView,
                     null
@@ -172,16 +156,18 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                     friendView.setPlaceHolder()
                     viewProvider.snapshot()
                     friendsViewState[id]!!.placemark.setView(viewProvider)
-                    friendsViewState[id]!!.avatarUrl = null
+                    friendsViewState[id]!!.avatarUri = null
                 } else {
-                    LoadUtils.loadPictureFromUrl(user.avatarUrl, 20)
-                        .observeOn(Schedulers.computation())
-                        .subscribe { bitmap ->
-                            mainFragmentViewModel.setLoadedPhotoAsync(user.avatarUrl, bitmap)
-                        }
+                    compositeDisposable.add(
+                        LoadUtils.loadPictureFromUrl(user.avatarUrl, COMPRESSION_FACTOR)
+                            .observeOn(Schedulers.computation())
+                            .subscribe { bitmap ->
+                                mainFragmentViewModel.setLoadedPhotoAsync(user.avatarUrl, bitmap)
+                            }
+                    )
                 }
             } else {
-                friendsViewState[id]!!.placemark.geometry = user.point
+                friendsViewState[id]!!.placemark.geometry = user.location
             }
         }
     }
@@ -199,7 +185,6 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
     }
 
     inner class MarksObserver : Observer<kotlin.collections.Map<Long, Mark>> {
-        @SuppressLint("CheckResult")
         override fun onChanged(value: kotlin.collections.Map<Long, Mark>) {
             for (entry in value) {
                 val id = entry.key
@@ -217,19 +202,21 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                         null,
                         null
                     )
-                    if (mark.imageList.isEmpty()) {
+                    if (mark.photos.isEmpty()) {
                         markMapView.setMarkBitmapPlaceHolder()
                         viewProvider.snapshot()
                         marksViewState[id]!!.placemark.setView(viewProvider)
-                        marksViewState[id]!!.thumbnailUrl = null
+                        marksViewState[id]!!.thumbnailUri = null
                     } else {
-                        val firstImage = mark.imageList[0]
+                        val firstImage = mark.photos[0]
                         if (!mainFragmentViewModel.photoCacheContains(firstImage)) {
-                            LoadUtils.loadPictureFromUrl(firstImage, 20)
-                                .observeOn(Schedulers.computation())
-                                .subscribe { image ->
-                                    mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
-                                }
+                            compositeDisposable.add(
+                                LoadUtils.loadPictureFromUrl(firstImage, COMPRESSION_FACTOR)
+                                    .observeOn(Schedulers.computation())
+                                    .subscribe { image ->
+                                        mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
+                                    }
+                            )
                         }
                     }
                 }
@@ -246,21 +233,21 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                 val liveMark = mainFragmentViewModel.marksLiveData.value!![mark.key]!!
 
                 // Mark thumbnail case
-                if (liveMark.imageList.isEmpty()) {
-                    if (mark.value.thumbnailUrl != null) {
+                if (liveMark.photos.isEmpty()) {
+                    if (mark.value.thumbnailUri != null) {
                         mark.value.markMapView.setMarkBitmapPlaceHolder()
                         val viewProvider = ViewProvider(mark.value.markMapView)
-                        mark.value.thumbnailUrl = null
+                        mark.value.thumbnailUri = null
                         viewProvider.snapshot()
                         mark.value.placemark.setView(viewProvider)
                     }
                 } else {
                     // Non-nullable image url
-                    val thumbnailUrl = liveMark.imageList[0]
-                    if (mark.value.thumbnailUrl != thumbnailUrl && value[thumbnailUrl] != null) {
+                    val thumbnailUrl = liveMark.photos[0]
+                    if (mark.value.thumbnailUri != thumbnailUrl && value[thumbnailUrl] != null) {
                         mark.value.markMapView.setMarkBitmapImage(value[thumbnailUrl]!!)
                         val viewProvider = ViewProvider(mark.value.markMapView)
-                        mark.value.thumbnailUrl = thumbnailUrl
+                        mark.value.thumbnailUri = thumbnailUrl
                         viewProvider.snapshot()
                         mark.value.placemark.setView(viewProvider)
                     }
@@ -301,17 +288,22 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
                     val viewProvider = ViewProvider(friend.value.friendMapView)
                     viewProvider.snapshot()
                     friend.value.placemark.setView(viewProvider)
-                    friend.value.avatarUrl = null
+                    friend.value.avatarUri = null
                 } else {
-                    if (url != friend.value.avatarUrl && value[url] != null) {
+                    if (url != friend.value.avatarUri && value[url] != null) {
                         friend.value.friendMapView.setBitmap(value[url]!!)
                         val viewProvider = ViewProvider(friend.value.friendMapView)
                         viewProvider.snapshot()
                         friend.value.placemark.setView(viewProvider)
-                        friend.value.avatarUrl = url
+                        friend.value.avatarUri = url
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        const val TAG = "Main Fragment"
+        const val COMPRESSION_FACTOR = 20
     }
 }

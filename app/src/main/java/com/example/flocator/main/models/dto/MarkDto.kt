@@ -1,11 +1,10 @@
-package com.example.flocator.main.models
+package com.example.flocator.main.models.dto
 
 import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
+import okhttp3.MultipartBody
 
-data class Mark(
-    @SerializedName("markId")
-    val markId: Long,
+data class MarkDto(
     @SerializedName("authorId")
     val authorId: Long,
     @SerializedName("point")
@@ -13,7 +12,5 @@ data class Mark(
     @SerializedName("text")
     val text: String,
     @SerializedName("isPublic")
-    val isPublic: Boolean,
-    @SerializedName("photos")
-    val photos: List<String>
+    val isPublic: Boolean
 )

@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, AuthFragment())
+            .add(R.id.fragment_container, MainFragment())
             .commit()
     }
 }

@@ -2,16 +2,20 @@ package com.example.flocator.main.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import java.net.URL
 
 class LoadUtils {
     companion object {
-        fun loadPictureFromUrl(url: String, qualityFactor: Int?): Single<Bitmap> {
-            return Single.create<Bitmap> {
-                val mUrl = URL(url)
+        fun loadPictureFromUrl(uri: String, qualityFactor: Int?): Single<Bitmap> {
+            return Single.create {
+                val mUrl = if (uri.contains("http")) { // TODO: eliminate this
+                    URL(uri)
+                } else {
+                    URL("http://192.168.0.101:8080/api/photo?uri=$uri")
+                }
                 val inputStream = mUrl.openStream()
                 var bitmap = BitmapFactory.decodeStream(inputStream)
                 if (qualityFactor != null) {
