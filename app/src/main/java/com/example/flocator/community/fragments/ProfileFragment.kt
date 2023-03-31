@@ -67,32 +67,6 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        //val manager = LinearLayoutManager(activity)
-
-        //adapterForYourFriends = FriendAdapter()
-        //adapterForYourFriends.data = PersonRepository().getPersons()
-
-
-
-        /*adapter = PersonAdapter(object : PersonActionListener {
-            override fun onPersonGetId(person: Person) =
-                Toast.makeText(activity, "Persons ID: ${person.id}", Toast.LENGTH_SHORT)
-                    .show()
-
-            override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
-            override fun onPersonAccept(person: Person) = personService.cancelPerson(person)
-        })*/
-        //personService.addListener(listener)
-
-        //adapter.data = PersonRepository().getPersons()
-        //binding.newFriendsRecyclerView.layoutManager = manager
-        //binding.newFriendsRecyclerView.adapter = adapter
-
-
-
-        //binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(activity)
-        //binding.yourFriendsRecyclerView.adapter = adapterForYourFriends
-
         binding.buttonViewAll.setOnClickListener {
             adapter.isOpen = true
             binding.buttonViewAll.visibility = View.INVISIBLE
@@ -103,6 +77,11 @@ class ProfileFragment : Fragment() {
             adapter.isOpen = false
             binding.buttonViewAll.visibility = View.VISIBLE
             binding.buttonNotViewAll.visibility = View.INVISIBLE
+        }
+
+        binding.addFriend.setOnClickListener {
+            val addFriendByLinkFragment = AddFriendByLinkFragment()
+            addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
         }
         return binding.root
     }

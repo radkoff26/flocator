@@ -24,6 +24,7 @@ import com.example.flocator.main.utils.MapUtils
 import com.example.flocator.main.view_models.MainFragmentViewModel
 import com.example.flocator.main.views.FriendMapView
 import com.example.flocator.main.views.MarkMapView
+import com.example.flocator.settings.SettingsFragment
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -128,7 +129,6 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
             transaction.disallowAddToBackStack()
             transaction.commit()
         }
-
         return binding.root
 
     }
