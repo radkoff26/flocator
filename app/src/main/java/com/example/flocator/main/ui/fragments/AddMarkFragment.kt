@@ -40,7 +40,7 @@ class AddMarkFragment : BottomSheetDialogFragment() {
     private lateinit var carouselAdapter: CarouselRecyclerViewAdapter
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
     private val addMarkFragmentViewModel = AddMarkFragmentViewModel()
-    private var valueAnimator: ValueAnimator = ValueAnimator()
+    private var valueAnimator: ValueAnimator? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -71,7 +71,7 @@ class AddMarkFragment : BottomSheetDialogFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        valueAnimator.end()
+        valueAnimator?.end()
         _binding = null
     }
 
@@ -194,13 +194,13 @@ class AddMarkFragment : BottomSheetDialogFragment() {
         binding.buttons.visibility = GONE
         binding.loader.visibility = VISIBLE
         valueAnimator = ObjectAnimator.ofFloat(0f, 360f)
-        valueAnimator.repeatCount = ValueAnimator.INFINITE
-        valueAnimator.repeatMode = ValueAnimator.RESTART
-        valueAnimator.duration = 500
-        valueAnimator.addUpdateListener {
+        valueAnimator!!.repeatCount = ValueAnimator.INFINITE
+        valueAnimator!!.repeatMode = ValueAnimator.RESTART
+        valueAnimator!!.duration = 500
+        valueAnimator!!.addUpdateListener {
             binding.loaderImage.rotation = it.animatedValue as Float
         }
-        valueAnimator.start()
+        valueAnimator!!.start()
     }
 
     private fun prepareAndGetMark(): MarkDto { // TODO: there must be full user data here

@@ -28,6 +28,7 @@ class MainFragmentViewModel : ViewModel() {
     private val _marksLiveData = MutableLiveData<Map<Long, Mark>>(HashMap())
     private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
     private val _photoCacheLiveData = MutableLiveData<Map<String, Bitmap>>(HashMap())
+    private val _userLocationLiveData = MutableLiveData<Point?>(null)
 
     private val friendsHandler: Handler = Handler(Looper.getMainLooper())
     private val marksHandler: Handler = Handler(Looper.getMainLooper())
@@ -48,7 +49,7 @@ class MainFragmentViewModel : ViewModel() {
     val marksLiveData: LiveData<Map<Long, Mark>> = _marksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val photoCacheLiveData: LiveData<Map<String, Bitmap>> = _photoCacheLiveData
-
+    val userLocationLiveData = _userLocationLiveData
 
     fun startPolling() {
         friendsHandler.post(this::fetchFriends)
@@ -59,6 +60,33 @@ class MainFragmentViewModel : ViewModel() {
         friendsHandler.removeCallbacks(this::fetchFriends)
         marksHandler.removeCallbacks(this::fetchMarks)
     }
+
+    fun updateUserLocation(point: Point) {
+        _userLocationLiveData.value = point
+    }
+
+    fun setCameraFollowOnFriendMark(friendId: Long) {
+        if (_friendsLiveData.value!![friendId] == null) {
+            return
+        }
+        val cameraStatus = _cameraStatusLiveData.value!!
+        cameraStatus.setFollowOnMark(friendId, _friendsLiveData.value!![friendId]!!.location)
+        _cameraStatusLiveData.value = cameraStatus
+    }
+
+    fun setCameraFixed() {
+        val cameraStatus = _cameraStatusLiveData.value!!
+        cameraStatus.setFixed()
+        _cameraStatusLiveData.value = cameraStatus
+    }
+
+    fun setLoadedPhotoAsync(url: String, bitmap: Bitmap) {
+        val map = _photoCacheLiveData.value!!.toMutableMap()
+        map[url] = bitmap
+        _photoCacheLiveData.postValue(map)
+    }
+
+    fun photoCacheContains(url: String): Boolean = _photoCacheLiveData.value!!.containsKey(url)
 
     override fun onCleared() {
         super.onCleared()
@@ -126,29 +154,6 @@ class MainFragmentViewModel : ViewModel() {
         cameraStatus.point = point
         _cameraStatusLiveData.value = cameraStatus
     }
-
-    fun setCameraFollowOnFriendMark(friendId: Long) {
-        if (_friendsLiveData.value!![friendId] == null) {
-            return
-        }
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFollowOnMark(friendId, _friendsLiveData.value!![friendId]!!.location)
-        _cameraStatusLiveData.value = cameraStatus
-    }
-
-    fun setCameraFixed() {
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFixed()
-        _cameraStatusLiveData.value = cameraStatus
-    }
-
-    fun setLoadedPhotoAsync(url: String, bitmap: Bitmap) {
-        val map = _photoCacheLiveData.value!!.toMutableMap()
-        map[url] = bitmap
-        _photoCacheLiveData.postValue(map)
-    }
-
-    fun photoCacheContains(url: String): Boolean = _photoCacheLiveData.value!!.containsKey(url)
 
     companion object {
         const val TAG = "Main Fragment View Model"
