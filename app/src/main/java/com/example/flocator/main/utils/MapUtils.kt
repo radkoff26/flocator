@@ -17,7 +17,7 @@ class MapUtils {
             return mapView.map.mapObjects.addCollection().addPlacemark(point, viewProvider)
         }
 
-        fun moveWithSpeed(from: Point, to: Point, speed: Double): Point {
+        fun moveWithSpeed(from: Point, to: Point, speed: Double = 0.0000003): Point {
             val a = abs(from.latitude - to.latitude)
             val b = abs(from.longitude - to.longitude)
             if (sqrt(a * a + b * b) < speed) {
