@@ -70,7 +70,7 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
         when (view.id) {
             R.id.buttonCancel -> personActionListener.onPersonCancel(person)
             R.id.buttonAccept -> personActionListener.onPersonAccept(person)
-            else -> personActionListener.onPersonGetId(person)
+            else -> personActionListener.onPersonOpenProfile(person)
         }
     }
 

@@ -126,7 +126,7 @@ class MainFragment : Fragment(), Observer<kotlin.collections.Map<Long, User>> {
             val communityFragment = ProfileFragment()
             val transaction = childFragmentManager.beginTransaction()
             transaction.replace(R.id.main_fragment, communityFragment)
-            transaction.disallowAddToBackStack()
+            transaction.addToBackStack(null)
             transaction.commit()
         }
         return binding.root

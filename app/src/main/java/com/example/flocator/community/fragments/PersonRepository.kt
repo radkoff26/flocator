@@ -4,7 +4,7 @@ import com.example.flocator.community.data_classes.Person
 import com.github.javafaker.Faker
 
 typealias PersonListener = (persons: List<Person>) -> Unit
-
+typealias FriendListener = (persons: List<Person>) -> Unit
 class PersonRepository {
 
     private var persons = mutableListOf<Person>()

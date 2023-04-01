@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flocator.R
 import com.example.flocator.community.App
+import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.adapters.PersonActionListener
 import com.example.flocator.community.adapters.PersonAdapter
@@ -24,7 +25,10 @@ class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentCommunityBinding
     private lateinit var adapter: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
-    private val listener: PersonListener = {adapter.data = it}
+    private val listenerNewFriends: PersonListener = {adapter.data = it}
+    private val listenerFriends: FriendListener = {adapterForYourFriends.data =
+        it as MutableList<Person>
+    }
     private val personService: PersonRepository
         get() = (activity?.applicationContext as App).personService
     private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
@@ -40,7 +44,12 @@ class ProfileFragment : Fragment() {
         friendsViewModel = ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
         friendsViewModel.getFriends()
         friendsViewModel.friends.observe(viewLifecycleOwner) {
-            adapterForYourFriends = FriendAdapter()
+            adapterForYourFriends = FriendAdapter(object : FriendActionListener {
+                override fun onPersonOpenProfile(person: Person){
+                    openPersonProfile(person)
+                }
+            })
+            personService.addListener(listenerFriends)
             adapterForYourFriends.data = PersonRepository().getPersons() as MutableList<Person>
             binding.yourFriendsRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(activity)
@@ -48,7 +57,7 @@ class ProfileFragment : Fragment() {
                 it.adapter = adapterForYourFriends
             }
             adapter = PersonAdapter(object : PersonActionListener {
-                override fun onPersonGetId(person: Person){
+                override fun onPersonOpenProfile(person: Person){
                     openPersonProfile(person)
                 }
                 override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
@@ -58,7 +67,7 @@ class ProfileFragment : Fragment() {
                     adapterForYourFriends.notifyDataSetChanged()
                 }
             })
-            personService.addListener(listener)
+            personService.addListener(listenerNewFriends)
             adapter.data = PersonRepository().getPersons()
             binding.newFriendsRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(activity)
@@ -83,6 +92,11 @@ class ProfileFragment : Fragment() {
             val addFriendByLinkFragment = AddFriendByLinkFragment()
             addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
         }
+        binding.buttonBack.setOnClickListener {
+            if(parentFragmentManager.backStackEntryCount > 0){
+                parentFragmentManager.popBackStack()
+            }
+        }
         return binding.root
     }
 
@@ -92,9 +106,9 @@ class ProfileFragment : Fragment() {
         args.putString("personPhoto",person.photo)
         val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = parentFragmentManager.beginTransaction()
+        val transaction = childFragmentManager.beginTransaction()
         transaction.replace(R.id.community_fragment, profilePersonFragment)
-        transaction.disallowAddToBackStack()
+        transaction.addToBackStack(null)
         transaction.commit()
     }
 

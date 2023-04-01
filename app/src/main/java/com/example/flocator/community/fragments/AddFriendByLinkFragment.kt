@@ -25,7 +25,7 @@ class AddFriendByLinkFragment: BottomSheetDialogFragment() {
         }
 
         binding.addFriendConfirmButton.setOnClickListener {
-            exitProcess(-1)
+            dismiss()
         }
         return binding.root
     }

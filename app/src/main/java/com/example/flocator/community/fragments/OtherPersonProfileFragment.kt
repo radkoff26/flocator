@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.flocator.R
 import com.example.flocator.community.App
+import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.adapters.PersonActionListener
 import com.example.flocator.community.adapters.PersonAdapter
@@ -18,7 +19,7 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.FragmentCommunityBinding
 import com.example.flocator.databinding.FragmentPersonProfileBinding
 
-class OtherPersonProfileFragment : Fragment() {
+class OtherPersonProfileFragment() : Fragment() {
     private lateinit var binding: FragmentPersonProfileBinding
     private lateinit var adapterFriends: FriendAdapter
     private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
@@ -50,7 +51,11 @@ class OtherPersonProfileFragment : Fragment() {
         }
         friendsViewModel.getFriends()
         friendsViewModel.friends.observe(viewLifecycleOwner) {
-            adapterFriends = FriendAdapter()
+            adapterFriends = FriendAdapter(object : FriendActionListener {
+                override fun onPersonOpenProfile(person: Person){
+                    openPersonProfile(person)
+                }
+            })
             adapterFriends.data = PersonRepository().getPersons() as MutableList<Person>
             binding.yourFriendsRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(activity)
@@ -59,11 +64,9 @@ class OtherPersonProfileFragment : Fragment() {
             }
         }
         binding.buttonBack.setOnClickListener{
-            val communityFragment: ProfileFragment = ProfileFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.person_profile, communityFragment)
-            transaction.disallowAddToBackStack()
-            transaction.commit()
+            if(parentFragmentManager.backStackEntryCount > 0){
+                parentFragmentManager.popBackStack()
+            }
         }
         binding.addPersonToFriend.setOnClickListener {
             if(!btnAddFriendIsActive){
@@ -80,5 +83,16 @@ class OtherPersonProfileFragment : Fragment() {
 
         }
         return binding.root
+    }
+    fun openPersonProfile(person: Person){
+        val args: Bundle = Bundle()
+        args.putString("nameAndSurnamePerson", person.nameAndSurname)
+        args.putString("personPhoto",person.photo)
+        val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
+        profilePersonFragment.arguments = args
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.person_profile, profilePersonFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 }
