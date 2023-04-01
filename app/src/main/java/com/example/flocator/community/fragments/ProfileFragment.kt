@@ -36,6 +36,7 @@ class ProfileFragment : Fragment() {
     private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
     private lateinit var friendsViewModel: FriendsViewModel
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

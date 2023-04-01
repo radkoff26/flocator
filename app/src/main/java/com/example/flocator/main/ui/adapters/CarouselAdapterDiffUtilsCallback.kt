@@ -1,4 +1,4 @@
-package com.example.flocator.main.adapters
+package com.example.flocator.main.ui.adapters
 
 import androidx.recyclerview.widget.DiffUtil
 import com.example.flocator.main.data.CarouselItemState

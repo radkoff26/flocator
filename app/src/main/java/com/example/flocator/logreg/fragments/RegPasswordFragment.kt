@@ -12,7 +12,7 @@ import android.widget.TextView
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentRegPasswordBinding
 import com.example.flocator.logreg.FragmentUtil
-import com.example.flocator.main.fragments.MainFragment
+import com.example.flocator.main.ui.fragments.MainFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 

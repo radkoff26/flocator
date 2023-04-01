@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordinator"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".main.fragments.AddMarkFragment">
+    tools:context=".main.ui.fragments.AddMarkFragment">
 
     <LinearLayout
         android:id="@+id/bs"
         style="@style/Widget.Material3.BottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:backgroundTint="@color/white"
         android:orientation="vertical"
         android:padding="32dp"
+        app:behavior_skipCollapsed="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <com.google.android.material.bottomsheet.BottomSheetDragHandleView
@@ -118,6 +120,7 @@
             app:boxStrokeWidthFocused="2dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/markText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
@@ -125,28 +128,64 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/add_mark_btn"
-            android:layout_width="match_parent"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/isPublicCheckBox"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:backgroundTint="@color/tint"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="@string/save"
-            android:textColor="@color/white"
-            app:cornerRadius="10dp"
-            app:rippleColor="#5757CD" />
+            android:layout_marginBottom="16dp"
+            android:text="@string/isPublic" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancel_mark_btn"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <LinearLayout
+            android:id="@+id/buttons"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:textColor="@color/danger"
-            app:cornerRadius="10dp"
-            app:rippleColor="#E37676" />
+            android:layout_height="140dp"
+            android:orientation="vertical"
+            android:weightSum="2">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/add_mark_btn"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="12dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/tint"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:text="@string/save"
+                android:textColor="@color/white"
+                app:cornerRadius="10dp"
+                app:rippleColor="#5757CD" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_mark_btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:textColor="@color/danger"
+                app:cornerRadius="10dp"
+                app:rippleColor="#E37676" />
+
+            <FrameLayout
+                android:id="@+id/loader"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/loaderImage"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/loading"
+                    android:src="@drawable/loader_image"
+                    app:tint="@color/tint" />
+
+            </FrameLayout>
+
+        </LinearLayout>
 
     </LinearLayout>
 

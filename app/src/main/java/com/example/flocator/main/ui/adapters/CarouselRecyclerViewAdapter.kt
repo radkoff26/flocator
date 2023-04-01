@@ -1,4 +1,4 @@
-package com.example.flocator.main.adapters
+package com.example.flocator.main.ui.adapters
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 import com.example.flocator.main.data.CarouselItemState
 import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import java.util.function.BiConsumer
 
 class CarouselRecyclerViewAdapter(
@@ -21,7 +20,7 @@ class CarouselRecyclerViewAdapter(
 ) :
     RecyclerView.Adapter<CarouselRecyclerViewAdapter.CarouselViewHolder>() {
     private var list: MutableList<CarouselItemState> = ArrayList()
-    private val cache = HashMap<Uri, Bitmap>()
+    private var photos: MutableMap<Uri, ByteArray> = LinkedHashMap()
 
     class CarouselViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: AppCompatImageView
@@ -43,29 +42,29 @@ class CarouselRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: CarouselViewHolder, position: Int) {
         val state = list[position]
-        if (cache.containsKey(state.uri)) {
-            val outputBitmap = cache[state.uri]
-            holder.imageView.setImageBitmap(outputBitmap)
-        } else {
+
+        if (!photos.containsKey(state.uri)) {
             val inputStream =
                 holder.imageView.context.contentResolver.openInputStream(state.uri)
-            val outputBitmap = getCompressedBitmap(inputStream!!)
-            cache[state.uri] = outputBitmap
+            val outputByteArray = inputStream!!.readBytes()
+            photos[state.uri] = outputByteArray
             inputStream.close()
-            holder.imageView.setImageBitmap(outputBitmap)
         }
+
+        holder.imageView.setImageBitmap(getCompressedBitmap(photos[state.uri]!!))
+
         holder.removeImageCheckbox.isChecked = state.isSelected
         holder.removeImageCheckbox.setOnCheckedChangeListener { _, b ->
             onToggleCallback.accept(state.uri, b)
         }
     }
 
-    private fun getCompressedBitmap(inputStream: InputStream): Bitmap {
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        val os = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESSION_FACTOR, os)
-        val bytes = os.toByteArray()
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    private fun getCompressedBitmap(byteArray: ByteArray): Bitmap {
+        val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, COMPRESSION_FACTOR, outputStream)
+        val outputByteArray = outputStream.toByteArray()
+        return BitmapFactory.decodeByteArray(outputByteArray, 0, outputByteArray.size)
     }
 
     fun updateData(data: List<CarouselItemState>?) {
@@ -74,9 +73,17 @@ class CarouselRecyclerViewAdapter(
         } else {
             DiffUtil.calculateDiff(CarouselAdapterDiffUtilsCallback(list, list))
         }
+
         list = data?.toMutableList() ?: list
+
+        photos = photos.filter { entry ->
+            list.find { it.uri == entry.key } != null
+        }.toMutableMap()
+
         diffResult.dispatchUpdatesTo(this)
     }
+
+    fun getSetOfPhotos(): Set<Map.Entry<Uri, ByteArray>> = photos.entries.toSet()
 
     companion object {
         const val COMPRESSION_FACTOR = 40

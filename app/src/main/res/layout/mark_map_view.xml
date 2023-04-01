@@ -13,7 +13,7 @@
         android:scaleType="centerCrop"
         app:shapeAppearance="@style/ShapeAppearance.App.RoundedMarkImageView" />
 
-    <com.example.flocator.main.views.FriendMapView
+    <com.example.flocator.main.ui.views.FriendMapView
         android:id="@+id/friend_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
