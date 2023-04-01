@@ -20,30 +20,37 @@ import com.example.flocator.databinding.FragmentCommunityBinding
 import com.example.flocator.databinding.FragmentPersonProfileBinding
 
 class OtherPersonProfileFragment() : Fragment() {
-    private lateinit var binding: FragmentPersonProfileBinding
+    private var _binding: FragmentPersonProfileBinding? = null
+    private val binding: FragmentPersonProfileBinding
+        get() = _binding!!
     private lateinit var adapterFriends: FriendAdapter
     private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
     private lateinit var friendsViewModel: FriendsViewModel
     private val personService: PersonRepository
         get() = (activity?.applicationContext as App).personService
     private var btnAddFriendIsActive = false
+    object Constants{
+        const val NAME_AND_SURNAME = "nameAndSurnamePerson"
+        const val PERSON_PHOTO = "personPhoto"
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
+        _binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
         factoryFriendsViewModel = FriendsViewModelFactory(personService)
         friendsViewModel = ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
         val args: Bundle? = arguments
         if (args != null) {
-            binding.nameAndSurname.text = args.getString("nameAndSurnamePerson")
+            binding.nameAndSurname.text = args.getString(Constants.NAME_AND_SURNAME)
         }
 
         if (args != null) {
             context?.let {
-                Glide.with(it).load(args.getString("personPhoto"))
+                Glide.with(it).load(args.getString(Constants.PERSON_PHOTO))
                     .circleCrop()
                     .error(R.drawable.base_avatar_image)
                     .placeholder(R.drawable.base_avatar_image).into(binding.profileImage)
@@ -56,8 +63,8 @@ class OtherPersonProfileFragment() : Fragment() {
                     openPersonProfile(person)
                 }
             })
-            adapterFriends.data = PersonRepository().getPersons() as MutableList<Person>
-            binding.yourFriendsRecyclerView.also {
+            adapterFriends.data = friendsViewModel.friends.value as MutableList<Person>
+            binding.friendsRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(activity)
                 it.setHasFixedSize(true)
                 it.adapter = adapterFriends
@@ -83,6 +90,11 @@ class OtherPersonProfileFragment() : Fragment() {
 
         }
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
     fun openPersonProfile(person: Person){
         val args: Bundle = Bundle()

@@ -126,7 +126,7 @@
                 app:layout_constraintStart_toStartOf="@+id/viewSurnameAndButtonAddFriend" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/yourFriendsRecyclerView"
+                android:id="@+id/friendsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

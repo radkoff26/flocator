@@ -22,7 +22,9 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.FragmentCommunityBinding
 
 class ProfileFragment : Fragment() {
-    private lateinit var binding: FragmentCommunityBinding
+    private var _binding: FragmentCommunityBinding? = null
+    private val binding: FragmentCommunityBinding
+        get() = _binding!!
     private lateinit var adapter: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
     private val listenerNewFriends: PersonListener = {adapter.data = it}
@@ -39,7 +41,7 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCommunityBinding.inflate(inflater, container, false)
+        _binding = FragmentCommunityBinding.inflate(inflater, container, false)
         factoryFriendsViewModel = FriendsViewModelFactory(personService)
         friendsViewModel = ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
         friendsViewModel.getFriends()
@@ -50,7 +52,7 @@ class ProfileFragment : Fragment() {
                 }
             })
             personService.addListener(listenerFriends)
-            adapterForYourFriends.data = PersonRepository().getPersons() as MutableList<Person>
+            adapterForYourFriends.data = friendsViewModel.friends.value as MutableList<Person>
             binding.yourFriendsRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(activity)
                 it.setHasFixedSize(true)
@@ -68,7 +70,7 @@ class ProfileFragment : Fragment() {
                 }
             })
             personService.addListener(listenerNewFriends)
-            adapter.data = PersonRepository().getPersons()
+            adapter.data = friendsViewModel.friends.value as MutableList<Person>
             binding.newFriendsRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(activity)
                 it.setHasFixedSize(true)
@@ -110,6 +112,11 @@ class ProfileFragment : Fragment() {
         transaction.replace(R.id.community_fragment, profilePersonFragment)
         transaction.addToBackStack(null)
         transaction.commit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

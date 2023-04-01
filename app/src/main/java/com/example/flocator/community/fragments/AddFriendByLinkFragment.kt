@@ -12,13 +12,15 @@ import com.google.android.material.button.MaterialButton
 import kotlin.system.exitProcess
 
 class AddFriendByLinkFragment: BottomSheetDialogFragment() {
-    private lateinit var binding: FragmentAddFriendBinding
+    private var _binding: FragmentAddFriendBinding? = null
+    private val binding: FragmentAddFriendBinding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentAddFriendBinding.inflate(inflater, container, false)
+        _binding = FragmentAddFriendBinding.inflate(inflater, container, false)
 
         binding.addFriendCloseButton.setOnClickListener {
             dismiss()
@@ -28,6 +30,11 @@ class AddFriendByLinkFragment: BottomSheetDialogFragment() {
             dismiss()
         }
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

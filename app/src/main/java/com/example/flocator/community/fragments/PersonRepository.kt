@@ -45,7 +45,7 @@ class PersonRepository {
         return persons.size
     }
 
-    fun addOnePersonInList(person: Person, otherPersons: MutableList<Person>) {
+    fun addOnePersonInList(person: Person) {
         persons.add(person)
         notifyChanges()
     }
