@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,8 +38,6 @@ import com.yandex.runtime.ui_view.ViewProvider
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 class MainFragment : Fragment() {
     // Binding
@@ -52,7 +49,7 @@ class MainFragment : Fragment() {
     private val mainFragmentViewModel = MainFragmentViewModel()
 
     // Rx
-    private val compositeDisposable = CompositeDisposable()
+    val compositeDisposable = CompositeDisposable()
 
     // Map store
     private val friendsViewState = ConcurrentHashMap<Long, FriendViewDto>()
@@ -65,14 +62,9 @@ class MainFragment : Fragment() {
     private val cameraStatusObserver = CameraStatusObserver()
     private val photoObserver = LoadedPhotoObserver()
 
-    // Handlers
-    private val userLocationTrackingHandler: Handler = Handler(Looper.getMainLooper())
-    private val userMovementHandler: Handler = Handler(Looper.getMainLooper())
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
-    // Location
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private var speed = 0.0
 
     // Listeners
     private val inertiaMoveListener = object : InertiaMoveListener {
@@ -103,7 +95,7 @@ class MainFragment : Fragment() {
 
         binding.mapView.map.addInertiaMoveListener(inertiaMoveListener)
 
-        mainFragmentViewModel.currentUserLiveData.observe(
+        mainFragmentViewModel.userLocationLiveData.observe(
             viewLifecycleOwner,
             this::onUserLocationChanged
         )
@@ -114,8 +106,7 @@ class MainFragment : Fragment() {
         mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, marksObserver)
         mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, photoObserver)
 
-        userLocationTrackingHandler.post(this::updateUserLocation)
-        userMovementHandler.post(this::updateUserCurrentPoint)
+        handler.post(this::updateUserLocation)
 
         binding.openAddMarkFragment.setOnClickListener {
             val addMarkFragment = AddMarkFragment()
@@ -132,32 +123,6 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
-    private fun getLength(point1: Point, point2: Point): Double {
-        return sqrt((point1.latitude - point2.latitude).pow(2) + (point1.longitude - point2.longitude).pow(2))
-    }
-
-    private fun updateUserCurrentPoint() {
-        if (mainFragmentViewModel.currentUserLiveData.value != null && mainFragmentViewModel.visitedPoints.isNotEmpty()) {
-            val current = mainFragmentViewModel.currentUserLiveData.value!!
-            if (current == mainFragmentViewModel.visitedPoints.first) {
-                mainFragmentViewModel.visitedPoints.removeFirst()
-                if (mainFragmentViewModel.visitedPoints.isNotEmpty()) {
-                    speed = getLength(mainFragmentViewModel.visitedPoints.first, current) / (5000 * 60)
-                }
-            }
-            if (mainFragmentViewModel.visitedPoints.isNotEmpty()) {
-                val to = mainFragmentViewModel.visitedPoints.first
-                val next = if (speed == 0.0) {
-                    MapUtils.moveWithSpeed(current, to)
-                } else {
-                    MapUtils.moveWithSpeed(current, to, speed)
-                }
-                mainFragmentViewModel.updateUserLocation(next)
-            }
-        }
-        userMovementHandler.postDelayed(this::updateUserCurrentPoint, 16)
-    }
-
     private fun updateUserLocation() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -169,20 +134,15 @@ class MainFragment : Fragment() {
         ) {
             fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener {
-                    mainFragmentViewModel.addPoint(
+                    mainFragmentViewModel.updateUserLocation(
                         Point(
                             it.latitude,
                             it.longitude
                         )
                     )
-                    Toast.makeText(
-                        requireContext(),
-                        "${it.latitude}, ${it.longitude}",
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
         }
-        userLocationTrackingHandler.postDelayed(this::updateUserLocation, 5000)
+        handler.postDelayed(this::updateUserLocation, 5000)
     }
 
     override fun onDestroyView() {
@@ -199,12 +159,12 @@ class MainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-//        mainFragmentViewModel.startPolling()
+        mainFragmentViewModel.startPolling()
     }
 
     override fun onPause() {
         super.onPause()
-//        mainFragmentViewModel.stopPolling()
+        mainFragmentViewModel.stopPolling()
     }
 
     override fun onStop() {
@@ -217,7 +177,7 @@ class MainFragment : Fragment() {
         if (value != null) {
             binding.mapView.map.move(
                 CameraPosition(value, 20.0f, 0.0f, 0.0f),
-                Animation(Animation.Type.SMOOTH, 0.016f),
+                Animation(Animation.Type.SMOOTH, 0f),
                 null
             )
         }

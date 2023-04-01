@@ -21,7 +21,6 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
-import java.util.LinkedList
 
 class MainFragmentViewModel : ViewModel() {
     // Data inside of Live Data is non-nullable
@@ -29,7 +28,7 @@ class MainFragmentViewModel : ViewModel() {
     private val _marksLiveData = MutableLiveData<Map<Long, Mark>>(HashMap())
     private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
     private val _photoCacheLiveData = MutableLiveData<Map<String, Bitmap>>(HashMap())
-    private val _currentUserLiveData = MutableLiveData<Point?>(null)
+    private val _userLocationLiveData = MutableLiveData<Point?>(null)
 
     private val friendsHandler: Handler = Handler(Looper.getMainLooper())
     private val marksHandler: Handler = Handler(Looper.getMainLooper())
@@ -50,9 +49,7 @@ class MainFragmentViewModel : ViewModel() {
     val marksLiveData: LiveData<Map<Long, Mark>> = _marksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val photoCacheLiveData: LiveData<Map<String, Bitmap>> = _photoCacheLiveData
-    val currentUserLiveData = _currentUserLiveData
-
-    val visitedPoints = LinkedList<Point>()
+    val userLocationLiveData = _userLocationLiveData
 
     fun startPolling() {
         friendsHandler.post(this::fetchFriends)
@@ -65,14 +62,7 @@ class MainFragmentViewModel : ViewModel() {
     }
 
     fun updateUserLocation(point: Point) {
-        _currentUserLiveData.value = point
-    }
-
-    fun addPoint(point: Point) {
-        if (_currentUserLiveData.value == null) {
-            updateUserLocation(point)
-        }
-        visitedPoints.add(point)
+        _userLocationLiveData.value = point
     }
 
     fun setCameraFollowOnFriendMark(friendId: Long) {
