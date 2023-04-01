@@ -49,18 +49,13 @@ class MainFragment : Fragment() {
     private val mainFragmentViewModel = MainFragmentViewModel()
 
     // Rx
-    val compositeDisposable = CompositeDisposable()
+    private val compositeDisposable = CompositeDisposable()
 
     // Map store
     private val friendsViewState = ConcurrentHashMap<Long, FriendViewDto>()
     private val marksViewState = ConcurrentHashMap<Long, MarkViewDto>()
     private val friendClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
     private val markClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
-
-    // Observers
-    private val marksObserver = MarksObserver()
-    private val cameraStatusObserver = CameraStatusObserver()
-    private val photoObserver = LoadedPhotoObserver()
 
     private val handler: Handler = Handler(Looper.getMainLooper())
 
@@ -70,7 +65,7 @@ class MainFragment : Fragment() {
     private val inertiaMoveListener = object : InertiaMoveListener {
         override fun onStart(p0: Map, p1: CameraPosition) {
             mainFragmentViewModel.setCameraFixed()
-            mainFragmentViewModel.cameraStatusLiveData.removeObserver(cameraStatusObserver)
+            mainFragmentViewModel.cameraStatusLiveData.removeObserver(this@MainFragment::onCameraStatusChanged)
         }
 
         override fun onCancel(p0: Map, p1: CameraPosition) {
@@ -103,8 +98,8 @@ class MainFragment : Fragment() {
             viewLifecycleOwner,
             this::onFriendsStateChanged
         )
-        mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, marksObserver)
-        mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, photoObserver)
+        mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, this::onMarksStateChanged)
+        mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, this::onPhotoLoaded)
 
         handler.post(this::updateUserLocation)
 
@@ -197,7 +192,7 @@ class MainFragment : Fragment() {
                 )
                 friendClickListeners[id] = MapObjectTapListener { _, _ ->
                     mainFragmentViewModel.setCameraFollowOnFriendMark(id)
-                    mainFragmentViewModel.cameraStatusLiveData.observeForever(cameraStatusObserver)
+                    mainFragmentViewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
                     true
                 }
                 friendsViewState[id]!!.placemark.addTapListener(friendClickListeners[id]!!)
@@ -220,124 +215,117 @@ class MainFragment : Fragment() {
         }
     }
 
-    inner class CameraStatusObserver : Observer<CameraStatus> {
-        override fun onChanged(value: CameraStatus) {
-            if (value.cameraStatusType == CameraStatusType.FOLLOW) {
-                binding.mapView.map.move(
-                    CameraPosition(value.point!!, 20.0f, 0.0f, 0.0f),
-                    Animation(Animation.Type.SMOOTH, 0.008f),
-                    null
+    fun onCameraStatusChanged(value: CameraStatus) {
+        if (value.cameraStatusType == CameraStatusType.FOLLOW) {
+            binding.mapView.map.move(
+                CameraPosition(value.point!!, 20.0f, 0.0f, 0.0f),
+                Animation(Animation.Type.SMOOTH, 0.008f),
+                null
+            )
+        }
+    }
+
+    fun onMarksStateChanged(value: kotlin.collections.Map<Long, Mark>) {
+        for (entry in value) {
+            val id = entry.key
+            val mark = entry.value
+            if (marksViewState[id] == null) {
+                val markMapView = MarkMapView(requireContext())
+                val viewProvider = ViewProvider(markMapView)
+                marksViewState[id] = MarkViewDto(
+                    MapUtils.addViewToMap(
+                        binding.mapView, viewProvider, mark.location
+                    ), markMapView, null, null
                 )
-            }
-        }
-    }
-
-    inner class MarksObserver : Observer<kotlin.collections.Map<Long, Mark>> {
-        override fun onChanged(value: kotlin.collections.Map<Long, Mark>) {
-            for (entry in value) {
-                val id = entry.key
-                val mark = entry.value
-                if (marksViewState[id] == null) {
-                    val markMapView = MarkMapView(requireContext())
-                    val viewProvider = ViewProvider(markMapView)
-                    marksViewState[id] = MarkViewDto(
-                        MapUtils.addViewToMap(
-                            binding.mapView, viewProvider, mark.location
-                        ), markMapView, null, null
-                    )
-                    if (mark.photos.isEmpty()) {
-                        markMapView.setMarkBitmapPlaceHolder()
-                        viewProvider.snapshot()
-                        marksViewState[id]!!.placemark.setView(viewProvider)
-                        marksViewState[id]!!.thumbnailUri = null
-                    } else {
-                        val firstImage = mark.photos[0]
-                        if (!mainFragmentViewModel.photoCacheContains(firstImage)) {
-                            compositeDisposable.add(LoadUtils.loadPictureFromUrl(
-                                firstImage,
-                                COMPRESSION_FACTOR
-                            ).observeOn(Schedulers.computation()).subscribe { image ->
-                                mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
-                            })
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    inner class LoadedPhotoObserver : Observer<kotlin.collections.Map<String, Bitmap>> {
-        // TODO: come up with less iterative implementation
-        override fun onChanged(value: kotlin.collections.Map<String, Bitmap>) {
-            // Watch mark images change
-            for (mark in marksViewState) {
-                // State of current mark
-                val liveMark = mainFragmentViewModel.marksLiveData.value!![mark.key]!!
-
-                // Mark thumbnail case
-                if (liveMark.photos.isEmpty()) {
-                    if (mark.value.thumbnailUri != null) {
-                        mark.value.markMapView.setMarkBitmapPlaceHolder()
-                        val viewProvider = ViewProvider(mark.value.markMapView)
-                        mark.value.thumbnailUri = null
-                        viewProvider.snapshot()
-                        mark.value.placemark.setView(viewProvider)
-                    }
+                if (mark.photos.isEmpty()) {
+                    markMapView.setMarkBitmapPlaceHolder()
+                    viewProvider.snapshot()
+                    marksViewState[id]!!.placemark.setView(viewProvider)
+                    marksViewState[id]!!.thumbnailUri = null
                 } else {
-                    // Non-nullable image url
-                    val thumbnailUrl = liveMark.photos[0]
-                    if (mark.value.thumbnailUri != thumbnailUrl && value[thumbnailUrl] != null) {
-                        mark.value.markMapView.setMarkBitmapImage(value[thumbnailUrl]!!)
-                        val viewProvider = ViewProvider(mark.value.markMapView)
-                        mark.value.thumbnailUri = thumbnailUrl
-                        viewProvider.snapshot()
-                        mark.value.placemark.setView(viewProvider)
+                    val firstImage = mark.photos[0]
+                    if (!mainFragmentViewModel.photoCacheContains(firstImage)) {
+                        compositeDisposable.add(LoadUtils.loadPictureFromUrl(
+                            firstImage,
+                            COMPRESSION_FACTOR
+                        ).observeOn(Schedulers.computation()).subscribe { image ->
+                            mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
+                        })
                     }
                 }
+            }
+        }
+    }
 
-                // Author avatar case
-                // If author user is not still loaded
-                if (mainFragmentViewModel.friendsLiveData.value!![liveMark.authorId] == null) {
-                    continue
-                }
-                val url =
-                    mainFragmentViewModel.friendsLiveData.value!![liveMark.authorId]!!.avatarUrl
-                // If user doesn't have an avatar image
-                if (url == null && mark.value.avatarUrl != null) {
-                    // Then there goes a placeholder
-                    mark.value.markMapView.setFriendBitmapPlaceHolder()
+    fun onPhotoLoaded(value: kotlin.collections.Map<String, Bitmap>) {
+        // Watch mark images change
+        for (mark in marksViewState) {
+            // State of current mark
+            val liveMark = mainFragmentViewModel.marksLiveData.value!![mark.key]!!
+
+            // Mark thumbnail case
+            if (liveMark.photos.isEmpty()) {
+                if (mark.value.thumbnailUri != null) {
+                    mark.value.markMapView.setMarkBitmapPlaceHolder()
                     val viewProvider = ViewProvider(mark.value.markMapView)
-                    mark.value.avatarUrl = null
+                    mark.value.thumbnailUri = null
                     viewProvider.snapshot()
                     mark.value.placemark.setView(viewProvider)
-                } else {
-                    if (value[url] != null && url != mark.value.avatarUrl) {
-                        mark.value.markMapView.setFriendBitmapImage(value[url]!!)
-                        val viewProvider = ViewProvider(mark.value.markMapView)
-                        mark.value.avatarUrl = url
-                        viewProvider.snapshot()
-                        mark.value.placemark.setView(viewProvider)
-                    }
+                }
+            } else {
+                // Non-nullable image url
+                val thumbnailUrl = liveMark.photos[0]
+                if (mark.value.thumbnailUri != thumbnailUrl && value[thumbnailUrl] != null) {
+                    mark.value.markMapView.setMarkBitmapImage(value[thumbnailUrl]!!)
+                    val viewProvider = ViewProvider(mark.value.markMapView)
+                    mark.value.thumbnailUri = thumbnailUrl
+                    viewProvider.snapshot()
+                    mark.value.placemark.setView(viewProvider)
                 }
             }
 
-            // Watch friends images change
-            for (friend in friendsViewState) {
-                val url = mainFragmentViewModel.friendsLiveData.value!![friend.key]!!.avatarUrl
-                if (url == null) {
-                    friend.value.friendMapView.setPlaceHolder()
+            // Author avatar case
+            // If author user is not still loaded
+            if (mainFragmentViewModel.friendsLiveData.value!![liveMark.authorId] == null) {
+                continue
+            }
+            val url =
+                mainFragmentViewModel.friendsLiveData.value!![liveMark.authorId]!!.avatarUrl
+            // If user doesn't have an avatar image
+            if (url == null && mark.value.avatarUrl != null) {
+                // Then there goes a placeholder
+                mark.value.markMapView.setFriendBitmapPlaceHolder()
+                val viewProvider = ViewProvider(mark.value.markMapView)
+                mark.value.avatarUrl = null
+                viewProvider.snapshot()
+                mark.value.placemark.setView(viewProvider)
+            } else {
+                if (value[url] != null && url != mark.value.avatarUrl) {
+                    mark.value.markMapView.setFriendBitmapImage(value[url]!!)
+                    val viewProvider = ViewProvider(mark.value.markMapView)
+                    mark.value.avatarUrl = url
+                    viewProvider.snapshot()
+                    mark.value.placemark.setView(viewProvider)
+                }
+            }
+        }
+
+        // Watch friends images change
+        for (friend in friendsViewState) {
+            val url = mainFragmentViewModel.friendsLiveData.value!![friend.key]!!.avatarUrl
+            if (url == null) {
+                friend.value.friendMapView.setPlaceHolder()
+                val viewProvider = ViewProvider(friend.value.friendMapView)
+                viewProvider.snapshot()
+                friend.value.placemark.setView(viewProvider)
+                friend.value.avatarUri = null
+            } else {
+                if (url != friend.value.avatarUri && value[url] != null) {
+                    friend.value.friendMapView.setBitmap(value[url]!!)
                     val viewProvider = ViewProvider(friend.value.friendMapView)
                     viewProvider.snapshot()
                     friend.value.placemark.setView(viewProvider)
-                    friend.value.avatarUri = null
-                } else {
-                    if (url != friend.value.avatarUri && value[url] != null) {
-                        friend.value.friendMapView.setBitmap(value[url]!!)
-                        val viewProvider = ViewProvider(friend.value.friendMapView)
-                        viewProvider.snapshot()
-                        friend.value.placemark.setView(viewProvider)
-                        friend.value.avatarUri = url
-                    }
+                    friend.value.avatarUri = url
                 }
             }
         }
