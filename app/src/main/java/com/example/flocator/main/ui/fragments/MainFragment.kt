@@ -1,32 +1,27 @@
 package com.example.flocator.main.ui.fragments
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import com.example.flocator.R
 import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.example.flocator.databinding.FragmentMainBinding
 import com.example.flocator.main.models.*
 import com.example.flocator.main.models.dto.FriendViewDto
 import com.example.flocator.main.models.dto.MarkViewDto
+import com.example.flocator.main.ui.handlers.UserLocationHandler
 import com.example.flocator.main.utils.LoadUtils
 import com.example.flocator.main.utils.MapUtils
 import com.example.flocator.main.ui.view_models.MainFragmentViewModel
 import com.example.flocator.main.ui.views.FriendMapView
 import com.example.flocator.main.ui.views.MarkMapView
+import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -57,8 +52,10 @@ class MainFragment : Fragment() {
     private val friendClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
     private val markClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
 
-    private val handler: Handler = Handler(Looper.getMainLooper())
+    // Handlers
+    private lateinit var userLocationHandler: UserLocationHandler
 
+    // Locations
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     // Listeners
@@ -77,6 +74,7 @@ class MainFragment : Fragment() {
         }
     }
 
+    // Fragment lifecycle methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient =
@@ -90,19 +88,6 @@ class MainFragment : Fragment() {
 
         binding.mapView.map.addInertiaMoveListener(inertiaMoveListener)
 
-        mainFragmentViewModel.userLocationLiveData.observe(
-            viewLifecycleOwner,
-            this::onUserLocationChanged
-        )
-        mainFragmentViewModel.friendsLiveData.observe(
-            viewLifecycleOwner,
-            this::onFriendsStateChanged
-        )
-        mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, this::onMarksStateChanged)
-        mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, this::onPhotoLoaded)
-
-        handler.post(this::updateUserLocation)
-
         binding.openAddMarkFragment.setOnClickListener {
             val addMarkFragment = AddMarkFragment()
             addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
@@ -112,38 +97,43 @@ class MainFragment : Fragment() {
             val communityFragment = ProfileFragment()
             val transaction = childFragmentManager.beginTransaction()
             transaction.replace(R.id.main_fragment, communityFragment)
+            transaction.addToBackStack(null)
             transaction.commit()
+        }
+
+        binding.settingsBtn.setOnClickListener {
+            val settingsFragment = SettingsFragment()
+            val transaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.main_fragment, settingsFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
+
+        binding.targetBtn.setOnClickListener {
+            mainFragmentViewModel.setCameraFollowOnUserMark()
+            mainFragmentViewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
         }
 
         return binding.root
     }
 
-    private fun updateUserLocation() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationProviderClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener {
-                    mainFragmentViewModel.updateUserLocation(
-                        Point(
-                            it.latitude,
-                            it.longitude
-                        )
-                    )
-                }
-        }
-        handler.postDelayed(this::updateUserLocation, 5000)
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mainFragmentViewModel.friendsLiveData.observe(
+            viewLifecycleOwner,
+            this::onFriendsStateChanged
+        )
+        mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, this::onMarksStateChanged)
+        mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, this::onPhotoLoaded)
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-        compositeDisposable.dispose()
+        userLocationHandler = UserLocationHandler(requireContext(), viewLifecycleOwner) {
+            mainFragmentViewModel.updateUserLocation(
+                Point(
+                    it.latitude,
+                    it.longitude
+                )
+            )
+        }
     }
 
     override fun onStart() {
@@ -168,17 +158,14 @@ class MainFragment : Fragment() {
         super.onStop()
     }
 
-    private fun onUserLocationChanged(value: Point?) {
-        if (value != null) {
-            binding.mapView.map.move(
-                CameraPosition(value, 20.0f, 0.0f, 0.0f),
-                Animation(Animation.Type.SMOOTH, 0f),
-                null
-            )
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        compositeDisposable.dispose()
     }
 
-    fun onFriendsStateChanged(value: kotlin.collections.Map<Long, User>) {
+    // Listener callbacks
+    private fun onFriendsStateChanged(value: kotlin.collections.Map<Long, User>) {
         for (userEntry in value) {
             val id = userEntry.key
             val user = userEntry.value
@@ -215,8 +202,8 @@ class MainFragment : Fragment() {
         }
     }
 
-    fun onCameraStatusChanged(value: CameraStatus) {
-        if (value.cameraStatusType == CameraStatusType.FOLLOW) {
+    private fun onCameraStatusChanged(value: CameraStatus) {
+        if (value.cameraStatusType == CameraStatusType.FOLLOW_FRIEND || value.cameraStatusType == CameraStatusType.FOLLOW_USER) {
             binding.mapView.map.move(
                 CameraPosition(value.point!!, 20.0f, 0.0f, 0.0f),
                 Animation(Animation.Type.SMOOTH, 0.008f),
@@ -225,7 +212,7 @@ class MainFragment : Fragment() {
         }
     }
 
-    fun onMarksStateChanged(value: kotlin.collections.Map<Long, Mark>) {
+    private fun onMarksStateChanged(value: kotlin.collections.Map<Long, Mark>) {
         for (entry in value) {
             val id = entry.key
             val mark = entry.value
@@ -257,7 +244,7 @@ class MainFragment : Fragment() {
         }
     }
 
-    fun onPhotoLoaded(value: kotlin.collections.Map<String, Bitmap>) {
+    private fun onPhotoLoaded(value: kotlin.collections.Map<String, Bitmap>) {
         // Watch mark images change
         for (mark in marksViewState) {
             // State of current mark

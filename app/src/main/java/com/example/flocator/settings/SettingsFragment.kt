@@ -56,7 +56,7 @@ class SettingsFragment : Fragment() {
         }
 
         privacyLine.setOnClickListener {
-            parentFragmentManager
+            requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, PrivacySettings())
                 .addToBackStack(null)
@@ -64,7 +64,7 @@ class SettingsFragment : Fragment() {
         }
 
         blacklistLine.setOnClickListener {
-            parentFragmentManager
+            requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, BlackListFragment())
                 .addToBackStack(null)
