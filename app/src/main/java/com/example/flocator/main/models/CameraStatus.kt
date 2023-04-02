@@ -11,9 +11,15 @@ class CameraStatus {
         get() = _markId
     var point: Point? = null
 
-    fun setFollowOnMark(markId: Long, point: Point) {
-        this._cameraStatusType = CameraStatusType.FOLLOW
+    fun setFollowOnFriendMark(markId: Long, point: Point) {
+        this._cameraStatusType = CameraStatusType.FOLLOW_FRIEND
         this._markId = markId
+        this.point = point
+    }
+
+    fun setFollowOnUserMark(userId: Long, point: Point) {
+        this._cameraStatusType = CameraStatusType.FOLLOW_USER
+        this._markId = userId
         this.point = point
     }
 

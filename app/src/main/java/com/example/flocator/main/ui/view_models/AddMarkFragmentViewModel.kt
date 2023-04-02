@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.main.api.ClientAPI
-import com.example.flocator.main.data.AddMarkFragmentState
-import com.example.flocator.main.data.CarouselItemState
+import com.example.flocator.main.ui.data.AddMarkFragmentState
+import com.example.flocator.main.ui.data.CarouselItemState
 import com.example.flocator.main.models.dto.MarkDto
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

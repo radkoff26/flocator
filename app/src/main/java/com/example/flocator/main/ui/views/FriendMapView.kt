@@ -17,6 +17,7 @@ class FriendMapView @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr) {
     private val binding: FriendMapViewBinding
     private val defaultRadius = dpToPx(48, context)
+    private val padding = dpToPx(2, context)
     private val radius: Int
 
     init {
@@ -36,6 +37,10 @@ class FriendMapView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        binding.image.measure(
+            MeasureSpec.makeMeasureSpec(radius - padding * 2, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(radius - padding * 2, MeasureSpec.EXACTLY)
+        )
         super.onMeasure(
             MeasureSpec.makeMeasureSpec(radius, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(radius, MeasureSpec.EXACTLY)

@@ -1,4 +1,4 @@
-package com.example.flocator.main.data
+package com.example.flocator.main.ui.data
 
 import android.net.Uri
 

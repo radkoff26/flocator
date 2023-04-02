@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentAddMarkBinding
-import com.example.flocator.main.data.AddMarkFragmentState
+import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.adapters.CarouselRecyclerViewAdapter
-import com.example.flocator.main.data.CarouselItemState
+import com.example.flocator.main.ui.data.CarouselItemState
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.ui.view_models.AddMarkFragmentViewModel
 import com.example.flocator.utils.FragmentNavigationUtils

@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
-import com.example.flocator.main.data.CarouselItemState
+import com.example.flocator.main.ui.data.CarouselItemState
 import java.io.ByteArrayOutputStream
 import java.util.function.BiConsumer
 
