@@ -1,4 +1,4 @@
-package com.example.flocator.logreg.fragments
+package com.example.flocator.authreg.fragments
 
 import android.os.Bundle
 import android.text.InputType
@@ -8,10 +8,16 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.logreg.FragmentUtil
+import com.example.flocator.authreg.FragmentUtil
 
 class RegSecondFragment : Fragment() {
     private lateinit var binding: FragmentRegistrationBinding
+
+    companion object {
+        private const val LOGIN = "Логин"
+        private const val EMAIL = "Email"
+        private const val NEXT = "Далее"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,18 +27,15 @@ class RegSecondFragment : Fragment() {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.submitBtn.setOnClickListener {
-            //to 2 step account creation
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             FragmentUtil.replaceFragment(transaction, RegThirdFragment())
         }
 
         binding.backBtn.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, RegFirstFragment())
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            //Должны сохраняться введенные значения
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
             FragmentUtil.replaceFragment(transaction, AuthFragment())
         }
@@ -43,15 +46,31 @@ class RegSecondFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.firstInputField.hint = "Логин"
-        binding.secondInputField.hint = "Email"
-        binding.submitBtn.text = "Далее"
+        binding.firstInputField.hint = LOGIN
+        binding.secondInputField.hint = EMAIL
+        binding.submitBtn.text = NEXT
         binding.submitBtn.setTextColor(
             ContextCompat.getColor(
                 requireContext(),
                 android.R.color.white
             )
         )
+
+        savedInstanceState?.let {
+            it.getString(EMAIL)?.let { savedEmail ->
+                binding.firstInputEditField.setText(savedEmail)
+            }
+
+            it.getString(LOGIN)?.let { savedLogin ->
+                binding.secondInputEditField.setText(savedLogin)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(EMAIL, binding.firstInputEditField.toString())
+        outState.putString(LOGIN, binding.secondInputEditField.toString())
     }
 
     private fun createAccount(lastName: String, firstName: String) {

@@ -1,17 +1,18 @@
-package com.example.flocator.logreg.fragments
+package com.example.flocator.authreg.fragments
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentAuthBinding
-import com.example.flocator.logreg.FragmentUtil
+import com.example.flocator.authreg.FragmentUtil
 import com.example.flocator.main.ui.fragments.MainFragment
 
 
 class AuthFragment : Fragment() {
-    private lateinit var binding: FragmentAuthBinding;
+    private lateinit var binding: FragmentAuthBinding
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,6 +37,7 @@ class AuthFragment : Fragment() {
             TODO("Not yet implemented")
         }
 
+        binding.emailLoginFieldEdit.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         return binding.root
     }
 

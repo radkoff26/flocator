@@ -1,4 +1,4 @@
-package com.example.flocator.logreg.fragments
+package com.example.flocator.authreg.fragments
 
 import android.os.Bundle
 import android.text.InputType
@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.logreg.FragmentUtil
+import com.example.flocator.authreg.FragmentUtil
 import com.example.flocator.main.ui.fragments.MainFragment
 
 class RegThirdFragment : Fragment() {
@@ -30,8 +30,7 @@ class RegThirdFragment : Fragment() {
         }
 
         binding.backBtn.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, RegSecondFragment())
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         binding.alreadyRegisteredText.setOnClickListener {

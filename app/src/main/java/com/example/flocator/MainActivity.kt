@@ -6,8 +6,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
-import com.example.flocator.logreg.fragments.AuthFragment
-import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.authreg.fragments.AuthFragment
+import com.example.flocator.authreg.fragments.LocationRequestFragment
 import com.yandex.mapkit.MapKitFactory
 
 
@@ -23,27 +23,27 @@ class MainActivity : AppCompatActivity() {
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
-        if (ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ), FINE_REQUEST_CODE
-            )
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ), COARSE_REQUEST_CODE
-            )
-            return
-        }
+//        if (ActivityCompat.checkSelfPermission(
+//                this, Manifest.permission.ACCESS_FINE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//                this, Manifest.permission.ACCESS_COARSE_LOCATION
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            requestPermissions(
+//                arrayOf(
+//                    Manifest.permission.ACCESS_FINE_LOCATION
+//                ), FINE_REQUEST_CODE
+//            )
+//            requestPermissions(
+//                arrayOf(
+//                    Manifest.permission.ACCESS_COARSE_LOCATION
+//                ), COARSE_REQUEST_CODE
+//            )
+//            return
+//        }
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, AuthFragment())
+            .add(R.id.fragment_container, LocationRequestFragment())
             .commit()
     }
 
