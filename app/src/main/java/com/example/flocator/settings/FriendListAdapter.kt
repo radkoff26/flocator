@@ -69,4 +69,8 @@ class FriendListAdapter (
             }
         }
     }
+
+    fun all(filter: (friend: Friend) -> Boolean): Boolean {
+        return friends.all(filter)
+    }
 }
