@@ -24,6 +24,7 @@ import com.example.flocator.main.utils.MapUtils
 import com.example.flocator.main.ui.view_models.MainFragmentViewModel
 import com.example.flocator.main.ui.views.FriendMapView
 import com.example.flocator.main.ui.views.MarkMapView
+import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -112,6 +113,13 @@ class MainFragment : Fragment() {
             val communityFragment = ProfileFragment()
             val transaction = childFragmentManager.beginTransaction()
             transaction.replace(R.id.main_fragment, communityFragment)
+            transaction.commit()
+        }
+
+        binding.settingsBtn.setOnClickListener {
+            val settingsFragment = SettingsFragment()
+            val transaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.main_fragment, settingsFragment)
             transaction.commit()
         }
 
