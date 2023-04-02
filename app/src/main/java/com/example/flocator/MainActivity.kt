@@ -17,11 +17,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
+
         if (ActivityCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -40,6 +41,21 @@ class MainActivity : AppCompatActivity() {
             )
             return
         }
+
+        val sharedPreferences = getSharedPreferences("USER", MODE_PRIVATE)
+
+        // TODO: STUB!
+        if (!sharedPreferences.contains("USER_ID")) {
+            val editor = sharedPreferences.edit()
+            editor.putLong("USER_ID", 1)
+            editor.apply()
+        }
+        if (!sharedPreferences.contains("USER_AVATAR_URL")) {
+            val editor = sharedPreferences.edit()
+            editor.putString("USER_AVATAR_URL", "https://sun9-55.userapi.com/impg/2NrJDQ-paBNyKNiDFFU0ItHSxe4PmpWR-V16fA/9ZkY5ZR55gc.jpg?size=720x1280&quality=95&sign=e2343d8bb5f0039a054c4cb063486f26&type=album")
+            editor.apply()
+        }
+
         supportFragmentManager
             .beginTransaction()
             .add(R.id.fragment_container, MainFragment())
