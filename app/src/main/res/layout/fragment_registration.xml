@@ -19,23 +19,24 @@
         android:contentDescription="Вернуться назад"/>
 
     <TextView
-        android:id="@id/logo_flocator"
+        android:id="@+id/logo_flocator"
         android:layout_width="0dp"
         android:layout_height="0dp"
 
+        android:layout_marginTop="64dp"
         android:gravity="center_horizontal"
         android:text="FLocator"
         android:textColor="#1515B9"
         android:textSize="40sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/window_registration_login"
+        app:layout_constraintBottom_toTopOf="@id/window_registration_name"
         app:layout_constraintLeft_toRightOf="@id/guideline_left"
         app:layout_constraintRight_toLeftOf="@id/guideline_right"
-        app:layout_constraintTop_toBottomOf="@id/back_btn"
+        app:layout_constraintTop_toTopOf="@id/back_btn"
         app:layout_constraintVertical_weight="0.1" />
 
     <LinearLayout
-        android:id="@+id/window_registration_login"
+        android:id="@+id/window_registration_name"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_horizontal|center_vertical"
@@ -47,11 +48,10 @@
         app:layout_constraintVertical_weight="0.9">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reg_login_field"
+            android:id="@+id/first_input_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:hint="Логин"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -61,17 +61,17 @@
             app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/first_input_edit_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/reg_email_field"
+            android:id="@+id/second_input_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:hint="Email"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -81,24 +81,24 @@
             app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/second_input_edit_field"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword" />
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@id/next_btn"
+            android:id="@+id/submit_btn"
             style="@style/Widget.Material3.Button.IconButton.Filled"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:textColor="@color/white"
             android:backgroundTint="@color/tint"
-            android:text="Далее"
             android:textSize="16sp"
             app:cornerRadius="9dp" />
 
         <TextView
-            android:id="@id/already_registered_text"
+            android:id="@+id/already_registered_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
