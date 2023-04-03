@@ -45,6 +45,8 @@ class ProfileFragment : Fragment() {
         get() = (activity?.applicationContext as Application).personService
     private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
     private lateinit var friendsViewModel: FriendsViewModel
+    private lateinit var factoryNewFriendsViewModel: FriendsViewModelFactory
+    private lateinit var newFriendsViewModel: FriendsViewModel
     private val userApi: UserApi by lazy {
         val gson = GsonBuilder()
             .setLenient()
@@ -65,6 +67,40 @@ class ProfileFragment : Fragment() {
     ): View? {
         _binding = FragmentCommunityBinding.inflate(inflater, container, false)
         factoryFriendsViewModel = FriendsViewModelFactory(personService)
+        friendsViewModel = ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
+        friendsViewModel.getFriends()
+        friendsViewModel.friends.observe(viewLifecycleOwner) {
+            adapterForYourFriends = FriendAdapter(object : FriendActionListener {
+                override fun onPersonOpenProfile(person: Person) {
+                    openPersonProfile(person)
+                }
+            })
+            adapterForYourFriends.data = PersonRepository().getPersons() as MutableList<Person>
+            binding.yourFriendsRecyclerView.also {
+                it.layoutManager = LinearLayoutManager(activity)
+                it.setHasFixedSize(true)
+                it.adapter = adapterForYourFriends
+            }
+            adapter = PersonAdapter(object : PersonActionListener {
+                override fun onPersonOpenProfile(person: Person){
+                    openPersonProfile(person)
+                }
+                override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
+                override fun onPersonAccept(person: Person) {
+                    val findingPerson = personService.acceptPerson(person)
+                    adapterForYourFriends.data.add(findingPerson)
+                    adapterForYourFriends.notifyDataSetChanged()
+                }
+            })
+            personService.addListener(listenerNewFriends)
+            adapter.data = PersonRepository().getPersons()
+            binding.newFriendsRecyclerView.also {
+                it.layoutManager = LinearLayoutManager(activity)
+                it.setHasFixedSize(true)
+                it.adapter = adapter
+            }
+        }
+        /*factoryFriendsViewModel = FriendsViewModelFactory(personService)
         friendsViewModel =
             ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
         friendsViewModel.getFriends()
@@ -82,6 +118,13 @@ class ProfileFragment : Fragment() {
                 it.setHasFixedSize(true)
                 it.adapter = adapterForYourFriends
             }
+        }
+
+        factoryNewFriendsViewModel = FriendsViewModelFactory(personService)
+        newFriendsViewModel =
+            ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
+        newFriendsViewModel.getFriends()
+        newFriendsViewModel.friends.observe(viewLifecycleOwner){
             adapter = PersonAdapter(object : PersonActionListener {
                 override fun onPersonOpenProfile(person: Person) {
                     openPersonProfile(person)
@@ -91,7 +134,7 @@ class ProfileFragment : Fragment() {
                 override fun onPersonAccept(person: Person) {
                     val findingPerson = personService.acceptPerson(person)
                     adapterForYourFriends.data.add(findingPerson)
-                    adapterForYourFriends.notifyDataSetChanged()
+                    //adapterForYourFriends.notifyDataSetChanged()
                 }
             })
             personService.addListener(listenerNewFriends)
@@ -102,7 +145,8 @@ class ProfileFragment : Fragment() {
                 it.setHasFixedSize(true)
                 it.adapter = adapter
             }
-        }
+        }*/
+
 
         userApi.getUser(4)
             .subscribeOn(Schedulers.io())
