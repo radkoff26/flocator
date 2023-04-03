@@ -6,12 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.flocator.databinding.FragmentRegistrationBinding
 import com.example.flocator.authreg.FragmentUtil
-import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.databinding.FragmentRegistrationBinding
 
 class RegThirdFragment : Fragment() {
     private lateinit var binding: FragmentRegistrationBinding
+
+    companion object {
+        private const val PASSWORD = "Пароль"
+        private const val REPEAT_PASSWORD = "Повторите пароль"
+        private const val REGISTER = "Зарегистрироваться"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -19,14 +24,8 @@ class RegThirdFragment : Fragment() {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.submitBtn.setOnClickListener {
-//            val login = passInput.editText?.text.toString().trim();
-//            val email = passInputRepeat.editText?.text.toString().trim();
-//
-//            createAccount(login, email)
-
-            //мок
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, MainFragment())
+            FragmentUtil.replaceFragment(transaction, LocationRequestFragment())
         }
 
         binding.backBtn.setOnClickListener {
@@ -50,9 +49,9 @@ class RegThirdFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.firstInputField.hint = "Пароль"
-        binding.secondInputField.hint = "Повторите пароль"
-        binding.submitBtn.text = "Зарегистрироваться"
+        binding.firstInputField.hint = PASSWORD
+        binding.secondInputField.hint = REPEAT_PASSWORD
+        binding.submitBtn.text = REGISTER
 
     }
 

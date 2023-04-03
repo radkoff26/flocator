@@ -23,7 +23,7 @@ class AuthFragment : Fragment() {
 
         binding.entranceBtn.setOnClickListener {
             val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, MainFragment())
+            FragmentUtil.replaceFragment(transaction, LocationRequestFragment())
         }
 
 
