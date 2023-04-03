@@ -13,9 +13,11 @@ import com.example.flocator.authreg.FragmentUtil
 import com.example.flocator.databinding.FragmentLocationRequestBinding
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.example.flocator.main.ui.fragments.MainFragment
 
 class LocationRequestFragment : Fragment() {
@@ -32,8 +34,14 @@ class LocationRequestFragment : Fragment() {
         binding.allowBtn.setOnClickListener {
             val dontShowAgain =
                 sharedPrefs.getBoolean("location_permission_requested_dont_show_again", false)
+
             if (dontShowAgain) {
-                showPermissionRationaleDialog()
+                if (hasLocationPermission(requireContext())) {
+                    val transaction = requireActivity().supportFragmentManager.beginTransaction()
+                    FragmentUtil.replaceFragment(transaction, MainFragment())
+                } else {
+                    showPermissionRationaleDialog()
+                }
             } else {
                 requestPermissionsLauncher.launch(
                     arrayOf(
@@ -55,18 +63,13 @@ class LocationRequestFragment : Fragment() {
             Context.MODE_PRIVATE
         )
 
-        requestPermissionsLauncher()
+        setupRequestPermissionsLauncher()
     }
 
-    private fun requestPermissionsLauncher() {
+    private fun setupRequestPermissionsLauncher() {
         requestPermissionsLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-                val fineLocationGranted =
-                    permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-                val coarseLocationGranted =
-                    permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-
-                if (fineLocationGranted && coarseLocationGranted) {
+                if (hasLocationPermission(requireContext())) {
                     val transaction = requireActivity().supportFragmentManager.beginTransaction()
                     FragmentUtil.replaceFragment(transaction, MainFragment())
                 } else if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
@@ -92,5 +95,19 @@ class LocationRequestFragment : Fragment() {
         }
         builder.setNegativeButton("Отмена", null)
         builder.show()
+    }
+
+    private fun hasLocationPermission(context: Context): Boolean {
+        val fineLocationPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseLocationPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return fineLocationPermission && coarseLocationPermission
     }
 }
