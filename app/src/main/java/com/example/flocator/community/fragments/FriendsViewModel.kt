@@ -15,7 +15,7 @@ class FriendsViewModel(
     val friends: LiveData<List<Person>>
         get() = _friends
 
-    fun getFriends(){
+    fun getFriends() {
         val friends = personRepository.getPersons()
         _friends.value = friends
     }

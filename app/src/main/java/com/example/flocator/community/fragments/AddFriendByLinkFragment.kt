@@ -11,7 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import kotlin.system.exitProcess
 
-class AddFriendByLinkFragment: BottomSheetDialogFragment() {
+class AddFriendByLinkFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentAddFriendBinding? = null
     private val binding: FragmentAddFriendBinding
         get() = _binding!!
@@ -40,7 +40,6 @@ class AddFriendByLinkFragment: BottomSheetDialogFragment() {
     companion object {
         const val TAG = "Add friend by link fragment"
     }
-
 
 
 }

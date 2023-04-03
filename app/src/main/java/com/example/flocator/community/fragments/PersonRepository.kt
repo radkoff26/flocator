@@ -5,6 +5,7 @@ import com.github.javafaker.Faker
 
 typealias PersonListener = (persons: List<Person>) -> Unit
 typealias FriendListener = (persons: List<Person>) -> Unit
+
 class PersonRepository {
 
     private var persons = mutableListOf<Person>()
@@ -41,7 +42,7 @@ class PersonRepository {
         return persons
     }
 
-    fun getPersonsSize(): Int{
+    fun getPersonsSize(): Int {
         return persons.size
     }
 

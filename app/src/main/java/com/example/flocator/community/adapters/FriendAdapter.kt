@@ -43,7 +43,6 @@ class FriendAdapter(private val friendActionListener: FriendActionListener) :
                 .placeholder(R.drawable.base_avatar_image).into(profileImage)
         }
         holder.itemView.tag = person
-
     }
 
     override fun onClick(view: View?) {

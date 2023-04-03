@@ -18,12 +18,13 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
             notifyDataSetChanged()
         }
     var isOpen = false
-        set(newValue){
+        set(newValue) {
             field = newValue
             notifyDataSetChanged()
         }
 
-    class PersonViewHolder(val binding: PersonNewFriendItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class PersonViewHolder(val binding: PersonNewFriendItemBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
@@ -36,12 +37,12 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
         return PersonViewHolder(binding)
     }
 
-    override fun getItemCount(): Int{
+    override fun getItemCount(): Int {
         val limit = 2
-        if(!isOpen){
+        if (!isOpen) {
             return data.size.coerceAtMost(limit)
         }
-       return data.size
+        return data.size
     }
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
@@ -66,7 +67,6 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
 
     override fun onClick(view: View?) {
         val person: Person = view?.tag as Person
-
         when (view.id) {
             R.id.buttonCancel -> personActionListener.onPersonCancel(person)
             R.id.buttonAccept -> personActionListener.onPersonAccept(person)
