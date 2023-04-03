@@ -4,27 +4,23 @@ import com.example.flocator.community.data_classes.Person
 import com.github.javafaker.Faker
 
 typealias PersonListener = (persons: List<Person>) -> Unit
+typealias FriendListener = (persons: List<Person>) -> Unit
 
 class PersonRepository {
 
-    private var personsCopy = mutableListOf<Person>()
     private var persons = mutableListOf<Person>()
 
     val faker = Faker.instance()
     private var listeners = mutableListOf<PersonListener>()
 
     init {
-        personsCopy = (0..10).map {
+        persons = (0..10).map {
             Person(
                 id = it.toLong(),
                 nameAndSurname = faker.name().fullName(),
                 photo = IMAGES[it % IMAGES.size]
             )
         }.toMutableList()
-
-        persons.add(personsCopy[0])
-        persons.add(personsCopy[1])
-
     }
 
     companion object {
@@ -46,22 +42,13 @@ class PersonRepository {
         return persons
     }
 
-
-    fun viewAllPersons(): List<Person> {
-        persons.clear()
-        persons.addAll(personsCopy)
-        return persons
-    }
-
-    fun rollUpPersons(): List<Person> {
-        persons.clear()
-        persons.add(personsCopy[0])
-        persons.add(personsCopy[1])
-        return persons
+    fun getPersonsSize(): Int {
+        return persons.size
     }
 
     fun addOnePersonInList(person: Person) {
         persons.add(person)
+        notifyChanges()
     }
 
 
@@ -74,12 +61,13 @@ class PersonRepository {
         notifyChanges()
     }
 
-    fun acceptPerson(person: Person) {
+    fun acceptPerson(person: Person): Person {
         val findingPerson: Person
         val index = persons.indexOfFirst { it.id == person.id }
         findingPerson = persons[index]
         persons.removeAt(index)
         notifyChanges()
+        return findingPerson
     }
 
     fun addListener(listener: PersonListener) {

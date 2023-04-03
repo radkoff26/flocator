@@ -10,14 +10,21 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.PersonNewFriendItemBinding
 
 class PersonAdapter(private val personActionListener: PersonActionListener) :
+
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
     var data: List<Person> = emptyList()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
         }
+    var isOpen = false
+        set(newValue) {
+            field = newValue
+            notifyDataSetChanged()
+        }
 
-    class PersonViewHolder(val binding: PersonNewFriendItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class PersonViewHolder(val binding: PersonNewFriendItemBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
@@ -30,7 +37,13 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
         return PersonViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = data.size
+    override fun getItemCount(): Int {
+        val limit = 2
+        if (!isOpen) {
+            return data.size.coerceAtMost(limit)
+        }
+        return data.size
+    }
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
         val person = data[position]
@@ -44,16 +57,20 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
                 .error(R.drawable.base_avatar_image)
                 .placeholder(R.drawable.base_avatar_image).into(profileImage)
         }
+
+        holder.itemView.tag = person
+        holder.binding.buttonAccept.tag = person
+        holder.binding.buttonCancel.tag = person
+
     }
 
 
     override fun onClick(view: View?) {
         val person: Person = view?.tag as Person
-
         when (view.id) {
             R.id.buttonCancel -> personActionListener.onPersonCancel(person)
             R.id.buttonAccept -> personActionListener.onPersonAccept(person)
-            else -> personActionListener.onPersonGetId(person)
+            else -> personActionListener.onPersonOpenProfile(person)
         }
     }
 
