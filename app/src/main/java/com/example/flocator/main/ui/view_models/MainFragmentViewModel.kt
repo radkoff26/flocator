@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.flocator.main.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
@@ -38,7 +39,7 @@ class MainFragmentViewModel : ViewModel() {
             .setLenient()
             .create()
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://kernelpunik.ru:8080/api/")
+            .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.flocator.main.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.data.CarouselItemState
@@ -32,7 +33,7 @@ class AddMarkFragmentViewModel : ViewModel() {
             .setLenient()
             .create()
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.0.101:8080/api/")
+            .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
