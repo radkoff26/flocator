@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".logreg.fragments.AuthFragment">
+    tools:context=".authreg.fragments.AuthFragment">
 
     <TextView
         android:id="@id/logo_flocator"
@@ -49,6 +49,7 @@
             app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email_login_field_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -68,6 +69,7 @@
             app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_login_field_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword" />
