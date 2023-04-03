@@ -49,6 +49,7 @@ class MainFragmentViewModel : ViewModel() {
     val marksLiveData: LiveData<Map<Long, Mark>> = _marksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val photoCacheLiveData: LiveData<Map<String, Bitmap>> = _photoCacheLiveData
+    val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
 
     fun startPolling() {
         friendsHandler.post(this::fetchFriends)

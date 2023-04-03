@@ -2,7 +2,6 @@ package com.example.flocator.main.ui.fragments
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +29,7 @@ import com.yandex.mapkit.map.InertiaMoveListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.runtime.ui_view.ViewProvider
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.ConcurrentHashMap
@@ -47,9 +47,9 @@ class MainFragment : Fragment() {
     private val compositeDisposable = CompositeDisposable()
 
     // Map store
-    private val friendsViewState = ConcurrentHashMap<Long, FriendViewDto>()
+    private val usersViewState = ConcurrentHashMap<Long, FriendViewDto>()
     private val marksViewState = ConcurrentHashMap<Long, MarkViewDto>()
-    private val friendClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
+    private val usersClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
     private val markClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
 
     // Handlers
@@ -119,6 +119,10 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mainFragmentViewModel.userLocationLiveData.observe(
+            viewLifecycleOwner,
+            this::onUserLocationChanged
+        )
         mainFragmentViewModel.friendsLiveData.observe(
             viewLifecycleOwner,
             this::onFriendsStateChanged
@@ -165,29 +169,57 @@ class MainFragment : Fragment() {
     }
 
     // Listener callbacks
+    private fun onUserLocationChanged(point: Point?) {
+        if (point == null) {
+            return
+        }
+        // STUB!
+        if (usersViewState[MainFragmentViewModel.USER_ID] == null) {
+            val friendMapView = FriendMapView(requireContext())
+            val viewProvider = ViewProvider(friendMapView)
+            usersViewState[MainFragmentViewModel.USER_ID] = FriendViewDto(
+                MapUtils.addViewToMap(
+                    binding.mapView,
+                    viewProvider,
+                    point
+                ),
+                friendMapView,
+                null
+            )
+            compositeDisposable.add(LoadUtils.loadPictureFromUrl(
+                MainFragmentViewModel.USER_AVATAR_URL,
+                COMPRESSION_FACTOR
+            ).observeOn(Schedulers.computation()).subscribe { image ->
+                mainFragmentViewModel.setLoadedPhotoAsync(MainFragmentViewModel.USER_AVATAR_URL, image)
+            })
+        } else {
+            usersViewState[MainFragmentViewModel.USER_ID]!!.placemark.geometry = point
+        }
+    }
+
     private fun onFriendsStateChanged(value: kotlin.collections.Map<Long, User>) {
         for (userEntry in value) {
             val id = userEntry.key
             val user = userEntry.value
-            if (friendsViewState[id] == null) {
+            if (usersViewState[id] == null) {
                 val friendView = FriendMapView(requireContext())
                 val viewProvider = ViewProvider(friendView)
-                friendsViewState[id] = FriendViewDto(
+                usersViewState[id] = FriendViewDto(
                     MapUtils.addViewToMap(
                         binding.mapView, viewProvider, user.location
                     ), friendView, null
                 )
-                friendClickListeners[id] = MapObjectTapListener { _, _ ->
+                usersClickListeners[id] = MapObjectTapListener { _, _ ->
                     mainFragmentViewModel.setCameraFollowOnFriendMark(id)
                     mainFragmentViewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
                     true
                 }
-                friendsViewState[id]!!.placemark.addTapListener(friendClickListeners[id]!!)
+                usersViewState[id]!!.placemark.addTapListener(usersClickListeners[id]!!)
                 if (user.avatarUrl == null) {
                     friendView.setPlaceHolder()
                     viewProvider.snapshot()
-                    friendsViewState[id]!!.placemark.setView(viewProvider)
-                    friendsViewState[id]!!.avatarUri = null
+                    usersViewState[id]!!.placemark.setView(viewProvider)
+                    usersViewState[id]!!.avatarUri = null
                 } else {
                     compositeDisposable.add(LoadUtils.loadPictureFromUrl(
                         user.avatarUrl,
@@ -197,7 +229,7 @@ class MainFragment : Fragment() {
                     })
                 }
             } else {
-                friendsViewState[id]!!.placemark.geometry = user.location
+                usersViewState[id]!!.placemark.geometry = user.location
             }
         }
     }
@@ -245,6 +277,19 @@ class MainFragment : Fragment() {
     }
 
     private fun onPhotoLoaded(value: kotlin.collections.Map<String, Bitmap>) {
+        // User case
+        if (usersViewState[MainFragmentViewModel.USER_ID] != null) {
+            val user = usersViewState[MainFragmentViewModel.USER_ID]!!
+            if (user.avatarUri != MainFragmentViewModel.USER_AVATAR_URL && value[MainFragmentViewModel.USER_AVATAR_URL] != null) {
+                user.friendMapView.setBitmap(value[MainFragmentViewModel.USER_AVATAR_URL]!!)
+                val viewProvider = ViewProvider(user.friendMapView)
+                user.avatarUri = MainFragmentViewModel.USER_AVATAR_URL
+                viewProvider.snapshot()
+                user.placemark.setView(viewProvider)
+                usersViewState[MainFragmentViewModel.USER_ID] = user
+            }
+        }
+
         // Watch mark images change
         for (mark in marksViewState) {
             // State of current mark
@@ -298,7 +343,10 @@ class MainFragment : Fragment() {
         }
 
         // Watch friends images change
-        for (friend in friendsViewState) {
+        for (friend in usersViewState) {
+            if (friend.key == MainFragmentViewModel.USER_ID) {
+                continue
+            }
             val url = mainFragmentViewModel.friendsLiveData.value!![friend.key]!!.avatarUrl
             if (url == null) {
                 friend.value.friendMapView.setPlaceHolder()
