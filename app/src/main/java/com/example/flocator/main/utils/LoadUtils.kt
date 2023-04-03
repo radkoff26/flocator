@@ -2,6 +2,7 @@ package com.example.flocator.main.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.example.flocator.main.Constants
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
@@ -14,7 +15,7 @@ class LoadUtils {
                 val mUrl = if (uri.contains("http")) { // TODO: eliminate this
                     URL(uri)
                 } else {
-                    URL("http://192.168.0.101:8080/api/photo?uri=$uri")
+                    URL("${Constants.BASE_URL}photo?uri=$uri")
                 }
                 val inputStream = mUrl.openStream()
                 var bitmap = BitmapFactory.decodeStream(inputStream)

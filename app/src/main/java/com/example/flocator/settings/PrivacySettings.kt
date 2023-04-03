@@ -16,7 +16,7 @@ import com.example.flocator.R
 class PrivacySettings : Fragment() {
     private lateinit var friendListAdapter: FriendListAdapter
 
-    fun getFriends(): ArrayList<Friend> {
+    private fun getFriends(): ArrayList<Friend> {
         val ans = ArrayList<Friend>()
         for (i in 1..10000) {
             ans.add(
@@ -51,7 +51,11 @@ class PrivacySettings : Fragment() {
         recyclerView.adapter = friendListAdapter
 
         selectAllButton.setOnClickListener {
-            friendListAdapter.selectAll()
+            if (friendListAdapter.all { friend -> friend.isChecked }) {
+                friendListAdapter.unselectAll()
+            } else {
+                friendListAdapter.selectAll()
+            }
         }
 
         currentLocation.setOnClickListener {

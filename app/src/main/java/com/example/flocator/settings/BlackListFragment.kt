@@ -34,7 +34,11 @@ class BlackListFragment : Fragment() {
         recyclerView.adapter = friendListAdapter
 
         unselectAllButton.setOnClickListener {
-            friendListAdapter.unselectAll()
+            if (friendListAdapter.all { friend -> !friend.isChecked }) {
+                friendListAdapter.selectAll()
+            } else {
+                friendListAdapter.unselectAll()
+            }
         }
         return fragmentView
     }

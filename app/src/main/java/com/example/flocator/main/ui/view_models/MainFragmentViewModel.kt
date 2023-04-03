@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.flocator.main.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
@@ -38,7 +39,7 @@ class MainFragmentViewModel : ViewModel() {
             .setLenient()
             .create()
         val retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.0.101:8080/api/")
+            .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
@@ -49,7 +50,7 @@ class MainFragmentViewModel : ViewModel() {
     val marksLiveData: LiveData<Map<Long, Mark>> = _marksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val photoCacheLiveData: LiveData<Map<String, Bitmap>> = _photoCacheLiveData
-    val userLocationLiveData = _userLocationLiveData
+    val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
 
     fun startPolling() {
         friendsHandler.post(this::fetchFriends)
@@ -62,6 +63,9 @@ class MainFragmentViewModel : ViewModel() {
     }
 
     fun updateUserLocation(point: Point) {
+        if (_cameraStatusLiveData.value!!.cameraStatusType == CameraStatusType.FOLLOW_USER) {
+            setCameraPoint(point)
+        }
         _userLocationLiveData.value = point
     }
 
@@ -70,7 +74,16 @@ class MainFragmentViewModel : ViewModel() {
             return
         }
         val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFollowOnMark(friendId, _friendsLiveData.value!![friendId]!!.location)
+        cameraStatus.setFollowOnFriendMark(friendId, _friendsLiveData.value!![friendId]!!.location)
+        _cameraStatusLiveData.value = cameraStatus
+    }
+
+    fun setCameraFollowOnUserMark() {
+        if (_userLocationLiveData.value == null) {
+            return
+        }
+        val cameraStatus = _cameraStatusLiveData.value!!
+        cameraStatus.setFollowOnUserMark(USER_ID, _userLocationLiveData.value!!)
         _cameraStatusLiveData.value = cameraStatus
     }
 
@@ -109,7 +122,7 @@ class MainFragmentViewModel : ViewModel() {
                     }
                 )
         )
-        friendsHandler.postDelayed(this::fetchFriends, 5000)
+//        friendsHandler.postDelayed(this::fetchFriends, 5000)
     }
 
     private fun fetchMarks() {
@@ -127,14 +140,14 @@ class MainFragmentViewModel : ViewModel() {
                     }
                 )
         )
-        friendsHandler.postDelayed(this::fetchMarks, 10000)
+//        friendsHandler.postDelayed(this::fetchMarks, 10000)
     }
 
     private fun updateUsers(users: List<User>) {
         val map: MutableMap<Long, User> = _friendsLiveData.value!!.toMutableMap()
         for (user in users) {
             map[user.id] = user
-            if (_cameraStatusLiveData.value!!.cameraStatusType == CameraStatusType.FOLLOW && _cameraStatusLiveData.value!!.markId == user.id) {
+            if (_cameraStatusLiveData.value!!.cameraStatusType == CameraStatusType.FOLLOW_FRIEND && _cameraStatusLiveData.value!!.markId == user.id) {
                 setCameraPoint(user.location)
             }
         }
@@ -157,5 +170,7 @@ class MainFragmentViewModel : ViewModel() {
 
     companion object {
         const val TAG = "Main Fragment View Model"
+        const val USER_ID = 1L
+        const val USER_AVATAR_URL = "https://sun9-55.userapi.com/impg/2NrJDQ-paBNyKNiDFFU0ItHSxe4PmpWR-V16fA/9ZkY5ZR55gc.jpg?size=720x1280&quality=95&sign=e2343d8bb5f0039a054c4cb063486f26&type=album"
     }
 }

@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import com.example.flocator.R
+import com.example.flocator.main.ui.fragments.MainFragment
 import java.util.*
 
 class SettingsFragment : Fragment() {
@@ -56,7 +58,7 @@ class SettingsFragment : Fragment() {
         }
 
         privacyLine.setOnClickListener {
-            parentFragmentManager
+            requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, PrivacySettings())
                 .addToBackStack(null)
@@ -64,7 +66,7 @@ class SettingsFragment : Fragment() {
         }
 
         blacklistLine.setOnClickListener {
-            parentFragmentManager
+            requireActivity().supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, BlackListFragment())
                 .addToBackStack(null)
@@ -86,6 +88,15 @@ class SettingsFragment : Fragment() {
             deleteAccountFragment.show(parentFragmentManager, DeleteAccountFragment.TAG)
         }
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    val transaction = parentFragmentManager.beginTransaction()
+                    transaction.replace(R.id.main_fragment, MainFragment())
+                    transaction.commit()
+                }
+            }
+        )
         return fragmentView
     }
 

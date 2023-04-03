@@ -1,7 +1,7 @@
 package com.example.flocator.main.ui.adapters
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.flocator.main.data.CarouselItemState
+import com.example.flocator.main.ui.data.CarouselItemState
 
 class CarouselAdapterDiffUtilsCallback(
     private val oldList: List<CarouselItemState>,
