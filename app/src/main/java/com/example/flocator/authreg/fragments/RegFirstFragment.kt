@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.authreg.FragmentUtil
+import com.example.flocator.authreg.FragmentUtils
 
 class RegFirstFragment : Fragment() {
     private lateinit var binding: FragmentRegistrationBinding
@@ -26,13 +26,11 @@ class RegFirstFragment : Fragment() {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.submitBtn.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, RegSecondFragment())
+            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, RegSecondFragment())
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, AuthFragment())
+            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, AuthFragment())
         }
 
         binding.backBtn.visibility = View.INVISIBLE

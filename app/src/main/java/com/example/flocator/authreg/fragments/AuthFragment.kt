@@ -7,8 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentAuthBinding
-import com.example.flocator.authreg.FragmentUtil
-import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.authreg.FragmentUtils
 
 
 class AuthFragment : Fragment() {
@@ -22,15 +21,13 @@ class AuthFragment : Fragment() {
         binding = FragmentAuthBinding.inflate(inflater, container, false)
 
         binding.entranceBtn.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, LocationRequestFragment())
+            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, LocationRequestFragment())
         }
 
 
 
         binding.registrationBtn.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, RegFirstFragment())
+            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, RegFirstFragment())
         }
 
         binding.forgotPasswordText.setOnClickListener {

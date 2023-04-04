@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.example.flocator.authreg.FragmentUtil
+import com.example.flocator.authreg.FragmentUtils
 import com.example.flocator.databinding.FragmentLocationRequestBinding
 import android.content.Intent
 import android.content.SharedPreferences
@@ -37,8 +37,7 @@ class LocationRequestFragment : Fragment() {
 
             if (dontShowAgain) {
                 if (hasLocationPermission(requireContext())) {
-                    val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                    FragmentUtil.replaceFragment(transaction, MainFragment())
+                    FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, MainFragment())
                 } else {
                     showPermissionRationaleDialog()
                 }
@@ -70,8 +69,7 @@ class LocationRequestFragment : Fragment() {
         requestPermissionsLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (hasLocationPermission(requireContext())) {
-                    val transaction = requireActivity().supportFragmentManager.beginTransaction()
-                    FragmentUtil.replaceFragment(transaction, MainFragment())
+                    FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, MainFragment())
                 } else if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
                     !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
                 ) {

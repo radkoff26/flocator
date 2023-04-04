@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.authreg.FragmentUtil
+import com.example.flocator.authreg.FragmentUtils
 
 class RegSecondFragment : Fragment() {
     private lateinit var binding: FragmentRegistrationBinding
@@ -27,8 +27,7 @@ class RegSecondFragment : Fragment() {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.submitBtn.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, RegThirdFragment())
+            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, RegThirdFragment())
         }
 
         binding.backBtn.setOnClickListener {
@@ -36,8 +35,7 @@ class RegSecondFragment : Fragment() {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            FragmentUtil.replaceFragment(transaction, AuthFragment())
+            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, AuthFragment())
         }
 
         binding.secondInputEditField.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
