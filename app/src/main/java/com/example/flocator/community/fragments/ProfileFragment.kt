@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.flocator.Application
 import com.example.flocator.R
+import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.adapters.PersonActionListener
@@ -22,6 +23,7 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.FragmentCommunityBinding
 import com.example.flocator.main.ui.view_models.MainFragmentViewModel
+import com.example.flocator.utils.FragmentNavigationUtils
 import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -30,7 +32,7 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 
-class ProfileFragment : Fragment() {
+class ProfileFragment : Fragment(), CommunitySection {
     private var _binding: FragmentCommunityBinding? = null
     private val binding: FragmentCommunityBinding
         get() = _binding!!
@@ -65,6 +67,7 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(TAG, "onCreateView: ${requireActivity().supportFragmentManager.fragments}")
         _binding = FragmentCommunityBinding.inflate(inflater, container, false)
         factoryFriendsViewModel = FriendsViewModelFactory(personService)
         friendsViewModel = ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
@@ -180,22 +183,14 @@ class ProfileFragment : Fragment() {
 
         binding.addFriend.setOnClickListener {
             val addFriendByLinkFragment = AddFriendByLinkFragment()
-            addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
+            addFriendByLinkFragment.show(requireActivity().supportFragmentManager, AddFriendByLinkFragment.TAG)
         }
         binding.buttonBack.setOnClickListener {
-            if (parentFragmentManager.backStackEntryCount > 0) {
-                parentFragmentManager.popBackStack()
-            }
+            FragmentNavigationUtils.closeLastFragment(
+                requireActivity().supportFragmentManager,
+                requireActivity()
+            )
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (parentFragmentManager.backStackEntryCount > 0) {
-                        parentFragmentManager.popBackStack()
-                    }
-                }
-            }
-        )
         return binding.root
     }
 
@@ -205,10 +200,10 @@ class ProfileFragment : Fragment() {
         args.putString("personPhoto", person.photo)
         val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(R.id.community_fragment, profilePersonFragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
+        FragmentNavigationUtils.openFragment(
+            requireActivity().supportFragmentManager,
+            profilePersonFragment
+        )
     }
 
     override fun onDestroyView() {

@@ -10,12 +10,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.flocator.Application
 import com.example.flocator.R
+import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.FragmentPersonProfileBinding
+import com.example.flocator.utils.FragmentNavigationUtils
 
-class OtherPersonProfileFragment() : Fragment() {
+class OtherPersonProfileFragment() : Fragment(), CommunitySection {
     private var _binding: FragmentPersonProfileBinding? = null
     private val binding: FragmentPersonProfileBinding
         get() = _binding!!
@@ -70,9 +72,10 @@ class OtherPersonProfileFragment() : Fragment() {
             }
         }
         binding.buttonBack.setOnClickListener {
-            if (parentFragmentManager.backStackEntryCount > 0) {
-                parentFragmentManager.popBackStack()
-            }
+            FragmentNavigationUtils.closeLastFragment(
+                requireActivity().supportFragmentManager,
+                requireActivity()
+            )
         }
         binding.addPersonToFriend.setOnClickListener {
             if (!btnAddFriendIsActive) {
@@ -102,9 +105,9 @@ class OtherPersonProfileFragment() : Fragment() {
         args.putString("personPhoto", person.photo)
         val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(R.id.person_profile, profilePersonFragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
+        FragmentNavigationUtils.openFragment(
+            requireActivity().supportFragmentManager,
+            profilePersonFragment
+        )
     }
 }

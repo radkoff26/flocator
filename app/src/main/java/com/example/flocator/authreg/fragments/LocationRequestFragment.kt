@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.example.flocator.authreg.FragmentUtils
+import com.example.flocator.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentLocationRequestBinding
 import android.content.Intent
 import android.content.SharedPreferences
@@ -20,7 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.example.flocator.main.ui.fragments.MainFragment
 
-class LocationRequestFragment : Fragment() {
+class LocationRequestFragment : Fragment(), AuthRegSection {
     private lateinit var binding: FragmentLocationRequestBinding
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
@@ -37,7 +37,7 @@ class LocationRequestFragment : Fragment() {
 
             if (dontShowAgain) {
                 if (hasLocationPermission(requireContext())) {
-                    FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, MainFragment())
+                    FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, MainFragment())
                 } else {
                     showPermissionRationaleDialog()
                 }
@@ -69,7 +69,7 @@ class LocationRequestFragment : Fragment() {
         requestPermissionsLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (hasLocationPermission(requireContext())) {
-                    FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, MainFragment())
+                    FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, MainFragment())
                 } else if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
                     !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
                 ) {

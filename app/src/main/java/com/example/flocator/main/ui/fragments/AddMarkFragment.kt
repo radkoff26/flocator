@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentAddMarkBinding
+import com.example.flocator.main.MainSection
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.adapters.CarouselRecyclerViewAdapter
 import com.example.flocator.main.ui.data.CarouselItemState
@@ -32,7 +33,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-class AddMarkFragment : BottomSheetDialogFragment() {
+class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
@@ -110,7 +111,7 @@ class AddMarkFragment : BottomSheetDialogFragment() {
                 prepareAndGetMark(),
                 prepareAndGetParts()
             ) {
-                FragmentNavigationUtils.closeFragment(requireActivity())
+                FragmentNavigationUtils.closeLastFragment(requireActivity().supportFragmentManager, requireActivity())
             }
         }
 

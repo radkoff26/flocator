@@ -10,7 +10,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import kotlin.system.exitProcess
 
-class DeleteAccountFragment : BottomSheetDialogFragment() {
+class DeleteAccountFragment : BottomSheetDialogFragment(), SettingsSection {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

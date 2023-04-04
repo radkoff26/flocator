@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.flocator.R
 import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
+import com.example.flocator.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentMainBinding
+import com.example.flocator.main.MainSection
 import com.example.flocator.main.models.*
 import com.example.flocator.main.models.dto.FriendViewDto
 import com.example.flocator.main.models.dto.MarkViewDto
@@ -29,12 +30,11 @@ import com.yandex.mapkit.map.InertiaMoveListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.runtime.ui_view.ViewProvider
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.ConcurrentHashMap
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), MainSection {
     // Binding
     private var _binding: FragmentMainBinding? = null
     private val binding: FragmentMainBinding
@@ -90,23 +90,21 @@ class MainFragment : Fragment() {
 
         binding.openAddMarkFragment.setOnClickListener {
             val addMarkFragment = AddMarkFragment()
-            addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
+            addMarkFragment.show(requireActivity().supportFragmentManager, AddMarkFragment.TAG)
         }
 
         binding.communityBtn.setOnClickListener {
-            val communityFragment = ProfileFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.main_fragment, communityFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            FragmentNavigationUtils.openFragment(
+                requireActivity().supportFragmentManager,
+                ProfileFragment()
+            )
         }
 
         binding.settingsBtn.setOnClickListener {
-            val settingsFragment = SettingsFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.main_fragment, settingsFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            FragmentNavigationUtils.openFragment(
+                requireActivity().supportFragmentManager,
+                SettingsFragment()
+            )
         }
 
         binding.targetBtn.setOnClickListener {
@@ -190,7 +188,10 @@ class MainFragment : Fragment() {
                 MainFragmentViewModel.USER_AVATAR_URL,
                 COMPRESSION_FACTOR
             ).observeOn(Schedulers.computation()).subscribe { image ->
-                mainFragmentViewModel.setLoadedPhotoAsync(MainFragmentViewModel.USER_AVATAR_URL, image)
+                mainFragmentViewModel.setLoadedPhotoAsync(
+                    MainFragmentViewModel.USER_AVATAR_URL,
+                    image
+                )
             })
         } else {
             usersViewState[MainFragmentViewModel.USER_ID]!!.placemark.geometry = point

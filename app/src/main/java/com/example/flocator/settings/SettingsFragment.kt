@@ -8,12 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.OnBackPressedCallback
 import com.example.flocator.R
-import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.utils.FragmentNavigationUtils
 import java.util.*
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : Fragment(), SettingsSection {
 
 
     override fun onCreateView(
@@ -58,19 +57,17 @@ class SettingsFragment : Fragment() {
         }
 
         privacyLine.setOnClickListener {
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, PrivacySettings())
-                .addToBackStack(null)
-                .commit()
+            FragmentNavigationUtils.openFragment(
+                requireActivity().supportFragmentManager,
+                PrivacySettings()
+            )
         }
 
         blacklistLine.setOnClickListener {
-            requireActivity().supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.fragment_container, BlackListFragment())
-                .addToBackStack(null)
-                .commit()
+            FragmentNavigationUtils.openFragment(
+                requireActivity().supportFragmentManager,
+                BlackListFragment()
+            )
         }
 
         changePasswordLine.setOnClickListener {
@@ -87,16 +84,6 @@ class SettingsFragment : Fragment() {
             val deleteAccountFragment = DeleteAccountFragment()
             deleteAccountFragment.show(parentFragmentManager, DeleteAccountFragment.TAG)
         }
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    val transaction = parentFragmentManager.beginTransaction()
-                    transaction.replace(R.id.main_fragment, MainFragment())
-                    transaction.commit()
-                }
-            }
-        )
         return fragmentView
     }
 

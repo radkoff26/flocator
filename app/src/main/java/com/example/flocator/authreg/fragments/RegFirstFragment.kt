@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.authreg.FragmentUtils
+import com.example.flocator.utils.FragmentNavigationUtils
 
-class RegFirstFragment : Fragment() {
+class RegFirstFragment : Fragment(), AuthRegSection {
     private lateinit var binding: FragmentRegistrationBinding
 
     companion object {
@@ -26,11 +26,11 @@ class RegFirstFragment : Fragment() {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.submitBtn.setOnClickListener {
-            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, RegSecondFragment())
+            FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, RegSecondFragment())
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, AuthFragment())
+            FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, AuthFragment())
         }
 
         binding.backBtn.visibility = View.INVISIBLE
