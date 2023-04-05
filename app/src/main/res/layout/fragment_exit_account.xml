@@ -37,25 +37,22 @@
                 android:textSize="24sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="@id/exit_account_close_button"
+                app:layout_constraintBottom_toBottomOf="@id/exit_account_close_button"
                 />
-            <FrameLayout
-                android:id="@+id/exit_account_close_button"
-                android:padding="10dp"
-                app:layout_constraintLeft_toRightOf="@id/settings_exit_account_popup_title"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end">
+
                 <ImageView
+                    app:layout_constraintLeft_toRightOf="@id/settings_exit_account_popup_title"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_gravity="end"
+                    android:padding="10dp"
+                    android:id="@+id/exit_account_close_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/settings_close_popup"
                     android:contentDescription="@string/close_window"/>
-            </FrameLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
