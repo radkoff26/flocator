@@ -210,6 +210,7 @@ class MainFragment : Fragment(), MainSection {
                         binding.mapView, viewProvider, user.location
                     ), friendView, null
                 )
+                friendView.setUserName("${user.firstName} ${user.lastName}")
                 usersClickListeners[id] = MapObjectTapListener { _, _ ->
                     mainFragmentViewModel.setCameraFollowOnFriendMark(id)
                     mainFragmentViewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)

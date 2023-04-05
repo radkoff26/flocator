@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import com.example.flocator.authreg.fragments.AuthFragment
 import com.example.flocator.authreg.fragments.LocationRequestFragment
+import com.example.flocator.main.ui.fragments.MainFragment
 import com.example.flocator.utils.FragmentNavigationUtils
 import com.yandex.mapkit.MapKitFactory
 
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, AuthFragment())
+            .add(R.id.fragment_container, MainFragment())
             .commit()
     }
 
