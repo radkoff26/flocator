@@ -26,8 +26,6 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
-import java.lang.Double.min
-import kotlin.math.max
 
 class MainFragmentViewModel : ViewModel() {
     // Data inside of Live Data is non-nullable
@@ -42,7 +40,8 @@ class MainFragmentViewModel : ViewModel() {
         get() = _marks
 
     private var currentVisibleRegion: VisibleRegion? = null
-    private var currentScale: Float? = null // TODO: eliminate
+    private var mapWidth: Float? = null
+    private var markWidth: Float? = null
 
     private val friendsHandler: Handler = Handler(Looper.getMainLooper())
     private val marksHandler: Handler = Handler(Looper.getMainLooper())
@@ -75,16 +74,22 @@ class MainFragmentViewModel : ViewModel() {
         marksHandler.removeCallbacks(this::fetchMarks)
     }
 
-    fun updateVisibleRegion(visibleRegion: VisibleRegion, scale: Float) {
+    fun setWidths(mapWidth: Float, markWidth: Float) {
+        this.mapWidth = mapWidth
+        this.markWidth = markWidth
+    }
+
+    fun updateVisibleRegion(visibleRegion: VisibleRegion) {
         currentVisibleRegion = visibleRegion
-        currentScale = scale
-        val marksInVisibleRegionGrouped = getVisibleRegionMarksGrouped(visibleRegion, scale)
-        if (MarksDiffUtils.isChanged(
-                _visibleMarksLiveData.value!!.toList(),
-                marksInVisibleRegionGrouped
-            )
-        ) {
-            _visibleMarksLiveData.value = marksInVisibleRegionGrouped
+        if (mapWidth != null && markWidth != null) {
+            val marksInVisibleRegionGrouped = getVisibleRegionMarksGrouped(visibleRegion)
+            if (MarksDiffUtils.isChanged(
+                    _visibleMarksLiveData.value!!.toList(),
+                    marksInVisibleRegionGrouped
+                )
+            ) {
+                _visibleMarksLiveData.value = marksInVisibleRegionGrouped
+            }
         }
     }
 
@@ -136,12 +141,11 @@ class MainFragmentViewModel : ViewModel() {
     }
 
     private fun getVisibleRegionMarksGrouped(
-        visibleRegion: VisibleRegion,
-        scale: Float
+        visibleRegion: VisibleRegion
     ): List<MarkGroup> {
         val marksInVisibleRegion =
             getMarksInVisibleRegionOnly(visibleRegion, _marks.values.toList())
-        return MarksUtils.groupMarks(marksInVisibleRegion, scale)
+        return MarksUtils.groupMarks(marksInVisibleRegion, visibleRegion, mapWidth!!, markWidth!!)
     }
 
     private fun getMarksInVisibleRegionOnly(
@@ -152,15 +156,25 @@ class MainFragmentViewModel : ViewModel() {
     }
 
     private fun isInVisibleRegion(point: Point, visibleRegion: VisibleRegion): Boolean {
-        val minLongitude =
-            min(visibleRegion.bottomRight.longitude, visibleRegion.bottomLeft.longitude)
-        val maxLongitude =
-            max(visibleRegion.bottomRight.longitude, visibleRegion.bottomLeft.longitude)
-        val minLatitude = min(visibleRegion.bottomLeft.latitude, visibleRegion.topLeft.latitude)
-        val maxLatitude = max(visibleRegion.bottomLeft.latitude, visibleRegion.topLeft.latitude)
-        return (point.latitude in minLongitude..maxLongitude) // TODO: Fix this chaos
+        val longitudes = listOf(
+            visibleRegion.bottomRight.longitude,
+            visibleRegion.bottomLeft.longitude,
+            visibleRegion.topRight.longitude,
+            visibleRegion.topLeft.longitude
+        )
+        val latitudes = listOf(
+            visibleRegion.bottomRight.latitude,
+            visibleRegion.bottomLeft.latitude,
+            visibleRegion.topRight.latitude,
+            visibleRegion.topLeft.latitude
+        )
+        val minLongitude = longitudes.min()
+        val maxLongitude = longitudes.max()
+        val minLatitude = latitudes.min()
+        val maxLatitude = latitudes.max()
+        return (point.longitude in minLongitude..maxLongitude)
                 &&
-                (point.longitude in minLatitude..maxLatitude)
+                (point.latitude in minLatitude..maxLatitude)
     }
 
     private fun fetchFriends() {
@@ -214,8 +228,8 @@ class MainFragmentViewModel : ViewModel() {
         for (mark in value) {
             _marks[mark.markId] = mark
         }
-        if (currentVisibleRegion != null && currentScale != null) {
-            updateVisibleRegion(currentVisibleRegion!!, currentScale!!)
+        if (currentVisibleRegion != null && mapWidth != null && markWidth != null) {
+            updateVisibleRegion(currentVisibleRegion!!)
         }
     }
 

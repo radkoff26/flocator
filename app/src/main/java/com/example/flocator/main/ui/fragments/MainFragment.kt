@@ -2,9 +2,11 @@ package com.example.flocator.main.ui.fragments
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
 import com.example.flocator.utils.FragmentNavigationUtils
@@ -21,6 +23,7 @@ import com.example.flocator.main.ui.view_models.MainFragmentViewModel
 import com.example.flocator.main.ui.views.FriendMapView
 import com.example.flocator.main.ui.views.MarkGroupMapView
 import com.example.flocator.main.ui.views.MarkMapView
+import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -84,9 +87,9 @@ class MainFragment : Fragment(), MainSection {
     private val cameraListener =
         CameraListener { map, cameraPosition, _, _ ->
             mainFragmentViewModel.updateVisibleRegion(
-                map.visibleRegion,
-                cameraPosition.zoom
+                map.visibleRegion
             )
+            Log.d(TAG, "scale: ${cameraPosition.zoom}")
         }
 
     // Fragment lifecycle methods
@@ -109,8 +112,7 @@ class MainFragment : Fragment(), MainSection {
         binding.mapView.map.addCameraListener(cameraListener)
 
         mainFragmentViewModel.updateVisibleRegion(
-            binding.mapView.map.visibleRegion,
-            binding.mapView.map.cameraPosition.zoom
+            binding.mapView.map.visibleRegion
         )
 
         binding.openAddMarkFragment.setOnClickListener {
@@ -142,6 +144,9 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initializeWidths()
+
         mainFragmentViewModel.userLocationLiveData.observe(
             viewLifecycleOwner,
             this::onUserLocationChanged
@@ -164,6 +169,19 @@ class MainFragment : Fragment(), MainSection {
                 )
             )
         }
+    }
+
+    private fun initializeWidths() {
+        val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                mainFragmentViewModel.setWidths(
+                    binding.mapView.width.toFloat(),
+                    dpToPx(56, requireContext()).toFloat()
+                )
+                binding.mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        }
+        binding.mapView.viewTreeObserver.addOnGlobalLayoutListener(listener)
     }
 
     override fun onStart() {
