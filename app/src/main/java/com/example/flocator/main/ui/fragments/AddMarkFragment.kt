@@ -22,7 +22,7 @@ import com.example.flocator.main.MainSection
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.adapters.CarouselRecyclerViewAdapter
 import com.example.flocator.main.ui.data.CarouselItemState
-import com.example.flocator.main.models.dto.MarkDto
+import com.example.flocator.main.ui.data.dto.MarkDto
 import com.example.flocator.main.ui.view_models.AddMarkFragmentViewModel
 import com.example.flocator.utils.FragmentNavigationUtils
 import com.google.android.material.bottomsheet.BottomSheetBehavior

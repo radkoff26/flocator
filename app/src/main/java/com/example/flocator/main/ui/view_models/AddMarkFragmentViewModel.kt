@@ -9,7 +9,7 @@ import com.example.flocator.main.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.data.CarouselItemState
-import com.example.flocator.main.models.dto.MarkDto
+import com.example.flocator.main.ui.data.dto.MarkDto
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers

@@ -1,4 +1,4 @@
-package com.example.flocator.main.models.dto
+package com.example.flocator.main.ui.data.dto
 
 import com.example.flocator.main.ui.views.MarkMapView
 import com.yandex.mapkit.map.PlacemarkMapObject

@@ -1,4 +1,4 @@
-package com.example.flocator.main.models.dto
+package com.example.flocator.main.ui.data.dto
 
 import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
