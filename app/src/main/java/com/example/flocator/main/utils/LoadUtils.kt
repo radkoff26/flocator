@@ -2,7 +2,7 @@ package com.example.flocator.main.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.flocator.main.Constants
+import com.example.flocator.Constants
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream

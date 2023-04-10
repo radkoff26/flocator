@@ -16,7 +16,9 @@ data class Mark(
     @SerializedName("isPublic")
     val isPublic: Boolean,
     @SerializedName("photos")
-    val photos: List<String>
+    val photos: List<String>,
+    @SerializedName("place")
+    val place: String
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -30,6 +32,7 @@ data class Mark(
         if (text != other.text) return false
         if (isPublic != other.isPublic) return false
         if (photos != other.photos) return false
+        if (place != other.place) return false
 
         return true
     }
@@ -41,6 +44,7 @@ data class Mark(
         result = 31 * result + text.hashCode()
         result = 31 * result + isPublic.hashCode()
         result = 31 * result + photos.hashCode()
+        result = 31 * result + place.hashCode()
         return result
     }
 }

@@ -7,14 +7,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.main.Constants
+import com.example.flocator.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
 import com.example.flocator.main.ui.data.MarkGroup
-import com.example.flocator.main.ui.data.VisibleMarksLiveDataState
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.google.gson.GsonBuilder

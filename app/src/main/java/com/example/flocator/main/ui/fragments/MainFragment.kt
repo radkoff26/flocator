@@ -2,7 +2,6 @@ package com.example.flocator.main.ui.fragments
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.example.flocator.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentMainBinding
 import com.example.flocator.main.MainSection
+import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.models.*
 import com.example.flocator.main.ui.data.MarkGroup
 import com.example.flocator.main.ui.data.dto.FriendViewDto
@@ -27,6 +27,7 @@ import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -85,7 +86,7 @@ class MainFragment : Fragment(), MainSection {
         }
     }
     private val cameraListener =
-        CameraListener { map, cameraPosition, _, _ ->
+        CameraListener { map, _, _, _ ->
             mainFragmentViewModel.updateVisibleRegion(
                 map.visibleRegion
             )
@@ -115,7 +116,27 @@ class MainFragment : Fragment(), MainSection {
         )
 
         binding.openAddMarkFragment.setOnClickListener {
+            if (mainFragmentViewModel.userLocationLiveData.value == null) {
+                Snackbar.make(it, "Получение геолокации...", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val point = mainFragmentViewModel.userLocationLiveData.value!!
+
+            val args = Bundle()
+
+            args.putDouble(
+                BundleArgumentsContraction.AddMarkFragmentArguments.LATITUDE,
+                point.latitude
+            )
+
+            args.putDouble(
+                BundleArgumentsContraction.AddMarkFragmentArguments.LONGITUDE,
+                point.longitude
+            )
+
             val addMarkFragment = AddMarkFragment()
+            addMarkFragment.arguments = args
             addMarkFragment.show(requireActivity().supportFragmentManager, AddMarkFragment.TAG)
         }
 

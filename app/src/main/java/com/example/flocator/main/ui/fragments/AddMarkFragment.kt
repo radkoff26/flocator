@@ -19,13 +19,12 @@ import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentAddMarkBinding
 import com.example.flocator.main.MainSection
+import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.adapters.CarouselRecyclerViewAdapter
 import com.example.flocator.main.ui.data.CarouselItemState
 import com.example.flocator.main.ui.data.dto.MarkDto
 import com.example.flocator.main.ui.view_models.AddMarkFragmentViewModel
-import com.example.flocator.utils.LocationUtils
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -108,26 +107,39 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         }
 
         binding.addMarkBtn.setOnClickListener {
-            LocationUtils.getCurrentLocation(requireContext(), LocationServices.getFusedLocationProviderClient(requireContext())) {
-                addMarkFragmentViewModel.saveMark(
-                    prepareAndGetMark(
-                        Point(
-                            it.latitude,
-                            it.longitude
-                        )
-                    ),
-                    prepareAndGetParts()
-                ) {
-                    this@AddMarkFragment.dismiss()
-                }
-            }
+            addMarkFragmentViewModel.saveMark(
+                prepareAndGetMark(),
+                prepareAndGetParts()
+            )
         }
 
         binding.cancelMarkBtn.setOnClickListener {
             dismiss()
         }
 
+        addMarkFragmentViewModel.addressLiveData.observe(viewLifecycleOwner, this::onAddressUpdated)
+
         adjustRecyclerView()
+
+        extractCurrentLocation()
+    }
+
+    private fun onAddressUpdated(value: String?) {
+        if (value != null) {
+            binding.address.text = value
+        }
+    }
+
+    private fun extractCurrentLocation() {
+        val latitude = requireArguments().getDouble(BundleArgumentsContraction.AddMarkFragmentArguments.LATITUDE)
+        val longitude = requireArguments().getDouble(BundleArgumentsContraction.AddMarkFragmentArguments.LONGITUDE)
+
+        addMarkFragmentViewModel.updateUserPoint(
+            Point(
+                latitude,
+                longitude
+            )
+        )
     }
 
     private fun launchPhotoPicker() {
@@ -212,10 +224,10 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         valueAnimator!!.start()
     }
 
-    private fun prepareAndGetMark(point: Point): MarkDto { // TODO: there must be full user data here
+    private fun prepareAndGetMark(): MarkDto { // TODO: there must be full user data here
         return MarkDto(
             1,
-            point,
+            addMarkFragmentViewModel.userPoint,
             binding.markText.text.toString(),
             binding.isPublicCheckBox.isChecked
         )
