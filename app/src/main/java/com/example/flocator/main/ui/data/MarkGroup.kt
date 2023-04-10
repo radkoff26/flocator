@@ -9,7 +9,7 @@ data class MarkGroup(val marks: List<Mark>, val center: Point) {
         if (other == null || other !is MarkGroup) {
             return false
         }
-        return other.marks.toTypedArray().contentEquals(marks.toTypedArray())
+        return other.marks == marks
                 && other.center.longitude == center.longitude
                 && other.center.latitude == center.latitude
     }

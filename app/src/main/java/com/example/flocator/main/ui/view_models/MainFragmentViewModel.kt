@@ -14,6 +14,7 @@ import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
 import com.example.flocator.main.ui.data.MarkGroup
+import com.example.flocator.main.ui.data.VisibleMarksLiveDataState
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.google.gson.GsonBuilder

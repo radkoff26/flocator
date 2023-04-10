@@ -89,7 +89,6 @@ class MainFragment : Fragment(), MainSection {
             mainFragmentViewModel.updateVisibleRegion(
                 map.visibleRegion
             )
-            Log.d(TAG, "scale: ${cameraPosition.zoom}")
         }
 
     // Fragment lifecycle methods
@@ -104,9 +103,9 @@ class MainFragment : Fragment(), MainSection {
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        usersCollection = binding.mapView.map.mapObjects.addCollection()
-        marksCollection = binding.mapView.map.mapObjects.addCollection()
-        markGroupsCollection = binding.mapView.map.mapObjects.addCollection()
+        usersCollection = binding.mapView.map.addMapObjectLayer("users")
+        marksCollection = binding.mapView.map.addMapObjectLayer("marks")
+        markGroupsCollection = binding.mapView.map.addMapObjectLayer("mark groups")
 
         binding.mapView.map.addInertiaMoveListener(inertiaMoveListener)
         binding.mapView.map.addCameraListener(cameraListener)
@@ -290,63 +289,114 @@ class MainFragment : Fragment(), MainSection {
                     0.0f,
                     0.0f
                 ),
-                Animation(Animation.Type.SMOOTH, 0.008f),
+                Animation(Animation.Type.SMOOTH, 1f),
                 null
             )
         }
     }
 
     private fun onMarksStateChanged(value: List<MarkGroup>) {
-        marksCollection.clear()
-        markGroupsCollection.clear()
         marksViewState.clear()
-        markClickListeners.clear()
+        marksCollection.clear()
         markGroupsViewState.clear()
-        for (group in value) {
-            if (group.marks.size == 1) {
-                val mark = group.marks[0]
-                val id = mark.markId
-                val markMapView = MarkMapView(requireContext())
-                val viewProvider = ViewProvider(markMapView)
-                marksViewState[id] = MarkViewDto(
-                    marksCollection.addPlacemark(mark.location, viewProvider),
-                    markMapView,
-                    null,
-                    null
-                )
-                if (mark.photos.isEmpty()) {
-                    markMapView.setMarkBitmapPlaceHolder()
-                    viewProvider.snapshot()
-                    marksViewState[id]!!.placemark.setView(viewProvider)
-                    marksViewState[id]!!.thumbnailUri = null
-                } else {
-                    val firstImage = mark.photos[0]
-                    if (!mainFragmentViewModel.photoCacheContains(firstImage)) {
-                        compositeDisposable.add(LoadUtils.loadPictureFromUrl(
-                            firstImage,
-                            COMPRESSION_FACTOR
-                        ).observeOn(Schedulers.computation()).subscribe { image ->
-                            mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
-                        })
-                    } else {
-                        markMapView.setMarkBitmapImage(mainFragmentViewModel.getCachedPhoto(firstImage)!!)
+        markGroupsCollection.clear()
+        markClickListeners.clear()
+        val found = BooleanArray(value.size) { false }
+        for (groupIndex in value.indices) {
+            if (!found[groupIndex]) {
+                val group = value[groupIndex]
+                if (group.marks.size == 1) {
+                    val mark = group.marks[0]
+                    val id = mark.markId
+                    val markMapView = MarkMapView(requireContext())
+                    val viewProvider = ViewProvider(markMapView)
+                    marksViewState[id] = MarkViewDto(
+                        marksCollection.addPlacemark(mark.location, viewProvider),
+                        markMapView,
+                        null,
+                        null
+                    )
+                    if (mark.photos.isEmpty()) {
+                        markMapView.setMarkBitmapPlaceHolder()
                         viewProvider.snapshot()
                         marksViewState[id]!!.placemark.setView(viewProvider)
+                        marksViewState[id]!!.thumbnailUri = null
+                    } else {
+                        val firstImage = mark.photos[0]
+                        if (!mainFragmentViewModel.photoCacheContains(firstImage)) {
+                            compositeDisposable.add(LoadUtils.loadPictureFromUrl(
+                                firstImage,
+                                COMPRESSION_FACTOR
+                            ).observeOn(Schedulers.computation()).subscribe { image ->
+                                mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
+                            })
+                        } else {
+                            markMapView.setMarkBitmapImage(
+                                mainFragmentViewModel.getCachedPhoto(
+                                    firstImage
+                                )!!
+                            )
+                            viewProvider.snapshot()
+                            marksViewState[id]!!.placemark.setView(viewProvider)
+                        }
                     }
-                }
-            } else {
-                val markGroupMapView = MarkGroupMapView(requireContext())
-                markGroupMapView.setCount(group.marks.size)
-                val viewProvider = ViewProvider(markGroupMapView)
-                markGroupsViewState.add(
-                    MarkGroupViewDto(
-                        markGroupsCollection.addPlacemark(group.center, viewProvider),
-                        markGroupMapView,
-                        group.marks
+                } else {
+                    val markGroupMapView = MarkGroupMapView(requireContext())
+                    markGroupMapView.setCount(group.marks.size)
+                    val viewProvider = ViewProvider(markGroupMapView)
+                    markGroupsViewState.add(
+                        MarkGroupViewDto(
+                            markGroupsCollection.addPlacemark(group.center, viewProvider),
+                            markGroupMapView,
+                            group.marks
+                        )
                     )
-                )
+                }
             }
         }
+    }
+
+    private fun countMarksDiff(value: List<MarkGroup>): BooleanArray {
+        val found = BooleanArray(value.size) { false }
+        val markViews = marksViewState.entries
+        for (markView in markViews) {
+            synchronized(markView) {
+                val foundElementIndex = value.indexOfFirst {
+                    it.marks.size == 1
+                            &&
+                            it.marks[0].markId == markView.key
+                            &&
+                            it.marks[0].location == markView.value.placemark.geometry
+                }
+                if (foundElementIndex == -1) {
+                    if (markView.value.placemark.isValid) {
+                        marksCollection.remove(markView.value.placemark)
+                    }
+                    marksViewState.remove(markView.key)
+                } else {
+                    found[foundElementIndex] = true
+                }
+            }
+        }
+        var i = 0
+        while (i < markGroupsViewState.size) {
+            val item = markGroupsViewState[i]
+            synchronized(item) {
+                val foundElementIndex = value.indexOfFirst {
+                    it.marks == item.marks
+                }
+                if (foundElementIndex == -1) {
+                    if (item.placemark.isValid) {
+                        marksCollection.remove(item.placemark)
+                    }
+                    markGroupsViewState.removeAt(i)
+                } else {
+                    found[foundElementIndex] = true
+                    i++
+                }
+            }
+        }
+        return found
     }
 
     private fun onPhotoLoaded(value: kotlin.collections.Map<String, Bitmap>) {
