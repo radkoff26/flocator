@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
@@ -37,11 +37,11 @@ class PrivacySettings : Fragment(), SettingsSection {
     ): View? {
         val fragmentView = inflater.inflate(R.layout.fragment_privacy_settings, container, false)
         val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.friend_list)
-        val backButton = fragmentView.findViewById<FrameLayout>(R.id.back_button)
-        val selectAllButton = fragmentView.findViewById<FrameLayout>(R.id.select_all_frame)
-        val currentLocation = fragmentView.findViewById<LinearLayout>(R.id.privacy_current_location)
-        val approxLocation = fragmentView.findViewById<LinearLayout>(R.id.privacy_approx_location)
-        val fixedLocation = fragmentView.findViewById<LinearLayout>(R.id.privacy_fix_location)
+        val backButton = fragmentView.findViewById<FrameLayout>(R.id.privacy_back_button)
+        val selectAllButton = fragmentView.findViewById<TextView>(R.id.privacy_select_all)
+        val currentLocation = fragmentView.findViewById<FrameLayout>(R.id.current_loc_img_frame)
+        val approxLocation = fragmentView.findViewById<FrameLayout>(R.id.approx_loc_img_frame)
+        val fixedLocation = fragmentView.findViewById<FrameLayout>(R.id.no_loc_img_frame)
         backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
