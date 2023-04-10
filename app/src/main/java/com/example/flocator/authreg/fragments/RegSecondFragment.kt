@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 
 class RegSecondFragment : Fragment(), AuthRegSection {
     private lateinit var binding: FragmentRegistrationBinding

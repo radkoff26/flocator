@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.flocator.R
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import java.util.*
 
 class SettingsFragment : Fragment(), SettingsSection {

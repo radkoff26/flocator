@@ -1,4 +1,4 @@
-package com.example.flocator.utils
+package com.example.flocator.common.utils
 
 import android.util.Log
 import androidx.fragment.app.Fragment

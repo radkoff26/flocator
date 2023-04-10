@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.flocator.databinding.FragmentAuthBinding
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 
 
 class AuthFragment : Fragment(), AuthRegSection {

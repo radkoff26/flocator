@@ -7,13 +7,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.Constants
+import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
 import com.example.flocator.main.ui.data.MarkGroup
+import com.example.flocator.main.ui.data.UserInfo
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.google.gson.GsonBuilder
@@ -34,6 +35,7 @@ class MainFragmentViewModel : ViewModel() {
     private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
     private val _photoCacheLiveData = MutableLiveData<Map<String, Bitmap>>(HashMap())
     private val _userLocationLiveData = MutableLiveData<Point?>(null)
+    private var _userInfo: UserInfo? = null
 
     private val _marks: MutableMap<Long, Mark> = HashMap()
     val marks: Map<Long, Mark>
@@ -63,6 +65,24 @@ class MainFragmentViewModel : ViewModel() {
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val photoCacheLiveData: LiveData<Map<String, Bitmap>> = _photoCacheLiveData
     val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
+    val userInfo: UserInfo?
+        get() = _userInfo
+
+    fun requestUserData(userId: Long) {
+        compositeDisposable.add(
+            clientAPI.getUser(userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userInfo = it
+                    },
+                    {
+                        Log.e(TAG, "requestUserData: ${it.stackTraceToString()}", it)
+                    }
+                )
+        )
+    }
 
     fun startPolling() {
         friendsHandler.post(this::fetchFriends)
@@ -110,11 +130,11 @@ class MainFragmentViewModel : ViewModel() {
     }
 
     fun setCameraFollowOnUserMark() {
-        if (_userLocationLiveData.value == null) {
+        if (_userLocationLiveData.value == null || userInfo == null) {
             return
         }
         val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFollowOnUserMark(USER_ID, _userLocationLiveData.value!!)
+        cameraStatus.setFollowOnUserMark(userInfo!!.userId, _userLocationLiveData.value!!)
         _cameraStatusLiveData.value = cameraStatus
     }
 
@@ -186,13 +206,13 @@ class MainFragmentViewModel : ViewModel() {
                     {
                         updateUsers(it)
                         Log.d(TAG, "Fetched users from server $it")
+                        friendsHandler.postDelayed(this::fetchFriends, 5000)
                     },
                     {
                         Log.e(TAG, it.message, it)
                     }
                 )
         )
-//        friendsHandler.postDelayed(this::fetchFriends, 5000)
     }
 
     private fun fetchMarks() {
@@ -204,13 +224,13 @@ class MainFragmentViewModel : ViewModel() {
                     {
                         updateMarks(it)
                         Log.d(TAG, "Fetched marks from server $it")
+                        friendsHandler.postDelayed(this::fetchMarks, 10000)
                     },
                     {
                         Log.e(TAG, it.message, it)
                     }
                 )
         )
-//        friendsHandler.postDelayed(this::fetchMarks, 10000)
     }
 
     private fun updateUsers(users: List<User>) {
@@ -241,8 +261,5 @@ class MainFragmentViewModel : ViewModel() {
 
     companion object {
         const val TAG = "Main Fragment View Model"
-        const val USER_ID = 1L
-        const val USER_AVATAR_URL =
-            "https://sun9-55.userapi.com/impg/2NrJDQ-paBNyKNiDFFU0ItHSxe4PmpWR-V16fA/9ZkY5ZR55gc.jpg?size=720x1280&quality=95&sign=e2343d8bb5f0039a054c4cb063486f26&type=album"
     }
 }

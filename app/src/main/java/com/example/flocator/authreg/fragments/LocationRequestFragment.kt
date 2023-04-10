@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentLocationRequestBinding
 import android.content.Intent
 import android.content.SharedPreferences

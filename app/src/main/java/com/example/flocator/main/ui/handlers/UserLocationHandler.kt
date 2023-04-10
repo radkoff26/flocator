@@ -6,7 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.flocator.utils.LocationUtils
+import com.example.flocator.common.utils.LocationUtils
 import com.google.android.gms.location.LocationServices
 import java.util.function.Consumer
 

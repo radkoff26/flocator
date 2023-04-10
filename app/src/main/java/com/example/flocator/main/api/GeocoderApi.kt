@@ -1,6 +1,6 @@
 package com.example.flocator.main.api
 
-import com.example.flocator.Constants.GEOCODER_API_KEY
+import com.example.flocator.common.config.Constants.GEOCODER_API_KEY
 import com.example.flocator.main.ui.data.response.AddressResponse
 import io.reactivex.Single
 import retrofit2.http.GET

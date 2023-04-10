@@ -15,7 +15,7 @@ import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.FragmentPersonProfileBinding
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 
 class OtherPersonProfileFragment() : Fragment(), CommunitySection {
     private var _binding: FragmentPersonProfileBinding? = null

@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.Constants
+import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderApi
 import com.example.flocator.main.deserializers.AddressDeserializer
@@ -72,11 +72,11 @@ class AddMarkFragmentViewModel : ViewModel() {
     private fun obtainAddress() {
         compositeDisposable.add(
             geocoderApi.getAddress(getGeoCodeFormatted(_userPoint))
-                .observeOn(Schedulers.io())
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        _addressLiveData.postValue(it.address)
+                        _addressLiveData.value = it.address
                     },
                     {
                         Log.e(TAG, "obtainAddress: ${it.stackTraceToString()}")

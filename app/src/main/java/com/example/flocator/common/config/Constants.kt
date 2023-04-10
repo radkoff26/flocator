@@ -1,4 +1,4 @@
-package com.example.flocator
+package com.example.flocator.common.config
 
 object Constants {
     const val MAPS_API_KEY = "fd3ecdab-a39c-4b8b-a215-44a8458a84bf"

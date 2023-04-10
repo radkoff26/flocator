@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentRegistrationBinding
 
 class RegThirdFragment : Fragment(), AuthRegSection {

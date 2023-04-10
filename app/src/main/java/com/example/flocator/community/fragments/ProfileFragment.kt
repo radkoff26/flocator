@@ -23,7 +23,7 @@ import com.example.flocator.community.data_classes.Person
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.FragmentCommunityBinding
 import com.example.flocator.main.ui.view_models.MainFragmentViewModel
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
