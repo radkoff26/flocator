@@ -3,11 +3,14 @@ package com.example.flocator
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import com.example.flocator.authreg.fragments.AuthFragment
 import com.example.flocator.authreg.fragments.LocationRequestFragment
+import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.utils.FragmentNavigationUtils
 import com.yandex.mapkit.MapKitFactory
 
 
@@ -36,9 +39,16 @@ class MainActivity : AppCompatActivity() {
             editor.putString("USER_AVATAR_URL", "https://sun9-55.userapi.com/impg/2NrJDQ-paBNyKNiDFFU0ItHSxe4PmpWR-V16fA/9ZkY5ZR55gc.jpg?size=720x1280&quality=95&sign=e2343d8bb5f0039a054c4cb063486f26&type=album")
             editor.apply()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                FragmentNavigationUtils.closeLastFragment(supportFragmentManager, this@MainActivity)
+            }
+        })
+
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, AuthFragment())
+            .add(R.id.fragment_container, MainFragment())
             .commit()
     }
 

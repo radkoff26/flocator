@@ -13,7 +13,7 @@ import com.example.flocator.R
 
 
 
-class PrivacySettings : Fragment() {
+class PrivacySettings : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
     private fun getFriends(): ArrayList<Friend> {

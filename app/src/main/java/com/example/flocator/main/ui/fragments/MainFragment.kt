@@ -2,39 +2,44 @@ package com.example.flocator.main.ui.fragments
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.flocator.R
+import android.view.ViewTreeObserver
 import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
+import com.example.flocator.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentMainBinding
+import com.example.flocator.main.MainSection
 import com.example.flocator.main.models.*
-import com.example.flocator.main.models.dto.FriendViewDto
-import com.example.flocator.main.models.dto.MarkViewDto
+import com.example.flocator.main.ui.data.MarkGroup
+import com.example.flocator.main.ui.data.dto.FriendViewDto
+import com.example.flocator.main.ui.data.dto.MarkGroupViewDto
+import com.example.flocator.main.ui.data.dto.MarkViewDto
 import com.example.flocator.main.ui.handlers.UserLocationHandler
 import com.example.flocator.main.utils.LoadUtils
-import com.example.flocator.main.utils.MapUtils
 import com.example.flocator.main.ui.view_models.MainFragmentViewModel
 import com.example.flocator.main.ui.views.FriendMapView
+import com.example.flocator.main.ui.views.MarkGroupMapView
 import com.example.flocator.main.ui.views.MarkMapView
+import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.InertiaMoveListener
+import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
-import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.runtime.ui_view.ViewProvider
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.lang.Float.max
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), MainSection {
     // Binding
     private var _binding: FragmentMainBinding? = null
     private val binding: FragmentMainBinding
@@ -49,8 +54,14 @@ class MainFragment : Fragment() {
     // Map store
     private val usersViewState = ConcurrentHashMap<Long, FriendViewDto>()
     private val marksViewState = ConcurrentHashMap<Long, MarkViewDto>()
+    private val markGroupsViewState = CopyOnWriteArrayList<MarkGroupViewDto>()
     private val usersClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
     private val markClickListeners = ConcurrentHashMap<Long, MapObjectTapListener>()
+
+    // Map collections
+    private lateinit var usersCollection: MapObjectCollection
+    private lateinit var marksCollection: MapObjectCollection
+    private lateinit var markGroupsCollection: MapObjectCollection
 
     // Handlers
     private lateinit var userLocationHandler: UserLocationHandler
@@ -73,6 +84,13 @@ class MainFragment : Fragment() {
 
         }
     }
+    private val cameraListener =
+        CameraListener { map, cameraPosition, _, _ ->
+            mainFragmentViewModel.updateVisibleRegion(
+                map.visibleRegion
+            )
+            Log.d(TAG, "scale: ${cameraPosition.zoom}")
+        }
 
     // Fragment lifecycle methods
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,27 +104,34 @@ class MainFragment : Fragment() {
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
+        usersCollection = binding.mapView.map.mapObjects.addCollection()
+        marksCollection = binding.mapView.map.mapObjects.addCollection()
+        markGroupsCollection = binding.mapView.map.mapObjects.addCollection()
+
         binding.mapView.map.addInertiaMoveListener(inertiaMoveListener)
+        binding.mapView.map.addCameraListener(cameraListener)
+
+        mainFragmentViewModel.updateVisibleRegion(
+            binding.mapView.map.visibleRegion
+        )
 
         binding.openAddMarkFragment.setOnClickListener {
             val addMarkFragment = AddMarkFragment()
-            addMarkFragment.show(this.parentFragmentManager, AddMarkFragment.TAG)
+            addMarkFragment.show(requireActivity().supportFragmentManager, AddMarkFragment.TAG)
         }
 
         binding.communityBtn.setOnClickListener {
-            val communityFragment = ProfileFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.main_fragment, communityFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            FragmentNavigationUtils.openFragment(
+                requireActivity().supportFragmentManager,
+                ProfileFragment()
+            )
         }
 
         binding.settingsBtn.setOnClickListener {
-            val settingsFragment = SettingsFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.main_fragment, settingsFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            FragmentNavigationUtils.openFragment(
+                requireActivity().supportFragmentManager,
+                SettingsFragment()
+            )
         }
 
         binding.targetBtn.setOnClickListener {
@@ -119,6 +144,9 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initializeWidths()
+
         mainFragmentViewModel.userLocationLiveData.observe(
             viewLifecycleOwner,
             this::onUserLocationChanged
@@ -127,7 +155,10 @@ class MainFragment : Fragment() {
             viewLifecycleOwner,
             this::onFriendsStateChanged
         )
-        mainFragmentViewModel.marksLiveData.observe(viewLifecycleOwner, this::onMarksStateChanged)
+        mainFragmentViewModel.visibleMarksLiveData.observe(
+            viewLifecycleOwner,
+            this::onMarksStateChanged
+        )
         mainFragmentViewModel.photoCacheLiveData.observe(viewLifecycleOwner, this::onPhotoLoaded)
 
         userLocationHandler = UserLocationHandler(requireContext(), viewLifecycleOwner) {
@@ -138,6 +169,19 @@ class MainFragment : Fragment() {
                 )
             )
         }
+    }
+
+    private fun initializeWidths() {
+        val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                mainFragmentViewModel.setWidths(
+                    binding.mapView.width.toFloat(),
+                    dpToPx(56, requireContext()).toFloat()
+                )
+                binding.mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        }
+        binding.mapView.viewTreeObserver.addOnGlobalLayoutListener(listener)
     }
 
     override fun onStart() {
@@ -178,10 +222,9 @@ class MainFragment : Fragment() {
             val friendMapView = FriendMapView(requireContext())
             val viewProvider = ViewProvider(friendMapView)
             usersViewState[MainFragmentViewModel.USER_ID] = FriendViewDto(
-                MapUtils.addViewToMap(
-                    binding.mapView,
-                    viewProvider,
-                    point
+                usersCollection.addPlacemark(
+                    point,
+                    viewProvider
                 ),
                 friendMapView,
                 null
@@ -190,7 +233,10 @@ class MainFragment : Fragment() {
                 MainFragmentViewModel.USER_AVATAR_URL,
                 COMPRESSION_FACTOR
             ).observeOn(Schedulers.computation()).subscribe { image ->
-                mainFragmentViewModel.setLoadedPhotoAsync(MainFragmentViewModel.USER_AVATAR_URL, image)
+                mainFragmentViewModel.setLoadedPhotoAsync(
+                    MainFragmentViewModel.USER_AVATAR_URL,
+                    image
+                )
             })
         } else {
             usersViewState[MainFragmentViewModel.USER_ID]!!.placemark.geometry = point
@@ -205,10 +251,11 @@ class MainFragment : Fragment() {
                 val friendView = FriendMapView(requireContext())
                 val viewProvider = ViewProvider(friendView)
                 usersViewState[id] = FriendViewDto(
-                    MapUtils.addViewToMap(
-                        binding.mapView, viewProvider, user.location
-                    ), friendView, null
+                    usersCollection.addPlacemark(user.location, viewProvider),
+                    friendView,
+                    null
                 )
+                friendView.setUserName("${user.firstName} ${user.lastName}")
                 usersClickListeners[id] = MapObjectTapListener { _, _ ->
                     mainFragmentViewModel.setCameraFollowOnFriendMark(id)
                     mainFragmentViewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
@@ -237,24 +284,35 @@ class MainFragment : Fragment() {
     private fun onCameraStatusChanged(value: CameraStatus) {
         if (value.cameraStatusType == CameraStatusType.FOLLOW_FRIEND || value.cameraStatusType == CameraStatusType.FOLLOW_USER) {
             binding.mapView.map.move(
-                CameraPosition(value.point!!, 20.0f, 0.0f, 0.0f),
+                CameraPosition(
+                    value.point!!,
+                    max(MIN_ZOOM_SCALE, binding.mapView.map.cameraPosition.zoom),
+                    0.0f,
+                    0.0f
+                ),
                 Animation(Animation.Type.SMOOTH, 0.008f),
                 null
             )
         }
     }
 
-    private fun onMarksStateChanged(value: kotlin.collections.Map<Long, Mark>) {
-        for (entry in value) {
-            val id = entry.key
-            val mark = entry.value
-            if (marksViewState[id] == null) {
+    private fun onMarksStateChanged(value: List<MarkGroup>) {
+        marksCollection.clear()
+        markGroupsCollection.clear()
+        marksViewState.clear()
+        markClickListeners.clear()
+        markGroupsViewState.clear()
+        for (group in value) {
+            if (group.marks.size == 1) {
+                val mark = group.marks[0]
+                val id = mark.markId
                 val markMapView = MarkMapView(requireContext())
                 val viewProvider = ViewProvider(markMapView)
                 marksViewState[id] = MarkViewDto(
-                    MapUtils.addViewToMap(
-                        binding.mapView, viewProvider, mark.location
-                    ), markMapView, null, null
+                    marksCollection.addPlacemark(mark.location, viewProvider),
+                    markMapView,
+                    null,
+                    null
                 )
                 if (mark.photos.isEmpty()) {
                     markMapView.setMarkBitmapPlaceHolder()
@@ -270,8 +328,23 @@ class MainFragment : Fragment() {
                         ).observeOn(Schedulers.computation()).subscribe { image ->
                             mainFragmentViewModel.setLoadedPhotoAsync(firstImage, image)
                         })
+                    } else {
+                        markMapView.setMarkBitmapImage(mainFragmentViewModel.getCachedPhoto(firstImage)!!)
+                        viewProvider.snapshot()
+                        marksViewState[id]!!.placemark.setView(viewProvider)
                     }
                 }
+            } else {
+                val markGroupMapView = MarkGroupMapView(requireContext())
+                markGroupMapView.setCount(group.marks.size)
+                val viewProvider = ViewProvider(markGroupMapView)
+                markGroupsViewState.add(
+                    MarkGroupViewDto(
+                        markGroupsCollection.addPlacemark(group.center, viewProvider),
+                        markGroupMapView,
+                        group.marks
+                    )
+                )
             }
         }
     }
@@ -293,7 +366,7 @@ class MainFragment : Fragment() {
         // Watch mark images change
         for (mark in marksViewState) {
             // State of current mark
-            val liveMark = mainFragmentViewModel.marksLiveData.value!![mark.key]!!
+            val liveMark = mainFragmentViewModel.marks[mark.key]!!
 
             // Mark thumbnail case
             if (liveMark.photos.isEmpty()) {
@@ -369,5 +442,6 @@ class MainFragment : Fragment() {
     companion object {
         const val TAG = "Main Fragment"
         const val COMPRESSION_FACTOR = 20
+        const val MIN_ZOOM_SCALE = 15f
     }
 }

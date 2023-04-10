@@ -6,10 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.flocator.authreg.FragmentUtils
+import com.example.flocator.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentRegistrationBinding
 
-class RegThirdFragment : Fragment() {
+class RegThirdFragment : Fragment(), AuthRegSection {
     private lateinit var binding: FragmentRegistrationBinding
 
     companion object {
@@ -24,7 +24,7 @@ class RegThirdFragment : Fragment() {
         binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.submitBtn.setOnClickListener {
-            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, LocationRequestFragment())
+            FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, LocationRequestFragment())
         }
 
         binding.backBtn.setOnClickListener {
@@ -33,7 +33,7 @@ class RegThirdFragment : Fragment() {
 
         binding.alreadyRegisteredText.setOnClickListener {
             //Должны сохраняться введенные значения
-            FragmentUtils.replaceFragment(requireActivity().supportFragmentManager, AuthFragment())
+            FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, AuthFragment())
         }
 
         binding.firstInputEditField.inputType =

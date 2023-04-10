@@ -18,12 +18,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentAddMarkBinding
+import com.example.flocator.main.MainSection
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.adapters.CarouselRecyclerViewAdapter
 import com.example.flocator.main.ui.data.CarouselItemState
-import com.example.flocator.main.models.dto.MarkDto
+import com.example.flocator.main.ui.data.dto.MarkDto
 import com.example.flocator.main.ui.view_models.AddMarkFragmentViewModel
-import com.example.flocator.utils.FragmentNavigationUtils
+import com.example.flocator.utils.LocationUtils
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -32,7 +34,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-class AddMarkFragment : BottomSheetDialogFragment() {
+class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
@@ -106,11 +108,18 @@ class AddMarkFragment : BottomSheetDialogFragment() {
         }
 
         binding.addMarkBtn.setOnClickListener {
-            addMarkFragmentViewModel.saveMark(
-                prepareAndGetMark(),
-                prepareAndGetParts()
-            ) {
-                FragmentNavigationUtils.closeFragment(requireActivity())
+            LocationUtils.getCurrentLocation(requireContext(), LocationServices.getFusedLocationProviderClient(requireContext())) {
+                addMarkFragmentViewModel.saveMark(
+                    prepareAndGetMark(
+                        Point(
+                            it.latitude,
+                            it.longitude
+                        )
+                    ),
+                    prepareAndGetParts()
+                ) {
+                    this@AddMarkFragment.dismiss()
+                }
             }
         }
 
@@ -203,10 +212,10 @@ class AddMarkFragment : BottomSheetDialogFragment() {
         valueAnimator!!.start()
     }
 
-    private fun prepareAndGetMark(): MarkDto { // TODO: there must be full user data here
+    private fun prepareAndGetMark(point: Point): MarkDto { // TODO: there must be full user data here
         return MarkDto(
             1,
-            Point(59.921962, 30.355260),
+            point,
             binding.markText.text.toString(),
             binding.isPublicCheckBox.isChecked
         )

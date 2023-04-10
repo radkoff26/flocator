@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 
-class BlackListFragment : Fragment() {
+class BlackListFragment : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
     override fun onCreateView(
