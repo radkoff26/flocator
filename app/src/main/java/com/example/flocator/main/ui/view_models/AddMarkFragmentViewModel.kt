@@ -5,16 +5,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
-import com.example.flocator.main.api.GeocoderApi
-import com.example.flocator.main.deserializers.AddressDeserializer
+import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.main.ui.data.AddMarkFragmentState
 import com.example.flocator.main.ui.data.CarouselItemState
 import com.example.flocator.main.ui.data.dto.MarkDto
-import com.example.flocator.main.ui.data.response.AddressResponse
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -22,41 +18,15 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
+import javax.inject.Inject
 
-class AddMarkFragmentViewModel : ViewModel() {
+class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI, private val geocoderApi: GeocoderAPI) : ViewModel() {
     private val _carouselLiveData = MutableLiveData<List<CarouselItemState>>(emptyList())
     private val _fragmentStateLiveData = MutableLiveData(AddMarkFragmentState.EDITING)
     private val _addressLiveData = MutableLiveData<String>(null)
     private lateinit var _userPoint: Point
 
     private val compositeDisposable = CompositeDisposable()
-    private val clientAPI: ClientAPI by lazy {
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        retrofit.create()
-    }
-    private val geocoderApi: GeocoderApi by lazy {
-        val gson = GsonBuilder()
-            .registerTypeAdapter(AddressResponse::class.java, AddressDeserializer())
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://geocode-maps.yandex.ru/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        retrofit.create()
-    }
 
     val carouselLiveData: LiveData<List<CarouselItemState>> = _carouselLiveData
     val fragmentStateLiveData: LiveData<AddMarkFragmentState> = _fragmentStateLiveData

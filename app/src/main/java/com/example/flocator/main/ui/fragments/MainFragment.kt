@@ -36,12 +36,15 @@ import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
 import com.yandex.runtime.ui_view.ViewProvider
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.lang.Float.max
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainFragment : Fragment(), MainSection {
     // Binding
     private var _binding: FragmentMainBinding? = null
@@ -49,7 +52,7 @@ class MainFragment : Fragment(), MainSection {
         get() = _binding!!
 
     // ViewModel
-    private val mainFragmentViewModel = MainFragmentViewModel()
+    @Inject lateinit var mainFragmentViewModel: MainFragmentViewModel
 
     // Rx
     private val compositeDisposable = CompositeDisposable()
@@ -155,10 +158,7 @@ class MainFragment : Fragment(), MainSection {
 
         binding.targetBtn.setOnClickListener {
             mainFragmentViewModel.setCameraFollowOnUserMark()
-            mainFragmentViewModel.cameraStatusLiveData.observe(
-                viewLifecycleOwner,
-                this::onCameraStatusChanged
-            )
+            mainFragmentViewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
         }
 
         return binding.root

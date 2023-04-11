@@ -6,7 +6,7 @@ import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface GeocoderApi {
+interface GeocoderAPI {
     @GET("1.x")
     fun getAddress(
         @Query("geocode") geoCode: String,

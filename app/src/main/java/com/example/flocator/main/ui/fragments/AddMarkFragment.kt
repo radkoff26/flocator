@@ -29,19 +29,24 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.yandex.mapkit.geometry.Point
+import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
 
+    @Inject lateinit var addMarkFragmentViewModel: AddMarkFragmentViewModel
+
     private lateinit var carouselAdapter: CarouselRecyclerViewAdapter
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
-    private val addMarkFragmentViewModel = AddMarkFragmentViewModel()
     private var valueAnimator: ValueAnimator? = null
+
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)

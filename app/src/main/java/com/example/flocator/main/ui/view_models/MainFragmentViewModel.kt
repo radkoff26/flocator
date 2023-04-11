@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
@@ -17,18 +16,14 @@ import com.example.flocator.main.ui.data.MarkGroup
 import com.example.flocator.main.ui.data.UserInfo
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
-import com.google.gson.GsonBuilder
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
+import javax.inject.Inject
 
-class MainFragmentViewModel : ViewModel() {
+class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI) : ViewModel() {
     // Data inside of Live Data is non-nullable
     private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
     private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
@@ -48,17 +43,6 @@ class MainFragmentViewModel : ViewModel() {
     private val friendsHandler: Handler = Handler(Looper.getMainLooper())
     private val marksHandler: Handler = Handler(Looper.getMainLooper())
     private val compositeDisposable = CompositeDisposable()
-    private val clientAPI: ClientAPI by lazy {
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(Constants.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        retrofit.create()
-    }
 
     val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData
     val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData
