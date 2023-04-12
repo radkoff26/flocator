@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.example.flocator.R
-import com.example.flocator.authreg.fragments.AuthRegSection
+import com.example.flocator.authentication.authorization.AuthRegSection
 import com.example.flocator.community.CommunitySection
 import com.example.flocator.main.MainSection
 import com.example.flocator.settings.SettingsSection

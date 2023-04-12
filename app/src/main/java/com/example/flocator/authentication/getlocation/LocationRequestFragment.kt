@@ -1,4 +1,4 @@
-package com.example.flocator.authreg.fragments
+package com.example.flocator.authentication.getlocation
 
 import android.Manifest
 import android.content.Context
@@ -18,12 +18,29 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.example.flocator.authentication.authorization.AuthRegSection
 import com.example.flocator.main.ui.main.MainFragment
 
 class LocationRequestFragment : Fragment(), AuthRegSection {
     private lateinit var binding: FragmentLocationRequestBinding
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
+
+    companion object {
+        fun hasLocationPermission(context: Context): Boolean {
+            val fineLocationPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            val coarseLocationPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            return fineLocationPermission && coarseLocationPermission
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -4,19 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".authreg.fragments.AuthFragment">
+    android:background="@android:color/white"
+    tools:context=".authentication.authorization.AuthFragment">
 
-    <ImageButton
-        android:id="@+id/back_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/back"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/logo_flocator"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
         android:background="@color/white"
-        android:padding="16dp"
-        android:contentDescription="Вернуться назад"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/logo_flocator"
@@ -25,14 +21,14 @@
 
         android:layout_marginTop="64dp"
         android:gravity="center_horizontal"
-        android:text="FLocator"
+        android:text="@string/logo"
         android:textColor="#1515B9"
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/window_registration_name"
         app:layout_constraintLeft_toRightOf="@id/guideline_left"
         app:layout_constraintRight_toLeftOf="@id/guideline_right"
-        app:layout_constraintTop_toTopOf="@id/back_btn"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="0.1" />
 
     <LinearLayout
@@ -85,6 +81,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+
+            <TextView
+                android:id="@+id/registration_error_message_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -92,8 +99,8 @@
             style="@style/Widget.Material3.Button.IconButton.Filled"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:textColor="@color/white"
             android:backgroundTint="@color/tint"
+            android:textColor="@color/white"
             android:textSize="16sp"
             app:cornerRadius="9dp" />
 
@@ -102,7 +109,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
-            android:text="Уже есть аккаунт?"
+            android:text="@string/already_registered"
             android:textColor="@color/tint"
             android:textSize="16sp" />
 

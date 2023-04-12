@@ -10,7 +10,7 @@ import android.view.ViewTreeObserver
 import com.example.flocator.community.fragments.ProfileFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.flocator.authreg.fragments.AuthFragment
+import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.common.config.SharedPreferencesContraction
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentMainBinding

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.common.config.SharedPreferencesContraction
 import com.example.flocator.main.ui.main.MainFragment
 import com.example.flocator.common.utils.FragmentNavigationUtils
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragment_container, MainFragment())
+            .add(R.id.fragment_container, AuthFragment())
             .commit()
     }
 
