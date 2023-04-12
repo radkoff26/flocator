@@ -6,7 +6,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.flocator.common.config.SharedPreferencesContraction
-import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.main.ui.main.MainFragment
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint

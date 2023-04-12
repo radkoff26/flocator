@@ -19,6 +19,10 @@ class LoadUtils {
                 }
                 val inputStream = mUrl.openStream()
                 var bitmap = BitmapFactory.decodeStream(inputStream)
+                if (bitmap == null) {
+                    it.onError(Exception("Image is not loaded!"))
+                    return@create
+                }
                 if (qualityFactor != null) {
                     val outputStream = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.PNG, qualityFactor, outputStream)

@@ -18,7 +18,11 @@ data class Mark(
     @SerializedName("photos")
     val photos: List<String>,
     @SerializedName("place")
-    val place: String
+    val place: String,
+    @SerializedName("likesCount")
+    var likesCount: Int,
+    @SerializedName("hasUserLiked")
+    var hasUserLiked: Boolean
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -13,12 +13,20 @@ import com.example.flocator.settings.SettingsSection
 object FragmentNavigationUtils {
 
     fun openFragment(fragmentManager: FragmentManager, fragment: Fragment) {
+        openFragment(fragmentManager, fragment, true)
+    }
+
+    fun openFragmentExcludingMain(fragmentManager: FragmentManager, fragment: Fragment) {
+        openFragment(fragmentManager, fragment, false)
+    }
+
+    private fun openFragment(fragmentManager: FragmentManager, fragment: Fragment, excludeMain: Boolean) {
         val fragments = fragmentManager.fragments
         val transaction = fragmentManager.beginTransaction()
         if (fragments.size > 0) {
             val lastFragmentInterface = getAssignableFromInterface(fragments.lastOrNull()!!)
             val currentFragmentInterface = getAssignableFromInterface(fragment)
-            if (lastFragmentInterface != null && currentFragmentInterface != null && lastFragmentInterface != MainSection::class.java && lastFragmentInterface != currentFragmentInterface) {
+            if (lastFragmentInterface != null && currentFragmentInterface != null && (excludeMain && lastFragmentInterface != MainSection::class.java) && lastFragmentInterface != currentFragmentInterface) {
                 transaction.apply {
                     fragments.forEach {
                         val current = getAssignableFromInterface(it)

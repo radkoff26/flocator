@@ -2,7 +2,7 @@ package com.example.flocator.main.api
 
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
-import com.example.flocator.main.ui.data.UserInfo
+import com.example.flocator.main.ui.main.data.UserInfo
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
@@ -28,6 +28,15 @@ interface ClientAPI {
         @Part photos: List<MultipartBody.Part>
     ): Completable
 
+    @GET("mark/{markId}")
+    fun getMark(@Path("markId") markId: Long, @Query("userId") userId: Long): Single<Mark>
+
     @GET("user/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<UserInfo>
+
+    @POST("mark/like")
+    fun likeMark(@Query("markId") markId: Long, @Query("userId") userId: Long): Completable
+
+    @POST("mark/unlike")
+    fun unlikeMark(@Query("markId") markId: Long, @Query("userId") userId: Long): Completable
 }

@@ -1,7 +1,7 @@
 package com.example.flocator.main.utils
 
 import com.example.flocator.main.models.Mark
-import com.example.flocator.main.ui.data.MarkGroup
+import com.example.flocator.main.ui.main.data.MarkGroup
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
 import kotlin.math.pow

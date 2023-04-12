@@ -1,6 +1,6 @@
 package com.example.flocator.main.utils
 
-import com.example.flocator.main.ui.data.MarkGroup
+import com.example.flocator.main.ui.main.data.MarkGroup
 
 object MarksDiffUtils {
     data class MarksDiffUtilsResult(val removed: List<MarkGroup>, val added: List<MarkGroup>)

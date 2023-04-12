@@ -5,8 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,9 +18,7 @@ import com.example.flocator.community.adapters.PersonActionListener
 import com.example.flocator.community.adapters.PersonAdapter
 import com.example.flocator.community.api.UserApi
 import com.example.flocator.community.data_classes.Person
-import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.FragmentCommunityBinding
-import com.example.flocator.main.ui.view_models.MainFragmentViewModel
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers

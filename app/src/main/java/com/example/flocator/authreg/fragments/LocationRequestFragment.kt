@@ -18,7 +18,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.example.flocator.main.ui.fragments.MainFragment
+import com.example.flocator.main.ui.main.MainFragment
 
 class LocationRequestFragment : Fragment(), AuthRegSection {
     private lateinit var binding: FragmentLocationRequestBinding

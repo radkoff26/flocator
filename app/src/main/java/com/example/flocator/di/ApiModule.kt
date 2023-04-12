@@ -4,7 +4,7 @@ import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.main.deserializers.AddressDeserializer
-import com.example.flocator.main.ui.data.response.AddressResponse
+import com.example.flocator.main.data.response.AddressResponse
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
