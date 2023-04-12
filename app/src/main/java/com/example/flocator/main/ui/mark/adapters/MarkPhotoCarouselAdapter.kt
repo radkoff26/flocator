@@ -12,7 +12,8 @@ import com.example.flocator.R
 
 class MarkPhotoCarouselAdapter(
     private val size: Int,
-    private val loadPhotoCallback: (position: Int) -> Unit
+    private val loadPhotoCallback: (position: Int) -> Unit,
+    private val openPhotoPagerCallback: (position: Int) -> Unit
 ) :
     RecyclerView.Adapter<MarkPhotoCarouselAdapter.MarkPhotoCarouselViewHolder>() {
     private var photos: MutableList<Bitmap?> = MutableList(size) { null }
@@ -22,7 +23,7 @@ class MarkPhotoCarouselAdapter(
 
         fun bind(position: Int) {
             imageView.setOnClickListener {
-                // Opens fragment with photo watching
+                openPhotoPagerCallback.invoke(position)
             }
         }
     }

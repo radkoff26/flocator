@@ -8,4 +8,9 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15%</item>
     </style>
+    <style name="DialogTheme" parent="Theme.FLocator">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
 </resources>

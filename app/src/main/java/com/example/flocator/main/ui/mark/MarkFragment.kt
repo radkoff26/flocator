@@ -17,12 +17,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentMarkBinding
+import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.ui.MainViewModelFactory
 import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
 import com.example.flocator.main.ui.mark.data.UserNameDto
+import com.example.flocator.main.ui.photo.PhotoPagerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -30,14 +32,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MarkFragment : BottomSheetDialogFragment() {
+class MarkFragment : BottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentMarkBinding? = null
     private val binding
         get() = _binding!!
 
     private var carouselAdapter: MarkPhotoCarouselAdapter? = null
 
-    @Inject lateinit var factory: MarkFragmentViewModel.Factory
+    @Inject
+    lateinit var factory: MarkFragmentViewModel.Factory
 
     private val markFragmentViewModel: MarkFragmentViewModel by viewModels {
         MainViewModelFactory(this) {
@@ -86,12 +89,28 @@ class MarkFragment : BottomSheetDialogFragment() {
         markFragmentViewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
         markFragmentViewModel.photosLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
         markFragmentViewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
-        markFragmentViewModel.markFragmentStateLiveData.observe(viewLifecycleOwner, this::onUpdateFragmentState)
+        markFragmentViewModel.markFragmentStateLiveData.observe(
+            viewLifecycleOwner,
+            this::onUpdateFragmentState
+        )
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun openPhotoPager(position: Int) {
+        val photoPagerFragment = PhotoPagerFragment().apply {
+            val bundle = Bundle()
+            bundle.putInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION, position)
+            bundle.putStringArrayList(
+                BundleArgumentsContraction.PhotoPagerFragment.URI_LIST,
+                ArrayList(markFragmentViewModel.markLiveData.value!!.photos)
+            )
+            arguments = bundle
+        }
+        photoPagerFragment.show(requireActivity().supportFragmentManager, TAG)
     }
 
     private fun expandBottomSheet(bottomSheetView: View) {
@@ -146,7 +165,8 @@ class MarkFragment : BottomSheetDialogFragment() {
         binding.address.text = value.place
 
         if (carouselAdapter == null) {
-            carouselAdapter = MarkPhotoCarouselAdapter(value.photos.size, this::loadPhoto)
+            carouselAdapter =
+                MarkPhotoCarouselAdapter(value.photos.size, this::loadPhoto, this::openPhotoPager)
             binding.photoCarousel.adapter = carouselAdapter
             val itemDecoration = DividerItemDecoration(requireContext(), RecyclerView.HORIZONTAL)
             itemDecoration.setDrawable(
@@ -185,5 +205,9 @@ class MarkFragment : BottomSheetDialogFragment() {
             return
         }
         binding.userName.text = "${value.firstName} ${value.lastName}"
+    }
+
+    companion object {
+        const val TAG = "Mark Fragment"
     }
 }
