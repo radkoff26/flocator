@@ -37,6 +37,7 @@ class MarkPhotoCarouselAdapter(
     override fun getItemCount(): Int = size
 
     override fun onBindViewHolder(holder: MarkPhotoCarouselViewHolder, position: Int) {
+        holder.bind(position)
         if (photos[position] != null) {
             holder.imageView.setBackgroundColor(
                 ResourcesCompat.getColor(
@@ -56,7 +57,6 @@ class MarkPhotoCarouselAdapter(
                 )
             )
         }
-        holder.bind(position)
     }
 
     fun updatePhotos(value: List<Bitmap?>) {

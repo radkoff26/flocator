@@ -14,6 +14,7 @@ import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
 import com.example.flocator.authentication.registration.RegFirstFragment
 import com.example.flocator.common.config.SharedPreferencesContraction.User.USER_ID
+import com.example.flocator.common.config.SharedPreferencesContraction.User.prefs_name
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentAuthBinding
 import com.example.flocator.main.ui.main.MainFragment
@@ -112,7 +113,7 @@ class AuthFragment : Fragment(), Authentication {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ user ->
                     val sharedPreferences = requireActivity().getSharedPreferences(
-                        "my_shared_preferences",
+                        prefs_name,
                         Context.MODE_PRIVATE
                     )
                     val editor = sharedPreferences.edit()

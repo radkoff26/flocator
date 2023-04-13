@@ -3,13 +3,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.ui.photo.PhotoPagerFragment"
-    android:backgroundTint="@color/white">
+    android:backgroundTint="@color/white"
+    tools:context=".main.ui.photo.PhotoPagerFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:backgroundTint="#80FFFFFF">
+
+        <ImageButton
+            android:id="@+id/download_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical|end"
+            android:contentDescription="@string/download"
+            android:scaleType="centerCrop"
+            android:src="@drawable/download_image"
+            android:backgroundTint="@color/transparent"/>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/photo_pager"

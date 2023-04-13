@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentPhotoPagerBinding
 import com.example.flocator.main.MainSection
@@ -39,9 +41,23 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPhotoPagerBinding.bind(view)
 
+        adjustToolbar()
         adjustViewPager()
 
         viewModel.photosLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
+    }
+
+    private fun adjustToolbar() {
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        (requireActivity() as AppCompatActivity).supportActionBar?.apply {
+            title = ""
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+            setHomeAsUpIndicator(R.drawable.back)
+        }
+        binding.toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     override fun getTheme(): Int {

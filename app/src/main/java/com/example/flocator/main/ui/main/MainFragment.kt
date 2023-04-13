@@ -3,6 +3,7 @@ package com.example.flocator.main.ui.main
 import android.content.Context.MODE_PRIVATE
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -111,6 +112,13 @@ class MainFragment : Fragment(), MainSection {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+
+        val userId = requireActivity().getSharedPreferences(
+            SharedPreferencesContraction.User.prefs_name,
+            MODE_PRIVATE
+        ).getLong(SharedPreferencesContraction.User.USER_ID, 0L)
+
+        Log.d(TAG, "userId is $userId")
 
         usersCollection = binding.mapView.map.addMapObjectLayer("users")
         marksCollection = binding.mapView.map.addMapObjectLayer("marks")
@@ -377,8 +385,14 @@ class MainFragment : Fragment(), MainSection {
                     markClickListeners[id] = MapObjectTapListener { mapObject, point ->
                         val markFragment = MarkFragment().apply {
                             arguments = Bundle().apply {
-                                putLong(BundleArgumentsContraction.MarkFragmentArguments.MARK_ID, id)
-                                putLong(BundleArgumentsContraction.MarkFragmentArguments.USER_ID, mainFragmentViewModel.userInfo!!.userId)
+                                putLong(
+                                    BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
+                                    id
+                                )
+                                putLong(
+                                    BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
+                                    mainFragmentViewModel.userInfo!!.userId
+                                )
                             }
                         }
                         markFragment.show(requireActivity().supportFragmentManager, TAG)

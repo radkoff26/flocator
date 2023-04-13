@@ -101,15 +101,14 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
     }
 
     private fun openPhotoPager(position: Int) {
-        val photoPagerFragment = PhotoPagerFragment().apply {
-            val bundle = Bundle()
-            bundle.putInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION, position)
-            bundle.putStringArrayList(
-                BundleArgumentsContraction.PhotoPagerFragment.URI_LIST,
-                ArrayList(markFragmentViewModel.markLiveData.value!!.photos)
-            )
-            arguments = bundle
-        }
+        val photoPagerFragment = PhotoPagerFragment()
+        val bundle = Bundle()
+        bundle.putInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION, position)
+        bundle.putStringArrayList(
+            BundleArgumentsContraction.PhotoPagerFragment.URI_LIST,
+            ArrayList(markFragmentViewModel.markLiveData.value!!.photos)
+        )
+        photoPagerFragment.arguments = bundle
         photoPagerFragment.show(requireActivity().supportFragmentManager, TAG)
     }
 
