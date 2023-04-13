@@ -45,4 +45,16 @@
     <string name="mark">Метка</string>
     <string name="exit">Закрыть</string>
     <string name="image">Картинка</string>
+    <!-- Auth: -->
+    <string name="location_request_text">Разрешите доступ к вашему местоположению</string>
+    <string name="reason_we_need_access">Нам необходимо знать ваше местоположение, чтобы позволить вашим друзьям видеть, где вы находитесь</string>
+    <string name="allow">Разрешить</string>
+    <string name="logo">FLocator</string>
+    <string name="come_back">Вернуться назад</string>
+    <string name="already_registered">Уже есть аккаунт?</string>
+    <string name="email">Email</string>
+    <string name="password_hint">Пароль</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="entry_button_text">Войти</string>
+    <string name="register_button_text">Зарегистрироваться</string>
 </resources>
