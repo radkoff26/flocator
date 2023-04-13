@@ -18,10 +18,10 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.example.flocator.authentication.authorization.AuthRegSection
+import com.example.flocator.authentication.Authentication
 import com.example.flocator.main.ui.main.MainFragment
 
-class LocationRequestFragment : Fragment(), AuthRegSection {
+class LocationRequestFragment : Fragment(), Authentication {
     private lateinit var binding: FragmentLocationRequestBinding
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
@@ -54,7 +54,10 @@ class LocationRequestFragment : Fragment(), AuthRegSection {
 
             if (dontShowAgain) {
                 if (hasLocationPermission(requireContext())) {
-                    FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, MainFragment())
+                    FragmentNavigationUtils.openFragment(
+                        requireActivity().supportFragmentManager,
+                        MainFragment()
+                    )
                 } else {
                     showPermissionRationaleDialog()
                 }
@@ -86,7 +89,10 @@ class LocationRequestFragment : Fragment(), AuthRegSection {
         requestPermissionsLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (hasLocationPermission(requireContext())) {
-                    FragmentNavigationUtils.openFragment(requireActivity().supportFragmentManager, MainFragment())
+                    FragmentNavigationUtils.openFragment(
+                        requireActivity().supportFragmentManager,
+                        MainFragment()
+                    )
                 } else if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
                     !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
                 ) {

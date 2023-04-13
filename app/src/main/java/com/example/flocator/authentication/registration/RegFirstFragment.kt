@@ -4,24 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.authentication.authorization.AuthRegSection
+import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.viewmodel.RegistrationViewModel
 import com.example.flocator.databinding.FragmentRegistrationBinding
 import com.example.flocator.common.utils.FragmentNavigationUtils
 
-class RegFirstFragment : Fragment(), AuthRegSection {
-    private lateinit var binding: FragmentRegistrationBinding
+class RegFirstFragment : Fragment(), Authentication {
+    private var _binding: FragmentRegistrationBinding? = null
+    private val binding: FragmentRegistrationBinding
+        get() = _binding!!
     private lateinit var registrationViewModel: RegistrationViewModel
-    private val errorMessageText: TextView by lazy {
-        binding.registrationErrorMessageText
-    }
 
     companion object {
         private const val LAST_NAME = "Фамилия"
@@ -34,7 +31,7 @@ class RegFirstFragment : Fragment(), AuthRegSection {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRegistrationBinding.inflate(inflater, container, false)
+        _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.firstInputEditField.contentDescription = FIRST_NAME
         binding.secondInputEditField.contentDescription = LAST_NAME
@@ -74,7 +71,7 @@ class RegFirstFragment : Fragment(), AuthRegSection {
             setHomeAsUpIndicator(R.drawable.back)
         }
 
-        binding.toolbar.setNavigationOnClickListener{
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
@@ -100,12 +97,12 @@ class RegFirstFragment : Fragment(), AuthRegSection {
     }
 
     private fun showErrorMessage() {
-        errorMessageText.visibility = View.VISIBLE
-        errorMessageText.text = "Поля не должны быть пустыми!"
+        binding.registrationErrorMessageText.visibility = View.VISIBLE
+        binding.registrationErrorMessageText.text = "Поля не должны быть пустыми!"
     }
 
     private fun hideErrorMessage() {
-        errorMessageText.visibility = View.GONE
+        binding.registrationErrorMessageText.visibility = View.GONE
     }
 
 }

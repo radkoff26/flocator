@@ -3,26 +3,33 @@ package com.example.flocator.authentication.authorization
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
 import com.example.flocator.authentication.registration.RegFirstFragment
+import com.example.flocator.common.config.SharedPreferencesContraction.User.USER_ID
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentAuthBinding
 import com.example.flocator.main.ui.main.MainFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 
-class AuthFragment : Fragment(), AuthRegSection {
-    private lateinit var binding: FragmentAuthBinding
-    private val errorMessageText: TextView by lazy {
-        binding.loginErrorMessageText
+class AuthFragment : Fragment(), Authentication {
+    private var _binding: FragmentAuthBinding? = null
+    private val binding: FragmentAuthBinding
+        get() = _binding!!
+    private val compositeDisposable = CompositeDisposable()
+
+    companion object {
+        private const val TAG = "Auth fragment"
     }
 
     override fun onCreateView(
@@ -31,7 +38,7 @@ class AuthFragment : Fragment(), AuthRegSection {
         savedInstanceState: Bundle?
     ): View {
 
-        binding = FragmentAuthBinding.inflate(inflater, container, false)
+        _binding = FragmentAuthBinding.inflate(inflater, container, false)
 
         binding.entranceBtn.setOnClickListener {
             val email = binding.emailLoginFieldEdit.text.toString()
@@ -60,7 +67,7 @@ class AuthFragment : Fragment(), AuthRegSection {
 
     private fun login(email: String, password: String) {
         val userCredentials = UserCredentialsDto(login = email, password = password)
-        val disposableLogin = authenticationApi.loginUser(userCredentials)
+        compositeDisposable.add(authenticationApi.loginUser(userCredentials)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ userId ->
@@ -79,14 +86,19 @@ class AuthFragment : Fragment(), AuthRegSection {
                 }
             }, { error ->
                 showErrorMessage("Неверный логин или пароль")
-//                throw RuntimeException("Ошибка входа: ${error.message}")
+                Log.e(TAG, "Ошибка входа", error)
             })
+        )
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
+    }
 
     private fun showErrorMessage(text: String) {
-        errorMessageText.visibility = View.VISIBLE
-        errorMessageText.text = text
+        binding.loginErrorMessageText.visibility = View.VISIBLE
+        binding.loginErrorMessageText.text = text
     }
 
     private fun validateFields(email: String, password: String): Boolean {
@@ -104,7 +116,7 @@ class AuthFragment : Fragment(), AuthRegSection {
                         Context.MODE_PRIVATE
                     )
                     val editor = sharedPreferences.edit()
-                    editor.putLong("userId", user.id)
+                    editor.putLong(USER_ID, user.id)
                     editor.apply()
                 }, { error ->
                     throw RuntimeException("Ошибка получения пользователя: ${error.message}")

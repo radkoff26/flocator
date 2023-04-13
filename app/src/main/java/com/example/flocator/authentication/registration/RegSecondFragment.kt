@@ -2,36 +2,37 @@ package com.example.flocator.authentication.registration
 
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.authentication.authorization.AuthRegSection
+import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.viewmodel.RegistrationViewModel
 import com.example.flocator.databinding.FragmentRegistrationBinding
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RegSecondFragment : Fragment(), AuthRegSection {
-    private lateinit var binding: FragmentRegistrationBinding
+class RegSecondFragment : Fragment(), Authentication {
+    private var _binding: FragmentRegistrationBinding? = null
+    private val binding: FragmentRegistrationBinding
+        get() = _binding!!
+    private val compositeDisposable = CompositeDisposable()
     private lateinit var registrationViewModel: RegistrationViewModel
-    private val errorMessageText: TextView by lazy {
-        binding.registrationErrorMessageText
-    }
 
     companion object {
         private const val LOGIN = "Логин"
         private const val EMAIL = "Email"
         private const val NEXT = "Далее"
+        private const val TAG = "Second registration fragment"
     }
 
     override fun onCreateView(
@@ -39,7 +40,7 @@ class RegSecondFragment : Fragment(), AuthRegSection {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRegistrationBinding.inflate(inflater, container, false)
+        _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.firstInputEditField.contentDescription = LOGIN
         binding.secondInputEditField.contentDescription = EMAIL
@@ -49,7 +50,7 @@ class RegSecondFragment : Fragment(), AuthRegSection {
             val lastName = binding.firstInputEditField.text.toString()
             val email = binding.secondInputEditField.text.toString()
 
-            val disposableLoginCheck = authenticationApi.isLoginAvailable(lastName)
+            compositeDisposable.add(authenticationApi.isLoginAvailable(lastName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap { isLoginAvailable ->
@@ -61,8 +62,9 @@ class RegSecondFragment : Fragment(), AuthRegSection {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ isEmailAvailable ->
-                    if (!validateEmail(email))
+                    if (!validateEmail(email)) {
                         showErrorMessage("Некорректный email")
+                    }
 
                     if (!isEmailAvailable) {
                         showErrorMessage("Email уже занят")
@@ -75,8 +77,9 @@ class RegSecondFragment : Fragment(), AuthRegSection {
                     )
                 }, { error ->
                     showErrorMessage("Ошибка на сервере")
-//                    throw RuntimeException("Ошибка проверки доступности логина и email: ${error.message}")
+                    Log.e(TAG, "Ошибка проверки доступности логина и email", error)
                 })
+            )
         }
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
@@ -87,7 +90,7 @@ class RegSecondFragment : Fragment(), AuthRegSection {
             setHomeAsUpIndicator(R.drawable.back)
         }
 
-        binding.toolbar.setNavigationOnClickListener{
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
@@ -122,6 +125,11 @@ class RegSecondFragment : Fragment(), AuthRegSection {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(EMAIL, binding.firstInputEditField.toString())
@@ -129,12 +137,12 @@ class RegSecondFragment : Fragment(), AuthRegSection {
     }
 
     private fun showErrorMessage(text: String) {
-        errorMessageText.visibility = View.VISIBLE
-        errorMessageText.text = text
+        binding.registrationErrorMessageText.visibility = View.VISIBLE
+        binding.registrationErrorMessageText.text = text
     }
 
     private fun hideErrorMessage() {
-        errorMessageText.visibility = View.GONE
+        binding.registrationErrorMessageText.visibility = View.GONE
     }
 
     private fun validateEmail(email: String): Boolean {

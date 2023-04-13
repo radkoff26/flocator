@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.authentication.authorization.AuthRegSection
+import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.client.dto.UserRegistrationDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
@@ -22,22 +23,28 @@ import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentRegistrationBinding
 import com.example.flocator.main.ui.main.MainFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RegThirdFragment : Fragment(), AuthRegSection {
-    private lateinit var binding: FragmentRegistrationBinding
+class RegThirdFragment : Fragment(), Authentication {
+    private var _binding: FragmentRegistrationBinding? = null
+    private val binding: FragmentRegistrationBinding
+        get() = _binding!!
+    private val compositeDisposable = CompositeDisposable()
     private lateinit var registrationViewModel: RegistrationViewModel
 
     companion object {
         private const val PASSWORD = "Пароль"
         private const val REPEAT_PASSWORD = "Повторите пароль"
         private const val REGISTER = "Зарегистрироваться"
+        private const val TAG = "Third registration fragment"
+        private const val ERROR_MESSAGE = "Ошибка регистрации пользователя"
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRegistrationBinding.inflate(inflater, container, false)
+        _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
         binding.firstInputEditField.contentDescription = PASSWORD
         binding.secondInputEditField.contentDescription = REPEAT_PASSWORD
@@ -83,6 +90,11 @@ class RegThirdFragment : Fragment(), AuthRegSection {
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.clear()
+    }
+
     private fun createEncryptedSharedPreferences(context: Context): SharedPreferences {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -123,28 +135,36 @@ class RegThirdFragment : Fragment(), AuthRegSection {
                 password = password
             )
 
-            val disposableRegisterUser = authenticationApi.registerUser(userRegistrationDto)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ isSuccess ->
-                    if (isSuccess) {
-                        savePassword(requireContext(), password)
+            compositeDisposable.add(
+                authenticationApi.registerUser(userRegistrationDto)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ isSuccess ->
+                        if (isSuccess) {
+                            savePassword(requireContext(), password)
 
-                        if (LocationRequestFragment.hasLocationPermission(requireContext())) {
-                            FragmentNavigationUtils.openFragment(
-                                requireActivity().supportFragmentManager,
-                                MainFragment()
-                            )
-                        } else {
-                            FragmentNavigationUtils.openFragment(
-                                requireActivity().supportFragmentManager,
-                                LocationRequestFragment()
-                            )
+                            if (LocationRequestFragment.hasLocationPermission(requireContext())) {
+                                FragmentNavigationUtils.openFragment(
+                                    requireActivity().supportFragmentManager,
+                                    MainFragment()
+                                )
+                            } else {
+                                FragmentNavigationUtils.openFragment(
+                                    requireActivity().supportFragmentManager,
+                                    LocationRequestFragment()
+                                )
+                            }
                         }
-                    }
-                }, { error ->
-//                    throw RuntimeException("Ошибка регистрации пользователя: ${error.message}")
-                })
+                    }, { error ->
+                        showErrorMessage()
+                        Log.e(TAG, ERROR_MESSAGE, error)
+                    })
+            )
         }
+    }
+
+    private fun showErrorMessage() {
+        binding.registrationErrorMessageText.visibility = View.VISIBLE
+        binding.registrationErrorMessageText.text = ERROR_MESSAGE
     }
 }
