@@ -1,18 +1,21 @@
 package com.example.flocator.community.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.flocator.R
-import com.example.flocator.community.data_classes.Person
+import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.PersonNewFriendItemBinding
+import com.example.flocator.main.utils.LoadUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
-class PersonAdapter(private val personActionListener: PersonActionListener) :
-
+class PersonAdapter(private val userNewFriendActionListener: UserNewFriendActionListener) :
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
-    var data: List<Person> = emptyList()
+    var data: List<User> = emptyList()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -49,13 +52,10 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
         val person = data[position]
         val context = holder.itemView.context
 
-        with(holder.binding) {
-            newFriendNameAndSurname.text = person.nameAndSurname
 
-            Glide.with(context).load(person.photo)
-                .circleCrop()
-                .error(R.drawable.base_avatar_image)
-                .placeholder(R.drawable.base_avatar_image).into(profileImage)
+        with(holder.binding) {
+            newFriendNameAndSurname.text = person.firstName + " " + person.lastName
+            setAvatar(person.avatarUrl!!, holder)
         }
 
         holder.itemView.tag = person
@@ -63,15 +63,27 @@ class PersonAdapter(private val personActionListener: PersonActionListener) :
         holder.binding.buttonCancel.tag = person
 
     }
-
-
     override fun onClick(view: View?) {
-        val person: Person = view?.tag as Person
+        val user: User = view?.tag as User
         when (view.id) {
-            R.id.buttonCancel -> personActionListener.onPersonCancel(person)
-            R.id.buttonAccept -> personActionListener.onPersonAccept(person)
-            else -> personActionListener.onPersonOpenProfile(person)
+            R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(user)
+            R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(user)
+            else -> userNewFriendActionListener.onPersonOpenProfile(user)
         }
+    }
+
+    private fun setAvatar(uri: String, holder: PersonViewHolder){
+        LoadUtils.loadPictureFromUrl(uri, 100)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    holder.binding.profileImage.setImageBitmap(it)
+                },
+                {
+                    Log.d("TestLog", "no")
+                }
+            )
     }
 
 }

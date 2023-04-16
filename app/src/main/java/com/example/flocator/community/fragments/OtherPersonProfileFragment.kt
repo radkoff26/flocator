@@ -10,22 +10,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.flocator.Application
 import com.example.flocator.R
-import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.Person
+import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.FragmentPersonProfileBinding
-import com.example.flocator.common.utils.FragmentNavigationUtils
 
-class OtherPersonProfileFragment() : Fragment(), CommunitySection {
+class OtherPersonProfileFragment() : Fragment() {
     private var _binding: FragmentPersonProfileBinding? = null
     private val binding: FragmentPersonProfileBinding
         get() = _binding!!
     private lateinit var adapterFriends: FriendAdapter
-    private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
-    private lateinit var friendsViewModel: FriendsViewModel
-    private val personService: PersonRepository
-        get() = (activity?.applicationContext as Application).personService
+    private val userRepository: UserRepository
+        get() = (activity?.applicationContext as Application).userRepository
     private var btnAddFriendIsActive = false
 
     object Constants {
@@ -40,9 +37,7 @@ class OtherPersonProfileFragment() : Fragment(), CommunitySection {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
-        factoryFriendsViewModel = FriendsViewModelFactory(personService)
-        friendsViewModel =
-            ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
+
         val args: Bundle? = arguments
         if (args != null) {
             binding.nameAndSurname.text = args.getString(Constants.NAME_AND_SURNAME)
@@ -56,26 +51,10 @@ class OtherPersonProfileFragment() : Fragment(), CommunitySection {
                     .placeholder(R.drawable.base_avatar_image).into(binding.profileImage)
             }
         }
-        friendsViewModel.getFriends()
-        friendsViewModel.friends.observe(viewLifecycleOwner) {
-            adapterFriends = FriendAdapter(object : FriendActionListener {
-                override fun onPersonOpenProfile(person: Person) {
-                    openPersonProfile(person)
-                }
-            })
-            //adapterFriends.data = friendsViewModel.friends.value as MutableList<Person>
-            adapterFriends.data = PersonRepository().getPersons() as MutableList<Person>
-            binding.friendsRecyclerView.also {
-                it.layoutManager = LinearLayoutManager(activity)
-                it.setHasFixedSize(true)
-                it.adapter = adapterFriends
-            }
-        }
         binding.buttonBack.setOnClickListener {
-            FragmentNavigationUtils.closeLastFragment(
-                requireActivity().supportFragmentManager,
-                requireActivity()
-            )
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            }
         }
         binding.addPersonToFriend.setOnClickListener {
             if (!btnAddFriendIsActive) {
@@ -99,15 +78,15 @@ class OtherPersonProfileFragment() : Fragment(), CommunitySection {
         _binding = null
     }
 
-    fun openPersonProfile(person: Person) {
+    fun openPersonProfile(user: User) {
         val args: Bundle = Bundle()
-        args.putString("nameAndSurnamePerson", person.nameAndSurname)
-        args.putString("personPhoto", person.photo)
+        args.putString("nameAndSurnamePerson", user.firstName + " " + user.lastName)
+        args.putString("personPhoto", user.avatarUrl)
         val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        FragmentNavigationUtils.openFragment(
-            requireActivity().supportFragmentManager,
-            profilePersonFragment
-        )
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.person_profile, profilePersonFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 }

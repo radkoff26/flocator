@@ -1,13 +1,13 @@
 package com.example.flocator
 
 import com.example.flocator.common.config.Constants.MAPS_API_KEY
-import com.example.flocator.community.fragments.PersonRepository
+import com.example.flocator.community.fragments.UserRepository
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class Application : android.app.Application() {
-    val personService by lazy { PersonRepository() }
+    val userRepository by lazy { UserRepository() }
 
     override fun onCreate() {
         super.onCreate()

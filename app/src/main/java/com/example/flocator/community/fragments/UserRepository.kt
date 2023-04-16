@@ -1,26 +1,51 @@
 package com.example.flocator.community.fragments
 
-import com.example.flocator.community.data_classes.Person
-import com.github.javafaker.Faker
+import android.util.Log
+import com.example.flocator.community.api.UserApi
+import com.example.flocator.community.data_classes.User
+import com.google.gson.GsonBuilder
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
-typealias PersonListener = (persons: List<Person>) -> Unit
-typealias FriendListener = (persons: List<Person>) -> Unit
+typealias UserNewFriendActionListener = (persons: List<User>) -> Unit
+typealias FriendListener = (persons: List<User>) -> Unit
 
-class PersonRepository {
+class UserRepository {
 
-    private var persons = mutableListOf<Person>()
+    private var persons = mutableListOf<User>()
+    private val userApi: UserApi by lazy {
+        val gson = GsonBuilder()
+            .setLenient()
+            .create()
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://kernelpunik.ru:8080/api/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+        retrofit.create()
+    }
 
-    val faker = Faker.instance()
-    private var listeners = mutableListOf<PersonListener>()
+    //val faker = Faker.instance()
+    private var listeners = mutableListOf<UserNewFriendActionListener>()
 
     init {
-        persons = (0..10).map {
-            Person(
-                id = it.toLong(),
-                nameAndSurname = faker.name().fullName(),
-                photo = IMAGES[it % IMAGES.size]
-            )
-        }.toMutableList()
+        userApi.getUserFriends(1)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    persons = it as MutableList<User>
+                    //println(it.size.toString() + " РАЗМЕРРАЗМЕРРАЗМЕРРАЗМЕР")
+                    //println(persons.size.toString() + " OOOOOOOOOOOOOOOOOOOPI")
+
+                },
+                {
+                    Log.e(ProfileFragment.TAG, it.message, it)
+                })
     }
 
     companion object {
@@ -38,7 +63,7 @@ class PersonRepository {
         )
     }
 
-    fun getPersons(): List<Person> {
+    fun getPersons(): MutableList<User> {
         return persons
     }
 
@@ -46,14 +71,14 @@ class PersonRepository {
         return persons.size
     }
 
-    fun addOnePersonInList(person: Person) {
-        persons.add(person)
+    fun addOnePersonInList(user: User) {
+        persons.add(user)
         notifyChanges()
     }
 
 
-    fun cancelPerson(person: Person) {
-        val index = persons.indexOfFirst { it.id == person.id }
+    fun cancelPerson(user: User) {
+        val index = persons.indexOfFirst { it.id == user.id }
         if (index == -1) {
             return
         }
@@ -61,21 +86,21 @@ class PersonRepository {
         notifyChanges()
     }
 
-    fun acceptPerson(person: Person): Person {
-        val findingPerson: Person
-        val index = persons.indexOfFirst { it.id == person.id }
+    fun acceptPerson(user: User): User {
+        val findingPerson: User
+        val index = persons.indexOfFirst { it.id == user.id }
         findingPerson = persons[index]
         persons.removeAt(index)
         notifyChanges()
         return findingPerson
     }
 
-    fun addListener(listener: PersonListener) {
+    fun addListener(listener: UserNewFriendActionListener) {
         listeners.add(listener)
         listener.invoke(persons)
     }
 
-    fun removeListener(listener: PersonListener) {
+    fun removeListener(listener: UserNewFriendActionListener) {
         listeners.remove(listener)
         listener.invoke(persons)
     }

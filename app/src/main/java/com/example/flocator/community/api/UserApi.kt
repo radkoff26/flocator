@@ -11,4 +11,6 @@ import retrofit2.http.Query
 interface UserApi {
     @GET("user/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<User>
+    @GET("friendship/located")
+    fun getUserFriends(@Query("userId") userId: Long): Single<List<User>>
 }

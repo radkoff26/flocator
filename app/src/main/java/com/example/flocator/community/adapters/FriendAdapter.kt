@@ -1,5 +1,6 @@
 package com.example.flocator.community.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +9,15 @@ import com.bumptech.glide.Glide
 import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.PersonYourFriendItemBinding
 import com.example.flocator.R
+import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.PersonNewFriendItemBinding
+import com.example.flocator.main.utils.LoadUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class FriendAdapter(private val friendActionListener: FriendActionListener) :
     RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(), View.OnClickListener {
-    var data: MutableList<Person> = mutableListOf()
+    var data: MutableList<User> = mutableListOf()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -35,18 +40,28 @@ class FriendAdapter(private val friendActionListener: FriendActionListener) :
         val context = holder.itemView.context
 
         with(holder.binding) {
-            yourFriendNameAndSurname.text = person.nameAndSurname
-
-            Glide.with(context).load(person.photo)
-                .circleCrop()
-                .error(R.drawable.base_avatar_image)
-                .placeholder(R.drawable.base_avatar_image).into(profileImage)
+            yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
+            setAvatar(person.avatarUrl!!, holder)
         }
         holder.itemView.tag = person
     }
 
     override fun onClick(view: View?) {
-        val person: Person = view?.tag as Person
-        friendActionListener.onPersonOpenProfile(person)
+        val user: User = view?.tag as User
+        friendActionListener.onPersonOpenProfile(user)
+    }
+
+    private fun setAvatar(uri: String, holder: FriendViewHolder){
+        LoadUtils.loadPictureFromUrl(uri, 100)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    holder.binding.profileImage.setImageBitmap(it)
+                },
+                {
+                    Log.d("TestLog", "no")
+                }
+            )
     }
 }
