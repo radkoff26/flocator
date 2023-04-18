@@ -1,19 +1,18 @@
 package com.example.flocator.main.ui.photo
 
+import android.animation.ValueAnimator
+import android.app.Dialog
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.constraintlayout.motion.widget.TransitionAdapter
+import androidx.core.animation.doOnEnd
 import androidx.fragment.app.DialogFragment
 import com.example.flocator.R
 import com.example.flocator.databinding.FragmentPhotoPagerBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.photo.adapters.PhotoRecyclerViewAdapter
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class PhotoPagerFragment : DialogFragment(), MainSection {
     private var _binding: FragmentPhotoPagerBinding? = null
     private val binding
@@ -23,10 +22,17 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
 
     private lateinit var adapter: PhotoRecyclerViewAdapter
 
-    private lateinit var gestureDetector: GestureDetector
+    private var animator: ValueAnimator? = null
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.window?.setWindowAnimations(R.style.PhotoDialogTheme)
+        return dialog
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, R.style.PhotoDialogTheme)
         val uriList =
             requireArguments().getStringArrayList(BundleArgumentsContraction.PhotoPagerFragment.URI_LIST)
         viewModel = PhotoPagerFragmentViewModel(uriList!!.toList())
@@ -39,38 +45,8 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
         val view = inflater.inflate(R.layout.fragment_photo_pager, container, false)
         _binding = FragmentPhotoPagerBinding.bind(view)
 
-        gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (velocityY < 0) {
-                    binding.photoMotionLayout.transitionToState(R.id.transitionUp)
-                } else {
-                    binding.photoMotionLayout.transitionToState(R.id.transitionDown)
-                }
-                return true
-            }
-        })
-
         adjustToolbar()
         adjustViewPager()
-
-        binding.photoMotionLayout.setTransitionListener(object : TransitionAdapter() {
-            override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
-                when (currentId) {
-                    R.id.endDown,
-                    R.id.endUp -> {
-//                        dismiss()
-                    }
-                    else -> {
-                        return
-                    }
-                }
-            }
-        })
 
         return binding.root
     }
@@ -78,6 +54,53 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.photosLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
+        viewModel.toolbarDisplayedStateLiveData.observe(
+            viewLifecycleOwner
+        ) {
+            if (it) {
+                showToolbar()
+            } else {
+                hideToolbar()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (animator != null && animator!!.isRunning) {
+            animator!!.cancel()
+        }
+        _binding = null
+    }
+
+    private fun hideToolbar() {
+        if (animator != null && animator!!.isRunning) {
+            animator!!.cancel()
+        }
+        animator = ValueAnimator.ofFloat(binding.toolbar.alpha, 0f).apply {
+            addUpdateListener {
+                binding.toolbar.alpha = it.animatedValue as Float
+            }
+            duration = (300 * binding.toolbar.alpha).toLong()
+            doOnEnd {
+                binding.toolbar.visibility = View.GONE
+            }
+            start()
+        }
+    }
+
+    private fun showToolbar() {
+        if (animator != null && animator!!.isRunning) {
+            animator!!.cancel()
+        }
+        binding.toolbar.visibility = View.VISIBLE
+        ValueAnimator.ofFloat(binding.toolbar.alpha, 1f).apply {
+            addUpdateListener {
+                binding.toolbar.alpha = it.animatedValue as Float
+            }
+            duration = (300 * (1 - binding.toolbar.alpha)).toLong()
+            start()
+        }
     }
 
     private fun adjustToolbar() {
@@ -95,9 +118,15 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
     }
 
     private fun adjustViewPager() {
-        adapter = PhotoRecyclerViewAdapter(viewModel.photosLiveData.value!!) {
-            viewModel.requestPhotoLoading(it)
-        }
+        adapter = PhotoRecyclerViewAdapter(
+            viewModel.photosLiveData.value!!,
+            {
+                viewModel.requestPhotoLoading(it)
+            },
+            {
+                viewModel.switchToolbarState()
+            }
+        )
 
         binding.photoPager.adapter = adapter
 

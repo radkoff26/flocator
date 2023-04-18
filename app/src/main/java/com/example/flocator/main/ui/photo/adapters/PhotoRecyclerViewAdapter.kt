@@ -12,7 +12,8 @@ import com.example.flocator.R
 
 class PhotoRecyclerViewAdapter(
     private var photos: List<Bitmap?>,
-    private val requestImageCallback: (position: Int) -> Unit
+    private val requestImageCallback: (position: Int) -> Unit,
+    private val switchToolbarCallback: () -> Unit
 ) :
     RecyclerView.Adapter<PhotoRecyclerViewAdapter.PhotoViewHolder>() {
 
@@ -29,6 +30,9 @@ class PhotoRecyclerViewAdapter(
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
         holder.itemView.run {
             val photo = findViewById<AppCompatImageView>(R.id.pager_photo_image_view)
+            photo.setOnClickListener {
+                switchToolbarCallback.invoke()
+            }
             if (photos[position] == null) {
                 requestImageCallback.invoke(position)
                 photo.setImageDrawable(
