@@ -1,32 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/photo_motion_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="@color/white"
+    android:background="@color/transparent"
+    android:backgroundTint="@color/transparent"
+    app:layoutDescription="@xml/fragment_photo_pager_scene"
+    app:motionDebug="SHOW_ALL"
     tools:context=".main.ui.photo.PhotoPagerFragment">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:orientation="vertical"
+        android:background="@color/tint">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/photo_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.core.widget.NestedScrollView>
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#80FFFFFF">
+        android:backgroundTint="#80FFFFFF"
+        android:padding="8dp"
+        android:windowTranslucentStatus="true">
 
         <ImageButton
             android:id="@+id/download_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical|end"
+            android:backgroundTint="@color/transparent"
             android:contentDescription="@string/download"
             android:scaleType="centerCrop"
             android:src="@drawable/download_image"
-            android:backgroundTint="@color/transparent"/>
+            app:tint="@color/primary" />
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/photo_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-</FrameLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>
