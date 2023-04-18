@@ -22,6 +22,5 @@ object RetrofitClient {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
-    val authenticationApi: AuthenticationApi
-        get() = retrofit.create(AuthenticationApi::class.java)
+    val authenticationApi: AuthenticationApi = retrofit.create(AuthenticationApi::class.java)
 }

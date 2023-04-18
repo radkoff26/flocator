@@ -1,23 +1,30 @@
 package com.example.flocator
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.common.config.SharedPreferencesContraction
+import com.example.flocator.authentication.client.RetrofitClient
+import com.example.flocator.authentication.client.dto.UserCredentialsDto
+import com.example.flocator.authentication.getlocation.LocationRequestFragment
+import com.example.flocator.common.storage.SharedStorage
 import com.example.flocator.main.ui.main.MainFragment
 import com.example.flocator.common.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.LocationUtils
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    companion object {
-        const val COARSE_REQUEST_CODE = 100
-        const val FINE_REQUEST_CODE = 101
-    }
+    private val compositeDisposable = CompositeDisposable()
+
+    @Inject
+    lateinit var sharedStorage: SharedStorage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -25,14 +32,6 @@ class MainActivity : AppCompatActivity() {
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
-        val sharedPreferences = getSharedPreferences(SharedPreferencesContraction.User.prefs_name, MODE_PRIVATE)
-
-        // TODO: STUB!
-        if (!sharedPreferences.contains(SharedPreferencesContraction.User.USER_ID)) {
-            val editor = sharedPreferences.edit()
-            editor.putLong(SharedPreferencesContraction.User.USER_ID, 1)
-            editor.apply()
-        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -40,29 +39,49 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.fragment_container, MainFragment())
-            .commit()
+        openFirstFragment()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            COARSE_REQUEST_CODE -> {
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    finish()
-                }
-            }
-            FINE_REQUEST_CODE -> {
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    finish()
-                }
-            }
+    private fun openFirstFragment() {
+        if (!sharedStorage.hasUserData()) {
+            FragmentNavigationUtils.openFragment(
+                supportFragmentManager,
+                AuthFragment()
+            )
+            return
         }
+        val login = sharedStorage.getLogin()!!
+        val password = sharedStorage.getPassword()!!
+        compositeDisposable.add(
+            RetrofitClient.authenticationApi.loginUser(UserCredentialsDto(login, password))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        if (LocationUtils.hasLocationPermission(this)) {
+                            FragmentNavigationUtils.openFragment(
+                                supportFragmentManager,
+                                MainFragment()
+                            )
+                        } else {
+                            FragmentNavigationUtils.openFragment(
+                                supportFragmentManager,
+                                LocationRequestFragment()
+                            )
+                        }
+                    },
+                    {
+                        FragmentNavigationUtils.openFragment(
+                            supportFragmentManager,
+                            AuthFragment()
+                        )
+                    }
+                )
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 }

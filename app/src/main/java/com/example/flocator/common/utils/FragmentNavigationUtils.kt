@@ -80,6 +80,16 @@ object FragmentNavigationUtils {
         }
     }
 
+    fun clearAllAndOpenFragment(fragmentManager: FragmentManager, fragment: Fragment) {
+        val fragments = fragmentManager.fragments
+        val transaction = fragmentManager.beginTransaction()
+        for (current in fragments) {
+            transaction.remove(current)
+        }
+        transaction.add(R.id.fragment_container, fragment)
+        transaction.commit()
+    }
+
     fun closeFragment(
         fragmentManager: FragmentManager,
         fragment: Fragment,

@@ -1,7 +1,5 @@
 package com.example.flocator.authentication.registration
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -10,18 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.client.dto.UserRegistrationDto
-import com.example.flocator.authentication.getlocation.LocationRequestFragment
 import com.example.flocator.authentication.viewmodel.RegistrationViewModel
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import com.example.flocator.main.ui.main.MainFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -95,30 +89,6 @@ class RegThirdFragment : Fragment(), Authentication {
         compositeDisposable.clear()
     }
 
-    private fun createEncryptedSharedPreferences(context: Context): SharedPreferences {
-        val masterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        return EncryptedSharedPreferences.create(
-            context,
-            "encrypted_prefs",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-    }
-
-    private fun getPassword(context: Context): String? {
-        val encryptedSharedPreferences = createEncryptedSharedPreferences(context)
-        return encryptedSharedPreferences.getString("password", null)
-    }
-
-    private fun savePassword(context: Context, password: String) {
-        val encryptedSharedPreferences = createEncryptedSharedPreferences(context)
-        encryptedSharedPreferences.edit().putString("password", password).apply()
-    }
-
     private fun createAccount() {
         val lastName = registrationViewModel.nameData.value?.first
         val firstName = registrationViewModel.nameData.value?.second
@@ -141,19 +111,10 @@ class RegThirdFragment : Fragment(), Authentication {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ isSuccess ->
                         if (isSuccess) {
-                            savePassword(requireContext(), password)
-
-                            if (LocationRequestFragment.hasLocationPermission(requireContext())) {
-                                FragmentNavigationUtils.openFragment(
-                                    requireActivity().supportFragmentManager,
-                                    MainFragment()
-                                )
-                            } else {
-                                FragmentNavigationUtils.openFragment(
-                                    requireActivity().supportFragmentManager,
-                                    LocationRequestFragment()
-                                )
-                            }
+                            FragmentNavigationUtils.clearAllAndOpenFragment(
+                                requireActivity().supportFragmentManager,
+                                AuthFragment()
+                            )
                         }
                     }, { error ->
                         showErrorMessage()
