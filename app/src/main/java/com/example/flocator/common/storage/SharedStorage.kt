@@ -46,4 +46,15 @@ class SharedStorage @Inject constructor(
             apply()
         }
     }
+
+    override fun clearUserData() {
+        defaultSharedPreferences.edit().apply {
+            clear()
+            apply()
+        }
+        encryptedSharedPreferences.edit().apply {
+            clear()
+            apply()
+        }
+    }
 }

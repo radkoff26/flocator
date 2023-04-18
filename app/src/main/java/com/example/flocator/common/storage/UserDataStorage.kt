@@ -13,4 +13,6 @@ interface UserDataStorage {
     fun hasUserData(): Boolean
 
     fun saveUserData(userData: UserData)
+
+    fun clearUserData()
 }
