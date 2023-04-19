@@ -2,7 +2,6 @@ package com.example.flocator.main.ui.mark
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +22,7 @@ import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.ui.MainViewModelFactory
 import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
+import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.main.ui.photo.PhotoPagerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -86,8 +86,12 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
             dismiss()
         }
 
+        binding.retryFragmentButton.setOnRetryCallback {
+            markFragmentViewModel.loadData()
+        }
+
         markFragmentViewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
-        markFragmentViewModel.photosLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
+        markFragmentViewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
         markFragmentViewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
         markFragmentViewModel.markFragmentStateLiveData.observe(
             viewLifecycleOwner,
@@ -121,35 +125,36 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         when (value) {
             is MarkFragmentState.Loading -> setLoadingState()
             is MarkFragmentState.Loaded -> setLoadedState()
-            is MarkFragmentState.Failed -> setFailureState(value.cause.message!!)
+            is MarkFragmentState.Failed -> setFailureState()
         }
     }
 
     private fun setLoadingState() {
         binding.content.visibility = GONE
-        binding.failureLayout.visibility = GONE
-        binding.loaderLayout.visibility = VISIBLE
+        binding.retryFragmentButton.visibility = GONE
+        binding.loader.visibility = VISIBLE
+        binding.loader.startAnimation()
     }
 
     private fun setLoadedState() {
         binding.content.visibility = VISIBLE
-        binding.failureLayout.visibility = GONE
-        binding.loaderLayout.visibility = GONE
+        binding.retryFragmentButton.visibility = GONE
+        binding.loader.visibility = GONE
+        binding.loader.stopAnimation()
     }
 
-    private fun setFailureState(failureText: String) {
+    private fun setFailureState() {
         binding.content.visibility = GONE
-        binding.failureLayout.visibility = VISIBLE
-        binding.loaderLayout.visibility = GONE
-
-        binding.failureText.text = failureText
+        binding.retryFragmentButton.visibility = VISIBLE
+        binding.loader.visibility = GONE
+        binding.loader.stopAnimation()
     }
 
     private fun loadPhoto(position: Int) {
         markFragmentViewModel.loadPhotoByPosition(position)
     }
 
-    private fun onUpdatePhotos(value: List<Bitmap?>?) {
+    private fun onUpdatePhotos(value: List<CarouselPhotoState>?) {
         if (value == null) {
             return
         }

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.authentication.Authentication
@@ -19,6 +20,7 @@ import com.example.flocator.databinding.FragmentRegistrationBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.sql.Timestamp
 
 class RegThirdFragment : Fragment(), Authentication {
     private var _binding: FragmentRegistrationBinding? = null
@@ -81,7 +83,7 @@ class RegThirdFragment : Fragment(), Authentication {
         binding.firstInputField.hint = PASSWORD
         binding.secondInputField.hint = REPEAT_PASSWORD
         binding.submitBtn.text = REGISTER
-
+        registrationViewModel = ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
     }
 
     override fun onDestroy() {
@@ -102,7 +104,8 @@ class RegThirdFragment : Fragment(), Authentication {
                 firstName = firstName,
                 login = login,
                 email = email,
-                password = password
+                password = password,
+                birthDate = Timestamp(System.currentTimeMillis()) // TODO: fix
             )
 
             compositeDisposable.add(

@@ -7,13 +7,14 @@ import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.flocator.common.utils.LocationUtils
+import com.example.flocator.main.api.ClientAPI
 import com.google.android.gms.location.LocationServices
 import java.util.function.Consumer
 
 class UserLocationHandler(
     private val context: Context,
     lifecycleOwner: LifecycleOwner,
-    private var userLocationListener: Consumer<Location>
+    private var userLocationListener: Consumer<Location>,
 ) : DefaultLifecycleObserver {
     private val fusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)

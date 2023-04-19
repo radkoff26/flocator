@@ -219,6 +219,7 @@ class MainFragment : Fragment(), MainSection {
                     it.longitude
                 )
             )
+            mainFragmentViewModel.postLocation()
         }
     }
 

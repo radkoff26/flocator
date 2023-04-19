@@ -2,11 +2,13 @@ package com.example.flocator.main.api
 
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
+import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.main.data.UserInfo
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -33,6 +35,9 @@ interface ClientAPI {
 
     @GET("user/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<UserInfo>
+
+    @POST("user/location")
+    fun updateLocation(@Body userLocationDto: UserLocationDto): Completable
 
     @POST("mark/like")
     fun likeMark(@Query("markId") markId: Long, @Query("userId") userId: Long): Completable

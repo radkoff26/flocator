@@ -12,6 +12,7 @@ import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.models.Mark
 import com.example.flocator.main.models.User
+import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.main.data.UserInfo
 import com.example.flocator.main.ui.main.data.MarkGroup
 import com.example.flocator.main.utils.MarksDiffUtils
@@ -65,6 +66,30 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
                     },
                     {
                         Log.e(TAG, "requestUserData: ${it.stackTraceToString()}", it)
+                    }
+                )
+        )
+    }
+
+    fun postLocation() {
+        if (_userInfo == null || _userLocationLiveData.value == null) {
+            return
+        }
+        compositeDisposable.add(
+            clientAPI.updateLocation(
+                UserLocationDto(
+                    _userInfo!!.userId,
+                    _userLocationLiveData.value!!
+                )
+            )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+
+                    },
+                    {
+                        Log.e(TAG, "postLocation: error", it)
                     }
                 )
         )
@@ -184,8 +209,12 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
     }
 
     private fun fetchFriends() {
+        if (userInfo == null) {
+            friendsHandler.postDelayed(this::fetchFriends, 5000)
+            return
+        }
         compositeDisposable.add(
-            clientAPI.getUserFriendsLocated(1)
+            clientAPI.getUserFriendsLocated(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

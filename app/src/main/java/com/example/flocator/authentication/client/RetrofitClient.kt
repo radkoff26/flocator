@@ -8,16 +8,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private val httpClient: OkHttpClient
-        get() {
-            return OkHttpClient.Builder()
-                .build()
-        }
-
-    private val retrofit: Retrofit
-        get() = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()

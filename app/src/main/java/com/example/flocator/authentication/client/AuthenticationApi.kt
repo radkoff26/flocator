@@ -11,18 +11,18 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface AuthenticationApi {
-    @POST("/api/user/register")
+    @POST("user/register")
     fun registerUser(@Body userRegistrationDto: UserRegistrationDto): Single<Boolean>
 
-    @POST("/api/user/login")
+    @POST("user/login")
     fun loginUser(@Body userCredentialsDto: UserCredentialsDto): Single<Long>
 
-    @GET("/api/user/{userId}")
+    @GET("user/{userId}")
     fun getUserById(@Path("userId") userId: Long): Single<User>
 
-    @GET("/api/user/is_login_available")
+    @GET("user/is_login_available")
     fun isLoginAvailable(@Query("login") login: String): Single<Boolean>
 
-    @GET("/api/user/is_email_available")
+    @GET("user/is_email_available")
     fun isEmailAvailable(@Query("email") email: String): Single<Boolean>
 }
