@@ -20,7 +20,6 @@ import com.example.flocator.databinding.FragmentRegistrationBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import java.sql.Timestamp
 
 class RegThirdFragment : Fragment(), Authentication {
     private var _binding: FragmentRegistrationBinding? = null
@@ -104,8 +103,7 @@ class RegThirdFragment : Fragment(), Authentication {
                 firstName = firstName,
                 login = login,
                 email = email,
-                password = password,
-                birthDate = Timestamp(System.currentTimeMillis()) // TODO: fix
+                password = password
             )
 
             compositeDisposable.add(

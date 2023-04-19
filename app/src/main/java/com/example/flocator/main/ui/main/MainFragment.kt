@@ -295,15 +295,17 @@ class MainFragment : Fragment(), MainSection {
                 friendMapView,
                 null
             )
-            compositeDisposable.add(LoadUtils.loadPictureFromUrl(
-                userInfo.avatarUri,
-                COMPRESSION_FACTOR
-            ).observeOn(Schedulers.computation()).subscribe { image ->
-                mainFragmentViewModel.setLoadedPhotoAsync(
+            if (userInfo.avatarUri != null) {
+                compositeDisposable.add(LoadUtils.loadPictureFromUrl(
                     userInfo.avatarUri,
-                    image
-                )
-            })
+                    COMPRESSION_FACTOR
+                ).observeOn(Schedulers.computation()).subscribe { image ->
+                    mainFragmentViewModel.setLoadedPhotoAsync(
+                        userInfo.avatarUri,
+                        image
+                    )
+                })
+            }
         } else {
             usersViewState[userInfo.userId]!!.placemark.geometry = point
         }

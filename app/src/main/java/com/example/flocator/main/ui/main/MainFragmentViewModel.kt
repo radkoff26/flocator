@@ -231,8 +231,12 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
     }
 
     private fun fetchMarks() {
+        if (userInfo == null) {
+            friendsHandler.postDelayed(this::fetchMarks, 10000)
+            return
+        }
         compositeDisposable.add(
-            clientAPI.getUserAndFriendsMarks(1)
+            clientAPI.getUserAndFriendsMarks(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
