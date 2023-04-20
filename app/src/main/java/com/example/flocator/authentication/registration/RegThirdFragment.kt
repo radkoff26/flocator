@@ -79,6 +79,8 @@ class RegThirdFragment : Fragment(), Authentication {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.id = R.id.third_fragment_root
+
         binding.firstInputField.hint = PASSWORD
         binding.secondInputField.hint = REPEAT_PASSWORD
         binding.submitBtn.text = REGISTER
