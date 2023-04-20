@@ -98,6 +98,11 @@ class AuthFragment : Fragment(), Authentication {
         )
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.clear()

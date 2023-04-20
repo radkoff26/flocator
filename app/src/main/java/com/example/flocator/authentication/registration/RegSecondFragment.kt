@@ -139,10 +139,9 @@ class RegSecondFragment : Fragment(), Authentication {
         compositeDisposable.dispose()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(EMAIL, binding.firstInputEditField.toString())
-        outState.putString(LOGIN, binding.secondInputEditField.toString())
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showErrorMessage(text: String) {
