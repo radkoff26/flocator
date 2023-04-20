@@ -19,10 +19,13 @@ import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.example.flocator.authentication.Authentication
+import com.example.flocator.databinding.FragmentAuthBinding
 import com.example.flocator.main.ui.main.MainFragment
 
 class LocationRequestFragment : Fragment(), Authentication {
-    private lateinit var binding: FragmentLocationRequestBinding
+    private var _binding: FragmentLocationRequestBinding? = null
+    private val binding: FragmentLocationRequestBinding
+        get() = _binding!!
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
 
@@ -30,7 +33,7 @@ class LocationRequestFragment : Fragment(), Authentication {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentLocationRequestBinding.inflate(inflater, container, false)
+        _binding = FragmentLocationRequestBinding.inflate(inflater, container, false)
 
         binding.allowBtn.setOnClickListener {
             val dontShowAgain =
@@ -67,6 +70,11 @@ class LocationRequestFragment : Fragment(), Authentication {
         )
 
         setupRequestPermissionsLauncher()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupRequestPermissionsLauncher() {

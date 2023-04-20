@@ -94,6 +94,11 @@ class RegFirstFragment : Fragment(), Authentication {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun validateName(firstName: String, lastName: String): Boolean {
         return firstName.isNotEmpty() && lastName.isNotEmpty();
     }

@@ -92,6 +92,11 @@ class RegThirdFragment : Fragment(), Authentication {
         compositeDisposable.clear()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun createAccount() {
         val lastName = registrationViewModel.nameData.value?.first
         val firstName = registrationViewModel.nameData.value?.second
