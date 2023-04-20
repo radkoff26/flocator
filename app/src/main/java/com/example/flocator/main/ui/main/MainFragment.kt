@@ -24,7 +24,7 @@ import com.example.flocator.main.ui.main.data.MarkViewDto
 import com.example.flocator.main.handlers.UserLocationHandler
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.example.flocator.main.ui.main.data.MarkGroup
-import com.example.flocator.main.utils.LoadUtils
+import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.ui.main.views.FriendMapView
 import com.example.flocator.main.ui.main.views.MarkGroupMapView
 import com.example.flocator.main.ui.main.views.MarkMapView
@@ -296,7 +296,8 @@ class MainFragment : Fragment(), MainSection {
                 null
             )
             if (userInfo.avatarUri != null) {
-                compositeDisposable.add(LoadUtils.loadPictureFromUrl(
+                compositeDisposable.add(
+                    LoadUtils.loadPictureFromUrl(
                     userInfo.avatarUri,
                     COMPRESSION_FACTOR
                 ).observeOn(Schedulers.computation()).subscribe { image ->
@@ -336,7 +337,8 @@ class MainFragment : Fragment(), MainSection {
                     usersViewState[id]!!.placemark.setView(viewProvider)
                     usersViewState[id]!!.avatarUri = null
                 } else {
-                    compositeDisposable.add(LoadUtils.loadPictureFromUrl(
+                    compositeDisposable.add(
+                        LoadUtils.loadPictureFromUrl(
                         user.avatarUrl,
                         COMPRESSION_FACTOR
                     ).observeOn(Schedulers.computation()).subscribe { bitmap ->
@@ -410,7 +412,8 @@ class MainFragment : Fragment(), MainSection {
                     } else {
                         val firstImage = mark.photos[0]
                         if (!mainFragmentViewModel.photoCacheContains(firstImage)) {
-                            compositeDisposable.add(LoadUtils.loadPictureFromUrl(
+                            compositeDisposable.add(
+                                LoadUtils.loadPictureFromUrl(
                                 firstImage,
                                 COMPRESSION_FACTOR
                             ).observeOn(Schedulers.computation()).subscribe { image ->

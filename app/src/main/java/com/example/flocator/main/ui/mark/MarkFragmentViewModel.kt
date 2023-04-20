@@ -10,7 +10,7 @@ import com.example.flocator.main.models.Mark
 import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
-import com.example.flocator.main.utils.LoadUtils
+import com.example.flocator.common.utils.LoadUtils
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
