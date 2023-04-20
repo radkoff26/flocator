@@ -1,4 +1,4 @@
-package com.example.flocator.main.utils
+package com.example.flocator.common.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
