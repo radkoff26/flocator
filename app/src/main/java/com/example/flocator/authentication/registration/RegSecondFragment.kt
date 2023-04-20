@@ -114,6 +114,8 @@ class RegSecondFragment : Fragment(), Authentication {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.id = R.id.second_fragment_root
+
         binding.firstInputField.hint = LOGIN
         binding.secondInputField.hint = EMAIL
         binding.submitBtn.text = NEXT
