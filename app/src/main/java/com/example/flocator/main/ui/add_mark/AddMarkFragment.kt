@@ -19,13 +19,14 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
+import com.example.flocator.common.storage.shared.SharedStorage
 import com.example.flocator.databinding.FragmentAddMarkBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.add_mark.adapters.CarouselRecyclerViewAdapter
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
-import com.example.flocator.main.ui.add_mark.data.MarkDto
+import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -34,9 +35,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
+class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
@@ -47,6 +49,8 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
     private var valueAnimator: ValueAnimator? = null
 
+    @Inject
+    lateinit var sharedStorage: SharedStorage
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -112,8 +116,17 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         }
 
         binding.addMarkBtn.setOnClickListener {
+            val userId = sharedStorage.getUserId()
+            if (userId == null) {
+                addMarkFragmentViewModel.changeFragmentState(
+                    AddMarkFragmentState.Failed(
+                        Throwable("Не авторизован!")
+                    )
+                )
+                return@setOnClickListener
+            }
             addMarkFragmentViewModel.saveMark(
-                prepareAndGetMark(),
+                prepareAndGetMark(userId),
                 prepareAndGetParts()
             )
         }
@@ -237,9 +250,9 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         valueAnimator!!.start()
     }
 
-    private fun prepareAndGetMark(): MarkDto { // TODO: there must be full user data here
-        return MarkDto(
-            1,
+    private fun prepareAndGetMark(userId: Long): AddMarkDto {
+        return AddMarkDto(
+            userId,
             addMarkFragmentViewModel.userPoint,
             binding.markText.text.toString(),
             binding.isPublicCheckBox.isChecked,

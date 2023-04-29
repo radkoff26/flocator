@@ -11,7 +11,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.example.flocator.MainActivity
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.common.storage.SharedStorage
+import com.example.flocator.common.storage.shared.SharedStorage
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.di.SharedStorageModule
 import com.example.flocator.radko_test.fragments.TestAuthFragment

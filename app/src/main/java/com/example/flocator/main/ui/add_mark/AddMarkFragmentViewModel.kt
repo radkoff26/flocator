@@ -9,7 +9,7 @@ import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
-import com.example.flocator.main.ui.add_mark.data.MarkDto
+import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +40,10 @@ class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: Client
     fun updateUserPoint(point: Point) {
         _userPoint = point
         obtainAddress()
+    }
+
+    fun changeFragmentState(addMarkFragmentState: AddMarkFragmentState) {
+        _fragmentStateLiveData.value = addMarkFragmentState
     }
 
     private fun obtainAddress() {
@@ -117,7 +121,7 @@ class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: Client
         return _carouselLiveData.value!!.any { it.isSelected }
     }
 
-    fun saveMark(mark: MarkDto, parts: List<MultipartBody.Part>) {
+    fun saveMark(mark: AddMarkDto, parts: List<MultipartBody.Part>) {
         val requestBodyMark = RequestBody.create(
             MediaType.parse("application/json"),
             Gson().toJson(mark)

@@ -3,7 +3,7 @@ package com.example.flocator.main.ui.add_mark.data
 import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
 
-data class MarkDto(
+data class AddMarkDto(
     @SerializedName("authorId")
     val authorId: Long,
     @SerializedName("point")
