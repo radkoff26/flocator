@@ -1,6 +1,6 @@
 package com.example.flocator.main.utils
 
-import com.example.flocator.main.models.Mark
+import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.main.ui.main.data.MarkGroup
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
@@ -10,19 +10,19 @@ import kotlin.math.sqrt
 
 object MarksUtils {
 
-    fun groupMarks(marks: List<Mark>, visibleRegion: VisibleRegion, mapWidth: Float, markWidth: Float): List<MarkGroup> {
+    fun groupMarks(marks: List<MarkWithPhotos>, visibleRegion: VisibleRegion, mapWidth: Float, markWidth: Float): List<MarkGroup> {
         val distanceBetweenEdges = getDistanceBetweenPoints(visibleRegion.bottomLeft, visibleRegion.bottomRight)
         val boundDistance: Double = markWidth * distanceBetweenEdges / mapWidth
-        val mutablePoints: MutableList<Mark> = ArrayList(marks)
+        val mutablePoints: MutableList<MarkWithPhotos> = ArrayList(marks)
         val markGroups: MutableList<MarkGroup> = ArrayList()
         val current = 0
         while (current < mutablePoints.size) {
             var i = current + 1
-            val currentList: MutableList<Mark> = ArrayList()
-            val point: Point = mutablePoints[current].location
+            val currentList: MutableList<MarkWithPhotos> = ArrayList()
+            val point: Point = mutablePoints[current].mark.location
             currentList.add(mutablePoints[current])
             while (i < mutablePoints.size) {
-                val distance: Double = getDistanceBetweenPoints(point, mutablePoints[i].location)
+                val distance: Double = getDistanceBetweenPoints(point, mutablePoints[i].mark.location)
                 if (distance < boundDistance) {
                     currentList.add(mutablePoints[i])
                     mutablePoints.removeAt(i)
@@ -36,13 +36,13 @@ object MarksUtils {
         return markGroups
     }
 
-    private fun getCenterOfGroup(group: List<Mark>): Point {
+    private fun getCenterOfGroup(group: List<MarkWithPhotos>): Point {
         var minLatitude = 86.0
         var minLongitude = 151.0
         var maxLatitude = -86.0
         var maxLongitude = -211.0
         for (mark in group) {
-            val point = mark.location
+            val point = mark.mark.location
             if (point.latitude > maxLatitude) {
                 maxLatitude = point.latitude
             }

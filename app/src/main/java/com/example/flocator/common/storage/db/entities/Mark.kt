@@ -1,29 +1,38 @@
-package com.example.flocator.main.models
+package com.example.flocator.common.storage.db.entities
 
+import androidx.room.*
 import com.google.android.gms.common.internal.Objects
 import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
 
+@Entity(tableName = "mark")
 data class Mark(
+    @PrimaryKey
     @SerializedName("markId")
     val markId: Long,
+
     @SerializedName("authorId")
     val authorId: Long,
+
     @SerializedName("point")
     val location: Point,
+
     @SerializedName("text")
     val text: String,
+
     @SerializedName("isPublic")
     val isPublic: Boolean,
-    @SerializedName("photos")
-    val photos: List<String>,
+
     @SerializedName("place")
-    val place: String,
+    val place: String?,
+
     @SerializedName("likesCount")
     var likesCount: Int,
+
     @SerializedName("hasUserLiked")
-    var hasUserLiked: Boolean
+    var hasUserLiked: Boolean,
 ) {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -35,7 +44,6 @@ data class Mark(
         if (location.latitude != other.location.latitude || location.longitude != other.location.longitude) return false
         if (text != other.text) return false
         if (isPublic != other.isPublic) return false
-        if (photos != other.photos) return false
         if (place != other.place) return false
 
         return true
@@ -47,7 +55,6 @@ data class Mark(
         result = 31 * result + Objects.hashCode(location)
         result = 31 * result + text.hashCode()
         result = 31 * result + isPublic.hashCode()
-        result = 31 * result + photos.hashCode()
         result = 31 * result + place.hashCode()
         return result
     }
