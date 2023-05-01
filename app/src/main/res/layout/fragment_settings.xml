@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".settings.SettingsFragment"
     android:padding="32dp"
     android:orientation="vertical"
@@ -25,7 +30,7 @@
         android:layout_marginBottom="20dp"
         android:background="@drawable/settings_rectangle"
         >
-    <ImageButton
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/avatar"
         android:background="#0000"
         android:layout_width="60dp"
@@ -165,3 +170,4 @@
 
 
 </LinearLayout>
+</ScrollView>

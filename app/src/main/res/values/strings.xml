@@ -3,7 +3,7 @@
     <string name="community_button">Community</string>
     <string name="target_button">Target</string>
     <string name="settings_button">Settings</string>
-    <string name="date_with_placeholders">%02d.%02d.%03d</string>
+    <string name="date_with_placeholders">%02d.%02d.%02d</string>
     <string name="add_mark">Добавить метку</string>
     <string name="add">Добавить</string>
     <string name="cancel">Отменить</string>
@@ -25,7 +25,7 @@
     <string name="current_location">Точно</string>
     <string name="approx_location">Примерно</string>
     <string name="date_of_birth">День рождения</string>
-    <string name="date_of_birth_mock">16.11.2003</string>
+    <string name="date_of_birth_mock">xx.xx.xxxx</string>
     <string name="blacklist_cnt_mock">12</string>
     <string name="privacy">Приватность</string>
     <string name="change_pass">Сменить пароль</string>
