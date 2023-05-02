@@ -1,7 +1,7 @@
 package com.example.flocator.main.api
 
-import com.example.flocator.main.models.Mark
-import com.example.flocator.main.models.User
+import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.main.data.UserInfo
 import io.reactivex.Completable
@@ -21,7 +21,7 @@ interface ClientAPI {
     fun getUserFriendsLocated(@Query("userId") userId: Long): Single<List<User>>
 
     @GET("mark/friends")
-    fun getUserAndFriendsMarks(@Query("userId") userId: Long): Single<List<Mark>>
+    fun getUserAndFriendsMarks(@Query("userId") userId: Long): Single<List<MarkDto>>
 
     @Multipart
     @POST("mark")
@@ -31,7 +31,7 @@ interface ClientAPI {
     ): Completable
 
     @GET("mark/{markId}")
-    fun getMark(@Path("markId") markId: Long, @Query("userId") userId: Long): Single<Mark>
+    fun getMark(@Path("markId") markId: Long, @Query("userId") userId: Long): Single<MarkDto>
 
     @GET("user/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<UserInfo>

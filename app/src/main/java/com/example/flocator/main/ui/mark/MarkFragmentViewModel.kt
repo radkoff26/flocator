@@ -6,24 +6,22 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.api.ClientAPI
-import com.example.flocator.main.models.Mark
 import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.common.utils.LoadUtils
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class MarkFragmentViewModel @AssistedInject constructor(
+class MarkFragmentViewModel constructor(
     private val clientAPI: ClientAPI,
-    @Assisted("markId") val markId: Long,
-    @Assisted("userId") val userId: Long
+    private val markId: Long,
+    private val userId: Long
 ) : ViewModel(), MainSection {
-    private val _markLiveData = MutableLiveData<Mark?>(null)
+    private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
     private val _userNameLiveData = MutableLiveData<UserNameDto?>(null)
     private val _photosStateLiveData = MutableLiveData<List<CarouselPhotoState>?>(null)
     private val _fragmentStateLiveData: MutableLiveData<MarkFragmentState> = MutableLiveData(
@@ -32,7 +30,7 @@ class MarkFragmentViewModel @AssistedInject constructor(
 
     private var photoLoadingState: MutableList<Boolean>? = null
 
-    val markLiveData: LiveData<Mark?> = _markLiveData
+    val markLiveData: LiveData<MarkWithPhotos?> = _markLiveData
     val userNameLiveData: LiveData<UserNameDto?> = _userNameLiveData
     val photosStateLiveData: LiveData<List<CarouselPhotoState>?> = _photosStateLiveData
     val markFragmentStateLiveData: LiveData<MarkFragmentState> = _fragmentStateLiveData
@@ -53,7 +51,7 @@ class MarkFragmentViewModel @AssistedInject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        _markLiveData.value = it
+                        _markLiveData.value = it.toMarkWithPhotos()
                         _photosStateLiveData.value =
                             MutableList(it.photos.size) { CarouselPhotoState.Loading }
                         photoLoadingState = MutableList(it.photos.size) { false }
@@ -83,7 +81,7 @@ class MarkFragmentViewModel @AssistedInject constructor(
     }
 
     fun toggleLike() {
-        if (_markLiveData.value!!.hasUserLiked) {
+        if (_markLiveData.value!!.mark.hasUserLiked) {
             unlikeMark()
             compositeDisposable.add(
                 clientAPI.unlikeMark(markId, userId)
@@ -97,8 +95,8 @@ class MarkFragmentViewModel @AssistedInject constructor(
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe { it ->
                                         val mark = _markLiveData.value!!
-                                        mark.likesCount = it.likesCount
-                                        mark.hasUserLiked = it.hasUserLiked
+                                        mark.mark.likesCount = it.likesCount
+                                        mark.mark.hasUserLiked = it.hasUserLiked
                                         _markLiveData.value = mark
                                     }
                             )
@@ -123,8 +121,8 @@ class MarkFragmentViewModel @AssistedInject constructor(
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe { it ->
                                         val mark = _markLiveData.value!!
-                                        mark.likesCount = it.likesCount
-                                        mark.hasUserLiked = it.hasUserLiked
+                                        mark.mark.likesCount = it.likesCount
+                                        mark.mark.hasUserLiked = it.hasUserLiked
                                         _markLiveData.value = mark
                                     }
                             )
@@ -155,7 +153,7 @@ class MarkFragmentViewModel @AssistedInject constructor(
             photoLoadingState!![position] = true
             updateSinglePhotoState(CarouselPhotoState.Loading, position)
             compositeDisposable.add(
-                LoadUtils.loadPictureFromUrl(_markLiveData.value!!.photos[position], QUALITY_FACTOR)
+                LoadUtils.loadPictureFromUrl(_markLiveData.value!!.photos[position].uri, QUALITY_FACTOR)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnDispose {
@@ -176,15 +174,15 @@ class MarkFragmentViewModel @AssistedInject constructor(
 
     private fun likeMark() {
         val mark = _markLiveData.value!!
-        mark.likesCount++
-        mark.hasUserLiked = true
+        mark.mark.likesCount++
+        mark.mark.hasUserLiked = true
         _markLiveData.value = mark
     }
 
     private fun unlikeMark() {
         val mark = _markLiveData.value!!
-        mark.likesCount--
-        mark.hasUserLiked = false
+        mark.mark.likesCount--
+        mark.mark.hasUserLiked = false
         _markLiveData.value = mark
     }
 
@@ -199,13 +197,13 @@ class MarkFragmentViewModel @AssistedInject constructor(
         _photosStateLiveData.value = list
     }
 
-    @AssistedFactory
-    interface Factory {
-        fun build(
-            @Assisted("markId") markId: Long,
-            @Assisted("userId") userId: Long
-        ): MarkFragmentViewModel
-    }
+//    @AssistedFactory
+//    interface Factory {
+//        fun build(
+//            @Assisted("markId") markId: Long,
+//            @Assisted("userId") userId: Long
+//        ): MarkFragmentViewModel
+//    }
 
     companion object {
         const val TAG = "Mark Fragment"

@@ -4,17 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.common.storage.SharedStorage
+import com.example.flocator.common.storage.shared.SharedStorage
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class ExitAccountFragment : BottomSheetDialogFragment(), SettingsSection {

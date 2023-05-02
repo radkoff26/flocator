@@ -2,7 +2,7 @@ package com.example.flocator.authentication.client
 
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.client.dto.UserRegistrationDto
-import com.example.flocator.main.models.User
+import com.example.flocator.common.storage.db.entities.User
 import io.reactivex.Single
 import retrofit2.http.Body
 import retrofit2.http.GET

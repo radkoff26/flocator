@@ -8,7 +8,7 @@ import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.authentication.client.RetrofitClient
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
-import com.example.flocator.common.storage.SharedStorage
+import com.example.flocator.common.storage.shared.SharedStorage
 import com.example.flocator.main.ui.main.MainFragment
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils

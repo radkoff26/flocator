@@ -1,4 +1,4 @@
-package com.example.flocator.common.storage
+package com.example.flocator.common.storage.shared
 
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
