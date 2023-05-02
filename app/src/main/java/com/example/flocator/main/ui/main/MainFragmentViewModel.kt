@@ -1,10 +1,9 @@
 package com.example.flocator.main.ui.main
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,7 @@ import com.example.flocator.common.photo.PhotoCacheLiveData
 import com.example.flocator.common.storage.db.ApplicationDatabase
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.common.storage.storage.UserLocationPoint
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.models.*
 import com.example.flocator.main.models.dto.MarkDto
@@ -23,21 +23,24 @@ import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Scope
 
 @HiltViewModel
 @Suppress("UNCHECKED_CAST")
 class MainFragmentViewModel @Inject constructor(
     private val clientAPI: ClientAPI,
-    applicationDatabase: ApplicationDatabase,
-    @ApplicationContext context: Context
+    private val dataStore: DataStore<UserLocationPoint>,
+    applicationDatabase: ApplicationDatabase
 ) : ViewModel() {
-    val Context.dataStore by preferencesDataStore("")
     // Data inside of Live Data is non-nullable
     private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
     private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
@@ -71,6 +74,16 @@ class MainFragmentViewModel @Inject constructor(
 
     private fun initialFetch() {
         val userId = userInfo!!.userId
+        CoroutineScope(Dispatchers.IO).launch {
+            dataStore.data.collect {
+                _userLocationLiveData.postValue(
+                    Point(
+                        it.latitude,
+                        it.longitude
+                    )
+                )
+            }
+        }
         compositeDisposable.addAll(
             Single.merge(
                 markDao.getAllMarks(),
@@ -190,6 +203,14 @@ class MainFragmentViewModel @Inject constructor(
             setCameraPoint(point)
         }
         _userLocationLiveData.value = point
+        CoroutineScope(Dispatchers.IO).launch {
+            dataStore.updateData {
+                UserLocationPoint(
+                    point.latitude,
+                    point.longitude
+                )
+            }
+        }
     }
 
     fun setCameraFollowOnFriendMark(friendId: Long) {

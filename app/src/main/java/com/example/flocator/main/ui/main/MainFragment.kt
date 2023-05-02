@@ -46,6 +46,7 @@ import io.reactivex.disposables.CompositeDisposable
 import java.lang.Float.max
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), MainSection {
@@ -77,6 +78,8 @@ class MainFragment : Fragment(), MainSection {
 
     // Locations
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private val isInitializedCamera = AtomicBoolean(false)
 
     // Listeners
     // Due to weak references stored in map, these listeners should be stored separately
@@ -281,6 +284,17 @@ class MainFragment : Fragment(), MainSection {
     private fun onUserLocationChanged(point: Point?) {
         if (point == null || viewModel.userInfo == null) {
             return
+        }
+        if (!isInitializedCamera.get()) {
+            binding.mapView.map.move(
+                CameraPosition(
+                    point,
+                    MIN_ZOOM_SCALE,
+                    0F,
+                    0.0F
+                )
+            )
+            isInitializedCamera.set(true)
         }
         val userInfo = viewModel.userInfo!!
         if (usersViewState[userInfo.userId] == null) {
