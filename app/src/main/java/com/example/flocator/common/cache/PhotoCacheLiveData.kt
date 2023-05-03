@@ -1,7 +1,8 @@
-package com.example.flocator.common.photo
+package com.example.flocator.common.cache
 
 import android.graphics.Bitmap
 import android.util.Log
+import android.util.LruCache
 import androidx.lifecycle.*
 import com.example.flocator.common.utils.LoadUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -10,11 +11,16 @@ import io.reactivex.disposables.CompositeDisposable
 class PhotoCacheLiveData(
     private val qualityFactor: Int,
     initialUris: Collection<String> = emptyList()
-) : LiveData<MutableMap<String, PhotoState>>() {
+) : LiveData<LruCache<String, PhotoState>>() {
     private val compositeDisposable = CompositeDisposable()
+    private val maxCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
 
     init {
-        value = HashMap(initialUris.size)
+        value = object : LruCache<String, PhotoState>(maxCacheSize) {
+            override fun sizeOf(key: String?, value: PhotoState?): Int {
+                return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
+            }
+        }
         initialUris.forEach {
             requestPhotoLoading(it)
         }
@@ -25,7 +31,7 @@ class PhotoCacheLiveData(
             LoadUtils.loadPictureFromUrl(uri, qualityFactor)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe {
-                    value!![uri] = PhotoState.Loading
+                    value!!.put(uri, PhotoState.Loading)
                 }
                 .subscribe(
                     {
@@ -56,9 +62,8 @@ class PhotoCacheLiveData(
     }
 
     private fun updateMap(key: String, photo: PhotoState) {
-        val map = value!!.toMutableMap()
-        map[key] = photo
-        value = map
+        value!!.put(key, photo)
+        value = value // Updates state
     }
 
     companion object {
