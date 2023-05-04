@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.example.flocator.common.config.Constants
 import io.reactivex.Single
+import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import java.net.URL
@@ -31,7 +32,11 @@ class LoadUtils {
                 }
                 inputStream.close()
                 it.onSuccess(bitmap)
-            }.subscribeOn(Schedulers.io())
+            }
+                .subscribeOn(Schedulers.io())
+                .retry { _, throwable ->
+                    throwable !is UndeliverableException
+                }
         }
     }
 }
