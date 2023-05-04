@@ -12,8 +12,8 @@ import com.example.flocator.authentication.client.RetrofitClient.authenticationA
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
 import com.example.flocator.authentication.registration.RegFirstFragment
-import com.example.flocator.common.models.UserData
-import com.example.flocator.common.storage.shared.SharedStorage
+import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.storage.storage.user.UserData
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.databinding.FragmentAuthBinding
@@ -32,7 +32,7 @@ class AuthFragment : Fragment(), Authentication {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var sharedStorage: SharedStorage
+    lateinit var repository: MainRepository
 
     companion object {
         private const val TAG = "Auth fragment"
@@ -73,7 +73,7 @@ class AuthFragment : Fragment(), Authentication {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
-                    sharedStorage.saveUserData(
+                    repository.userCache.updateUserData(
                         UserData(
                             userId!!,
                             login,

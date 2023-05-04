@@ -14,15 +14,15 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
-import com.example.flocator.databinding.FragmentMarkBinding
-import com.example.flocator.main.MainSection
-import com.example.flocator.main.api.ClientAPI
-import com.example.flocator.main.config.BundleArgumentsContraction
-import com.example.flocator.main.ui.mark.data.MarkFragmentState
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
+import com.example.flocator.databinding.FragmentMarkBinding
+import com.example.flocator.main.MainSection
+import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
 import com.example.flocator.main.ui.mark.data.CarouselPhotoState
+import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.main.ui.photo.PhotoPagerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -40,7 +40,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
     private var carouselAdapter: MarkPhotoCarouselAdapter? = null
 
     @Inject
-    lateinit var clientAPI: ClientAPI
+    lateinit var repository: MainRepository
 
     private lateinit var markFragmentViewModel: MarkFragmentViewModel
 
@@ -68,7 +68,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         val userId =
             requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.USER_ID)
         markFragmentViewModel = MarkFragmentViewModel(
-            clientAPI,
+            repository,
             markId,
             userId
         )

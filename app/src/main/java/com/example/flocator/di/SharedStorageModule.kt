@@ -6,8 +6,10 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.example.flocator.common.storage.storage.UserLocationPoint
-import com.example.flocator.common.storage.storage.UserLocationPointSerializer
+import com.example.flocator.common.storage.storage.point.UserLocationPoint
+import com.example.flocator.common.storage.storage.point.UserLocationPointSerializer
+import com.example.flocator.common.storage.storage.user.UserData
+import com.example.flocator.common.storage.storage.user.UserDataSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +22,7 @@ import javax.inject.Singleton
 object SharedStorageModule {
     private const val ENCRYPTED_PREFS = "encrypted_prefs"
     private const val USER_LOCATION_DATA_STORE_FILE = "user_location_ds"
+    private const val USER_INFO_DATA_STORE_FILE = "user_info_ds"
 
     @Provides
     @Singleton
@@ -38,9 +41,17 @@ object SharedStorageModule {
 
     @Provides
     @Singleton
-    fun dataStore(@ApplicationContext context: Context): DataStore<UserLocationPoint> =
+    fun locationDataStore(@ApplicationContext context: Context): DataStore<UserLocationPoint> =
         DataStoreFactory.create(
             UserLocationPointSerializer(),
             produceFile = { context.dataStoreFile(USER_LOCATION_DATA_STORE_FILE) }
+        )
+
+    @Provides
+    @Singleton
+    fun userDataStore(@ApplicationContext context: Context): DataStore<UserData> =
+        DataStoreFactory.create(
+            UserDataSerializer(),
+            produceFile = { context.dataStoreFile(USER_INFO_DATA_STORE_FILE) }
         )
 }
