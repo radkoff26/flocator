@@ -4,20 +4,19 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.storage.db.entities.MarkWithPhotos
+import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.MainSection
-import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
-import com.example.flocator.common.utils.LoadUtils
-import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
 
 class MarkFragmentViewModel constructor(
-    private val clientAPI: ClientAPI,
+    private val repository: MainRepository,
     private val markId: Long,
     private val userId: Long
 ) : ViewModel(), MainSection {
@@ -45,8 +44,12 @@ class MarkFragmentViewModel constructor(
         if (_fragmentStateLiveData.value != MarkFragmentState.Loading) {
             _fragmentStateLiveData.value = MarkFragmentState.Loading
         }
+        loadMark()
+    }
+
+    private fun loadMark() {
         compositeDisposable.add(
-            clientAPI.getMark(markId, userId)
+            repository.restApi.getMark(markId, userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -56,27 +59,31 @@ class MarkFragmentViewModel constructor(
                             MutableList(it.photos.size) { CarouselPhotoState.Loading }
                         photoLoadingState = MutableList(it.photos.size) { false }
                         _fragmentStateLiveData.value = MarkFragmentState.Loaded
-
-                        compositeDisposable.add(
-                            clientAPI.getUser(it.authorId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                    { userInfo ->
-                                        _userNameLiveData.value =
-                                            UserNameDto(userInfo.firstName, userInfo.lastName)
-                                    },
-                                    { throwable ->
-                                        _fragmentStateLiveData.value =
-                                            MarkFragmentState.Failed(throwable)
-                                    }
-                                )
-                        )
+                        loadAuthorData()
                     },
                     {
                         _fragmentStateLiveData.value = MarkFragmentState.Failed(it)
                     }
-                ),
+                )
+        )
+    }
+
+    private fun loadAuthorData() {
+        _markLiveData.value!!
+        compositeDisposable.add(
+            repository.restApi.getUserInfo(_markLiveData.value!!.mark.authorId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userNameLiveData.value = UserNameDto(
+                            it.firstName,
+                            it.lastName
+                        )
+                    },
+                    {
+                        Log.e(TAG, "loadAuthorData: failed to load author data!", it)
+                    }
+                )
         )
     }
 
@@ -84,22 +91,12 @@ class MarkFragmentViewModel constructor(
         if (_markLiveData.value!!.mark.hasUserLiked) {
             unlikeMark()
             compositeDisposable.add(
-                clientAPI.unlikeMark(markId, userId)
+                repository.restApi.unlikeMark(markId, userId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         {
-                            compositeDisposable.add(
-                                clientAPI.getMark(markId, userId)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe { it ->
-                                        val mark = _markLiveData.value!!
-                                        mark.mark.likesCount = it.likesCount
-                                        mark.mark.hasUserLiked = it.hasUserLiked
-                                        _markLiveData.value = mark
-                                    }
-                            )
+                            loadMark()
                         },
                         {
                             Log.e(TAG, "toggleLike: error while liking photo", it)
@@ -110,22 +107,12 @@ class MarkFragmentViewModel constructor(
         } else {
             likeMark()
             compositeDisposable.add(
-                clientAPI.likeMark(markId, userId)
+                repository.restApi.likeMark(markId, userId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         {
-                            compositeDisposable.add(
-                                clientAPI.getMark(markId, userId)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe { it ->
-                                        val mark = _markLiveData.value!!
-                                        mark.mark.likesCount = it.likesCount
-                                        mark.mark.hasUserLiked = it.hasUserLiked
-                                        _markLiveData.value = mark
-                                    }
-                            )
+                            loadMark()
                         },
                         {
                             Log.e(TAG, "toggleLike: error while unliking photo", it)
@@ -153,7 +140,10 @@ class MarkFragmentViewModel constructor(
             photoLoadingState!![position] = true
             updateSinglePhotoState(CarouselPhotoState.Loading, position)
             compositeDisposable.add(
-                LoadUtils.loadPictureFromUrl(_markLiveData.value!!.photos[position].uri, QUALITY_FACTOR)
+                LoadUtils.loadPictureFromUrl(
+                    _markLiveData.value!!.photos[position].uri,
+                    QUALITY_FACTOR
+                )
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnDispose {
@@ -196,14 +186,6 @@ class MarkFragmentViewModel constructor(
         list[position] = carouselPhotoState
         _photosStateLiveData.value = list
     }
-
-//    @AssistedFactory
-//    interface Factory {
-//        fun build(
-//            @Assisted("markId") markId: Long,
-//            @Assisted("userId") userId: Long
-//        ): MarkFragmentViewModel
-//    }
 
     companion object {
         const val TAG = "Mark Fragment"

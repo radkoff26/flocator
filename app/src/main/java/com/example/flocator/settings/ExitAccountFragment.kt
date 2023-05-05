@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import com.example.flocator.R
 import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.common.storage.shared.SharedStorage
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class ExitAccountFragment : BottomSheetDialogFragment(), SettingsSection {
 
     @Inject
-    lateinit var storage: SharedStorage
+    lateinit var repository: MainRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,7 +34,7 @@ class ExitAccountFragment : BottomSheetDialogFragment(), SettingsSection {
         }
 
         confirmButton.setOnClickListener {
-            storage.clearUserData()
+            repository.userCache.clearUserData()
             FragmentNavigationUtils.clearAllAndOpenFragment(
                 requireActivity().supportFragmentManager,
                 AuthFragment()

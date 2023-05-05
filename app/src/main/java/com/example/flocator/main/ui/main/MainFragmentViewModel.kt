@@ -3,49 +3,50 @@ package com.example.flocator.main.ui.main
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.datastore.core.DataStore
+import android.util.LruCache
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.photo.PhotoCacheLiveData
-import com.example.flocator.common.storage.db.ApplicationDatabase
+import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
-import com.example.flocator.common.storage.storage.UserLocationPoint
-import com.example.flocator.main.api.ClientAPI
+import com.example.flocator.common.storage.storage.point.UserLocationPoint
 import com.example.flocator.main.models.*
-import com.example.flocator.main.models.dto.MarkDto
-import com.example.flocator.main.models.dto.UserLocationDto
-import com.example.flocator.main.ui.main.data.UserInfo
 import com.example.flocator.main.ui.main.data.MarkGroup
+import com.example.flocator.main.ui.main.data.UserInfo
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Scope
 
 @HiltViewModel
 @Suppress("UNCHECKED_CAST")
 class MainFragmentViewModel @Inject constructor(
-    private val clientAPI: ClientAPI,
-    private val dataStore: DataStore<UserLocationPoint>,
-    applicationDatabase: ApplicationDatabase
+    private val repository: MainRepository
 ) : ViewModel() {
+    val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
+
     // Data inside of Live Data is non-nullable
     private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
     private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
     private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
     private val _userLocationLiveData = MutableLiveData<Point?>(null)
+    private val _photoCacheLiveData = MutableLiveData<LruCache<String, PhotoState>>(
+        object : LruCache<String, PhotoState>(maxPhotoCacheSize) {
+            override fun sizeOf(key: String?, value: PhotoState?): Int {
+                return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
+            }
+        }
+    )
     private var _userInfo: UserInfo? = null
 
     private val _marks: MutableMap<Long, MarkWithPhotos> = HashMap()
@@ -60,66 +61,53 @@ class MainFragmentViewModel @Inject constructor(
     private val marksHandler: Handler = Handler(Looper.getMainLooper())
     private val compositeDisposable = CompositeDisposable()
 
-    private val markDao = applicationDatabase.markDao()
-    private val markPhotoDao = applicationDatabase.markPhotoDao()
-    private val friendsDao = applicationDatabase.userDao()
-
     val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData
     val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
-    val photoCacheLiveData: PhotoCacheLiveData = PhotoCacheLiveData(COMPRESSION_FACTOR)
+    val photoCacheLiveData: LiveData<LruCache<String, PhotoState>> = _photoCacheLiveData
     val userInfo: UserInfo?
         get() = _userInfo
 
     private fun initialFetch() {
         val userId = userInfo!!.userId
-        CoroutineScope(Dispatchers.IO).launch {
-            dataStore.data.collect {
-                _userLocationLiveData.postValue(
-                    Point(
-                        it.latitude,
-                        it.longitude
-                    )
-                )
-            }
-        }
-        compositeDisposable.addAll(
-            Single.merge(
-                markDao.getAllMarks(),
-                clientAPI.getUserAndFriendsMarks(userId)
-            )
-                .subscribeOn(Schedulers.io())
+        compositeDisposable.add(
+            repository.locationCache.getUserLocationData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        if (it.isEmpty()) {
-                            updateMarks(emptyList())
-                            return@subscribe
-                        }
-                        if (it[0] is MarkDto) {
-                            it as List<MarkDto>
-                            updateMarks(
-                                it.map(MarkDto::toMarkWithPhotos)
+                        _userLocationLiveData.postValue(
+                            Point(
+                                it.latitude,
+                                it.longitude
                             )
-                        } else {
-                            it as List<MarkWithPhotos>
-                            updateMarks(it)
-                        }
+                        )
+                    },
+                    {
+                        Log.e(
+                            TAG,
+                            "initialFetch: error while fetching user location from cache",
+                            it
+                        )
+                    }
+                )
+        )
+        compositeDisposable.addAll(
+            repository.restApi.getAllFriendsOfUser(userId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateFriends(it)
                     },
                     {
                         Log.e(TAG, "Initialization: marks loading failed!", it)
                     }
                 ),
-            Single.merge(
-                friendsDao.getAllFriends(),
-                clientAPI.getUserFriendsLocated(userId)
-            )
-                .subscribeOn(Schedulers.io())
+            repository.restApi.getMarksForUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        updateFriends(it)
+                        updateMarks(it)
                     },
                     {
                         Log.e(TAG, "Initialization: friends loading failed!", it)
@@ -128,10 +116,32 @@ class MainFragmentViewModel @Inject constructor(
         )
     }
 
-    fun requestUserData(userId: Long) {
+    fun loadPhoto(uri: String) {
+        if (_photoCacheLiveData.value!!.get(uri) == null) {
+            updateCacheState(uri, PhotoState.Loading)
+        }
         compositeDisposable.add(
-            clientAPI.getUser(userId)
-                .subscribeOn(Schedulers.io())
+            repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateCacheState(uri, PhotoState.Loaded(it))
+                    },
+                    {
+                        updateCacheState(uri, PhotoState.Failed(it))
+                    }
+                )
+        )
+    }
+
+    private fun updateCacheState(uri: String, photoState: PhotoState) {
+        _photoCacheLiveData.value!!.put(uri, photoState)
+        _photoCacheLiveData.value = _photoCacheLiveData.value
+    }
+
+    fun requestUserData() {
+        compositeDisposable.add(
+            repository.restApi.getCurrentUserData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -139,7 +149,11 @@ class MainFragmentViewModel @Inject constructor(
                         initialFetch()
                     },
                     {
-                        Log.e(TAG, "requestUserData: ${it.stackTraceToString()}", it)
+                        Log.e(
+                            TAG,
+                            "requestUserData: ${it.stackTraceToString()}",
+                            it
+                        )
                     }
                 )
         )
@@ -150,11 +164,9 @@ class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            clientAPI.updateLocation(
-                UserLocationDto(
-                    _userInfo!!.userId,
-                    _userLocationLiveData.value!!
-                )
+            repository.restApi.postUserLocation(
+                _userInfo!!.userId,
+                _userLocationLiveData.value!!
             )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -204,12 +216,12 @@ class MainFragmentViewModel @Inject constructor(
         }
         _userLocationLiveData.value = point
         CoroutineScope(Dispatchers.IO).launch {
-            dataStore.updateData {
+            repository.locationCache.updateUserLocationData(
                 UserLocationPoint(
                     point.latitude,
                     point.longitude
                 )
-            }
+            )
         }
     }
 
@@ -238,47 +250,6 @@ class MainFragmentViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        compositeDisposable.addAll(
-            markDao.updateTable(_marks.values.map(MarkWithPhotos::mark))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        Log.d(TAG, "onCleared: saved marks cache")
-                    },
-                    {
-                        Log.e(TAG, "onCleared: error while saving marks cache", it)
-                    }
-                ),
-            markPhotoDao.insertPhotos(
-                _marks.values.map(MarkWithPhotos::photos)
-                    .fold(ArrayList()) { acc, markPhotos ->
-                        acc.addAll(markPhotos)
-                        acc
-                    }
-            )
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        Log.d(TAG, "onCleared: saved marks photos cache")
-                    },
-                    {
-                        Log.e(TAG, "onCleared: error while saving marks photos cache", it)
-                    }
-                ),
-            friendsDao.updateTable(_friendsLiveData.value!!.values.toList())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        Log.d(TAG, "onCleared: saved friends cache")
-                    },
-                    {
-                        Log.e(TAG, "onCleared: error while friends cache", it)
-                    }
-                )
-        )
         super.onCleared()
         stopPolling()
         compositeDisposable.dispose()
@@ -327,7 +298,7 @@ class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            clientAPI.getUserFriendsLocated(userInfo!!.userId)
+            repository.restApi.getAllFriendsOfUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -348,14 +319,12 @@ class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            clientAPI.getUserAndFriendsMarks(userInfo!!.userId)
+            repository.restApi.getMarksForUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        updateMarks(
-                            it.map(MarkDto::toMarkWithPhotos)
-                        )
+                        updateMarks(it)
                         marksHandler.postDelayed(this::fetchMarks, 10000)
                     },
                     {

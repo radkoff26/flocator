@@ -1,4 +1,4 @@
-package com.example.flocator.common.photo
+package com.example.flocator.common.cache.runtime
 
 import android.graphics.Bitmap
 

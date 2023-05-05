@@ -5,27 +5,27 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.main.api.ClientAPI
-import com.example.flocator.main.api.GeocoderAPI
+import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.storage.storage.user.UserData
+import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
-import com.example.flocator.main.ui.add_mark.data.AddMarkDto
-import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import javax.inject.Inject
 
 @HiltViewModel
-class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI, private val geocoderApi: GeocoderAPI) : ViewModel() {
+class AddMarkFragmentViewModel @Inject constructor(
+    private val repository: MainRepository
+) : ViewModel() {
     private val _carouselLiveData = MutableLiveData<List<CarouselItemState>>(emptyList())
     private val _fragmentStateLiveData: MutableLiveData<AddMarkFragmentState> = MutableLiveData(
-        AddMarkFragmentState.Editing)
+        AddMarkFragmentState.Editing
+    )
     private val _addressLiveData = MutableLiveData<String>(null)
     private lateinit var _userPoint: Point
 
@@ -42,18 +42,24 @@ class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: Client
         obtainAddress()
     }
 
-    fun changeFragmentState(addMarkFragmentState: AddMarkFragmentState) {
+    private fun changeFragmentState(addMarkFragmentState: AddMarkFragmentState) {
         _fragmentStateLiveData.value = addMarkFragmentState
+    }
+
+    private fun getUserId(): Single<Long> {
+        return repository.userCache.getUserData()
+            .map(UserData::userId)
+            .observeOn(AndroidSchedulers.mainThread())
     }
 
     private fun obtainAddress() {
         compositeDisposable.add(
-            geocoderApi.getAddress(getGeoCodeFormatted(_userPoint))
+            repository.restApi.getAddress(_userPoint)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        _addressLiveData.value = it.address
+                        _addressLiveData.value = it
                     },
                     {
                         Log.e(TAG, "obtainAddress: ${it.stackTraceToString()}")
@@ -61,8 +67,6 @@ class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: Client
                 )
         )
     }
-
-    private fun getGeoCodeFormatted(point: Point) = "${point.latitude}, ${point.longitude}"
 
     fun updateLiveData(list: List<Uri>) {
         if (_carouselLiveData.value == null || _carouselLiveData.value!!.isEmpty()) {
@@ -121,32 +125,43 @@ class AddMarkFragmentViewModel @Inject constructor(private val clientAPI: Client
         return _carouselLiveData.value!!.any { it.isSelected }
     }
 
-    fun saveMark(mark: AddMarkDto, parts: List<MultipartBody.Part>) {
-        val requestBodyMark = RequestBody.create(
-            MediaType.parse("application/json"),
-            Gson().toJson(mark)
-        )
+    fun saveMark(mark: AddMarkDto, parts: Set<Map.Entry<Uri, ByteArray>>) {
         compositeDisposable.add(
-            clientAPI.postMark(requestBodyMark, parts)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-                    _fragmentStateLiveData.value = AddMarkFragmentState.Saving
-                }
-                .subscribe(
-                    {
-                        Log.i(TAG, "Posted mark!")
-                        _fragmentStateLiveData.value = AddMarkFragmentState.Saved
-                    },
-                    {
-                        Log.e(
-                            TAG,
-                            "Error while posting mark!",
-                            it
+            getUserId().subscribe(
+                {
+                    mark.authorId = it
+                    compositeDisposable.add(
+                        repository.restApi.postMark(mark, parts)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnSubscribe {
+                                _fragmentStateLiveData.value = AddMarkFragmentState.Saving
+                            }
+                            .subscribe(
+                                {
+                                    Log.i(TAG, "Posted mark!")
+                                    _fragmentStateLiveData.value = AddMarkFragmentState.Saved
+                                },
+                                {
+                                    Log.e(
+                                        TAG,
+                                        "Error while posting mark!",
+                                        it
+                                    )
+                                    _fragmentStateLiveData.value = AddMarkFragmentState.Failed(it)
+                                }
+                            )
+                    )
+                },
+                {
+                    changeFragmentState(
+                        AddMarkFragmentState.Failed(
+                            Throwable("Не авторизован!")
                         )
-                        _fragmentStateLiveData.value = AddMarkFragmentState.Failed(it)
-                    }
-                )
+                    )
+                    Log.e(TAG, "saveMark: error while getting user id!", it)
+                }
+            )
         )
     }
 

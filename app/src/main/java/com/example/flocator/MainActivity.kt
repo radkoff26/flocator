@@ -1,6 +1,7 @@
 package com.example.flocator
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -8,15 +9,17 @@ import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.authentication.client.RetrofitClient
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
-import com.example.flocator.common.storage.shared.SharedStorage
-import com.example.flocator.main.ui.main.MainFragment
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
+import com.example.flocator.main.ui.main.MainFragment
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.net.ConnectException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -24,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var sharedStorage: SharedStorage
+    lateinit var repository: MainRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -33,48 +36,80 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
 
+        Log.d(TAG, "onCreate fragments list: ${supportFragmentManager.fragments}")
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 FragmentNavigationUtils.closeLastFragment(supportFragmentManager, this@MainActivity)
             }
         })
 
-        openFirstFragment()
+        if (supportFragmentManager.fragments.isEmpty()) {
+            openFirstFragment()
+        }
     }
 
     private fun openFirstFragment() {
-        if (!sharedStorage.hasUserData()) {
-            FragmentNavigationUtils.openFragment(
-                supportFragmentManager,
-                AuthFragment()
-            )
-            return
-        }
-        val login = sharedStorage.getLogin()!!
-        val password = sharedStorage.getPassword()!!
         compositeDisposable.add(
-            RetrofitClient.authenticationApi.loginUser(UserCredentialsDto(login, password))
-                .subscribeOn(Schedulers.io())
+            repository.userCache.getUserData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        if (LocationUtils.hasLocationPermission(this)) {
-                            FragmentNavigationUtils.openFragment(
-                                supportFragmentManager,
-                                MainFragment()
+                        compositeDisposable.add(
+                            RetrofitClient.authenticationApi.loginUser(
+                                UserCredentialsDto(
+                                    it.login,
+                                    it.password
+                                )
                             )
-                        } else {
-                            FragmentNavigationUtils.openFragment(
-                                supportFragmentManager,
-                                LocationRequestFragment()
-                            )
-                        }
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                    {
+                                        if (LocationUtils.hasLocationPermission(this)) {
+                                            FragmentNavigationUtils.openFragment(
+                                                supportFragmentManager,
+                                                MainFragment()
+                                            )
+                                        } else {
+                                            FragmentNavigationUtils.openFragment(
+                                                supportFragmentManager,
+                                                LocationRequestFragment()
+                                            )
+                                        }
+                                    },
+                                    { throwable ->
+                                        if (throwable is UnknownHostException || throwable is ConnectException) {
+                                            Log.i(
+                                                TAG,
+                                                "openFirstFragment: no connection, but user authorized previously",
+                                                throwable
+                                            )
+                                            FragmentNavigationUtils.openFragment(
+                                                supportFragmentManager,
+                                                MainFragment()
+                                            )
+                                        } else {
+                                            Log.e(
+                                                TAG,
+                                                "openFirstFragment: not authorized!",
+                                                throwable
+                                            )
+                                            FragmentNavigationUtils.openFragment(
+                                                supportFragmentManager,
+                                                AuthFragment()
+                                            )
+                                        }
+                                    }
+                                )
+                        )
                     },
                     {
                         FragmentNavigationUtils.openFragment(
                             supportFragmentManager,
                             AuthFragment()
                         )
+                        Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }
                 )
         )
@@ -83,5 +118,9 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.dispose()
+    }
+
+    companion object {
+        private const val TAG = "Main Activity"
     }
 }
