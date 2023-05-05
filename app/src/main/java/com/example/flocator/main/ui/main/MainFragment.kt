@@ -1,6 +1,5 @@
 package com.example.flocator.main.ui.main
 
-import android.content.Context.MODE_PRIVATE
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,8 +10,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.flocator.common.cache.PhotoState
-import com.example.flocator.common.config.SharedPreferencesContraction
+import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.community.fragments.ProfileFragment
@@ -20,7 +18,8 @@ import com.example.flocator.databinding.FragmentMainBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.handlers.UserLocationHandler
-import com.example.flocator.main.models.*
+import com.example.flocator.main.models.CameraStatus
+import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.example.flocator.main.ui.main.data.*
 import com.example.flocator.main.ui.main.views.FriendMapView
@@ -112,13 +111,6 @@ class MainFragment : Fragment(), MainSection {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
-
-        val userId = requireActivity().getSharedPreferences(
-            SharedPreferencesContraction.User.prefs_name,
-            MODE_PRIVATE
-        ).getLong(SharedPreferencesContraction.User.USER_ID, 0L)
-
-        Log.d(TAG, "userId is $userId")
 
         usersCollection = binding.mapView.map.addMapObjectLayer("users")
         marksCollection = binding.mapView.map.addMapObjectLayer("marks")
@@ -306,7 +298,7 @@ class MainFragment : Fragment(), MainSection {
                 null
             )
             if (userInfo.avatarUri != null) {
-                viewModel.photoCacheLiveData.requestPhotoLoading(userInfo.avatarUri)
+                viewModel.loadPhoto(userInfo.avatarUri)
             }
         } else {
             usersViewState[userInfo.userId]!!.placemark.geometry = point
@@ -319,13 +311,13 @@ class MainFragment : Fragment(), MainSection {
             val user = userEntry.value
             if (usersViewState[id] == null) {
                 val friendView = FriendMapView(requireContext())
+                friendView.setUserName("${user.firstName} ${user.lastName}")
                 val viewProvider = ViewProvider(friendView)
                 usersViewState[id] = FriendViewDto(
                     usersCollection.addPlacemark(user.location, viewProvider),
                     friendView,
                     null
                 )
-                friendView.setUserName("${user.firstName} ${user.lastName}")
                 usersClickListeners[id] = MapObjectTapListener { _, _ ->
                     viewModel.setCameraFollowOnFriendMark(id)
                     viewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
@@ -338,7 +330,7 @@ class MainFragment : Fragment(), MainSection {
                     usersViewState[id]!!.placemark.setView(viewProvider)
                     usersViewState[id]!!.avatarUri = null
                 } else {
-                    viewModel.photoCacheLiveData.requestPhotoLoading(user.avatarUrl)
+                    viewModel.loadPhoto(user.avatarUrl)
                 }
             } else {
                 usersViewState[id]!!.placemark.geometry = user.location
@@ -406,20 +398,11 @@ class MainFragment : Fragment(), MainSection {
                         marksViewState[id]!!.placemark.setView(viewProvider)
                         marksViewState[id]!!.thumbnailUri = null
                     } else {
-                        val firstImage = photos[0].uri
-                        if (!viewModel.photoCacheLiveData.containsUri(firstImage)) {
-                            viewModel.photoCacheLiveData.requestPhotoLoading(firstImage)
-                        } else {
-                            markMapView.setMarkBitmapImage(
-                                viewModel.photoCacheLiveData.getPhoto(firstImage)!!
-                            )
-                            viewProvider.snapshot()
-                            marksViewState[id]!!.placemark.setView(viewProvider)
-                        }
+                        viewModel.loadPhoto(photos[0].uri)
                     }
                     val avatar = marksViewState[id]!!.avatarUrl
                     if (avatar != null && !marksViewState[id]!!.markMapView.hasAvatar) {
-                        viewModel.photoCacheLiveData.requestPhotoLoading(avatar)
+                        viewModel.loadPhoto(avatar)
                     }
                 } else {
                     val markGroupMapView = MarkGroupMapView(requireContext())
@@ -494,7 +477,7 @@ class MainFragment : Fragment(), MainSection {
                         user.avatarUri = userInfo.avatarUri
                         updateUserView(user)
                     } else if (photo is PhotoState.Failed) {
-                        viewModel.photoCacheLiveData.requestPhotoLoading(user.avatarUri!!)
+                        viewModel.loadPhoto(user.avatarUri!!)
                     }
                 }
             }
@@ -526,7 +509,7 @@ class MainFragment : Fragment(), MainSection {
                         updateMarkView(mark.value)
                     } else if (photo is PhotoState.Failed) {
                         mark.value.markMapView.setMarkBitmapPlaceHolder()
-                        viewModel.photoCacheLiveData.requestPhotoLoading(thumbnailUri)
+                        viewModel.loadPhoto(thumbnailUri)
                     }
                 }
             }
@@ -552,7 +535,7 @@ class MainFragment : Fragment(), MainSection {
                         mark.value.avatarUrl = url
                         updateMarkView(mark.value)
                     } else if (photo is PhotoState.Failed) {
-                        viewModel.photoCacheLiveData.requestPhotoLoading(url)
+                        viewModel.loadPhoto(url)
                     }
                 }
             }
@@ -576,7 +559,7 @@ class MainFragment : Fragment(), MainSection {
                         friend.value.avatarUri = url
                         updateUserView(friend.value)
                     } else {
-                        viewModel.photoCacheLiveData.requestPhotoLoading(url)
+                        viewModel.loadPhoto(url)
                     }
                 }
             }

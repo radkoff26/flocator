@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 
@@ -78,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                                         }
                                     },
                                     { throwable ->
-                                        if (throwable is UnknownHostException) {
+                                        if (throwable is UnknownHostException || throwable is ConnectException) {
                                             Log.i(
                                                 TAG,
                                                 "openFirstFragment: no connection, but user authorized previously",

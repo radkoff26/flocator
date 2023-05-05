@@ -3,10 +3,11 @@ package com.example.flocator.main.ui.main
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.LruCache
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.cache.PhotoCacheLiveData
+import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
@@ -32,11 +33,20 @@ import javax.inject.Inject
 class MainFragmentViewModel @Inject constructor(
     private val repository: MainRepository
 ) : ViewModel() {
+    val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
+
     // Data inside of Live Data is non-nullable
     private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
     private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
     private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
     private val _userLocationLiveData = MutableLiveData<Point?>(null)
+    private val _photoCacheLiveData = MutableLiveData<LruCache<String, PhotoState>>(
+        object : LruCache<String, PhotoState>(maxPhotoCacheSize) {
+            override fun sizeOf(key: String?, value: PhotoState?): Int {
+                return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
+            }
+        }
+    )
     private var _userInfo: UserInfo? = null
 
     private val _marks: MutableMap<Long, MarkWithPhotos> = HashMap()
@@ -55,7 +65,7 @@ class MainFragmentViewModel @Inject constructor(
     val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
     val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
-    val photoCacheLiveData: PhotoCacheLiveData = PhotoCacheLiveData(COMPRESSION_FACTOR)
+    val photoCacheLiveData: LiveData<LruCache<String, PhotoState>> = _photoCacheLiveData
     val userInfo: UserInfo?
         get() = _userInfo
 
@@ -82,12 +92,6 @@ class MainFragmentViewModel @Inject constructor(
                     }
                 )
         )
-        // In case when we get our activity recreated and data saved, there can be
-        // data in ViewModel left
-        _friendsLiveData.value = _friendsLiveData.value
-        _visibleMarksLiveData.value = _visibleMarksLiveData.value
-        _cameraStatusLiveData.value = _cameraStatusLiveData.value
-        _userLocationLiveData.value = _userLocationLiveData.value
         compositeDisposable.addAll(
             repository.restApi.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -110,6 +114,29 @@ class MainFragmentViewModel @Inject constructor(
                     }
                 )
         )
+    }
+
+    fun loadPhoto(uri: String) {
+        if (_photoCacheLiveData.value!!.get(uri) == null) {
+            updateCacheState(uri, PhotoState.Loading)
+        }
+        compositeDisposable.add(
+            repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateCacheState(uri, PhotoState.Loaded(it))
+                    },
+                    {
+                        updateCacheState(uri, PhotoState.Failed(it))
+                    }
+                )
+        )
+    }
+
+    private fun updateCacheState(uri: String, photoState: PhotoState) {
+        _photoCacheLiveData.value!!.put(uri, photoState)
+        _photoCacheLiveData.value = _photoCacheLiveData.value
     }
 
     fun requestUserData() {
