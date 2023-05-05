@@ -20,6 +20,7 @@ class LoadUtils {
                 }
                 val inputStream = mUrl.openStream()
                 var bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
                 if (bitmap == null) {
                     it.onError(Exception("Image is not loaded!"))
                     return@create
@@ -30,7 +31,6 @@ class LoadUtils {
                     val byteArray = outputStream.toByteArray()
                     bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
                 }
-                inputStream.close()
                 it.onSuccess(bitmap)
             }
                 .subscribeOn(Schedulers.io())

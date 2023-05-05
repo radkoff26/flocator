@@ -1,8 +1,10 @@
 package com.example.flocator.common.repository
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
+import com.example.flocator.common.cache.global.PhotoCacheManager
 import com.example.flocator.common.storage.db.ApplicationDatabase
 import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
@@ -10,6 +12,7 @@ import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.storage.storage.point.UserLocationPoint
 import com.example.flocator.common.storage.storage.user.UserData
+import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.main.data.response.AddressResponse
@@ -39,12 +42,14 @@ class MainRepository @Inject constructor(
     private val geocoderAPI: GeocoderAPI,
     private val applicationDatabase: ApplicationDatabase,
     private val userLocationDataStore: DataStore<UserLocationPoint>,
-    private val userInfoDataStore: DataStore<UserData>
+    private val userInfoDataStore: DataStore<UserData>,
+    private val photoCacheManager: PhotoCacheManager
 ) {
     val restApi = RestApi()
     val cacheDatabase = CacheDatabase()
     val userCache = UserCache()
     val locationCache = LocationCache()
+    val photoLoader = PhotoLoader()
 
     inner class RestApi {
         fun getAllFriendsOfUser(userId: Long): Observable<List<User>> {
@@ -262,6 +267,25 @@ class MainRepository @Inject constructor(
             CoroutineScope(Dispatchers.IO).launch {
                 userLocationDataStore.updateData { userLocationPoint }
             }
+        }
+    }
+
+    inner class PhotoLoader {
+        fun getPhoto(uri: String, compressionFactor: Int = 100): Single<Bitmap> {
+            if (photoCacheManager.isPhotoCached(uri)) {
+                return Single.just(photoCacheManager.getPhotoFromCache(uri)!!)
+                    .subscribeOn(Schedulers.io())
+            }
+            return LoadUtils.loadPictureFromUrl(uri, compressionFactor)
+                .doOnSuccess {
+                    try {
+                        photoCacheManager.savePhotoToCache(uri, it)
+                    } catch (e: Exception) {
+                        // Ignore any exceptions to prevent from onError callback
+                        Log.e(TAG, "getPhoto: error while saving to cache!", e)
+                    }
+                }
+                .subscribeOn(Schedulers.io())
         }
     }
 
