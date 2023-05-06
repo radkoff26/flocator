@@ -12,5 +12,5 @@ data class UserInfo(
     @SerializedName("login")
     val login: String,
     @SerializedName("avatarUrl")
-    val avatarUri: String
+    val avatarUri: String?
 )

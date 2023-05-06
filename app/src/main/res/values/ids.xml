@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="first_fragment_root" type="id" />
+    <item name="second_fragment_root" type="id" />
+    <item name="third_fragment_root" type="id" />
+</resources>

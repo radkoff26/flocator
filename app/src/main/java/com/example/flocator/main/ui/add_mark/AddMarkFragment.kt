@@ -23,30 +23,26 @@ import com.example.flocator.databinding.FragmentAddMarkBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.add_mark.adapters.CarouselRecyclerViewAdapter
+import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
-import com.example.flocator.main.ui.add_mark.data.MarkDto
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 
 @AndroidEntryPoint
-class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
+class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
 
-    private val addMarkFragmentViewModel: AddMarkFragmentViewModel by viewModels()
+    private val viewModel: AddMarkFragmentViewModel by viewModels()
 
     private lateinit var carouselAdapter: CarouselRecyclerViewAdapter
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
     private var valueAnimator: ValueAnimator? = null
-
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -69,7 +65,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
     ): View? {
         photoAddLauncher =
             registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
-                addMarkFragmentViewModel.updateLiveData(result)
+                viewModel.updateLiveData(result)
             }
 
         return inflater.inflate(R.layout.fragment_add_mark, container, false)
@@ -108,13 +104,13 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         }
 
         binding.removePhotoBtn.setOnClickListener {
-            addMarkFragmentViewModel.removeItems()
+            viewModel.removeItems()
         }
 
         binding.addMarkBtn.setOnClickListener {
-            addMarkFragmentViewModel.saveMark(
+            viewModel.saveMark(
                 prepareAndGetMark(),
-                prepareAndGetParts()
+                carouselAdapter.getSetOfPhotos()
             )
         }
 
@@ -122,7 +118,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
             dismiss()
         }
 
-        addMarkFragmentViewModel.addressLiveData.observe(viewLifecycleOwner, this::onAddressUpdated)
+        viewModel.addressLiveData.observe(viewLifecycleOwner, this::onAddressUpdated)
 
         adjustRecyclerView()
 
@@ -141,7 +137,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         val longitude =
             requireArguments().getDouble(BundleArgumentsContraction.AddMarkFragmentArguments.LONGITUDE)
 
-        addMarkFragmentViewModel.updateUserPoint(
+        viewModel.updateUserPoint(
             Point(
                 latitude,
                 longitude
@@ -161,7 +157,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
     private fun adjustRecyclerView() {
         // Assign adapter to RecyclerView
         carouselAdapter =
-            CarouselRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b) }
+            CarouselRecyclerViewAdapter { uri, b -> viewModel.toggleItem(uri, b) }
         binding.photoCarousel.adapter = carouselAdapter
 
         // Add spaces between items of RecyclerView
@@ -175,11 +171,11 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.photoCarousel.addItemDecoration(itemDecoration)
 
         // Set observers to LiveData
-        addMarkFragmentViewModel.carouselLiveData.observe(
+        viewModel.carouselLiveData.observe(
             this,
             this::onCarouselStateChangedCallback
         )
-        addMarkFragmentViewModel.fragmentStateLiveData.observe(
+        viewModel.fragmentStateLiveData.observe(
             this,
             this::onFragmentStateChangedCallback
         )
@@ -196,7 +192,7 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
             if (binding.removePhotoBtn.visibility == GONE) {
                 animateRemovePhotoButtonIn()
             }
-            if (addMarkFragmentViewModel.isAnyTaken()) {
+            if (viewModel.isAnyTaken()) {
                 enableRemovePhotoButton()
             } else {
                 disableRemovePhotoButton()
@@ -237,22 +233,14 @@ class AddMarkFragment : BottomSheetDialogFragment(), MainSection {
         valueAnimator!!.start()
     }
 
-    private fun prepareAndGetMark(): MarkDto { // TODO: there must be full user data here
-        return MarkDto(
-            1,
-            addMarkFragmentViewModel.userPoint,
+    private fun prepareAndGetMark(): AddMarkDto {
+        return AddMarkDto(
+            0,
+            viewModel.userPoint,
             binding.markText.text.toString(),
             binding.isPublicCheckBox.isChecked,
-            addMarkFragmentViewModel.addressLiveData.value ?: ""
+            viewModel.addressLiveData.value ?: ""
         )
-    }
-
-    private fun prepareAndGetParts(): List<MultipartBody.Part> {
-        val set = carouselAdapter.getSetOfPhotos()
-        return set.map {
-            val requestBody = RequestBody.create(MediaType.parse("image/*"), it.value)
-            MultipartBody.Part.createFormData("photos", it.key.toString(), requestBody)
-        }
     }
 
     private fun animateRemovePhotoButtonOut() {

@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
 android {
@@ -38,11 +39,26 @@ android {
 }
 
 dependencies {
+    // Versions
+    def room_version = "2.5.1"
+    def kotlin_version = '1.8.10'
+    def retrofit_version = '2.9.0'
+    def rxjava_version = '2.2.21'
+    def rxandroid_version = '2.1.1'
+
     implementation "com.google.dagger:hilt-android:2.44"
     kapt "com.google.dagger:hilt-compiler:2.44"
 
+    implementation "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
+
+    implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha06'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+
     implementation 'androidx.core:core-ktx:1.10.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.6'
+
+    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -56,17 +72,27 @@ dependencies {
 
     implementation 'com.yandex.android:maps.mobile:4.3.1-lite'
 
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
 
-    testImplementation 'junit:junit:4.13.2'
+    // Room
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-rxjava2:$room_version"
+
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    androidTestImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-
-    implementation 'androidx.security:security-crypto:1.1.0-alpha05'
+    androidTestImplementation 'androidx.fragment:fragment-testing:1.5.7'
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
 }
 
 kapt {

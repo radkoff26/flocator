@@ -1,6 +1,5 @@
 package com.example.flocator.common.utils
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -39,6 +38,8 @@ object FragmentNavigationUtils {
         }
         transaction.apply {
             add(R.id.fragment_container, fragment)
+            setReorderingAllowed(true)
+            addToBackStack(null)
             commit()
         }
     }
@@ -46,7 +47,6 @@ object FragmentNavigationUtils {
     fun closeLastFragment(fragmentManager: FragmentManager, activity: FragmentActivity) {
         val fragments = fragmentManager.fragments
         val size = fragmentManager.fragments.size
-        Log.d("navs123", "closeLastFragment: ${fragments.map { it::class.java }}")
         if (size < 2) {
             activity.finish()
         } else {
@@ -57,6 +57,8 @@ object FragmentNavigationUtils {
             }
             fragmentManager.beginTransaction().apply {
                 remove(fragments[lastFragmentIndex])
+                setReorderingAllowed(true)
+                addToBackStack(null)
                 commit()
             }
         }
@@ -80,22 +82,16 @@ object FragmentNavigationUtils {
         }
     }
 
-    fun closeFragment(
-        fragmentManager: FragmentManager,
-        fragment: Fragment,
-        activity: FragmentActivity
-    ) {
+    fun clearAllAndOpenFragment(fragmentManager: FragmentManager, fragment: Fragment) {
         val fragments = fragmentManager.fragments
-        if (fragments.contains(fragment)) {
-            if (fragments.size < 2) {
-                activity.finish()
-            } else {
-                val lastFragment = fragments.lastOrNull()!!
-                fragmentManager.beginTransaction().apply {
-                    remove(lastFragment)
-                    commit()
-                }
+        fragmentManager.beginTransaction().apply {
+            for (current in fragments) {
+                remove(current)
             }
+            add(R.id.fragment_container, fragment)
+            setReorderingAllowed(true)
+            addToBackStack(null)
+            commit()
         }
     }
 }

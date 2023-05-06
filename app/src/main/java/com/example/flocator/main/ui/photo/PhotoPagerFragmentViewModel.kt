@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.main.utils.LoadUtils
+import com.example.flocator.common.utils.LoadUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -12,7 +12,10 @@ import io.reactivex.schedulers.Schedulers
 class PhotoPagerFragmentViewModel constructor(private val uriList: List<String>) : ViewModel() {
     private val _photosLiveData: MutableLiveData<List<Bitmap?>> =
         MutableLiveData(MutableList(uriList.size) { null })
+    private val _toolbarDisplayedStateLiveData = MutableLiveData(true)
+
     val photosLiveData: LiveData<List<Bitmap?>> = _photosLiveData
+    val toolbarDisplayedStateLiveData: LiveData<Boolean> = _toolbarDisplayedStateLiveData
 
     private val photosState: MutableList<Boolean?> = MutableList(uriList.size) { null }
 
@@ -40,6 +43,10 @@ class PhotoPagerFragmentViewModel constructor(private val uriList: List<String>)
                     )
             )
         }
+    }
+
+    fun switchToolbarState() {
+        _toolbarDisplayedStateLiveData.value = !_toolbarDisplayedStateLiveData.value!!
     }
 
     private fun updatePhoto(position: Int, bitmap: Bitmap) {
