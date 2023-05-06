@@ -14,7 +14,7 @@ import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.storage.storage.point.UserLocationPoint
 import com.example.flocator.main.models.*
 import com.example.flocator.main.ui.main.data.MarkGroup
-import com.example.flocator.main.ui.main.data.UserInfo
+import com.example.flocator.common.storage.storage.user.info.UserInfo
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
@@ -71,27 +71,6 @@ class MainFragmentViewModel @Inject constructor(
 
     private fun initialFetch() {
         val userId = userInfo!!.userId
-        compositeDisposable.add(
-            repository.locationCache.getUserLocationData()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        _userLocationLiveData.postValue(
-                            Point(
-                                it.latitude,
-                                it.longitude
-                            )
-                        )
-                    },
-                    {
-                        Log.e(
-                            TAG,
-                            "initialFetch: error while fetching user location from cache",
-                            it
-                        )
-                    }
-                )
-        )
         compositeDisposable.addAll(
             repository.restApi.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -139,13 +118,69 @@ class MainFragmentViewModel @Inject constructor(
         _photoCacheLiveData.value = _photoCacheLiveData.value
     }
 
-    fun requestUserData() {
-        compositeDisposable.add(
-            repository.restApi.getCurrentUserData()
+    private fun retrieveDataFromCache() {
+        compositeDisposable.addAll(
+            repository.userInfoCache.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
                         _userInfo = it
+                    },
+                    {
+
+                    }
+                ),
+            repository.locationCache.getUserLocationData()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userLocationLiveData.postValue(
+                            Point(
+                                it.latitude,
+                                it.longitude
+                            )
+                        )
+                    },
+                    {
+                        Log.e(
+                            TAG,
+                            "initialFetch: error while fetching user location from cache",
+                            it
+                        )
+                    }
+                ),
+            repository.cacheDatabase.retrieveFriendsFromCache()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateFriends(it)
+                    },
+                    {
+                        Log.e(TAG, "retrieveDataFromCache: error while loading friends cache!", it)
+                    }
+                ),
+            repository.cacheDatabase.retrieveMarksFromCache()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateMarks(it)
+                    },
+                    {
+                        Log.e(TAG, "retrieveDataFromCache: error while loading marks cache!", it)
+                    }
+                ),
+        )
+    }
+
+    fun requestInitialLoading() {
+        retrieveDataFromCache()
+        compositeDisposable.add(
+            repository.restApi.getCurrentUserInfo()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userInfo = it
+                        repository.userInfoCache.updateUserInfo(it)
                         initialFetch()
                     },
                     {

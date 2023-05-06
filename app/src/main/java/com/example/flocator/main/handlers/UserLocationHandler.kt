@@ -7,7 +7,6 @@ import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.flocator.common.utils.LocationUtils
-import com.example.flocator.main.api.ClientAPI
 import com.google.android.gms.location.LocationServices
 import java.util.function.Consumer
 
@@ -41,9 +40,11 @@ class UserLocationHandler(
             return
         }
         LocationUtils.getCurrentLocation(context, fusedLocationProviderClient) {
-            userLocationListener.accept(it)
+            if (it != null) {
+                userLocationListener.accept(it)
+            }
+            handler.postDelayed(this::getCurrentLocation, FREQUENCY)
         }
-        handler.postDelayed(this::getCurrentLocation, FREQUENCY)
     }
 
     companion object {
