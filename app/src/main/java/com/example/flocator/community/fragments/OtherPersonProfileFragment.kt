@@ -4,17 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.flocator.Application
 import com.example.flocator.R
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.Person
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.FragmentPersonProfileBinding
+import com.example.flocator.main.ui.main.MainFragment
 
 class OtherPersonProfileFragment() : Fragment() {
     private var _binding: FragmentPersonProfileBinding? = null
@@ -56,6 +59,15 @@ class OtherPersonProfileFragment() : Fragment() {
                 parentFragmentManager.popBackStack()
             }
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (parentFragmentManager.backStackEntryCount > 0) {
+                        parentFragmentManager.popBackStack()
+                    }
+                }
+            }
+        )
         binding.addPersonToFriend.setOnClickListener {
             if (!btnAddFriendIsActive) {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))

@@ -39,7 +39,7 @@ class ProfileFragment : Fragment() {
     private val profileFragmentViewModel = ProfileFragmentViewModel()
     private lateinit var adapterForNewFriends: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
-    private val listenerNewFriends: UserNewFriendActionListener = {adapterForNewFriends.data = it}
+    private val listenerNewFriends: UserNewFriendActionListener = { adapterForNewFriends.data = it }
     private val listenerFriends: FriendListener = {
         adapterForYourFriends.data =
             it as MutableList<User>
@@ -56,7 +56,8 @@ class ProfileFragment : Fragment() {
         profileFragmentViewModel.fetchFriends()
         profileFragmentViewModel.fetchNewFriends()
         //profileFragmentViewModel.load()
-        adapterForNewFriends = PersonAdapter(object : com.example.flocator.community.adapters.UserNewFriendActionListener{
+        adapterForNewFriends = PersonAdapter(object :
+            com.example.flocator.community.adapters.UserNewFriendActionListener {
             override fun onPersonOpenProfile(user: User) {
                 onPersonOpenProfile(user)
             }
@@ -69,7 +70,7 @@ class ProfileFragment : Fragment() {
                 checkSizeNewFriendsList(profileFragmentViewModel.cancelPerson(user))
             }
         })
-        adapterForYourFriends = FriendAdapter(object : FriendActionListener{
+        adapterForYourFriends = FriendAdapter(object : FriendActionListener {
             override fun onPersonOpenProfile(user: User) {
                 openPersonProfile(user)
             }
@@ -90,6 +91,7 @@ class ProfileFragment : Fragment() {
             binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
             setAvatar(currentUser.avatarUrl!!)
         })
+
 
         binding.newFriendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.newFriendsRecyclerView.adapter = adapterForNewFriends
@@ -145,17 +147,18 @@ class ProfileFragment : Fragment() {
         transaction.commit()
     }
 
-    private fun checkSizeNewFriendsList(size: Int){
-        if(size <= 2){
+    private fun checkSizeNewFriendsList(size: Int) {
+        if (size <= 2) {
             binding.buttonViewAll.visibility = View.GONE
             binding.buttonNotViewAll.visibility = View.GONE
-            if(size == 0){
+            if (size == 0) {
                 binding.friendRequests.text = "Новых заявок пока нет!"
                 binding.friendRequests.setTextColor(resources.getColor(R.color.font))
             }
         }
     }
-    private fun setAvatar(uri: String){
+
+    private fun setAvatar(uri: String) {
         LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
