@@ -3,7 +3,7 @@ package com.example.flocator.main.api
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
-import com.example.flocator.main.ui.main.data.UserInfo
+import com.example.flocator.common.storage.storage.user.info.UserInfo
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody

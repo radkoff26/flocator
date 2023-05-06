@@ -11,7 +11,7 @@ import com.google.android.gms.location.Priority
 import java.util.function.Consumer
 
 object LocationUtils {
-    fun getCurrentLocation(context: Context, fusedLocationProviderClient: FusedLocationProviderClient, callback: Consumer<Location>) {
+    fun getCurrentLocation(context: Context, fusedLocationProviderClient: FusedLocationProviderClient, callback: Consumer<Location?>) {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION

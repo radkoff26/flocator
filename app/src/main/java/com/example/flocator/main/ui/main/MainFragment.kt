@@ -192,7 +192,7 @@ class MainFragment : Fragment(), MainSection {
             this::onPhotoLoaded
         )
 
-        viewModel.requestUserData()
+        viewModel.requestInitialLoading()
 
         userLocationHandler = UserLocationHandler(requireContext(), viewLifecycleOwner) {
             viewModel.updateUserLocation(

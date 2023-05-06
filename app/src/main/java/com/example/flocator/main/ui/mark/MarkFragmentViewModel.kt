@@ -71,7 +71,7 @@ class MarkFragmentViewModel constructor(
     private fun loadAuthorData() {
         _markLiveData.value!!
         compositeDisposable.add(
-            repository.restApi.getUserInfo(_markLiveData.value!!.mark.authorId)
+            repository.restApi.getUser(_markLiveData.value!!.mark.authorId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {

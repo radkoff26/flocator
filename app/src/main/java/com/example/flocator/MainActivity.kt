@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openFirstFragment() {
         compositeDisposable.add(
-            repository.userCache.getUserData()
+            repository.userDataCache.getUserData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
