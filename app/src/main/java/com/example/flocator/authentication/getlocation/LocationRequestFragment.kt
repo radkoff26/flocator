@@ -19,34 +19,21 @@ import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.example.flocator.authentication.Authentication
+import com.example.flocator.databinding.FragmentAuthBinding
 import com.example.flocator.main.ui.main.MainFragment
 
 class LocationRequestFragment : Fragment(), Authentication {
-    private lateinit var binding: FragmentLocationRequestBinding
+    private var _binding: FragmentLocationRequestBinding? = null
+    private val binding: FragmentLocationRequestBinding
+        get() = _binding!!
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
-
-    companion object {
-        fun hasLocationPermission(context: Context): Boolean {
-            val fineLocationPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-            val coarseLocationPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-            return fineLocationPermission && coarseLocationPermission
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentLocationRequestBinding.inflate(inflater, container, false)
+        _binding = FragmentLocationRequestBinding.inflate(inflater, container, false)
 
         binding.allowBtn.setOnClickListener {
             val dontShowAgain =
@@ -54,7 +41,7 @@ class LocationRequestFragment : Fragment(), Authentication {
 
             if (dontShowAgain) {
                 if (hasLocationPermission(requireContext())) {
-                    FragmentNavigationUtils.openFragment(
+                    FragmentNavigationUtils.clearAllAndOpenFragment(
                         requireActivity().supportFragmentManager,
                         MainFragment()
                     )
@@ -83,6 +70,11 @@ class LocationRequestFragment : Fragment(), Authentication {
         )
 
         setupRequestPermissionsLauncher()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupRequestPermissionsLauncher() {

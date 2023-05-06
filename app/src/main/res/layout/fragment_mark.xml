@@ -118,36 +118,15 @@
 
         </LinearLayout>
 
-        <FrameLayout
-            android:id="@+id/loader_layout"
+        <com.example.flocator.common.views.LoaderImageView
+            android:id="@+id/loader"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="gone">
+            android:layout_height="wrap_content"/>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@id/loader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/loader_image"
-                android:layout_gravity="center"/>
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/failure_layout"
+        <com.example.flocator.common.views.RetryImageButton
+            android:id="@+id/retry_fragment_button"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/failure_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"/>
-
-        </FrameLayout>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

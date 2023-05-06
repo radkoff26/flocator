@@ -4,14 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.ImageView
 import com.example.flocator.R
+import com.example.flocator.authentication.authorization.AuthFragment
+import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
-import kotlin.system.exitProcess
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ExitAccountFragment : BottomSheetDialogFragment(), SettingsSection {
+
+    @Inject
+    lateinit var repository: MainRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,7 +34,11 @@ class ExitAccountFragment : BottomSheetDialogFragment(), SettingsSection {
         }
 
         confirmButton.setOnClickListener {
-            exitProcess(-1) // временная заглушка
+            repository.userCache.clearUserData()
+            FragmentNavigationUtils.clearAllAndOpenFragment(
+                requireActivity().supportFragmentManager,
+                AuthFragment()
+            )
         }
 
         return fragmentView

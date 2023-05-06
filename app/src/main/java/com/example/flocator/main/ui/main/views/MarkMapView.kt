@@ -24,6 +24,10 @@ class MarkMapView @JvmOverloads constructor(
     private val markImage: ShapeableImageView
     private val userAvatarFrameLayout: FrameLayout
     private val userAvatarImageView: ShapeableImageView
+    private var _hasAvatar: Boolean = false
+
+    val hasAvatar: Boolean
+        get() = _hasAvatar
 
     init {
         // Mark Image
@@ -78,6 +82,7 @@ class MarkMapView @JvmOverloads constructor(
 
     fun setFriendBitmapImage(bitmap: Bitmap) {
         userAvatarImageView.setImageBitmap(bitmap)
+        _hasAvatar = true
     }
 
     fun setMarkBitmapImage(bitmap: Bitmap) {

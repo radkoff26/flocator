@@ -1,19 +1,20 @@
 package com.example.flocator.main.ui.main
 
-import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.LruCache
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.main.api.ClientAPI
-import com.example.flocator.main.models.CameraStatus
-import com.example.flocator.main.models.CameraStatusType
-import com.example.flocator.main.models.Mark
-import com.example.flocator.main.models.User
-import com.example.flocator.main.ui.main.data.UserInfo
+import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.storage.db.entities.MarkWithPhotos
+import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.common.storage.storage.point.UserLocationPoint
+import com.example.flocator.main.models.*
 import com.example.flocator.main.ui.main.data.MarkGroup
+import com.example.flocator.main.ui.main.data.UserInfo
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
@@ -22,20 +23,34 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI) : ViewModel() {
+@Suppress("UNCHECKED_CAST")
+class MainFragmentViewModel @Inject constructor(
+    private val repository: MainRepository
+) : ViewModel() {
+    val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
+
     // Data inside of Live Data is non-nullable
     private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
     private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
     private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
-    private val _photoCacheLiveData = MutableLiveData<Map<String, Bitmap>>(HashMap())
     private val _userLocationLiveData = MutableLiveData<Point?>(null)
+    private val _photoCacheLiveData = MutableLiveData<LruCache<String, PhotoState>>(
+        object : LruCache<String, PhotoState>(maxPhotoCacheSize) {
+            override fun sizeOf(key: String?, value: PhotoState?): Int {
+                return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
+            }
+        }
+    )
     private var _userInfo: UserInfo? = null
 
-    private val _marks: MutableMap<Long, Mark> = HashMap()
-    val marks: Map<Long, Mark>
+    private val _marks: MutableMap<Long, MarkWithPhotos> = HashMap()
+    val marks: Map<Long, MarkWithPhotos>
         get() = _marks
 
     private var currentVisibleRegion: VisibleRegion? = null
@@ -49,22 +64,118 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
     val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData
     val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData
     val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
-    val photoCacheLiveData: LiveData<Map<String, Bitmap>> = _photoCacheLiveData
     val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
+    val photoCacheLiveData: LiveData<LruCache<String, PhotoState>> = _photoCacheLiveData
     val userInfo: UserInfo?
         get() = _userInfo
 
-    fun requestUserData(userId: Long) {
+    private fun initialFetch() {
+        val userId = userInfo!!.userId
         compositeDisposable.add(
-            clientAPI.getUser(userId)
-                .subscribeOn(Schedulers.io())
+            repository.locationCache.getUserLocationData()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userLocationLiveData.postValue(
+                            Point(
+                                it.latitude,
+                                it.longitude
+                            )
+                        )
+                    },
+                    {
+                        Log.e(
+                            TAG,
+                            "initialFetch: error while fetching user location from cache",
+                            it
+                        )
+                    }
+                )
+        )
+        compositeDisposable.addAll(
+            repository.restApi.getAllFriendsOfUser(userId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateFriends(it)
+                    },
+                    {
+                        Log.e(TAG, "Initialization: marks loading failed!", it)
+                    }
+                ),
+            repository.restApi.getMarksForUser(userId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateMarks(it)
+                    },
+                    {
+                        Log.e(TAG, "Initialization: friends loading failed!", it)
+                    }
+                )
+        )
+    }
+
+    fun loadPhoto(uri: String) {
+        if (_photoCacheLiveData.value!!.get(uri) == null) {
+            updateCacheState(uri, PhotoState.Loading)
+        }
+        compositeDisposable.add(
+            repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateCacheState(uri, PhotoState.Loaded(it))
+                    },
+                    {
+                        updateCacheState(uri, PhotoState.Failed(it))
+                    }
+                )
+        )
+    }
+
+    private fun updateCacheState(uri: String, photoState: PhotoState) {
+        _photoCacheLiveData.value!!.put(uri, photoState)
+        _photoCacheLiveData.value = _photoCacheLiveData.value
+    }
+
+    fun requestUserData() {
+        compositeDisposable.add(
+            repository.restApi.getCurrentUserData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
                         _userInfo = it
+                        initialFetch()
                     },
                     {
-                        Log.e(TAG, "requestUserData: ${it.stackTraceToString()}", it)
+                        Log.e(
+                            TAG,
+                            "requestUserData: ${it.stackTraceToString()}",
+                            it
+                        )
+                    }
+                )
+        )
+    }
+
+    fun postLocation() {
+        if (_userInfo == null || _userLocationLiveData.value == null) {
+            return
+        }
+        compositeDisposable.add(
+            repository.restApi.postUserLocation(
+                _userInfo!!.userId,
+                _userLocationLiveData.value!!
+            )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+
+                    },
+                    {
+                        Log.e(TAG, "postLocation: error", it)
                     }
                 )
         )
@@ -104,6 +215,14 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
             setCameraPoint(point)
         }
         _userLocationLiveData.value = point
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.locationCache.updateUserLocationData(
+                UserLocationPoint(
+                    point.latitude,
+                    point.longitude
+                )
+            )
+        }
     }
 
     fun setCameraFollowOnFriendMark(friendId: Long) {
@@ -130,16 +249,6 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
         _cameraStatusLiveData.value = cameraStatus
     }
 
-    fun setLoadedPhotoAsync(url: String, bitmap: Bitmap) {
-        val map = _photoCacheLiveData.value!!.toMutableMap()
-        map[url] = bitmap
-        _photoCacheLiveData.postValue(map)
-    }
-
-    fun photoCacheContains(url: String): Boolean = _photoCacheLiveData.value!!.containsKey(url)
-
-    fun getCachedPhoto(uri: String) = _photoCacheLiveData.value!![uri]
-
     override fun onCleared() {
         super.onCleared()
         stopPolling()
@@ -156,9 +265,9 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
 
     private fun getMarksInVisibleRegionOnly(
         visibleRegion: VisibleRegion,
-        marks: List<Mark>
-    ): List<Mark> {
-        return marks.filter { isInVisibleRegion(it.location, visibleRegion) }
+        marks: List<MarkWithPhotos>
+    ): List<MarkWithPhotos> {
+        return marks.filter { isInVisibleRegion(it.mark.location, visibleRegion) }
     }
 
     private fun isInVisibleRegion(point: Point, visibleRegion: VisibleRegion): Boolean {
@@ -184,42 +293,48 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
     }
 
     private fun fetchFriends() {
+        if (userInfo == null) {
+            friendsHandler.postDelayed(this::fetchFriends, 5000)
+            return
+        }
         compositeDisposable.add(
-            clientAPI.getUserFriendsLocated(1)
+            repository.restApi.getAllFriendsOfUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        updateUsers(it)
-                        Log.d(TAG, "Fetched users from server $it")
+                        updateFriends(it)
                         friendsHandler.postDelayed(this::fetchFriends, 5000)
                     },
                     {
-                        Log.e(TAG, it.message, it)
+                        Log.e(TAG, "Failed while loading friends!", it)
                     }
                 )
         )
     }
 
     private fun fetchMarks() {
+        if (userInfo == null) {
+            friendsHandler.postDelayed(this::fetchMarks, 10000)
+            return
+        }
         compositeDisposable.add(
-            clientAPI.getUserAndFriendsMarks(1)
+            repository.restApi.getMarksForUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
                         updateMarks(it)
-                        Log.d(TAG, "Fetched marks from server $it")
-                        friendsHandler.postDelayed(this::fetchMarks, 10000)
+                        marksHandler.postDelayed(this::fetchMarks, 10000)
                     },
                     {
-                        Log.e(TAG, it.message, it)
+                        Log.e(TAG, "Failed while loading marks!", it)
                     }
                 )
         )
     }
 
-    private fun updateUsers(users: List<User>) {
+    private fun updateFriends(users: List<User>) {
         val map: MutableMap<Long, User> = _friendsLiveData.value!!.toMutableMap()
         for (user in users) {
             map[user.id] = user
@@ -230,9 +345,9 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
         _friendsLiveData.value = map
     }
 
-    private fun updateMarks(value: List<Mark>) {
+    private fun updateMarks(value: List<MarkWithPhotos>) {
         for (mark in value) {
-            _marks[mark.markId] = mark
+            _marks[mark.mark.markId] = mark
         }
         if (currentVisibleRegion != null && mapWidth != null && markWidth != null) {
             updateVisibleRegion(currentVisibleRegion!!)
@@ -247,5 +362,6 @@ class MainFragmentViewModel @Inject constructor(private val clientAPI: ClientAPI
 
     companion object {
         const val TAG = "Main Fragment View Model"
+        const val COMPRESSION_FACTOR = 20
     }
 }

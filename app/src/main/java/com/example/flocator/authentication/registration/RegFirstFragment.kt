@@ -80,6 +80,8 @@ class RegFirstFragment : Fragment(), Authentication {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.id = R.id.first_fragment_root
+
         binding.firstInputField.hint = LAST_NAME
         binding.secondInputField.hint = FIRST_NAME
         binding.submitBtn.text = NEXT
@@ -90,6 +92,11 @@ class RegFirstFragment : Fragment(), Authentication {
             binding.firstInputEditField.setText(savedData.first)
             binding.secondInputEditField.setText(savedData.second)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun validateName(firstName: String, lastName: String): Boolean {
