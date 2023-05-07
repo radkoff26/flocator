@@ -35,6 +35,7 @@ class ExitAccountFragment : BottomSheetDialogFragment(), SettingsSection {
 
         confirmButton.setOnClickListener {
             repository.userDataCache.clearUserData()
+            repository.userInfoCache.clearUserInfo()
             FragmentNavigationUtils.clearAllAndOpenFragment(
                 requireActivity().supportFragmentManager,
                 AuthFragment()
