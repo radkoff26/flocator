@@ -12,9 +12,9 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.storage.storage.point.UserLocationPoint
+import com.example.flocator.common.storage.storage.user.info.UserInfo
 import com.example.flocator.main.models.*
 import com.example.flocator.main.ui.main.data.MarkGroup
-import com.example.flocator.main.ui.main.data.UserInfo
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
@@ -71,27 +71,6 @@ class MainFragmentViewModel @Inject constructor(
 
     private fun initialFetch() {
         val userId = userInfo!!.userId
-        compositeDisposable.add(
-            repository.locationCache.getUserLocationData()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        _userLocationLiveData.postValue(
-                            Point(
-                                it.latitude,
-                                it.longitude
-                            )
-                        )
-                    },
-                    {
-                        Log.e(
-                            TAG,
-                            "initialFetch: error while fetching user location from cache",
-                            it
-                        )
-                    }
-                )
-        )
         compositeDisposable.addAll(
             repository.restApi.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -139,13 +118,69 @@ class MainFragmentViewModel @Inject constructor(
         _photoCacheLiveData.value = _photoCacheLiveData.value
     }
 
-    fun requestUserData() {
-        compositeDisposable.add(
-            repository.restApi.getCurrentUserData()
+    private fun retrieveDataFromCache() {
+        compositeDisposable.addAll(
+            repository.userInfoCache.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
                         _userInfo = it
+                    },
+                    {
+
+                    }
+                ),
+            repository.locationCache.getUserLocationData()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userLocationLiveData.postValue(
+                            Point(
+                                it.latitude,
+                                it.longitude
+                            )
+                        )
+                    },
+                    {
+                        Log.e(
+                            TAG,
+                            "initialFetch: error while fetching user location from cache",
+                            it
+                        )
+                    }
+                ),
+            repository.cacheDatabase.retrieveFriendsFromCache()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateFriends(it)
+                    },
+                    {
+                        Log.e(TAG, "retrieveDataFromCache: error while loading friends cache!", it)
+                    }
+                ),
+            repository.cacheDatabase.retrieveMarksFromCache()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateMarks(it)
+                    },
+                    {
+                        Log.e(TAG, "retrieveDataFromCache: error while loading marks cache!", it)
+                    }
+                ),
+        )
+    }
+
+    fun requestInitialLoading() {
+        retrieveDataFromCache()
+        compositeDisposable.add(
+            repository.restApi.getCurrentUserInfo()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        _userInfo = it
+                        repository.userInfoCache.updateUserInfo(it)
                         initialFetch()
                     },
                     {
@@ -170,6 +205,7 @@ class MainFragmentViewModel @Inject constructor(
             )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .retry(TIMES_TO_RETRY_LOCATION_POST.toLong())
                 .subscribe(
                     {
 
@@ -294,6 +330,7 @@ class MainFragmentViewModel @Inject constructor(
 
     private fun fetchFriends() {
         if (userInfo == null) {
+            Log.i(TAG, "POST_DELAYED_ON_USER_ID_NULL")
             friendsHandler.postDelayed(this::fetchFriends, 5000)
             return
         }
@@ -301,13 +338,17 @@ class MainFragmentViewModel @Inject constructor(
             repository.restApi.getAllFriendsOfUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .retry(TIMES_TO_RETRY_FRIENDS_FETCHING.toLong())
                 .subscribe(
                     {
+                        Log.i(TAG, "fetchFriends: fetched!")
                         updateFriends(it)
+                        Log.i(TAG, "POST_DELAYED_ON_SUCCESS")
                         friendsHandler.postDelayed(this::fetchFriends, 5000)
                     },
                     {
                         Log.e(TAG, "Failed while loading friends!", it)
+                        friendsHandler.postDelayed(this::fetchFriends, 5000)
                     }
                 )
         )
@@ -315,13 +356,14 @@ class MainFragmentViewModel @Inject constructor(
 
     private fun fetchMarks() {
         if (userInfo == null) {
-            friendsHandler.postDelayed(this::fetchMarks, 10000)
+            marksHandler.postDelayed(this::fetchMarks, 10000)
             return
         }
         compositeDisposable.add(
             repository.restApi.getMarksForUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .retry(TIMES_TO_RETRY_MARKS_FETCHING.toLong())
                 .subscribe(
                     {
                         updateMarks(it)
@@ -329,6 +371,7 @@ class MainFragmentViewModel @Inject constructor(
                     },
                     {
                         Log.e(TAG, "Failed while loading marks!", it)
+                        marksHandler.postDelayed(this::fetchMarks, 10000)
                     }
                 )
         )
@@ -363,5 +406,8 @@ class MainFragmentViewModel @Inject constructor(
     companion object {
         const val TAG = "Main Fragment View Model"
         const val COMPRESSION_FACTOR = 20
+        const val TIMES_TO_RETRY_LOCATION_POST = 5
+        const val TIMES_TO_RETRY_FRIENDS_FETCHING = 10
+        const val TIMES_TO_RETRY_MARKS_FETCHING = 7
     }
 }

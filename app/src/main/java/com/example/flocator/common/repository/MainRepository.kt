@@ -5,13 +5,16 @@ import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
 import com.example.flocator.common.cache.global.PhotoCacheManager
+import com.example.flocator.common.connection.watcher.ConnectionLiveData
+import com.example.flocator.common.connection.wrapper.ConnectionWrapper
 import com.example.flocator.common.storage.db.ApplicationDatabase
 import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.storage.storage.point.UserLocationPoint
-import com.example.flocator.common.storage.storage.user.UserData
+import com.example.flocator.common.storage.storage.user.data.UserData
+import com.example.flocator.common.storage.storage.user.info.UserInfo
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
@@ -19,11 +22,9 @@ import com.example.flocator.main.data.response.AddressResponse
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
-import com.example.flocator.main.ui.main.data.UserInfo
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -42,109 +43,108 @@ class MainRepository @Inject constructor(
     private val geocoderAPI: GeocoderAPI,
     private val applicationDatabase: ApplicationDatabase,
     private val userLocationDataStore: DataStore<UserLocationPoint>,
-    private val userInfoDataStore: DataStore<UserData>,
-    private val photoCacheManager: PhotoCacheManager
+    private val userDataStore: DataStore<UserData>,
+    private val userInfoStore: DataStore<UserInfo>,
+    private val photoCacheManager: PhotoCacheManager,
+    private val connectionLiveData: ConnectionLiveData
 ) {
     val restApi = RestApi()
     val cacheDatabase = CacheDatabase()
-    val userCache = UserCache()
+    val userDataCache = UserDataCache()
+    val userInfoCache = UserInfoCache()
     val locationCache = LocationCache()
     val photoLoader = PhotoLoader()
 
     inner class RestApi {
-        fun getAllFriendsOfUser(userId: Long): Observable<List<User>> {
+        fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
-            return Observable.create { emitter ->
-                compositeDisposable.addAll(
-                    applicationDatabase.userDao().getAllFriends()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
-                        .subscribe(
-                            {
-                                emitter.onNext(it)
-                            },
-                            {
-                                Log.e(
-                                    TAG,
-                                    "getAllFriendsOfUser: error while fetching cache database!",
-                                    it
-                                )
-                            }
-                        ),
-                    clientAPI.getUserFriendsLocated(userId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
-                        .subscribe(
-                            {
-                                emitter.onNext(it)
-                                compositeDisposable.add(
-                                    cacheDatabase.updateFriends(it)
-                                        .subscribeOn(Schedulers.io())
-                                        .observeOn(Schedulers.io())
-                                        .doOnComplete { emitter.onComplete() }
-                                        .subscribe()
-                                )
-                            },
-                            {
-                                Log.e(
-                                    TAG,
-                                    "getAllFriendsOfUser: error while fetching data from server!",
-                                    it
-                                )
-                                emitter.onError(it)
-                            }
+            return ConnectionWrapper.of(
+                Single.create { emitter ->
+                    compositeDisposable.add(
+                        ConnectionWrapper.of(
+                            clientAPI.getUserFriendsLocated(userId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                            connectionLiveData
                         )
-                )
-            }.subscribeOn(Schedulers.io()).doOnDispose { compositeDisposable.dispose() }
+                            .connect()
+                            .subscribe(
+                                {
+                                    emitter.onSuccess(it)
+                                    compositeDisposable.add(
+                                        cacheDatabase.updateFriends(it)
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(Schedulers.io())
+                                            .doOnError { throwable ->
+                                                Log.e(
+                                                    TAG,
+                                                    "getAllFriendsOfUser: error while saving friends to cache!",
+                                                    throwable
+                                                )
+                                            }
+                                            .subscribe()
+                                    )
+                                },
+                                {
+                                    Log.e(
+                                        TAG,
+                                        "getAllFriendsOfUser: error while fetching data from server!",
+                                        it
+                                    )
+                                    emitter.onError(it)
+                                }
+                            )
+                    )
+                }.subscribeOn(Schedulers.io()).doOnDispose { compositeDisposable.dispose() },
+                connectionLiveData
+            ).connect()
         }
 
-        fun getMarksForUser(userId: Long): Observable<List<MarkWithPhotos>> {
+        fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
             val compositeDisposable = CompositeDisposable()
-            return Observable.create { emitter ->
-                compositeDisposable.addAll(
-                    applicationDatabase.markDao().getAllMarks()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
-                        .subscribe(
-                            {
-                                emitter.onNext(it)
-                            },
-                            {
-                                Log.e(
-                                    TAG,
-                                    "getMarksForUser: error while fetching marks from cache database!",
-                                    it
-                                )
-                            }
-                        ),
-                    clientAPI.getUserAndFriendsMarks(userId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io())
-                        .subscribe(
-                            {
-                                val marks = it.map(MarkDto::toMarkWithPhotos)
-                                emitter.onNext(marks)
-                                val photos = marks.map(MarkWithPhotos::photos).flatten()
-                                Completable.concatArray(
-                                    cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
-                                    cacheDatabase.updateMarkPhotos(photos)
-                                )
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io())
-                                    .doOnComplete { emitter.onComplete() }
-                                    .subscribe()
-                            },
-                            {
-                                emitter.onError(it)
-                                Log.e(
-                                    TAG,
-                                    "getMarksForUser: error while fetching marks from server!",
-                                    it
-                                )
-                            }
-                        ),
-                )
-            }
+            return ConnectionWrapper.of(
+                Single.create<List<MarkWithPhotos>> { emitter ->
+                    compositeDisposable.add(
+                        ConnectionWrapper.of(
+                            clientAPI.getUserAndFriendsMarks(userId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                            connectionLiveData
+                        )
+                            .connect()
+                            .subscribe(
+                                {
+                                    val marks = it.map(MarkDto::toMarkWithPhotos)
+                                    emitter.onSuccess(marks)
+                                    val photos = marks.map(MarkWithPhotos::photos).flatten()
+                                    Completable.concatArray(
+                                        cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
+                                        cacheDatabase.updateMarkPhotos(photos)
+                                    )
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(Schedulers.io())
+                                        .doOnError { throwable ->
+                                            Log.e(
+                                                TAG,
+                                                "getAllFriendsOfUser: error while saving marks to cache!",
+                                                throwable
+                                            )
+                                        }
+                                        .subscribe()
+                                },
+                                {
+                                    emitter.onError(it)
+                                    Log.e(
+                                        TAG,
+                                        "getMarksForUser: error while fetching marks from server!",
+                                        it
+                                    )
+                                }
+                            ),
+                    )
+                },
+                connectionLiveData
+            ).connect()
         }
 
         fun postMark(markDto: AddMarkDto, photos: Set<Map.Entry<Uri, ByteArray>>): Completable {
@@ -163,26 +163,29 @@ class MainRepository @Inject constructor(
             return clientAPI.getMark(markId, userId).subscribeOn(Schedulers.io())
         }
 
-        fun getUserInfo(userId: Long): Single<UserInfo> {
+        fun getUser(userId: Long): Single<UserInfo> {
             return clientAPI.getUser(userId).subscribeOn(Schedulers.io())
         }
 
         fun postUserLocation(userId: Long, location: Point): Completable {
-            return clientAPI.updateLocation(
-                UserLocationDto(
-                    userId,
-                    location
-                )
-            )
-                .subscribeOn(Schedulers.io())
-                .doOnComplete {
-                    locationCache.updateUserLocationData(
-                        UserLocationPoint(
-                            location.latitude,
-                            location.longitude
-                        )
+            return ConnectionWrapper.of(
+                clientAPI.updateLocation(
+                    UserLocationDto(
+                        userId,
+                        location
                     )
-                }
+                )
+                    .subscribeOn(Schedulers.io())
+                    .doOnComplete {
+                        locationCache.updateUserLocationData(
+                            UserLocationPoint(
+                                location.latitude,
+                                location.longitude
+                            )
+                        )
+                    },
+                connectionLiveData
+            ).connect()
         }
 
         fun likeMark(markId: Long, userId: Long): Completable {
@@ -199,10 +202,13 @@ class MainRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
         }
 
-        fun getCurrentUserData(): Single<UserInfo> {
-            return userCache.getUserData()
+        fun getCurrentUserInfo(): Single<UserInfo> {
+            return userDataCache.getUserData()
                 .flatMap {
-                    getUserInfo(it.userId)
+                    ConnectionWrapper.of(
+                        getUser(it.userId),
+                        connectionLiveData
+                    ).connect()
                 }
                 .subscribeOn(Schedulers.io())
         }
@@ -210,23 +216,32 @@ class MainRepository @Inject constructor(
 
     inner class CacheDatabase {
         fun updateMarks(marks: List<Mark>): Completable {
-            return applicationDatabase.markDao().updateTable(marks)
+            return applicationDatabase.markDao().updateTable(marks).subscribeOn(Schedulers.io())
+        }
+
+        fun retrieveMarksFromCache(): Single<List<MarkWithPhotos>> {
+            return applicationDatabase.markDao().getAllMarks().subscribeOn(Schedulers.io())
         }
 
         fun updateMarkPhotos(markPhotos: List<MarkPhoto>): Completable {
             return applicationDatabase.markPhotoDao().updateTable(markPhotos)
+                .subscribeOn(Schedulers.io())
         }
 
         fun updateFriends(friends: List<User>): Completable {
-            return applicationDatabase.userDao().updateTable(friends)
+            return applicationDatabase.userDao().updateTable(friends).subscribeOn(Schedulers.io())
+        }
+
+        fun retrieveFriendsFromCache(): Single<List<User>> {
+            return applicationDatabase.userDao().getAllFriends().subscribeOn(Schedulers.io())
         }
     }
 
-    inner class UserCache {
+    inner class UserDataCache {
         fun getUserData(): Single<UserData> {
             return Single.create { emitter ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    userInfoDataStore.data.collect {
+                    userDataStore.data.collect {
                         if (it == UserData.DEFAULT) {
                             emitter.onError(NoSuchElementException("Data is not yet assigned!"))
                         } else {
@@ -234,17 +249,43 @@ class MainRepository @Inject constructor(
                         }
                     }
                 }
-            }
+            }.subscribeOn(Schedulers.io())
         }
 
         fun updateUserData(userData: UserData) {
             CoroutineScope(Dispatchers.IO).launch {
-                userInfoDataStore.updateData { userData }
+                userDataStore.updateData { userData }
             }
         }
 
         fun clearUserData() {
             updateUserData(UserData.DEFAULT)
+        }
+    }
+
+    inner class UserInfoCache {
+        fun getUserInfo(): Single<UserInfo> {
+            return Single.create { emitter ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    userInfoStore.data.collect {
+                        if (it == UserInfo.DEFAULT) {
+                            emitter.onError(NoSuchElementException("Data is not yet assigned!"))
+                        } else {
+                            emitter.onSuccess(it)
+                        }
+                    }
+                }
+            }.subscribeOn(Schedulers.io())
+        }
+
+        fun updateUserInfo(userInfo: UserInfo) {
+            CoroutineScope(Dispatchers.IO).launch {
+                userInfoStore.updateData { userInfo }
+            }
+        }
+
+        fun clearUserInfo() {
+            updateUserInfo(UserInfo.DEFAULT)
         }
     }
 
@@ -260,7 +301,7 @@ class MainRepository @Inject constructor(
                         }
                     }
                 }
-            }
+            }.subscribeOn(Schedulers.io())
         }
 
         fun updateUserLocationData(userLocationPoint: UserLocationPoint) {

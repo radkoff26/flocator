@@ -1,4 +1,4 @@
-package com.example.flocator.common.storage.storage.user
+package com.example.flocator.common.storage.storage.user.data
 
 @kotlinx.serialization.Serializable
 data class UserData(val userId: Long, val login: String, val password: String) {

@@ -3,7 +3,6 @@ package com.example.flocator.common.cache.global
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -14,7 +13,6 @@ import javax.inject.Singleton
 @Singleton
 class PhotoCacheManager @Inject constructor(@ApplicationContext context: Context) {
     private val directory = File(context.externalCacheDir!!.absolutePath + "/media").apply {
-        Log.d(TAG, "file creation: ${this.absolutePath}")
         if (!exists()) {
             this.mkdir()
         }
@@ -22,10 +20,6 @@ class PhotoCacheManager @Inject constructor(@ApplicationContext context: Context
 
     fun isPhotoCached(uri: String): Boolean {
         val files = directory.listFiles()!!
-        Log.d(TAG, "isPhotoCached: cache$uri")
-        files.forEach {
-            Log.d(TAG, "isPhotoCached: file ${it.nameWithoutExtension}")
-        }
         return files.any { it.nameWithoutExtension == uri }
     }
 
@@ -51,7 +45,6 @@ class PhotoCacheManager @Inject constructor(@ApplicationContext context: Context
         return FileInputStream(file).use {
             val bytes = it.readBytes()
             val out = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            Log.d(TAG, "getBitmapOutOfFile: $out")
             out
         }
     }
