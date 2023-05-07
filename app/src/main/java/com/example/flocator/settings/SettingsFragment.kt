@@ -18,7 +18,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.flocator.R
 import com.example.flocator.common.config.Constants
-import com.example.flocator.common.storage.SharedStorage
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.api.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,10 +51,9 @@ class SettingsFragment: Fragment(), SettingsSection {
         .build()
     lateinit var fragmentView: View
 
-//    val clientAPI: ClientAPI = retrofit.create(ClientAPI::class.java)
+    //    val clientAPI: ClientAPI = retrofit.create(ClientAPI::class.java)
     @Inject lateinit var clientAPI: ClientAPI
-    @Inject lateinit var sharedStorage: SharedStorage
-
+    @Inject lateinit var mainRepository: MainRepository
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -66,8 +65,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                     io.reactivex.Observable.create<Boolean> { emitter ->
                         val stream = context?.contentResolver?.openInputStream(result)!!
                         compositeDisposable.add(
-                            clientAPI.changeAvatar(
-                                sharedStorage.getUserId()!!,
+                            mainRepository.restApi.changeCurrentUserAva(
                                 MultipartBody.Part.createFormData(
                                     "photo",
                                     result.toString(),
@@ -105,7 +103,7 @@ class SettingsFragment: Fragment(), SettingsSection {
         val blacklistCnt = fragmentView.findViewById<TextView>(R.id.blacklist_cnt)
 
         compositeDisposable.add(
-            clientAPI.getUser(sharedStorage.getUserId()!!)
+            mainRepository.restApi.getCurrentUserInfo()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -174,7 +172,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                         resYear)
                     val stamp = Calendar.getInstance()
                     stamp.set(resYear, resMonth, resDay)
-                    compositeDisposable.add(clientAPI.setBirthDate(sharedStorage.getUserId()!!, Timestamp(stamp.timeInMillis))
+                    compositeDisposable.add(mainRepository.restApi.changeCurrentUserBirthdate(Timestamp(stamp.timeInMillis))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({}, {Log.e("Sending user birthdate", "error", it)}))
@@ -196,7 +194,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                     secondName += word;
                 }
                 compositeDisposable.add(
-                clientAPI.changeName(sharedStorage.getUserId()!!, firstName, secondName)
+                mainRepository.restApi.changeCurrentUserName(firstName, secondName)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({}, {Log.e("Change name", "error", it)})

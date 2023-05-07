@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.example.flocator.R
-import com.example.flocator.common.storage.SharedStorage
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.main.api.ClientAPI
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
@@ -27,7 +27,7 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
     @Inject
     lateinit var clientAPI: ClientAPI
     @Inject
-    lateinit var sharedStorage: SharedStorage
+    lateinit var mainRepository: MainRepository
 
     val compositeDisposable = CompositeDisposable()
     override fun onCreateView(
@@ -65,8 +65,7 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
                 return@setOnClickListener
             }
             compositeDisposable.add(
-                clientAPI.changePassword(
-                    sharedStorage.getUserId()!!,
+                mainRepository.restApi.changeCurrentUserPass (
                     old,
                     new
                 )

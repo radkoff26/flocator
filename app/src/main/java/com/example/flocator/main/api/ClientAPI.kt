@@ -1,9 +1,10 @@
 package com.example.flocator.main.api
 
-import com.example.flocator.main.models.Mark
-import com.example.flocator.main.models.User
+import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.common.storage.storage.user.info.UserInfo
+import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
-import com.example.flocator.main.ui.main.data.UserInfo
+import com.example.flocator.settings.data_models.PrivacyData
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
@@ -67,7 +68,7 @@ interface ClientAPI {
     fun changeAvatar (
         @Part("userId") userId: Long,
         @Part photo: MultipartBody.Part
-    ): Completable
+    ): Single<Boolean>
 
     @POST("user/changePassword")
     fun changePassword(

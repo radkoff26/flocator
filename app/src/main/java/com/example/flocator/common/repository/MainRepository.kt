@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import java.sql.Timestamp
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -211,6 +212,60 @@ class MainRepository @Inject constructor(
                     ).connect()
                 }
                 .subscribeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                ConnectionWrapper.of(
+                    clientAPI.changeAvatar(
+                        it.userId,
+                        ava
+                    ),
+                    connectionLiveData
+                ).connect()
+            }
+                .subscribeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserBirthdate(date: Timestamp): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                ConnectionWrapper.of(
+                    clientAPI.setBirthDate(
+                        it.userId,
+                        date
+                    ),
+                    connectionLiveData
+                ).connect()
+            }
+                .subscribeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserName(firstName: String, lastName: String): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                ConnectionWrapper.of(
+                    clientAPI.changeName(
+                        it.userId,
+                        firstName,
+                        lastName
+                    ),
+                    connectionLiveData
+                ).connect()
+            }
+                .observeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                ConnectionWrapper.of(
+                    clientAPI.changePassword(
+                        it.userId,
+                        prevPass,
+                        pass
+                    ),
+                    connectionLiveData
+                ).connect()
+            }
+                .observeOn(Schedulers.io())
         }
     }
 
