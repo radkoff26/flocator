@@ -14,6 +14,7 @@ import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.storage.storage.point.UserLocationPoint
 import com.example.flocator.common.storage.storage.user.data.UserData
+import com.example.flocator.common.storage.storage.user.info.UserInfo
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
@@ -21,11 +22,9 @@ import com.example.flocator.main.data.response.AddressResponse
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
-import com.example.flocator.common.storage.storage.user.info.UserInfo
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -57,34 +56,21 @@ class MainRepository @Inject constructor(
     val photoLoader = PhotoLoader()
 
     inner class RestApi {
-        fun getAllFriendsOfUser(userId: Long): Observable<List<User>> {
+        fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
-            compositeDisposable.add(
-                applicationDatabase.userDao().getAllFriends()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .subscribe(
-                        {
-                            Log.d(TAG, "getAllFriendsOfUser: USERS $it")
-                        },
-                        {
-                            Log.e(
-                                TAG,
-                                "getAllFriendsOfUser: error while fetching cache database!",
-                                it
-                            )
-                        }
-                    )
-            )
             return ConnectionWrapper.of(
-                Observable.create { emitter ->
+                Single.create { emitter ->
                     compositeDisposable.add(
-                        clientAPI.getUserFriendsLocated(userId)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io())
+                        ConnectionWrapper.of(
+                            clientAPI.getUserFriendsLocated(userId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                            connectionLiveData
+                        )
+                            .connect()
                             .subscribe(
                                 {
-                                    emitter.onNext(it)
+                                    emitter.onSuccess(it)
                                     compositeDisposable.add(
                                         cacheDatabase.updateFriends(it)
                                             .subscribeOn(Schedulers.io())
@@ -96,7 +82,6 @@ class MainRepository @Inject constructor(
                                                     throwable
                                                 )
                                             }
-                                            .doOnTerminate { emitter.onComplete() }
                                             .subscribe()
                                     )
                                 },
@@ -115,18 +100,22 @@ class MainRepository @Inject constructor(
             ).connect()
         }
 
-        fun getMarksForUser(userId: Long): Observable<List<MarkWithPhotos>> {
+        fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
             val compositeDisposable = CompositeDisposable()
             return ConnectionWrapper.of(
-                Observable.create<List<MarkWithPhotos>> { emitter ->
+                Single.create<List<MarkWithPhotos>> { emitter ->
                     compositeDisposable.add(
-                        clientAPI.getUserAndFriendsMarks(userId)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io())
+                        ConnectionWrapper.of(
+                            clientAPI.getUserAndFriendsMarks(userId)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io()),
+                            connectionLiveData
+                        )
+                            .connect()
                             .subscribe(
                                 {
                                     val marks = it.map(MarkDto::toMarkWithPhotos)
-                                    emitter.onNext(marks)
+                                    emitter.onSuccess(marks)
                                     val photos = marks.map(MarkWithPhotos::photos).flatten()
                                     Completable.concatArray(
                                         cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
@@ -141,7 +130,6 @@ class MainRepository @Inject constructor(
                                                 throwable
                                             )
                                         }
-                                        .doOnTerminate { emitter.onComplete() }
                                         .subscribe()
                                 },
                                 {
@@ -180,21 +168,24 @@ class MainRepository @Inject constructor(
         }
 
         fun postUserLocation(userId: Long, location: Point): Completable {
-            return clientAPI.updateLocation(
-                UserLocationDto(
-                    userId,
-                    location
-                )
-            )
-                .subscribeOn(Schedulers.io())
-                .doOnComplete {
-                    locationCache.updateUserLocationData(
-                        UserLocationPoint(
-                            location.latitude,
-                            location.longitude
-                        )
+            return ConnectionWrapper.of(
+                clientAPI.updateLocation(
+                    UserLocationDto(
+                        userId,
+                        location
                     )
-                }
+                )
+                    .subscribeOn(Schedulers.io())
+                    .doOnComplete {
+                        locationCache.updateUserLocationData(
+                            UserLocationPoint(
+                                location.latitude,
+                                location.longitude
+                            )
+                        )
+                    },
+                connectionLiveData
+            ).connect()
         }
 
         fun likeMark(markId: Long, userId: Long): Completable {
@@ -233,7 +224,8 @@ class MainRepository @Inject constructor(
         }
 
         fun updateMarkPhotos(markPhotos: List<MarkPhoto>): Completable {
-            return applicationDatabase.markPhotoDao().updateTable(markPhotos).subscribeOn(Schedulers.io())
+            return applicationDatabase.markPhotoDao().updateTable(markPhotos)
+                .subscribeOn(Schedulers.io())
         }
 
         fun updateFriends(friends: List<User>): Completable {
