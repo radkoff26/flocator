@@ -4,11 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.flocator.common.cache.runtime.PhotoCacheLiveData
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
-import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.MainSection
-import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -22,16 +21,13 @@ class MarkFragmentViewModel constructor(
 ) : ViewModel(), MainSection {
     private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
     private val _userNameLiveData = MutableLiveData<UserNameDto?>(null)
-    private val _photosStateLiveData = MutableLiveData<List<CarouselPhotoState>?>(null)
     private val _fragmentStateLiveData: MutableLiveData<MarkFragmentState> = MutableLiveData(
         MarkFragmentState.Loading
     )
 
-    private var photoLoadingState: MutableList<Boolean>? = null
-
     val markLiveData: LiveData<MarkWithPhotos?> = _markLiveData
     val userNameLiveData: LiveData<UserNameDto?> = _userNameLiveData
-    val photosStateLiveData: LiveData<List<CarouselPhotoState>?> = _photosStateLiveData
+    val photosStateLiveData: PhotoCacheLiveData = PhotoCacheLiveData(QUALITY_FACTOR)
     val markFragmentStateLiveData: LiveData<MarkFragmentState> = _fragmentStateLiveData
 
     private val compositeDisposable = CompositeDisposable()
@@ -55,9 +51,9 @@ class MarkFragmentViewModel constructor(
                 .subscribe(
                     {
                         _markLiveData.value = it.toMarkWithPhotos()
-                        _photosStateLiveData.value =
-                            MutableList(it.photos.size) { CarouselPhotoState.Loading }
-                        photoLoadingState = MutableList(it.photos.size) { false }
+                        it.photos.forEach { uri ->
+                            photosStateLiveData.requestPhotoLoading(uri)
+                        }
                         _fragmentStateLiveData.value = MarkFragmentState.Loaded
                         loadAuthorData()
                     },
@@ -124,42 +120,11 @@ class MarkFragmentViewModel constructor(
 
     }
 
-    fun loadPhotoByPosition(position: Int) {
-        if (
-            _markLiveData.value == null
-            ||
-            _photosStateLiveData.value == null
-            ||
-            photoLoadingState == null
-            ||
-            _photosStateLiveData.value!![position] is CarouselPhotoState.Loaded
-        ) {
+    fun loadPhotoByUri(uri: String) {
+        if (_markLiveData.value == null || photosStateLiveData.isLoaded(uri)) {
             return
         }
-        if (!photoLoadingState!![position]) {
-            photoLoadingState!![position] = true
-            updateSinglePhotoState(CarouselPhotoState.Loading, position)
-            compositeDisposable.add(
-                LoadUtils.loadPictureFromUrl(
-                    _markLiveData.value!!.photos[position].uri,
-                    QUALITY_FACTOR
-                )
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnDispose {
-                        photoLoadingState!![position] = false
-                    }
-                    .subscribe(
-                        {
-                            updateSinglePhotoState(CarouselPhotoState.Loaded(it), position)
-                        },
-                        {
-                            updateSinglePhotoState(CarouselPhotoState.Failed(it), position)
-                        }
-                    )
-            )
-        }
-
+        photosStateLiveData.requestPhotoLoading(uri)
     }
 
     private fun likeMark() {
@@ -179,12 +144,6 @@ class MarkFragmentViewModel constructor(
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.dispose()
-    }
-
-    private fun updateSinglePhotoState(carouselPhotoState: CarouselPhotoState, position: Int) {
-        val list = _photosStateLiveData.value!!.toMutableList()
-        list[position] = carouselPhotoState
-        _photosStateLiveData.value = list
     }
 
     companion object {

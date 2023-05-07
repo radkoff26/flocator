@@ -3,6 +3,7 @@ package com.example.flocator.main.ui.mark
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
+import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
@@ -14,6 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
+import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
@@ -21,7 +23,6 @@ import com.example.flocator.databinding.FragmentMarkBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
-import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.main.ui.photo.PhotoPagerFragment
@@ -92,7 +93,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         }
 
         markFragmentViewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
-        markFragmentViewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
+        markFragmentViewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onPhotosUpdated)
         markFragmentViewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
         markFragmentViewModel.markFragmentStateLiveData.observe(
             viewLifecycleOwner,
@@ -103,6 +104,10 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun onPhotosUpdated(value: LruCache<String, PhotoState>) {
+        carouselAdapter?.updatePhotos(value.snapshot())
     }
 
     private fun openPhotoPager(position: Int) {
@@ -151,15 +156,8 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.loader.stopAnimation()
     }
 
-    private fun loadPhoto(position: Int) {
-        markFragmentViewModel.loadPhotoByPosition(position)
-    }
-
-    private fun onUpdatePhotos(value: List<CarouselPhotoState>?) {
-        if (value == null) {
-            return
-        }
-        carouselAdapter?.updatePhotos(value)
+    private fun loadPhoto(uri: String) {
+        markFragmentViewModel.loadPhotoByUri(uri)
     }
 
     private fun onUpdateMarkData(value: MarkWithPhotos?) {

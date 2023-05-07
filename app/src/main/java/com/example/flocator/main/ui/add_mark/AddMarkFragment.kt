@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
@@ -41,7 +42,7 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     private val viewModel: AddMarkFragmentViewModel by viewModels()
 
     private lateinit var carouselAdapter: CarouselRecyclerViewAdapter
-    private lateinit var photoAddLauncher: ActivityResultLauncher<String>
+    private lateinit var photoAddLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private var valueAnimator: ValueAnimator? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -64,7 +65,7 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
         savedInstanceState: Bundle?
     ): View? {
         photoAddLauncher =
-            registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
+            registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { result ->
                 viewModel.updateLiveData(result)
             }
 
@@ -146,7 +147,7 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     }
 
     private fun launchPhotoPicker() {
-        photoAddLauncher.launch("image/*")
+        photoAddLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     private fun expandBottomSheet(bottomSheetView: View) {

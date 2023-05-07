@@ -10,29 +10,29 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.flocator.R
+import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.views.LoaderImageView
 import com.example.flocator.common.views.RetryImageButton
-import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 
 class MarkPhotoCarouselAdapter(
     private val size: Int,
-    private val loadPhotoCallback: (position: Int) -> Unit,
+    private val loadPhotoCallback: (uri: String) -> Unit,
     private val openPhotoPagerCallback: (position: Int) -> Unit
 ) :
     RecyclerView.Adapter<MarkPhotoCarouselAdapter.MarkPhotoCarouselViewHolder>() {
-    private var photosState: MutableList<CarouselPhotoState> = MutableList(size) { CarouselPhotoState.Loading }
+    private var photosState: List<Pair<String, PhotoState>> = ArrayList()
 
     inner class MarkPhotoCarouselViewHolder(view: View) : ViewHolder(view) {
         private val retryImageButton: RetryImageButton = view.findViewById(R.id.retry_image_button)
         val imageView: AppCompatImageView = view.findViewById(R.id.carousel_item_image)
         val loaderImageView: LoaderImageView = view.findViewById(R.id.loader_image_view)
 
-        fun bind(position: Int) {
+        fun bind(position: Int, uri: String) {
             imageView.setOnClickListener {
                 openPhotoPagerCallback.invoke(position)
             }
             retryImageButton.setOnRetryCallback {
-                loadPhotoCallback.invoke(position)
+                loadPhotoCallback.invoke(uri)
             }
         }
     }
@@ -46,10 +46,11 @@ class MarkPhotoCarouselAdapter(
     override fun getItemCount(): Int = size
 
     override fun onBindViewHolder(holder: MarkPhotoCarouselViewHolder, position: Int) {
-        holder.bind(position)
+        val value = photosState[position]
+        holder.bind(position, value.first)
         val viewGroup = holder.itemView as ViewGroup
-        when (val state = photosState[position]) {
-            is CarouselPhotoState.Loading -> {
+        when (val state = value.second) {
+            is PhotoState.Loading -> {
                 showView(R.id.loader_image_view, viewGroup)
                 holder.loaderImageView.startAnimation()
                 holder.imageView.setBackgroundColor(
@@ -59,9 +60,9 @@ class MarkPhotoCarouselAdapter(
                         null
                     )
                 )
-                loadPhotoCallback.invoke(position)
+                loadPhotoCallback.invoke(value.first)
             }
-            is CarouselPhotoState.Loaded -> {
+            is PhotoState.Loaded -> {
                 showView(R.id.carousel_item_image, viewGroup)
                 holder.loaderImageView.stopAnimation()
                 holder.imageView.setBackgroundColor(
@@ -73,7 +74,7 @@ class MarkPhotoCarouselAdapter(
                 )
                 holder.imageView.setImageBitmap(state.bitmap)
             }
-            is CarouselPhotoState.Failed -> {
+            is PhotoState.Failed -> {
                 showView(R.id.retry_image_button, viewGroup)
                 holder.loaderImageView.stopAnimation()
             }
@@ -90,11 +91,11 @@ class MarkPhotoCarouselAdapter(
         }
     }
 
-    fun updatePhotos(value: List<CarouselPhotoState>) {
+    fun updatePhotos(value: Map<String, PhotoState>) {
         val prev = photosState.toList()
-        photosState = value.toMutableList()
-        for (i in value.indices) {
-            if (value[i] != prev[i]) {
+        photosState = value.toList()
+        for (i in photosState.indices) {
+            if (photosState[i] != prev[i]) {
                 notifyItemChanged(i)
             }
         }

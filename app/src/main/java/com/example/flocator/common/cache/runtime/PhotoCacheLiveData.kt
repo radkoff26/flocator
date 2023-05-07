@@ -9,8 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
 class PhotoCacheLiveData(
-    private val qualityFactor: Int,
-    initialUris: Collection<String> = emptyList()
+    private val qualityFactor: Int
 ) : LiveData<LruCache<String, PhotoState>>() {
     private val compositeDisposable = CompositeDisposable()
     private val maxCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
@@ -20,9 +19,6 @@ class PhotoCacheLiveData(
             override fun sizeOf(key: String?, value: PhotoState?): Int {
                 return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
             }
-        }
-        initialUris.forEach {
-            requestPhotoLoading(it)
         }
     }
 
@@ -54,7 +50,7 @@ class PhotoCacheLiveData(
         return null
     }
 
-    fun containsUri(uri: String) = getPhoto(uri) != null
+    fun isLoaded(uri: String) = getPhoto(uri) != null
 
     override fun onInactive() {
         super.onInactive()
