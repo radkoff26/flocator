@@ -1,4 +1,4 @@
-package com.example.flocator.common.connection.watcher
+package com.example.flocator.common.connection.live_data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer

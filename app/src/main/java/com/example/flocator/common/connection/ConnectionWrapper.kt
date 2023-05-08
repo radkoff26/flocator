@@ -3,7 +3,7 @@ package com.example.flocator.common.connection
 import com.example.flocator.common.connection.implementation.CompletableConnectionWrapper
 import com.example.flocator.common.connection.implementation.ObservableConnectionWrapper
 import com.example.flocator.common.connection.implementation.SingleConnectionWrapper
-import com.example.flocator.common.connection.watcher.ConnectionLiveData
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single

@@ -8,12 +8,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.cache.runtime.PhotoState
-import com.example.flocator.common.connection.watcher.ConnectionLiveData
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
-import com.example.flocator.common.storage.storage.point.UserLocationPoint
-import com.example.flocator.common.storage.storage.user.info.UserInfo
+import com.example.flocator.common.storage.store.point.UserLocationPoint
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.main.models.*
 import com.example.flocator.main.ui.main.data.MarkGroup
 import com.example.flocator.main.utils.MarksDiffUtils

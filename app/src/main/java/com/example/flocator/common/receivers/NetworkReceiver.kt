@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.flocator.common.config.Actions
-import com.example.flocator.common.connection.watcher.ConnectionLiveData
-import com.example.flocator.common.connection.watcher.MutableConnectionLiveData
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
+import com.example.flocator.common.connection.live_data.MutableConnectionLiveData
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

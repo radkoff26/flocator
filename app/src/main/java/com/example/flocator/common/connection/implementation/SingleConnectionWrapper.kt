@@ -1,7 +1,7 @@
 package com.example.flocator.common.connection.implementation
 
 import androidx.lifecycle.Observer
-import com.example.flocator.common.connection.watcher.ConnectionLiveData
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.connection.ConnectionWrapper
 import com.example.flocator.common.exceptions.LostConnectionException
 import io.reactivex.Single

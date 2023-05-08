@@ -1,4 +1,4 @@
-package com.example.flocator.common.connection.watcher
+package com.example.flocator.common.connection.live_data
 
 class MutableConnectionLiveData : ConnectionLiveData() {
     public override fun setValue(value: Boolean) {
