@@ -1,40 +1,40 @@
-package com.example.flocator.common.connection.wrapper.implementation
+package com.example.flocator.common.connection.implementation
 
 import androidx.lifecycle.Observer
 import com.example.flocator.common.connection.watcher.ConnectionLiveData
-import com.example.flocator.common.connection.wrapper.ConnectionWrapper
+import com.example.flocator.common.connection.ConnectionWrapper
 import com.example.flocator.common.exceptions.LostConnectionException
-import io.reactivex.Single
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
-class SingleConnectionWrapper<T : Any>(
-    private val single: Single<T>,
+class ObservableConnectionWrapper<T : Any>(
+    private val observable: Observable<T>,
     private val connectionLiveData: ConnectionLiveData
-) : ConnectionWrapper<Single<T>> {
-    override fun connect(): Single<T> {
+) : ConnectionWrapper<Observable<T>> {
+    override fun connect(): Observable<T> {
         val compositeDisposable = CompositeDisposable()
         var observer: Observer<Boolean>? = null
         if (!connectionLiveData.value!!) {
-            return Single.error(LostConnectionException("Connection is lost!"))
+            return Observable.error(LostConnectionException("Connection is lost!"))
         }
-        return Single.create { emitter ->
+        return Observable.create { emitter ->
             observer = Observer {
                 if (!it) {
                     emitter.onError(LostConnectionException("Connection is lost!"))
                 }
             }
-            connectionLiveData.observeForeverAsync(observer!!)
+            connectionLiveData.postObserveForever(observer!!)
             compositeDisposable.add(
-                single
-                    .doOnSuccess { emitter.onSuccess(it) }
+                observable
+                    .doOnNext { emitter.onNext(it) }
                     .subscribe()
             )
         }
             .doOnDispose {
                 compositeDisposable.dispose()
             }
-            .doOnSuccess {
-                connectionLiveData.removeObserverAsync(observer!!)
+            .doOnComplete {
+                connectionLiveData.postRemoveObserver(observer!!)
             }
     }
 }
