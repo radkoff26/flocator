@@ -5,8 +5,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
 import com.example.flocator.common.cache.global.PhotoCacheManager
+import com.example.flocator.common.connection.ConnectionWrapper
 import com.example.flocator.common.connection.watcher.ConnectionLiveData
-import com.example.flocator.common.connection.wrapper.ConnectionWrapper
 import com.example.flocator.common.storage.db.ApplicationDatabase
 import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
@@ -45,8 +45,7 @@ class MainRepository @Inject constructor(
     private val userLocationDataStore: DataStore<UserLocationPoint>,
     private val userDataStore: DataStore<UserData>,
     private val userInfoStore: DataStore<UserInfo>,
-    private val photoCacheManager: PhotoCacheManager,
-    private val connectionLiveData: ConnectionLiveData
+    private val photoCacheManager: PhotoCacheManager
 ) {
     val restApi = RestApi()
     val cacheDatabase = CacheDatabase()
@@ -56,7 +55,7 @@ class MainRepository @Inject constructor(
     val photoLoader = PhotoLoader()
 
     inner class RestApi {
-        fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
+        fun getAllFriendsOfUser(userId: Long, connectionLiveData: ConnectionLiveData): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
             return ConnectionWrapper.of(
                 Single.create { emitter ->
@@ -95,12 +94,12 @@ class MainRepository @Inject constructor(
                                 }
                             )
                     )
-                }.subscribeOn(Schedulers.io()).doOnDispose { compositeDisposable.dispose() },
+                }.subscribeOn(Schedulers.io()),
                 connectionLiveData
-            ).connect()
+            ).connect().doOnDispose { compositeDisposable.dispose() }
         }
 
-        fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
+        fun getMarksForUser(userId: Long, connectionLiveData: ConnectionLiveData): Single<List<MarkWithPhotos>> {
             val compositeDisposable = CompositeDisposable()
             return ConnectionWrapper.of(
                 Single.create<List<MarkWithPhotos>> { emitter ->
@@ -144,7 +143,7 @@ class MainRepository @Inject constructor(
                     )
                 },
                 connectionLiveData
-            ).connect()
+            ).connect().doOnDispose { compositeDisposable.dispose() }
         }
 
         fun postMark(markDto: AddMarkDto, photos: Set<Map.Entry<Uri, ByteArray>>): Completable {
@@ -167,7 +166,7 @@ class MainRepository @Inject constructor(
             return clientAPI.getUser(userId).subscribeOn(Schedulers.io())
         }
 
-        fun postUserLocation(userId: Long, location: Point): Completable {
+        fun postUserLocation(userId: Long, location: Point, connectionLiveData: ConnectionLiveData): Completable {
             return ConnectionWrapper.of(
                 clientAPI.updateLocation(
                     UserLocationDto(
@@ -202,7 +201,7 @@ class MainRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
         }
 
-        fun getCurrentUserInfo(): Single<UserInfo> {
+        fun getCurrentUserInfo(connectionLiveData: ConnectionLiveData): Single<UserInfo> {
             return userDataCache.getUserData()
                 .flatMap {
                     ConnectionWrapper.of(
