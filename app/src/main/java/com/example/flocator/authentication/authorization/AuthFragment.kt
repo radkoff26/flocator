@@ -13,7 +13,7 @@ import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
 import com.example.flocator.authentication.registration.RegFirstFragment
 import com.example.flocator.common.repository.MainRepository
-import com.example.flocator.common.storage.storage.user.UserData
+import com.example.flocator.common.storage.store.user.data.UserData
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.databinding.FragmentAuthBinding
@@ -73,7 +73,7 @@ class AuthFragment : Fragment(), Authentication {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
-                    repository.userCache.updateUserData(
+                    repository.userDataCache.updateUserData(
                         UserData(
                             userId!!,
                             login,

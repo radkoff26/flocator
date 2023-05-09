@@ -1,4 +1,4 @@
-package com.example.flocator.common.storage.storage.user
+package com.example.flocator.common.storage.store.user.info
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
@@ -9,21 +9,21 @@ import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
-class UserDataSerializer : Serializer<UserData> {
-    override val defaultValue: UserData = UserData.DEFAULT
+class UserInfoSerializer : Serializer<UserInfo> {
+    override val defaultValue: UserInfo = UserInfo.DEFAULT
 
-    override suspend fun readFrom(input: InputStream): UserData {
+    override suspend fun readFrom(input: InputStream): UserInfo {
         return try {
-            Json.decodeFromString(UserData.serializer(), input.readBytes().decodeToString())
+            Json.decodeFromString(UserInfo.serializer(), input.readBytes().decodeToString())
         } catch (e: SerializationException) {
             throw CorruptionException("Unable to parse this UserData object", e)
         }
     }
 
-    override suspend fun writeTo(t: UserData, output: OutputStream) {
+    override suspend fun writeTo(t: UserInfo, output: OutputStream) {
         withContext(Dispatchers.IO) {
             output.write(
-                Json.encodeToString(UserData.serializer(), t).encodeToByteArray()
+                Json.encodeToString(UserInfo.serializer(), t).encodeToByteArray()
             )
         }
     }

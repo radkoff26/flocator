@@ -1,4 +1,4 @@
-package com.example.flocator.common.storage.storage.point
+package com.example.flocator.common.storage.store.point
 
 import kotlinx.serialization.Serializable
 

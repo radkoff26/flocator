@@ -36,8 +36,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
 
-        Log.d(TAG, "onCreate fragments list: ${supportFragmentManager.fragments}")
-
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 FragmentNavigationUtils.closeLastFragment(supportFragmentManager, this@MainActivity)
@@ -51,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openFirstFragment() {
         compositeDisposable.add(
-            repository.userCache.getUserData()
+            repository.userDataCache.getUserData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -121,6 +119,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "Main Activity"
+        private const val TAG = "Main Activity Class"
     }
 }

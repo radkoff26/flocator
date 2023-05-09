@@ -1,7 +1,8 @@
-package com.example.flocator.main.ui.main.data
+package com.example.flocator.common.storage.store.user.info
 
 import com.google.gson.annotations.SerializedName
 
+@kotlinx.serialization.Serializable
 data class UserInfo(
     @SerializedName("userId")
     val userId: Long,
@@ -13,4 +14,14 @@ data class UserInfo(
     val login: String,
     @SerializedName("avatarUrl")
     val avatarUri: String?
-)
+) {
+    companion object {
+        val DEFAULT = UserInfo(
+            0,
+            "",
+            "",
+            "",
+            null
+        )
+    }
+}
