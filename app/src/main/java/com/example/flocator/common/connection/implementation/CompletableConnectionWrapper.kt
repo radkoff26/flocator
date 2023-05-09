@@ -1,32 +1,32 @@
-package com.example.flocator.common.connection.wrapper.implementation
+package com.example.flocator.common.connection.implementation
 
 import androidx.lifecycle.Observer
-import com.example.flocator.common.connection.watcher.ConnectionLiveData
-import com.example.flocator.common.connection.wrapper.ConnectionWrapper
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
+import com.example.flocator.common.connection.ConnectionWrapper
 import com.example.flocator.common.exceptions.LostConnectionException
-import io.reactivex.Observable
+import io.reactivex.Completable
 import io.reactivex.disposables.CompositeDisposable
 
-class ObservableConnectionWrapper<T : Any>(
-    private val observable: Observable<T>,
+class CompletableConnectionWrapper(
+    private val observable: Completable,
     private val connectionLiveData: ConnectionLiveData
-) : ConnectionWrapper<Observable<T>> {
-    override fun connect(): Observable<T> {
+) : ConnectionWrapper<Completable> {
+    override fun connect(): Completable {
         val compositeDisposable = CompositeDisposable()
         var observer: Observer<Boolean>? = null
         if (!connectionLiveData.value!!) {
-            return Observable.error(LostConnectionException("Connection is lost!"))
+            return Completable.error(LostConnectionException("Connection is lost!"))
         }
-        return Observable.create { emitter ->
+        return Completable.create { emitter ->
             observer = Observer {
                 if (!it) {
                     emitter.onError(LostConnectionException("Connection is lost!"))
                 }
             }
-            connectionLiveData.observeForeverAsync(observer!!)
+            connectionLiveData.postObserveForever(observer!!)
             compositeDisposable.add(
                 observable
-                    .doOnNext { emitter.onNext(it) }
+                    .doOnComplete { emitter.onComplete() }
                     .subscribe()
             )
         }
@@ -34,7 +34,7 @@ class ObservableConnectionWrapper<T : Any>(
                 compositeDisposable.dispose()
             }
             .doOnComplete {
-                connectionLiveData.removeObserverAsync(observer!!)
+                connectionLiveData.postRemoveObserver(observer!!)
             }
     }
 }

@@ -1,8 +1,8 @@
-package com.example.flocator.common.connection.wrapper.implementation
+package com.example.flocator.common.connection.implementation
 
 import androidx.lifecycle.Observer
-import com.example.flocator.common.connection.watcher.ConnectionLiveData
-import com.example.flocator.common.connection.wrapper.ConnectionWrapper
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
+import com.example.flocator.common.connection.ConnectionWrapper
 import com.example.flocator.common.exceptions.LostConnectionException
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -23,7 +23,7 @@ class SingleConnectionWrapper<T : Any>(
                     emitter.onError(LostConnectionException("Connection is lost!"))
                 }
             }
-            connectionLiveData.observeForeverAsync(observer!!)
+            connectionLiveData.postObserveForever(observer!!)
             compositeDisposable.add(
                 single
                     .doOnSuccess { emitter.onSuccess(it) }
@@ -34,7 +34,7 @@ class SingleConnectionWrapper<T : Any>(
                 compositeDisposable.dispose()
             }
             .doOnSuccess {
-                connectionLiveData.removeObserverAsync(observer!!)
+                connectionLiveData.postRemoveObserver(observer!!)
             }
     }
 }

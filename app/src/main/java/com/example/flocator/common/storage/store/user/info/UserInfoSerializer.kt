@@ -1,4 +1,4 @@
-package com.example.flocator.common.storage.storage.user.info
+package com.example.flocator.common.storage.store.user.info
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
