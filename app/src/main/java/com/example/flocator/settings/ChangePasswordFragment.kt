@@ -18,8 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import org.w3c.dom.Text
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,17 +48,17 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
             val repeat = newPassRepeat.text.toString()
             val old = oldPass.text.toString()
             if (new == "" || repeat == "" || old == "") {
-                messageField.text = "Поля не должны быть пустыми!"
+                messageField.text = getString(R.string.fields_must_not_be_empty)
                 messageField.visibility = View.VISIBLE
                 return@setOnClickListener
             }
             if (new != repeat) {
-                messageField.text = "Пароли не совпадают!"
+                messageField.text = getString(R.string.passwords_are_not_similar)
                 messageField.visibility = View.VISIBLE
                 return@setOnClickListener
             }
             if (new == old) {
-                messageField.text = "Новый пароль совпадает со старым!"
+                messageField.text = getString(R.string.new_password_is_similar)
                 messageField.visibility = View.VISIBLE
                 return@setOnClickListener
             }
@@ -75,15 +73,15 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
                         { res ->
                             if (res) {
                                 messageField.setTextColor(Color.parseColor("#00ee00"))
-                                messageField.text = "Пароль успешно изменен!"
+                                messageField.text = getString(R.string.password_changed_successfully)
                             } else {
-                                messageField.text = "Пароль неверен!"
+                                messageField.text = getString(R.string.password_is_incorrect)
                             }
                             messageField.visibility = View.VISIBLE
                         },
                         {
                             Log.e("Changing password", "error", it)
-                            messageField.text = "Пароль неверен!"
+                            messageField.text = getString(R.string.password_is_incorrect)
                             messageField.visibility = View.VISIBLE
                         }
                     )
