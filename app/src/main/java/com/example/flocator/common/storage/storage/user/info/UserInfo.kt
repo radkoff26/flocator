@@ -13,11 +13,11 @@ import java.sql.Timestamp
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = Timestamp::class)
-object TimestampSerializer: KSerializer<Timestamp> {
-    override fun serialize(encoder: Encoder, value: Timestamp) {
+object TimestampSerializer: KSerializer<Timestamp?> {
+    override fun serialize(encoder: Encoder, value: Timestamp?) {
         encoder.encodeString(value.toString())
     }
-    override fun deserialize(decoder: Decoder): Timestamp {
+    override fun deserialize(decoder: Decoder): Timestamp? {
         return Timestamp.valueOf(decoder.decodeString())
     }
 }
@@ -36,7 +36,7 @@ data class UserInfo(
     val avatarUri: String?,
     @kotlinx.serialization.Serializable(with = TimestampSerializer::class)
     @SerializedName("birthDate")
-    val birthDate: Timestamp,
+    val birthDate: Timestamp?,
     @SerializedName("blockedUsers")
     val blockedUsers: List<Long>
 ) {

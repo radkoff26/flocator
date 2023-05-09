@@ -24,6 +24,7 @@ import com.example.flocator.main.api.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
 import io.reactivex.Completable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -103,11 +104,15 @@ class SettingsFragment: Fragment(), SettingsSection {
         val blacklistCnt = fragmentView.findViewById<TextView>(R.id.blacklist_cnt)
 
         compositeDisposable.add(
-            mainRepository.restApi.getCurrentUserInfo()
+            Single.concat(
+                mainRepository.userInfoCache.getUserInfo(),
+                mainRepository.restApi.getCurrentUserInfo()
+            )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { userInfo ->
+                        mainRepository.userInfoCache.updateUserInfo(userInfo)
                         nameField.setText(userInfo.firstName + " " + userInfo.lastName)
                         val cal = Calendar.getInstance()
                         if (userInfo.birthDate != null) {
@@ -122,24 +127,16 @@ class SettingsFragment: Fragment(), SettingsSection {
 
                         blacklistCnt.text = userInfo.blockedUsers.size.toString()
 
-                        compositeDisposable.add(
-                            io.reactivex.Observable.create<Bitmap> {
-                                    emitter ->
-                                lateinit var avaBMP: Bitmap
-                                try {
-                                    avaBMP = BitmapFactory.decodeStream(
-                                        URL(userInfo.avatarUri).openConnection().getInputStream()
-                                    )
-                                } catch (e: java.net.MalformedURLException) {
-                                    avaBMP = BitmapFactory.decodeStream(URL("http://kernelpunik.ru:8080/api/photo?uri=" + userInfo.avatarUri)
-                                        .openConnection().getInputStream())
-                                }
-                                emitter.onNext(avaBMP)
-                            }
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe ({ avatar.setImageBitmap(it) }, {Log.e("Loading ava", "error", it)})
-                        )
+                        if (userInfo.avatarUri != null) {
+                            compositeDisposable.add(
+                                mainRepository.photoLoader.getPhoto(userInfo.avatarUri)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                        { avatar.setImageBitmap(it) },
+                                        { Log.e("Loading ava", "error", it) })
+                            )
+                        }
 
                     },
                     {
