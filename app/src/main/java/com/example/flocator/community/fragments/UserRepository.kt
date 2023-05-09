@@ -32,21 +32,6 @@ class UserRepository {
     //val faker = Faker.instance()
     private var listeners = mutableListOf<UserNewFriendActionListener>()
 
-    init {
-        userApi.getUserFriends(1)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    persons = it as MutableList<User>
-                    //println(it.size.toString() + " РАЗМЕРРАЗМЕРРАЗМЕРРАЗМЕР")
-                    //println(persons.size.toString() + " OOOOOOOOOOOOOOOOOOOPI")
-
-                },
-                {
-                    Log.e(ProfileFragment.TAG, it.message, it)
-                })
-    }
 
     companion object {
         private val IMAGES = mutableListOf(

@@ -7,24 +7,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.example.flocator.Application
 import com.example.flocator.R
 import com.example.flocator.common.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.LoadUtils
+import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.adapters.PersonAdapter
 import com.example.flocator.community.api.UserApi
-import com.example.flocator.community.data_classes.Person
+import com.example.flocator.community.data_classes.FriendRequests
+import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.community.view_models.ProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentCommunityBinding
 import com.example.flocator.main.ui.main.MainFragment
-import com.example.flocator.main.utils.LoadUtils
 import com.google.gson.GsonBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
@@ -32,20 +33,15 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 
-class ProfileFragment : Fragment() {
+@AndroidEntryPoint
+class ProfileFragment : Fragment(), CommunitySection {
     private var _binding: FragmentCommunityBinding? = null
     private val binding: FragmentCommunityBinding
         get() = _binding!!
-    private val profileFragmentViewModel = ProfileFragmentViewModel()
+    private val profileFragmentViewModel: ProfileFragmentViewModel by viewModels()
     private lateinit var adapterForNewFriends: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
-    private val listenerNewFriends: UserNewFriendActionListener = { adapterForNewFriends.data = it }
-    private val listenerFriends: FriendListener = {
-        adapterForYourFriends.data =
-            it as MutableList<User>
-    }
-    private var currentUser: User = User(1, "1", "1", "1")
-
+    private var currentUser: User = User(1, "1", "1", "1",false,"",ArrayList<FriendRequests>(),ArrayList<Friends>())
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,9 +49,11 @@ class ProfileFragment : Fragment() {
     ): View? {
         _binding = FragmentCommunityBinding.inflate(inflater, container, false)
         profileFragmentViewModel.fetchUser()
-        profileFragmentViewModel.fetchFriends()
-        profileFragmentViewModel.fetchNewFriends()
-        //profileFragmentViewModel.load()
+        println("АВАТАР!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + " :" + profileFragmentViewModel.getCurrentUserId())
+        if(profileFragmentViewModel.getNewFriendsSize() == 1){
+            binding.buttonViewAll.visibility = View.GONE
+            binding.buttonNotViewAll.visibility = View.GONE
+        }
         adapterForNewFriends = PersonAdapter(object :
             com.example.flocator.community.adapters.UserNewFriendActionListener {
             override fun onPersonOpenProfile(user: User) {
@@ -90,6 +88,7 @@ class ProfileFragment : Fragment() {
             currentUser = it
             binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
             setAvatar(currentUser.avatarUrl!!)
+            println("АВАТАР!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + " :" + currentUser.avatarUrl)
         })
 
 
@@ -137,6 +136,8 @@ class ProfileFragment : Fragment() {
 
     fun openPersonProfile(user: User) {
         val args: Bundle = Bundle()
+        args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
+        user.id?.let { args.putLong("userId", it) }
         args.putString("nameAndSurnamePerson", user.firstName + " " + user.lastName)
         args.putString("personPhoto", user.avatarUrl)
         val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
@@ -180,5 +181,4 @@ class ProfileFragment : Fragment() {
     companion object {
         const val TAG = "Profile Fragment"
     }
-
 }

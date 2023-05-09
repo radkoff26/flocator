@@ -6,12 +6,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.Application
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.api.UserApi
+import com.example.flocator.community.data_classes.FriendRequests
+import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.community.fragments.ProfileFragment
 import com.example.flocator.community.fragments.UserRepository
 import com.google.gson.GsonBuilder
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -19,19 +23,22 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import javax.inject.Inject
 
 typealias UserNewFriendActionListener = (persons: List<User>) -> Unit
-
-class ProfileFragmentViewModel : ViewModel() {
-    private val _friendsLiveData = MutableLiveData<MutableList<User>?>()
-    private val _newFriendsLiveData = MutableLiveData<MutableList<User>?>()
+@HiltViewModel
+@Suppress("UNCHECKED_CAST")
+class ProfileFragmentViewModel @Inject constructor(
+    private val repository: MainRepository
+) : ViewModel() {
+    private val _friendsLiveData = MutableLiveData<MutableList<Friends>?>()
+    private val _newFriendsLiveData = MutableLiveData<MutableList<FriendRequests>?>()
     private val _currentUserLiveData = MutableLiveData<User>()
-    var friendsLiveData: MutableLiveData<MutableList<User>?> = _friendsLiveData
-    var newFriendsLiveData: MutableLiveData<MutableList<User>?> = _newFriendsLiveData
+    var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
+    var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<User> = _currentUserLiveData
-    private var newFriendsListeners = mutableListOf<List<User>>()
-    private var friendsListeners = mutableListOf<List<User>>()
-    private var listeners = mutableListOf<UserNewFriendActionListener>()
+    private val userId = repository.userCache.getUserData().blockingGet().userId
+
 
     private val userApi: UserApi by lazy {
         val gson = GsonBuilder()
@@ -54,43 +61,12 @@ class ProfileFragmentViewModel : ViewModel() {
         //removeListener(listener)
     }
 
-    fun fetchFriends() {
-        userApi.getUserFriends(1)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    updateFriends(it)
-                },
-                {
-                    Log.e(ProfileFragment.TAG, it.message, it)
-                })
-    }
-
-    private fun updateFriends(users: List<User>) {
-        _friendsLiveData.value = users as MutableList<User>
-    }
-
-    fun fetchNewFriends() {
-        userApi.getUserFriends(1)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    updateNewFriends(it)
-                },
-                {
-                    Log.e(ProfileFragment.TAG, it.message, it)
-                })
-
-    }
-
-    private fun updateNewFriends(users: List<User>) {
-        _newFriendsLiveData.value = users as MutableList<User>
+    fun getCurrentUserId(): Long{
+        return userId
     }
 
     fun fetchUser() {
-        userApi.getUser(1)
+        userApi.getUser(userId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -104,11 +80,13 @@ class ProfileFragmentViewModel : ViewModel() {
 
     private fun updateUser(user: User) {
         _currentUserLiveData.value = user
+        _friendsLiveData.value = user.friends
+        _newFriendsLiveData.value = user.friendRequests
     }
 
     fun cancelPerson(user: User): Int {
-        val index = _newFriendsLiveData.value?.indexOfFirst { it.id == user.id }
-        val newFriends: MutableList<User>? = _newFriendsLiveData.value
+        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.id }
+        val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         if (index == -1) {
             return -1
         }
@@ -117,23 +95,30 @@ class ProfileFragmentViewModel : ViewModel() {
         }
         _newFriendsLiveData.value = newFriends
         return newFriends?.size ?: 0
-        //notifyChanges()
     }
 
     fun acceptPerson(user: User): Int {
-        val findingPerson: User
-        val index = _newFriendsLiveData.value?.indexOfFirst { it.id == user.id }
-        val newFriends: MutableList<User>? = _newFriendsLiveData.value
-        val friends: MutableList<User>? = _friendsLiveData.value
+        val findingPerson: Friends = Friends(-1,"","","")
+        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.id }
+        val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
+        val friends: MutableList<Friends>? = _friendsLiveData.value
         if (index != null && index != -1) {
-            findingPerson = _newFriendsLiveData.value?.get(index) as User
+            findingPerson.userId = _newFriendsLiveData.value?.get(index)!!.userId
+            findingPerson.firstName = _newFriendsLiveData.value?.get(index)!!.firstName
+            findingPerson.lastName = _newFriendsLiveData.value?.get(index)!!.lastName
+            findingPerson.avatarUri = _newFriendsLiveData.value?.get(index)!!.avatarUri
             newFriends!!.removeAt(index)
             friends!!.add(findingPerson)
         }
         _newFriendsLiveData.value = newFriends
         _friendsLiveData.value = friends
         return newFriends?.size ?: 0
-        //notifyChanges()
+    }
+
+    fun getNewFriendsSize(): Int{
+        val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
+        _newFriendsLiveData.value = newFriends
+        return newFriends?.size ?: 0
     }
 
     /*private fun addListener(listener: UserNewFriendActionListener) {
@@ -150,7 +135,7 @@ class ProfileFragmentViewModel : ViewModel() {
         listeners.forEach { it.invoke(newFriendsLiveData.value as List<User>) }*/
 
     private val listener: UserNewFriendActionListener = {
-        _newFriendsLiveData.value = it as MutableList<User>
+        _newFriendsLiveData.value = it as MutableList<FriendRequests>
     }
 
 }

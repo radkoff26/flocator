@@ -5,19 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.flocator.community.data_classes.Person
 import com.example.flocator.databinding.PersonYourFriendItemBinding
-import com.example.flocator.R
 import com.example.flocator.community.data_classes.User
-import com.example.flocator.databinding.PersonNewFriendItemBinding
-import com.example.flocator.main.utils.LoadUtils
+import com.example.flocator.common.utils.LoadUtils
+import com.example.flocator.community.data_classes.Friends
+import com.example.flocator.settings.Friend
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class FriendAdapter(private val friendActionListener: FriendActionListener) :
     RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(), View.OnClickListener {
-    var data: MutableList<User> = mutableListOf()
+    var data: MutableList<Friends> = mutableListOf()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -41,7 +39,7 @@ class FriendAdapter(private val friendActionListener: FriendActionListener) :
 
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            setAvatar(person.avatarUrl!!, holder)
+            setAvatar(person.avatarUri!!, holder)
         }
         holder.itemView.tag = person
     }
