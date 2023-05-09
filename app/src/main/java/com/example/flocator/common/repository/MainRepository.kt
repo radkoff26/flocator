@@ -216,54 +216,46 @@ class MainRepository @Inject constructor(
 
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                ConnectionWrapper.of(
-                    clientAPI.changeAvatar(
-                        it.userId,
-                        ava
-                    ),
-                    connectionLiveData
-                ).connect()
+                clientAPI.changeAvatar(
+                    it.userId,
+                    ava
+                )
+                    .subscribeOn(Schedulers.io())
             }
                 .subscribeOn(Schedulers.io())
         }
 
         fun changeCurrentUserBirthdate(date: Timestamp): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                ConnectionWrapper.of(
-                    clientAPI.setBirthDate(
-                        it.userId,
-                        date
-                    ),
-                    connectionLiveData
-                ).connect()
+                clientAPI.setBirthDate(
+                    it.userId,
+                    date
+                )
+                    .subscribeOn(Schedulers.io())
             }
                 .subscribeOn(Schedulers.io())
         }
 
         fun changeCurrentUserName(firstName: String, lastName: String): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                ConnectionWrapper.of(
-                    clientAPI.changeName(
-                        it.userId,
-                        firstName,
-                        lastName
-                    ),
-                    connectionLiveData
-                ).connect()
+                clientAPI.changeName(
+                    it.userId,
+                    firstName,
+                    lastName
+                )
+                    .observeOn(Schedulers.io())
             }
                 .observeOn(Schedulers.io())
         }
 
         fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                ConnectionWrapper.of(
-                    clientAPI.changePassword(
-                        it.userId,
-                        prevPass,
-                        pass
-                    ),
-                    connectionLiveData
-                ).connect()
+                clientAPI.changePassword(
+                    it.userId,
+                    prevPass,
+                    pass
+                )
+                    .observeOn(Schedulers.io())
             }
                 .observeOn(Schedulers.io())
         }
