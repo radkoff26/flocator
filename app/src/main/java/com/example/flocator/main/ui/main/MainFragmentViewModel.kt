@@ -8,30 +8,32 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
-import com.example.flocator.common.storage.storage.point.UserLocationPoint
-import com.example.flocator.common.storage.storage.user.info.UserInfo
+import com.example.flocator.common.storage.store.point.UserLocationPoint
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.main.models.*
 import com.example.flocator.main.ui.main.data.MarkGroup
 import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
 @Suppress("UNCHECKED_CAST")
-class MainFragmentViewModel @Inject constructor(
-    private val repository: MainRepository
+class MainFragmentViewModel @AssistedInject constructor(
+    private val repository: MainRepository,
+    @Assisted private val connectionLiveData: ConnectionLiveData
 ) : ViewModel() {
     val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
 
@@ -72,7 +74,7 @@ class MainFragmentViewModel @Inject constructor(
     private fun initialFetch() {
         val userId = userInfo!!.userId
         compositeDisposable.addAll(
-            repository.restApi.getAllFriendsOfUser(userId)
+            repository.restApi.getAllFriendsOfUser(userId, connectionLiveData)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -82,7 +84,7 @@ class MainFragmentViewModel @Inject constructor(
                         Log.e(TAG, "Initialization: marks loading failed!", it)
                     }
                 ),
-            repository.restApi.getMarksForUser(userId)
+            repository.restApi.getMarksForUser(userId, connectionLiveData)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -175,7 +177,7 @@ class MainFragmentViewModel @Inject constructor(
     fun requestInitialLoading() {
         retrieveDataFromCache()
         compositeDisposable.add(
-            repository.restApi.getCurrentUserInfo()
+            repository.restApi.getCurrentUserInfo(connectionLiveData)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -201,7 +203,8 @@ class MainFragmentViewModel @Inject constructor(
         compositeDisposable.add(
             repository.restApi.postUserLocation(
                 _userInfo!!.userId,
-                _userLocationLiveData.value!!
+                _userLocationLiveData.value!!,
+                connectionLiveData
             )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -335,7 +338,7 @@ class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.getAllFriendsOfUser(userInfo!!.userId)
+            repository.restApi.getAllFriendsOfUser(userInfo!!.userId, connectionLiveData)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_FRIENDS_FETCHING.toLong())
@@ -360,7 +363,7 @@ class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.getMarksForUser(userInfo!!.userId)
+            repository.restApi.getMarksForUser(userInfo!!.userId, connectionLiveData)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_MARKS_FETCHING.toLong())
@@ -401,6 +404,11 @@ class MainFragmentViewModel @Inject constructor(
         val cameraStatus = _cameraStatusLiveData.value!!
         cameraStatus.point = point
         _cameraStatusLiveData.value = cameraStatus
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun build(connectionLiveData: ConnectionLiveData): MainFragmentViewModel
     }
 
     companion object {

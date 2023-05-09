@@ -13,11 +13,7 @@ class LoadUtils {
     companion object {
         fun loadPictureFromUrl(uri: String, qualityFactor: Int?): Single<Bitmap> {
             return Single.create {
-                val mUrl = if (uri.contains("http")) { // TODO: eliminate this
-                    URL(uri)
-                } else {
-                    URL("${Constants.BASE_URL}photo?uri=$uri")
-                }
+                val mUrl = URL("${Constants.BASE_URL}photo?uri=$uri")
                 val inputStream = mUrl.openStream()
                 var bitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream.close()

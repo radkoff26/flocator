@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.repository.MainRepository
-import com.example.flocator.common.storage.storage.user.data.UserData
+import com.example.flocator.common.storage.store.user.data.UserData
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
