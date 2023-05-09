@@ -237,7 +237,7 @@ class SettingsFragment: Fragment(), SettingsSection {
         super.onDestroy()
     }
 
-    fun changeAvatar(uri: Uri) {
+    private fun changeAvatar(uri: Uri) {
         val avatar = fragmentView.findViewById<CircleImageView>(R.id.avatar)
         avatar.setImageURI(uri)
     }
