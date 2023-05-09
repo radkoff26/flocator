@@ -21,9 +21,6 @@ interface ClientAPI {
     @GET("friendship/located")
     fun getUserFriendsLocated(@Query("userId") userId: Long): Single<List<User>>
 
-    @GET("friendship/privacy")
-    fun getUserFriendsPrivacy(@Query("userId") userId: Long): Single<List<PrivacyData>>
-
     @GET("mark/friends")
     fun getUserAndFriendsMarks(@Query("userId") userId: Long): Single<List<MarkDto>>
 

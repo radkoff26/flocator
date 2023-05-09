@@ -1,4 +1,4 @@
-package com.example.flocator.common.storage.storage.user.info
+package com.example.flocator.common.storage.store.user.info
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Contextual

@@ -1,14 +1,9 @@
 package com.example.flocator.settings
 
-import android.app.Activity
 import android.app.DatePickerDialog
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,14 +11,15 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
 import com.example.flocator.R
-import com.example.flocator.common.config.Constants
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.api.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
-import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -31,26 +27,15 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import org.w3c.dom.Text
+import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import java.net.URI
-import java.net.URL
-import java.sql.Timestamp
 
 @AndroidEntryPoint
 class SettingsFragment: Fragment(), SettingsSection {
     private val compositeDisposable = CompositeDisposable()
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(Constants.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-        .build()
-    lateinit var fragmentView: View
+    private lateinit var fragmentView: View
 
     //    val clientAPI: ClientAPI = retrofit.create(ClientAPI::class.java)
     @Inject lateinit var clientAPI: ClientAPI
@@ -58,7 +43,7 @@ class SettingsFragment: Fragment(), SettingsSection {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val photoChangeLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
             if (result != null) {
                 changeAvatar(result)
@@ -105,13 +90,18 @@ class SettingsFragment: Fragment(), SettingsSection {
 
         compositeDisposable.add(
             Single.concat(
-                mainRepository.userInfoCache.getUserInfo(),
-                mainRepository.restApi.getCurrentUserInfo()
+                mainRepository.userInfoCache.getUserInfo()
+                    .onErrorReturnItem(UserInfo.DEFAULT),
+                mainRepository.restApi.getCurrentUserInfo(ConnectionLiveData())
+                    .onErrorReturnItem(UserInfo.DEFAULT)
             )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     { userInfo ->
+                        if (userInfo == UserInfo.DEFAULT) {
+                            return@subscribe
+                        }
                         mainRepository.userInfoCache.updateUserInfo(userInfo)
                         nameField.setText(userInfo.firstName + " " + userInfo.lastName)
                         val cal = Calendar.getInstance()
@@ -140,7 +130,7 @@ class SettingsFragment: Fragment(), SettingsSection {
 
                     },
                     {
-                        Log.e("Loading user info", "Error", it)
+                        Log.e("Loading user info", it.stackTraceToString(), it)
                     }
                 )
         )
@@ -169,7 +159,10 @@ class SettingsFragment: Fragment(), SettingsSection {
                         resYear)
                     val stamp = Calendar.getInstance()
                     stamp.set(resYear, resMonth, resDay)
-                    compositeDisposable.add(mainRepository.restApi.changeCurrentUserBirthdate(Timestamp(stamp.timeInMillis))
+                    compositeDisposable.add(
+                        mainRepository.restApi.changeCurrentUserBirthdate(
+                            Timestamp(stamp.timeInMillis)
+                        )
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({}, {Log.e("Sending user birthdate", "error", it)}))
@@ -188,7 +181,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                 val firstName = words[0]
                 var secondName = ""
                 for (word in words.listIterator(1)) {
-                    secondName += word;
+                    secondName += word
                 }
                 compositeDisposable.add(
                 mainRepository.restApi.changeCurrentUserName(firstName, secondName)

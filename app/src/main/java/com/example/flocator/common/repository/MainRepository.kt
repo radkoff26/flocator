@@ -12,9 +12,9 @@ import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.storage.store.point.UserLocationPoint
 import com.example.flocator.common.storage.store.user.data.UserData
-import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
@@ -202,13 +202,11 @@ class MainRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
         }
 
-        fun getCurrentUserInfo(): Single<UserInfo> {
+        fun getCurrentUserInfo(connectionLiveData: ConnectionLiveData): Single<UserInfo> {
             return userDataCache.getUserData()
                 .flatMap {
-                    ConnectionWrapper.of(
-                        getUser(it.userId),
-                        connectionLiveData
-                    ).connect()
+                    getUser(it.userId)
+                        .subscribeOn(Schedulers.io())
                 }
                 .subscribeOn(Schedulers.io())
         }
