@@ -2,8 +2,8 @@ package com.example.flocator.community.api
 
 
 import com.example.flocator.community.data_classes.User
+import com.example.flocator.community.data_classes.UserExternal
 import io.reactivex.Single
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -17,4 +17,7 @@ interface UserApi {
 
     @GET("user/target/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<User>
+
+    @GET("user/external/{userId}")
+    fun getUserExternal(@Path("userId") userId: Long, @Query("targetUserId") targetUserId: Long): Single<UserExternal>
 }

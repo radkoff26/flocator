@@ -11,6 +11,7 @@ import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.PersonNewFriendItemBinding
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.data_classes.FriendRequests
+import com.example.flocator.community.data_classes.UserExternal
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -65,7 +66,7 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
 
     }
     override fun onClick(view: View?) {
-        val user: User = view?.tag as User
+        val user: UserExternal = view?.tag as UserExternal
         when (view.id) {
             R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(user)
             R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(user)

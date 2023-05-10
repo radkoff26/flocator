@@ -12,6 +12,7 @@ import com.example.flocator.community.api.UserApi
 import com.example.flocator.community.data_classes.FriendRequests
 import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.User
+import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.fragments.ProfileFragment
 import com.example.flocator.community.fragments.UserRepository
 import com.google.gson.GsonBuilder
@@ -37,7 +38,7 @@ class ProfileFragmentViewModel @Inject constructor(
     var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<User> = _currentUserLiveData
-    private val userId = repository.userCache.getUserData().blockingGet().userId
+    private val userId = repository.userDataCache.getUserData().blockingGet().userId
 
 
     private val userApi: UserApi by lazy {
@@ -84,8 +85,8 @@ class ProfileFragmentViewModel @Inject constructor(
         _newFriendsLiveData.value = user.friendRequests
     }
 
-    fun cancelPerson(user: User): Int {
-        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.id }
+    fun cancelPerson(user: UserExternal): Int {
+        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId?.toLong() }
         val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         if (index == -1) {
             return -1
@@ -97,9 +98,9 @@ class ProfileFragmentViewModel @Inject constructor(
         return newFriends?.size ?: 0
     }
 
-    fun acceptPerson(user: User): Int {
+    fun acceptPerson(user: UserExternal): Int {
         val findingPerson: Friends = Friends(-1,"","","")
-        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.id }
+        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId }
         val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         val friends: MutableList<Friends>? = _friendsLiveData.value
         if (index != null && index != -1) {
@@ -112,12 +113,6 @@ class ProfileFragmentViewModel @Inject constructor(
         }
         _newFriendsLiveData.value = newFriends
         _friendsLiveData.value = friends
-        return newFriends?.size ?: 0
-    }
-
-    fun getNewFriendsSize(): Int{
-        val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
-        _newFriendsLiveData.value = newFriends
         return newFriends?.size ?: 0
     }
 

@@ -1,12 +1,12 @@
 package com.example.flocator.community.view_models
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.community.api.UserApi
-import com.example.flocator.community.data_classes.Friends
-import com.example.flocator.community.data_classes.User
+import com.example.flocator.community.data_classes.UserExternal
+import com.example.flocator.community.data_classes.UserExternalFriends
 import com.example.flocator.community.fragments.ProfileFragment
 import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -15,11 +15,12 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
-import javax.inject.Inject
 
 class OtherPersonProfileFragmentViewModel: ViewModel() {
-    private val _friendsLiveData = MutableLiveData<MutableList<Friends>?>()
-    var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
+    private val _friendsLiveData = MutableLiveData<MutableList<UserExternalFriends>?>()
+    var friendsLiveData: MutableLiveData<MutableList<UserExternalFriends>?> = _friendsLiveData
+    private val _currentUserLiveData = MutableLiveData<UserExternal>()
+    val currentUserLiveData: LiveData<UserExternal> = _currentUserLiveData
 
     private val userApi: UserApi by lazy {
         val gson = GsonBuilder()
@@ -33,8 +34,8 @@ class OtherPersonProfileFragmentViewModel: ViewModel() {
         retrofit.create()
     }
 
-    fun fetchUser(userId: Long) {
-        userApi.getUser(userId)
+    fun fetchUser(userId: Long, currentUserId: Long) {
+        userApi.getUserExternal(currentUserId , userId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -46,7 +47,8 @@ class OtherPersonProfileFragmentViewModel: ViewModel() {
                 })
     }
 
-    private fun updateFriends(user: User) {
+    private fun updateFriends(user: UserExternal) {
+        _currentUserLiveData.value = user
         _friendsLiveData.value = user.friends
     }
 }
