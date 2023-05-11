@@ -37,8 +37,6 @@ data class UserInfo(
     @kotlinx.serialization.Serializable(with = TimestampSerializer::class)
     @SerializedName("birthDate")
     val birthDate: Timestamp?,
-    @SerializedName("blockedUsers")
-    val blockedUsers: List<Long>
 ) {
 
     companion object {
@@ -49,7 +47,6 @@ data class UserInfo(
             "",
             null,
             Timestamp(0),
-            List(0) { _ -> 0L }
         )
     }
 

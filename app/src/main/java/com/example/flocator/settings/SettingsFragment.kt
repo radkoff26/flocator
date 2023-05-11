@@ -135,7 +135,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                             )
                         }
 
-                        blacklistCnt.text = userInfo.blockedUsers.size.toString()
+
 
                         if (userInfo.avatarUri != null) {
                             compositeDisposable.add(

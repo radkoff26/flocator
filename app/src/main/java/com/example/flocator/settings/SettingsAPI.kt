@@ -2,10 +2,7 @@ package com.example.flocator.settings
 
 import io.reactivex.Single
 import okhttp3.MultipartBody
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Query
+import retrofit2.http.*
 import java.sql.Timestamp
 
 interface SettingsAPI {
@@ -36,4 +33,6 @@ interface SettingsAPI {
         @Query("newPassword") newPassword: String
     ): Single<Boolean>
 
+    @GET("user/blockedBy/{userId}")
+    fun getBlocked(@Path("userId") userId: Long): Single<List<Long>>
 }
