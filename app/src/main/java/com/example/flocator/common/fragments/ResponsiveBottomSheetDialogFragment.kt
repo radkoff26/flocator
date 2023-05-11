@@ -2,6 +2,7 @@ package com.example.flocator.common.fragments
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
@@ -14,7 +15,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-abstract class ResponsiveBottomSheetDialogFragment : BottomSheetDialogFragment() {
+abstract class ResponsiveBottomSheetDialogFragment(
+    private val portraitWidthRatio: Double,
+    private val landscapeWidthRatio: Double
+) : BottomSheetDialogFragment() {
 
     abstract fun getCoordinatorLayout(): CoordinatorLayout
 
@@ -27,11 +31,13 @@ abstract class ResponsiveBottomSheetDialogFragment : BottomSheetDialogFragment()
         expandBottomSheet()
     }
 
-    protected fun layoutBottomSheet() {
+    protected open fun layoutBottomSheet() {
         val coordinator = getCoordinatorLayout()
         val bottomSheet = getBottomSheetScrollView()
         val innerLayout = getInnerLayout()
-        val height = requireActivity().getSize().y
+        val size = requireActivity().getSize()
+        val height = size.y
+        val width = size.x
         // Width MeasureSpec is set to zero as it's irrelevant
         coordinator.measure(
             0,
@@ -46,15 +52,19 @@ abstract class ResponsiveBottomSheetDialogFragment : BottomSheetDialogFragment()
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
         )
         coordinator.layoutParams = FrameLayout.LayoutParams(
-            coordinator.width,
-            coordinator.measuredHeight
-        )
-        bottomSheet.layoutParams = CoordinatorLayout.LayoutParams(
-            bottomSheet.width,
+            width,
             bottomSheet.measuredHeight
         )
+        val widthRatio = if (isPortrait()) portraitWidthRatio else landscapeWidthRatio
+        val layoutWidth = (width * widthRatio).toInt()
+        bottomSheet.layoutParams = CoordinatorLayout.LayoutParams(
+            layoutWidth,
+            bottomSheet.measuredHeight
+        ).apply {
+            gravity = Gravity.CENTER_HORIZONTAL
+        }
         innerLayout.layoutParams = FrameLayout.LayoutParams(
-            innerLayout.width,
+            layoutWidth,
             innerLayout.measuredHeight
         )
         coordinator.requestLayout()
@@ -68,7 +78,7 @@ abstract class ResponsiveBottomSheetDialogFragment : BottomSheetDialogFragment()
         }
     }
 
-    private fun isPortrait(): Boolean {
+    protected fun isPortrait(): Boolean {
         return requireContext().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     }
 

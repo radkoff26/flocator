@@ -10,14 +10,16 @@ import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class MarkFragmentViewModel constructor(
+@HiltViewModel
+class MarkFragmentViewModel @Inject constructor(
     private val repository: MainRepository,
-    private val markId: Long,
-    private val userId: Long
+
 ) : ViewModel(), MainSection {
     private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
     private val _userNameLiveData = MutableLiveData<UserNameDto?>(null)
@@ -32,7 +34,12 @@ class MarkFragmentViewModel constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    init {
+    private var markId: Long? = null
+    private var userId: Long? = null
+
+    fun initialize(markId: Long, userId: Long) {
+        this.markId = markId
+        this.userId = userId
         loadData()
     }
 
@@ -40,12 +47,19 @@ class MarkFragmentViewModel constructor(
         if (_fragmentStateLiveData.value != MarkFragmentState.Loading) {
             _fragmentStateLiveData.value = MarkFragmentState.Loading
         }
-        loadMark()
+        if (_markLiveData.value == null) {
+            loadMark()
+        } else {
+            _fragmentStateLiveData.value = MarkFragmentState.Loaded
+        }
     }
 
     private fun loadMark() {
+        if (markId == null || userId == null) {
+            return
+        }
         compositeDisposable.add(
-            repository.restApi.getMark(markId, userId)
+            repository.restApi.getMark(markId!!, userId!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -84,10 +98,13 @@ class MarkFragmentViewModel constructor(
     }
 
     fun toggleLike() {
+        if (markId == null || userId == null) {
+            return
+        }
         if (_markLiveData.value!!.mark.hasUserLiked) {
             unlikeMark()
             compositeDisposable.add(
-                repository.restApi.unlikeMark(markId, userId)
+                repository.restApi.unlikeMark(markId!!, userId!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -103,7 +120,7 @@ class MarkFragmentViewModel constructor(
         } else {
             likeMark()
             compositeDisposable.add(
-                repository.restApi.likeMark(markId, userId)
+                repository.restApi.likeMark(markId!!, userId!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(

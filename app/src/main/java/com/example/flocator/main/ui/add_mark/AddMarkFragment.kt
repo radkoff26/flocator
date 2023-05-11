@@ -31,7 +31,10 @@ import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddMarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
+class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
@@ -54,7 +57,7 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_add_mark, container, false)
-        
+
         _binding = FragmentAddMarkBinding.bind(view)
 
         photoAddLauncher =
@@ -329,5 +332,7 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
 
     companion object {
         const val TAG = "Add Mark Fragment"
+        const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
+        const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
     }
 }

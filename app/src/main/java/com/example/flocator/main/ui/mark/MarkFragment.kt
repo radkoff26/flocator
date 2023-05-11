@@ -13,6 +13,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
@@ -32,7 +33,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
+class MarkFragment : ResponsiveBottomSheetDialogFragment(
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+), MainSection {
     private var _binding: FragmentMarkBinding? = null
     private val binding
         get() = _binding!!
@@ -42,7 +46,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
     @Inject
     lateinit var repository: MainRepository
 
-    private lateinit var markFragmentViewModel: MarkFragmentViewModel
+    private val viewModel: MarkFragmentViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
@@ -62,11 +66,8 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
             requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.MARK_ID)
         val userId =
             requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.USER_ID)
-        markFragmentViewModel = MarkFragmentViewModel(
-            repository,
-            markId,
-            userId
-        )
+
+        viewModel.initialize(markId, userId)
 
         return view
     }
@@ -81,7 +82,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
         super.onViewCreated(view, savedInstanceState)
 
         binding.likeBtn.setOnClickListener {
-            markFragmentViewModel.toggleLike()
+            viewModel.toggleLike()
         }
 
         binding.closeFragmentBtn.setOnClickListener {
@@ -89,13 +90,13 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
         }
 
         binding.retryFragmentButton.setOnRetryCallback {
-            markFragmentViewModel.loadData()
+            viewModel.loadData()
         }
 
-        markFragmentViewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
-        markFragmentViewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onPhotosUpdated)
-        markFragmentViewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
-        markFragmentViewModel.markFragmentStateLiveData.observe(
+        viewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
+        viewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
+        viewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onPhotosUpdated)
+        viewModel.markFragmentStateLiveData.observe(
             viewLifecycleOwner,
             this::onUpdateFragmentState
         )
@@ -116,7 +117,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
         bundle.putInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION, position)
         bundle.putStringArrayList(
             BundleArgumentsContraction.PhotoPagerFragment.URI_LIST,
-            ArrayList(markFragmentViewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
+            ArrayList(viewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
         )
         photoPagerFragment.arguments = bundle
         photoPagerFragment.show(requireActivity().supportFragmentManager, TAG)
@@ -155,7 +156,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
     }
 
     private fun loadPhoto(uri: String) {
-        markFragmentViewModel.loadPhotoByUri(uri)
+        viewModel.loadPhotoByUri(uri)
     }
 
     private fun onUpdateMarkData(value: MarkWithPhotos?) {
@@ -167,7 +168,12 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
 
         if (carouselAdapter == null) {
             carouselAdapter =
-                MarkPhotoCarouselAdapter(value.photos.size, value.photos.map(MarkPhoto::uri), this::loadPhoto, this::openPhotoPager)
+                MarkPhotoCarouselAdapter(
+                    value.photos.size,
+                    value.photos.map(MarkPhoto::uri),
+                    this::loadPhoto,
+                    this::openPhotoPager
+                )
             binding.photoCarousel.adapter = carouselAdapter
             val itemDecoration = DividerItemDecoration(requireContext(), RecyclerView.HORIZONTAL)
             itemDecoration.setDrawable(
@@ -177,6 +183,10 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
                 )!!
             )
             binding.photoCarousel.addItemDecoration(itemDecoration)
+            val photos = viewModel.photosStateLiveData.value
+            if (photos != null && photos.size() == value.photos.size) {
+                carouselAdapter!!.updatePhotos(photos.snapshot())
+            }
         }
 
         if (value.mark.hasUserLiked) {
@@ -210,5 +220,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
 
     companion object {
         const val TAG = "Mark Fragment"
+        const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
+        const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
     }
 }
