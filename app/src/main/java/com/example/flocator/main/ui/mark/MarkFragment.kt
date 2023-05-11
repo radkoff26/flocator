@@ -9,13 +9,15 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
@@ -26,14 +28,11 @@ import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.main.ui.photo.PhotoPagerFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MarkFragment : BottomSheetDialogFragment(), MainSection {
+class MarkFragment : ResponsiveBottomSheetDialogFragment(), MainSection {
     private var _binding: FragmentMarkBinding? = null
     private val binding
         get() = _binding!!
@@ -46,24 +45,19 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
     private lateinit var markFragmentViewModel: MarkFragmentViewModel
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
-
-        dialog.setContentView(R.layout.fragment_mark)
-
-        dialog.setOnShowListener {
-            val view = (it as BottomSheetDialog).findViewById<LinearLayout>(R.id.bs)
-                ?: return@setOnShowListener
-
-            expandBottomSheet(view)
+        return super.onCreateDialog(savedInstanceState).apply {
+            setContentView(R.layout.fragment_mark)
         }
-
-        return dialog
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val view = inflater.inflate(R.layout.fragment_mark, container, false)
+
+        _binding = FragmentMarkBinding.bind(view)
+
         val markId =
             requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.MARK_ID)
         val userId =
@@ -73,12 +67,18 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
             markId,
             userId
         )
-        return inflater.inflate(R.layout.fragment_mark, container, false)
+
+        return view
     }
+
+    override fun getCoordinatorLayout(): CoordinatorLayout = binding.coordinator
+
+    override fun getBottomSheetScrollView(): NestedScrollView = binding.bs
+
+    override fun getInnerLayout(): ViewGroup = binding.linearContainer
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentMarkBinding.bind(view)
 
         binding.likeBtn.setOnClickListener {
             markFragmentViewModel.toggleLike()
@@ -122,11 +122,6 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         photoPagerFragment.show(requireActivity().supportFragmentManager, TAG)
     }
 
-    private fun expandBottomSheet(bottomSheetView: View) {
-        val behavior = BottomSheetBehavior.from(bottomSheetView)
-        behavior.state = BottomSheetBehavior.STATE_EXPANDED
-    }
-
     private fun onUpdateFragmentState(value: MarkFragmentState) {
         when (value) {
             is MarkFragmentState.Loading -> setLoadingState()
@@ -140,6 +135,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.retryFragmentButton.visibility = GONE
         binding.loader.visibility = VISIBLE
         binding.loader.startAnimation()
+        layoutBottomSheet()
     }
 
     private fun setLoadedState() {
@@ -147,6 +143,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.retryFragmentButton.visibility = GONE
         binding.loader.visibility = GONE
         binding.loader.stopAnimation()
+        layoutBottomSheet()
     }
 
     private fun setFailureState() {
@@ -154,6 +151,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.retryFragmentButton.visibility = VISIBLE
         binding.loader.visibility = GONE
         binding.loader.stopAnimation()
+        layoutBottomSheet()
     }
 
     private fun loadPhoto(uri: String) {
@@ -169,7 +167,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
 
         if (carouselAdapter == null) {
             carouselAdapter =
-                MarkPhotoCarouselAdapter(value.photos.size, this::loadPhoto, this::openPhotoPager)
+                MarkPhotoCarouselAdapter(value.photos.size, value.photos.map(MarkPhoto::uri), this::loadPhoto, this::openPhotoPager)
             binding.photoCarousel.adapter = carouselAdapter
             val itemDecoration = DividerItemDecoration(requireContext(), RecyclerView.HORIZONTAL)
             itemDecoration.setDrawable(

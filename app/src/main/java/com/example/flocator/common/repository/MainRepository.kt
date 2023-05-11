@@ -45,7 +45,8 @@ class MainRepository @Inject constructor(
     private val userLocationDataStore: DataStore<UserLocationPoint>,
     private val userDataStore: DataStore<UserData>,
     private val userInfoStore: DataStore<UserInfo>,
-    private val photoCacheManager: PhotoCacheManager
+    private val photoCacheManager: PhotoCacheManager,
+    private val connectionLiveData: ConnectionLiveData
 ) {
     val restApi = RestApi()
     val cacheDatabase = CacheDatabase()
@@ -55,7 +56,7 @@ class MainRepository @Inject constructor(
     val photoLoader = PhotoLoader()
 
     inner class RestApi {
-        fun getAllFriendsOfUser(userId: Long, connectionLiveData: ConnectionLiveData): Single<List<User>> {
+        fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
             return ConnectionWrapper.of(
                 Single.create { emitter ->
@@ -99,7 +100,7 @@ class MainRepository @Inject constructor(
             ).connect().doOnDispose { compositeDisposable.dispose() }
         }
 
-        fun getMarksForUser(userId: Long, connectionLiveData: ConnectionLiveData): Single<List<MarkWithPhotos>> {
+        fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
             val compositeDisposable = CompositeDisposable()
             return ConnectionWrapper.of(
                 Single.create<List<MarkWithPhotos>> { emitter ->
@@ -166,7 +167,7 @@ class MainRepository @Inject constructor(
             return clientAPI.getUser(userId).subscribeOn(Schedulers.io())
         }
 
-        fun postUserLocation(userId: Long, location: Point, connectionLiveData: ConnectionLiveData): Completable {
+        fun postUserLocation(userId: Long, location: Point): Completable {
             return ConnectionWrapper.of(
                 clientAPI.updateLocation(
                     UserLocationDto(
@@ -201,7 +202,7 @@ class MainRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
         }
 
-        fun getCurrentUserInfo(connectionLiveData: ConnectionLiveData): Single<UserInfo> {
+        fun getCurrentUserInfo(): Single<UserInfo> {
             return userDataCache.getUserData()
                 .flatMap {
                     ConnectionWrapper.of(

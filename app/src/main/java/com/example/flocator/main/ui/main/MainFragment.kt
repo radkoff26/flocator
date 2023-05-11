@@ -1,7 +1,5 @@
 package com.example.flocator.main.ui.main
 
-import android.content.IntentFilter
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.LruCache
@@ -12,8 +10,6 @@ import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.flocator.common.cache.runtime.PhotoState
-import com.example.flocator.common.config.Actions
-import com.example.flocator.common.receivers.NetworkReceiver
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.community.fragments.ProfileFragment
@@ -23,7 +19,6 @@ import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.handlers.UserLocationHandler
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
-import com.example.flocator.main.ui.MainViewModelFactory
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.example.flocator.main.ui.main.data.*
 import com.example.flocator.main.ui.main.views.FriendMapView
@@ -47,7 +42,6 @@ import java.lang.Float.max
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), MainSection {
@@ -56,17 +50,8 @@ class MainFragment : Fragment(), MainSection {
     private val binding: FragmentMainBinding
         get() = _binding!!
 
-    // Network Receiver
-    private val networkReceiver = NetworkReceiver()
-
     // ViewModel
-    @Inject
-    lateinit var viewModelFactory: MainFragmentViewModel.Factory
-    private val viewModel: MainFragmentViewModel by viewModels {
-        MainViewModelFactory(this) {
-            viewModelFactory.build(networkReceiver.networkState)
-        }
-    }
+    private val viewModel: MainFragmentViewModel by viewModels()
 
     // Rx
     private val compositeDisposable = CompositeDisposable()
@@ -221,15 +206,16 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (savedInstanceState != null) {
+            // IMPORTANT: here is deprecated method used due to error occurring in non-deprecated one
             val cameraPosition: CameraPosition? =
-                savedInstanceState.getSerializable(
-                    "CAMERA_POSITION",
-                    CameraPositionDto::class.java
-                )?.toCameraPosition()
+                (savedInstanceState.getParcelable(
+                    "CAMERA_POSITION"
+                ) as CameraPositionDto?)?.toCameraPosition()
             if (cameraPosition != null) {
                 binding.mapView.map.move(cameraPosition)
                 viewModel.updateVisibleRegion(binding.mapView.map.visibleRegion)
+                isInitializedCamera.set(true)
                 Log.d(TAG, "onViewStateRestored: $cameraPosition")
             }
         }
@@ -257,20 +243,18 @@ class MainFragment : Fragment(), MainSection {
     override fun onResume() {
         super.onResume()
         viewModel.startPolling()
-        requireActivity().registerReceiver(networkReceiver, IntentFilter(Actions.CONNECTIVITY_CHANGE))
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.stopPolling()
-        requireActivity().unregisterReceiver(networkReceiver)
-        networkReceiver.stop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val cameraPosition = CameraPositionDto.fromCameraPosition(binding.mapView.map.cameraPosition)
-        outState.putSerializable("CAMERA_POSITION", cameraPosition)
+        val cameraPosition =
+            CameraPositionDto.fromCameraPosition(binding.mapView.map.cameraPosition)
+        outState.putParcelable("CAMERA_POSITION", cameraPosition)
     }
 
     override fun onStop() {

@@ -16,11 +16,12 @@ import com.example.flocator.common.views.RetryImageButton
 
 class MarkPhotoCarouselAdapter(
     private val size: Int,
+    uris: List<String>,
     private val loadPhotoCallback: (uri: String) -> Unit,
     private val openPhotoPagerCallback: (position: Int) -> Unit
 ) :
     RecyclerView.Adapter<MarkPhotoCarouselAdapter.MarkPhotoCarouselViewHolder>() {
-    private var photosState: List<Pair<String, PhotoState>> = ArrayList()
+    private var photosState: List<Pair<String, PhotoState>> = uris.map { Pair(it, PhotoState.Loading) }
 
     inner class MarkPhotoCarouselViewHolder(view: View) : ViewHolder(view) {
         private val retryImageButton: RetryImageButton = view.findViewById(R.id.retry_image_button)
