@@ -22,6 +22,7 @@ import com.example.flocator.main.data.response.AddressResponse
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
+import com.example.flocator.settings.SettingsAPI
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
@@ -46,7 +47,8 @@ class MainRepository @Inject constructor(
     private val userLocationDataStore: DataStore<UserLocationPoint>,
     private val userDataStore: DataStore<UserData>,
     private val userInfoStore: DataStore<UserInfo>,
-    private val photoCacheManager: PhotoCacheManager
+    private val photoCacheManager: PhotoCacheManager,
+    private val settingsAPI: SettingsAPI
 ) {
     val restApi = RestApi()
     val cacheDatabase = CacheDatabase()
@@ -213,7 +215,7 @@ class MainRepository @Inject constructor(
 
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                clientAPI.changeAvatar(
+                settingsAPI.changeAvatar(
                     it.userId,
                     ava
                 )
@@ -224,7 +226,7 @@ class MainRepository @Inject constructor(
 
         fun changeCurrentUserBirthdate(date: Timestamp): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                clientAPI.setBirthDate(
+                settingsAPI.setBirthDate(
                     it.userId,
                     date
                 )
@@ -235,7 +237,7 @@ class MainRepository @Inject constructor(
 
         fun changeCurrentUserName(firstName: String, lastName: String): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                clientAPI.changeName(
+                settingsAPI.changeName(
                     it.userId,
                     firstName,
                     lastName
@@ -247,7 +249,7 @@ class MainRepository @Inject constructor(
 
         fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
-                clientAPI.changePassword(
+                settingsAPI.changePassword(
                     it.userId,
                     prevPass,
                     pass

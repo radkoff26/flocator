@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
 import com.example.flocator.common.connection.live_data.ConnectionLiveData
+import com.example.flocator.common.receivers.NetworkReceiver
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.FragmentNavigationUtils
@@ -34,6 +35,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SettingsFragment: Fragment(), SettingsSection {
     private val compositeDisposable = CompositeDisposable()
+    private val networkReceiver = NetworkReceiver()
 
     private lateinit var fragmentView: View
 
@@ -48,7 +50,7 @@ class SettingsFragment: Fragment(), SettingsSection {
             if (result != null) {
                 changeAvatar(result)
                 compositeDisposable.add(
-                    io.reactivex.Observable.create<Boolean> { emitter ->
+                    io.reactivex.Completable.create { emitter ->
                         val stream = context?.contentResolver?.openInputStream(result)!!
                         compositeDisposable.add(
                             mainRepository.restApi.changeCurrentUserAva(
@@ -66,12 +68,13 @@ class SettingsFragment: Fragment(), SettingsSection {
                                 .subscribe({}, {Log.e("Loading image from storage", "error", it)})
                         )
 
-                        emitter.onNext(true)
+                        emitter.onComplete()
                         stream.close()
                     }
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({}, {Log.e("Sending image", "error", it)})
+                        .doOnError { Log.e("Sending image", "error", it) }
+                        .subscribe()
                 )
             }
         }
@@ -89,12 +92,29 @@ class SettingsFragment: Fragment(), SettingsSection {
         val blacklistCnt = fragmentView.findViewById<TextView>(R.id.blacklist_cnt)
 
         compositeDisposable.add(
-            Single.concat(
-                mainRepository.userInfoCache.getUserInfo()
-                    .onErrorReturnItem(UserInfo.DEFAULT),
-                mainRepository.restApi.getCurrentUserInfo(ConnectionLiveData())
-                    .onErrorReturnItem(UserInfo.DEFAULT)
-            )
+            io.reactivex.Observable.create<UserInfo> {
+                    emitter ->
+                compositeDisposable.add(
+                    mainRepository.userInfoCache.getUserInfo()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            emitter.onNext(it)
+                        }, {
+                            Log.e("Getting UserInfo cache error", it.stackTraceToString(), it)
+                        })
+                )
+                compositeDisposable.add(
+                    mainRepository.restApi.getCurrentUserInfo(networkReceiver.networkState)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            emitter.onNext(it)
+                        }, {
+                            Log.e("Getting UserInfo network data error", it.stackTraceToString(), it)
+                        })
+                )
+            }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -225,9 +245,9 @@ class SettingsFragment: Fragment(), SettingsSection {
         return fragmentView
     }
 
-    override fun onDestroy() {
+    override fun onDestroyView() {
         compositeDisposable.dispose()
-        super.onDestroy()
+        super.onDestroyView()
     }
 
     private fun changeAvatar(uri: Uri) {

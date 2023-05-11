@@ -3,6 +3,7 @@ package com.example.flocator.di
 import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
+import com.example.flocator.settings.SettingsAPI
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -38,6 +39,10 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideClientAPI(retrofit: Retrofit): ClientAPI = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideSettingsAPI(retrofit: Retrofit): SettingsAPI = retrofit.create()
 
     @Provides
     @Singleton

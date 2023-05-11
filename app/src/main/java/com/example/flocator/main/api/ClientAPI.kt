@@ -46,30 +46,4 @@ interface ClientAPI {
     @POST("mark/unlike")
     fun unlikeMark(@Query("markId") markId: Long, @Query("userId") userId: Long): Completable
 
-    @POST("user/birthdate")
-    fun setBirthDate(
-        @Query("userId") userId: Long,
-        @Query("birthDate") birthDate: Timestamp
-    ): Single<Boolean>
-
-    @POST("user/name")
-    fun changeName(
-        @Query("userId") userId: Long,
-        @Query("firstName") firstName: String,
-        @Query("lastName") lastName: String
-    ): Single<Boolean>
-
-    @Multipart
-    @POST("user/avatar")
-    fun changeAvatar (
-        @Part("userId") userId: Long,
-        @Part photo: MultipartBody.Part
-    ): Single<Boolean>
-
-    @POST("user/changePassword")
-    fun changePassword(
-        @Query("userId") userId: Long,
-        @Query("previousPassword") previousPassword: String,
-        @Query("newPassword") newPassword: String
-    ): Single<Boolean>
 }

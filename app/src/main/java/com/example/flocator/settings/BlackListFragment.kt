@@ -9,7 +9,7 @@ import android.widget.FrameLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
-import com.example.flocator.settings.FriendViewUtilities.Companion.getNumOfColumns
+import com.example.flocator.settings.FriendViewUtilities.getNumOfColumns
 
 class BlackListFragment : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter

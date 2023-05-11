@@ -93,6 +93,11 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
         return fragmentView
     }
 
+    override fun onDestroyView() {
+        compositeDisposable.dispose()
+        super.onDestroyView()
+    }
+
     companion object {
         const val TAG = "Change pass fragment"
     }
