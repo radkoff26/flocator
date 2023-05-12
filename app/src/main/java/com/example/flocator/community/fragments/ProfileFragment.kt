@@ -5,201 +5,204 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.example.flocator.Application
 import com.example.flocator.R
+import com.example.flocator.common.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
-import com.example.flocator.community.adapters.PersonActionListener
 import com.example.flocator.community.adapters.PersonAdapter
 import com.example.flocator.community.api.UserApi
-import com.example.flocator.community.data_classes.Person
+import com.example.flocator.community.data_classes.FriendRequests
+import com.example.flocator.community.data_classes.Friends
+import com.example.flocator.community.data_classes.User
+import com.example.flocator.community.data_classes.UserExternal
+import com.example.flocator.community.view_models.ProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentCommunityBinding
-import com.example.flocator.common.utils.FragmentNavigationUtils
+import com.example.flocator.main.ui.main.MainFragment
 import com.google.gson.GsonBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.sql.Timestamp
 
+@AndroidEntryPoint
 class ProfileFragment : Fragment(), CommunitySection {
     private var _binding: FragmentCommunityBinding? = null
     private val binding: FragmentCommunityBinding
         get() = _binding!!
-    private lateinit var adapter: PersonAdapter
+    private val profileFragmentViewModel: ProfileFragmentViewModel by viewModels()
+    private lateinit var adapterForNewFriends: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
-    private val listenerNewFriends: PersonListener = { adapter.data = it }
-    private val listenerFriends: FriendListener = {
-        adapterForYourFriends.data =
-            it as MutableList<Person>
-    }
-    private val personService: PersonRepository
-        get() = (activity?.applicationContext as Application).personService
-    private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
-    private lateinit var friendsViewModel: FriendsViewModel
-    private lateinit var factoryNewFriendsViewModel: FriendsViewModelFactory
-    private lateinit var newFriendsViewModel: FriendsViewModel
-    private val userApi: UserApi by lazy {
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://kernelpunik.ru:8080/api/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        retrofit.create()
-    }
-
-
+    private var currentUser: User = User(1, "1", "1", "1",false,
+        Timestamp(System.currentTimeMillis()),ArrayList<FriendRequests>(),ArrayList<Friends>())
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(TAG, "onCreateView: ${requireActivity().supportFragmentManager.fragments}")
         _binding = FragmentCommunityBinding.inflate(inflater, container, false)
-        factoryFriendsViewModel = FriendsViewModelFactory(personService)
-        friendsViewModel = ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
-        friendsViewModel.getFriends()
-        friendsViewModel.friends.observe(viewLifecycleOwner) {
-            adapterForYourFriends = FriendAdapter(object : FriendActionListener {
-                override fun onPersonOpenProfile(person: Person) {
-                    openPersonProfile(person)
-                }
-            })
-            adapterForYourFriends.data = PersonRepository().getPersons() as MutableList<Person>
-            binding.yourFriendsRecyclerView.also {
-                it.layoutManager = LinearLayoutManager(activity)
-                it.setHasFixedSize(true)
-                it.adapter = adapterForYourFriends
+        profileFragmentViewModel.fetchUser()
+        adapterForNewFriends = PersonAdapter(object :
+            com.example.flocator.community.adapters.UserNewFriendActionListener {
+            override fun onPersonOpenProfile(user: FriendRequests) {
+                openPersonProfile(user)
             }
-            adapter = PersonAdapter(object : PersonActionListener {
-                override fun onPersonOpenProfile(person: Person){
-                    openPersonProfile(person)
-                }
-                override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
-                override fun onPersonAccept(person: Person) {
-                    val findingPerson = personService.acceptPerson(person)
-                    adapterForYourFriends.data.add(findingPerson)
-                    adapterForYourFriends.notifyDataSetChanged()
-                }
-            })
-            personService.addListener(listenerNewFriends)
-            adapter.data = PersonRepository().getPersons()
-            binding.newFriendsRecyclerView.also {
-                it.layoutManager = LinearLayoutManager(activity)
-                it.setHasFixedSize(true)
-                it.adapter = adapter
+
+            override fun onPersonAccept(user: FriendRequests) {
+                checkSizeNewFriendsList(profileFragmentViewModel.acceptPerson(user))
             }
-        }
-        /*factoryFriendsViewModel = FriendsViewModelFactory(personService)
-        friendsViewModel =
-            ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
-        friendsViewModel.getFriends()
-        friendsViewModel.friends.observe(viewLifecycleOwner) {
-            adapterForYourFriends = FriendAdapter(object : FriendActionListener {
-                override fun onPersonOpenProfile(person: Person) {
-                    openPersonProfile(person)
-                }
-            })
-            personService.addListener(listenerFriends)
-            //adapterForYourFriends.data = friendsViewModel.friends.value as MutableList<Person>
-            adapterForYourFriends.data = PersonRepository().getPersons() as MutableList<Person>
-            binding.yourFriendsRecyclerView.also {
-                it.layoutManager = LinearLayoutManager(activity)
-                it.setHasFixedSize(true)
-                it.adapter = adapterForYourFriends
+
+            override fun onPersonCancel(user: FriendRequests) {
+                checkSizeNewFriendsList(profileFragmentViewModel.cancelPerson(user))
             }
-        }
-
-        factoryNewFriendsViewModel = FriendsViewModelFactory(personService)
-        newFriendsViewModel =
-            ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
-        newFriendsViewModel.getFriends()
-        newFriendsViewModel.friends.observe(viewLifecycleOwner){
-            adapter = PersonAdapter(object : PersonActionListener {
-                override fun onPersonOpenProfile(person: Person) {
-                    openPersonProfile(person)
-                }
-
-                override fun onPersonCancel(person: Person) = personService.cancelPerson(person)
-                override fun onPersonAccept(person: Person) {
-                    val findingPerson = personService.acceptPerson(person)
-                    adapterForYourFriends.data.add(findingPerson)
-                    //adapterForYourFriends.notifyDataSetChanged()
-                }
-            })
-            personService.addListener(listenerNewFriends)
-            //adapter.data = friendsViewModel.friends.value as MutableList<Person>
-            adapter.data = PersonRepository().getPersons() as MutableList<Person>
-            binding.newFriendsRecyclerView.also {
-                it.layoutManager = LinearLayoutManager(activity)
-                it.setHasFixedSize(true)
-                it.adapter = adapter
+        })
+        adapterForYourFriends = FriendAdapter(object : FriendActionListener {
+            override fun onPersonOpenProfile(user: Friends) {
+                openPersonProfile(user)
             }
-        }*/
+        })
 
-
-        userApi.getUser(4)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    binding.nameAndSurname.text = it.firstName + " " + it.lastName
-                    context?.let { it1 ->
-                        Glide.with(it1).load(it.avatarUrl)
-                            .circleCrop()
-                            .error(R.drawable.base_avatar_image)
-                            .placeholder(R.drawable.base_avatar_image).into(binding.profileImage)
+        profileFragmentViewModel.newFriendsLiveData.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                adapterForNewFriends.data = it
+                val size = adapterForNewFriends.data.size
+                if(size != 0){
+                    binding.friendRequests.text = "Заявки в друзья"
+                    binding.friendRequests.setTextColor(resources.getColor(R.color.black))
+                }
+                if(size <= 2){
+                    binding.buttonViewAll.visibility = View.GONE
+                    binding.buttonNotViewAll.visibility = View.GONE
+                    if(size == 0){
+                        binding.friendRequests.text = "Новых заявок пока нет!"
+                        binding.friendRequests.setTextColor(resources.getColor(R.color.font))
                     }
-                },
-                {
-                    Log.e(TAG, it.message, it)
-                })
+                }
+                if(size > 2){
+                    binding.friendRequests.text = "Заявки в друзья"
+                    binding.friendRequests.setTextColor(resources.getColor(R.color.black))
+                    binding.buttonViewAll.visibility = View.VISIBLE
+                    binding.buttonNotViewAll.visibility = View.GONE
+                }
+            }
+        })
+        profileFragmentViewModel.friendsLiveData.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                adapterForYourFriends.data = it
+            }
+        })
+        profileFragmentViewModel.currentUserLiveData.observe(viewLifecycleOwner, Observer {
+            currentUser = it
+            binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
+            setAvatar(currentUser.avatarUri!!)
+        })
 
 
+
+        binding.newFriendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.newFriendsRecyclerView.adapter = adapterForNewFriends
+
+        binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.yourFriendsRecyclerView.adapter = adapterForYourFriends
+
+        if(adapterForNewFriends.getAllCount() <= 2){
+            binding.buttonViewAll.visibility = View.GONE
+            binding.buttonNotViewAll.visibility = View.GONE
+            if(adapterForNewFriends.getAllCount() == 0){
+                binding.friendRequests.text = "Новых заявок пока нет!"
+                binding.friendRequests.setTextColor(resources.getColor(R.color.font))
+            }
+        }
         binding.buttonViewAll.setOnClickListener {
-            adapter.isOpen = true
+            adapterForNewFriends.isOpen = true
             binding.buttonViewAll.visibility = View.INVISIBLE
             binding.buttonNotViewAll.visibility = View.VISIBLE
         }
 
         binding.buttonNotViewAll.setOnClickListener {
-            adapter.isOpen = false
+            adapterForNewFriends.isOpen = false
             binding.buttonViewAll.visibility = View.VISIBLE
             binding.buttonNotViewAll.visibility = View.INVISIBLE
         }
 
         binding.addFriend.setOnClickListener {
+            val args: Bundle = Bundle()
+            args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
             val addFriendByLinkFragment = AddFriendByLinkFragment()
-            addFriendByLinkFragment.show(requireActivity().supportFragmentManager, AddFriendByLinkFragment.TAG)
+            addFriendByLinkFragment.arguments = args
+            addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
         }
         binding.buttonBack.setOnClickListener {
-            FragmentNavigationUtils.closeLastFragment(
+            FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
-                requireActivity()
+                MainFragment()
             )
         }
+
         return binding.root
     }
 
-    fun openPersonProfile(person: Person) {
+    fun openPersonProfile(user: Friends) {
         val args: Bundle = Bundle()
-        args.putString("nameAndSurnamePerson", person.nameAndSurname)
-        args.putString("personPhoto", person.photo)
+        args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
+        user.userId?.let { args.putLong("userId", it.toLong()) }
+        args.putString("nameAndSurnamePerson", user.firstName + " " + user.lastName)
+        args.putString("personPhoto", user.avatarUri)
         val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        FragmentNavigationUtils.openFragment(
-            requireActivity().supportFragmentManager,
-            profilePersonFragment
-        )
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.community_fragment, profilePersonFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    fun openPersonProfile(user: FriendRequests) {
+        val args: Bundle = Bundle()
+        args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
+        user.userId?.let { args.putLong("userId", it.toLong()) }
+        args.putString("nameAndSurnamePerson", user.firstName + " " + user.lastName)
+        args.putString("personPhoto", user.avatarUri)
+        val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
+        profilePersonFragment.arguments = args
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.community_fragment, profilePersonFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    private fun checkSizeNewFriendsList(size: Int) {
+        if (size <= 2) {
+            binding.buttonViewAll.visibility = View.GONE
+            binding.buttonNotViewAll.visibility = View.GONE
+            if (size == 0) {
+                binding.friendRequests.text = "Новых заявок пока нет!"
+                binding.friendRequests.setTextColor(resources.getColor(R.color.font))
+            }
+        }
+    }
+
+    private fun setAvatar(uri: String) {
+        LoadUtils.loadPictureFromUrl(uri, 100)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    binding.profileImage.setImageBitmap(it)
+                },
+                {
+                    Log.d("TestLog", "no")
+                }
+            )
     }
 
     override fun onDestroyView() {
@@ -210,5 +213,4 @@ class ProfileFragment : Fragment(), CommunitySection {
     companion object {
         const val TAG = "Profile Fragment"
     }
-
 }

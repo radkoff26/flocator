@@ -3,28 +3,23 @@ package com.example.flocator.community.data_classes
 import com.google.gson.annotations.SerializedName
 import java.sql.Timestamp
 
-data class User(
-    @SerializedName("id")
-    val id: Long?,
-
+data class UserExternal(
+    @SerializedName("userId")
+    var userId: Long?,
     @SerializedName("firstName")
-    val firstName: String?,
-
+    var firstName: String?,
     @SerializedName("lastName")
-    val lastName: String?,
-
+    var lastName: String?,
     @SerializedName("avatarUri")
-    val avatarUri: String?,
-
+    var avatarUri: String?,
     @SerializedName("isOnline")
     var isOnline: Boolean?,
-
     @SerializedName("lastOnline")
     var lastOnline: Timestamp?,
-
-    @SerializedName("friendRequests")
-    var friendRequests: ArrayList<FriendRequests> = arrayListOf(),
-
     @SerializedName("friends")
-    var friends: ArrayList<Friends> = arrayListOf()
+    var friends: ArrayList<UserExternalFriends> = arrayListOf(),
+    @SerializedName("isBlocked")
+    var isBlocked: Boolean?,
+    @SerializedName("isFriend")
+    var isFriend: Boolean?
 )

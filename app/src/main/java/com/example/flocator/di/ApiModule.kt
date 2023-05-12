@@ -1,6 +1,7 @@
 package com.example.flocator.di
 
 import com.example.flocator.common.config.Constants
+import com.example.flocator.community.api.UserApi
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.settings.SettingsAPI
@@ -58,4 +59,11 @@ object ApiModule {
         ))
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build().create()
+<<<<<<< HEAD
+
+    @Provides
+    @Singleton
+    fun provideUserAPI(retrofit: Retrofit): UserApi = retrofit.create()
+=======
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
 }

@@ -1,7 +1,8 @@
 package com.example.flocator.community.adapters
 
-import com.example.flocator.community.data_classes.Person
+
+import com.example.flocator.community.data_classes.Friends
 
 interface FriendActionListener {
-    fun onPersonOpenProfile(person: Person)
+    fun onPersonOpenProfile(user: Friends)
 }

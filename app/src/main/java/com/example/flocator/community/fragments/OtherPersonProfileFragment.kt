@@ -1,36 +1,55 @@
 package com.example.flocator.community.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.example.flocator.Application
 import com.example.flocator.R
-import com.example.flocator.community.CommunitySection
+import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.utils.LoadUtils
+import com.example.flocator.community.adapters.ExternalFriendActionListener
+import com.example.flocator.community.adapters.ExternalFriendAdapter
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
-import com.example.flocator.community.data_classes.Person
+import com.example.flocator.community.data_classes.*
+import com.example.flocator.community.view_models.OtherPersonProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentPersonProfileBinding
-import com.example.flocator.common.utils.FragmentNavigationUtils
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import java.sql.Timestamp
+import javax.inject.Inject
+import kotlin.properties.Delegates
 
-class OtherPersonProfileFragment() : Fragment(), CommunitySection {
+@AndroidEntryPoint
+class OtherPersonProfileFragment() : Fragment() {
     private var _binding: FragmentPersonProfileBinding? = null
     private val binding: FragmentPersonProfileBinding
         get() = _binding!!
-    private lateinit var adapterFriends: FriendAdapter
-    private lateinit var factoryFriendsViewModel: FriendsViewModelFactory
-    private lateinit var friendsViewModel: FriendsViewModel
-    private val personService: PersonRepository
-        get() = (activity?.applicationContext as Application).personService
+
+    @Inject
+    lateinit var repository: MainRepository
+
+    private lateinit var otherPersonProfileFragmentViewModel: OtherPersonProfileFragmentViewModel
     private var btnAddFriendIsActive = false
+    private lateinit var adapterForFriends: ExternalFriendAdapter
+    private var currentUserId by Delegates.notNull<Long>()
+    private var currentUser: UserExternal = UserExternal(
+        -1, "", "", "", false,
+        Timestamp(System.currentTimeMillis()), ArrayList<UserExternalFriends>(), false, false
+    )
+    private var thisUserId by Delegates.notNull<Long>()
 
     object Constants {
         const val NAME_AND_SURNAME = "nameAndSurnamePerson"
         const val PERSON_PHOTO = "personPhoto"
+        const val USER_ID = "userId"
+        const val CURRENT_USER_ID = "currentUserId"
     }
 
 
@@ -40,49 +59,58 @@ class OtherPersonProfileFragment() : Fragment(), CommunitySection {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
-        factoryFriendsViewModel = FriendsViewModelFactory(personService)
-        friendsViewModel =
-            ViewModelProvider(this, factoryFriendsViewModel)[FriendsViewModel::class.java]
+        otherPersonProfileFragmentViewModel = OtherPersonProfileFragmentViewModel(repository)
         val args: Bundle? = arguments
         if (args != null) {
-            binding.nameAndSurname.text = args.getString(Constants.NAME_AND_SURNAME)
+            currentUserId = args.getLong(Constants.CURRENT_USER_ID)
+            otherPersonProfileFragmentViewModel.fetchUser(currentUserId, args.getLong(Constants.USER_ID))
         }
+        adapterForFriends = ExternalFriendAdapter(object : ExternalFriendActionListener {
+            override fun onPersonOpenProfile(user: UserExternalFriends) {
+                openPersonProfile(user)
+            }
+        })
+        otherPersonProfileFragmentViewModel.friendsLiveData.observe(viewLifecycleOwner, Observer {
+            if (it != null) {
+                adapterForFriends.data = it
+            }
+        })
+        binding.friendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.friendsRecyclerView.adapter = adapterForFriends
 
-        if (args != null) {
-            context?.let {
-                Glide.with(it).load(args.getString(Constants.PERSON_PHOTO))
-                    .circleCrop()
-                    .error(R.drawable.base_avatar_image)
-                    .placeholder(R.drawable.base_avatar_image).into(binding.profileImage)
+        otherPersonProfileFragmentViewModel.currentUserLiveData.observe(viewLifecycleOwner, Observer {
+            currentUser = it
+            binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
+            currentUser.avatarUri?.let { it1 -> setAvatar(it1) }
+            if(currentUser.isFriend == true){
+                binding.addPersonToFriend.text = "Удалить из друзей"
+                binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
+                binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
             }
-        }
-        friendsViewModel.getFriends()
-        friendsViewModel.friends.observe(viewLifecycleOwner) {
-            adapterFriends = FriendAdapter(object : FriendActionListener {
-                override fun onPersonOpenProfile(person: Person) {
-                    openPersonProfile(person)
-                }
-            })
-            //adapterFriends.data = friendsViewModel.friends.value as MutableList<Person>
-            adapterFriends.data = PersonRepository().getPersons() as MutableList<Person>
-            binding.friendsRecyclerView.also {
-                it.layoutManager = LinearLayoutManager(activity)
-                it.setHasFixedSize(true)
-                it.adapter = adapterFriends
-            }
-        }
+            thisUserId = currentUser.userId!!
+        })
+
         binding.buttonBack.setOnClickListener {
-            FragmentNavigationUtils.closeLastFragment(
-                requireActivity().supportFragmentManager,
-                requireActivity()
-            )
+            if (parentFragmentManager.backStackEntryCount > 0) {
+                parentFragmentManager.popBackStack()
+            }
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (parentFragmentManager.backStackEntryCount > 0) {
+                        parentFragmentManager.popBackStack()
+                    }
+                }
+            }
+        )
         binding.addPersonToFriend.setOnClickListener {
             if (!btnAddFriendIsActive) {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                 binding.addPersonToFriend.text = "Отменить заявку"
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 btnAddFriendIsActive = true
+                otherPersonProfileFragmentViewModel.addOtherUserToFriend(currentUserId, thisUserId)
             } else {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
                 binding.addPersonToFriend.text = "Добавить в друзья"
@@ -99,15 +127,40 @@ class OtherPersonProfileFragment() : Fragment(), CommunitySection {
         _binding = null
     }
 
-    fun openPersonProfile(person: Person) {
+    fun openPersonProfile(user: UserExternalFriends) {
         val args: Bundle = Bundle()
-        args.putString("nameAndSurnamePerson", person.nameAndSurname)
-        args.putString("personPhoto", person.photo)
-        val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
-        profilePersonFragment.arguments = args
-        FragmentNavigationUtils.openFragment(
-            requireActivity().supportFragmentManager,
-            profilePersonFragment
-        )
+        if ((user.userId?.toLong() ?: 0) == currentUserId) {
+            val profileFragment = ProfileFragment()
+            val transaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.person_profile, profileFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        } else {
+            args.putLong(Constants.CURRENT_USER_ID, currentUserId)
+            user.userId?.toLong()?.let { args.putLong(Constants.USER_ID, it) }
+            args.putString(Constants.NAME_AND_SURNAME, user.firstName + " " + user.lastName)
+            args.putString(Constants.PERSON_PHOTO, user.avatarUri)
+            val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
+            profilePersonFragment.arguments = args
+            val transaction = childFragmentManager.beginTransaction()
+            transaction.replace(R.id.person_profile, profilePersonFragment)
+            transaction.addToBackStack(null)
+            transaction.commit()
+        }
     }
+
+    private fun setAvatar(uri: String) {
+        LoadUtils.loadPictureFromUrl(uri, 100)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    binding.profileImage.setImageBitmap(it)
+                },
+                {
+                    Log.d("TestLog", "no")
+                }
+            )
+    }
+
 }
