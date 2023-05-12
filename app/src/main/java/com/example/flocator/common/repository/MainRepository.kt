@@ -216,6 +216,7 @@ class MainRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
         }
 
+<<<<<<< HEAD
         fun addFriendByLogin(userId: Long, login: String): Completable {
             return userApi.addNewFriendByLogin(userId, login).subscribeOn(Schedulers.io())
         }
@@ -230,6 +231,8 @@ class MainRepository @Inject constructor(
 
 
 
+=======
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
                 settingsAPI.changeAvatar(
@@ -274,7 +277,10 @@ class MainRepository @Inject constructor(
                     .observeOn(Schedulers.io())
             }
                 .observeOn(Schedulers.io())
+<<<<<<< HEAD
 
+=======
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
         }
     }
 

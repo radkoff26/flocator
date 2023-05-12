@@ -59,8 +59,11 @@ object ApiModule {
         ))
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build().create()
+<<<<<<< HEAD
 
     @Provides
     @Singleton
     fun provideUserAPI(retrofit: Retrofit): UserApi = retrofit.create()
+=======
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
 }
