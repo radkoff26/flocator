@@ -1,133 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/coordinator"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     tools:context=".main.ui.add_mark.AddMarkFragment">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/bs"
-        style="@style/Widget.Material3.BottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
-        android:orientation="vertical"
-        android:padding="32dp"
-        app:behavior_skipCollapsed="true"
+        android:layout_height="match_parent"
+        android:paddingBottom="32dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-            android:id="@+id/drag_handle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
         <LinearLayout
-            android:id="@+id/content"
+            android:id="@+id/linear_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="32dp"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                android:text="@string/mark"
-                android:textColor="@color/tint"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/address"
+            <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                android:id="@+id/drag_handle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:gravity="center"
-                android:textColor="@color/font"
-                android:textSize="16sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/photo_carousel"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginBottom="24dp"
-                android:orientation="horizontal"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-            <TextView
-                android:id="@+id/mark_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_marginBottom="24dp"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/drag_handle_image" />
 
             <LinearLayout
-                android:id="@+id/info_layout"
+                android:id="@+id/content"
                 android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="24dp">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/user_image"/>
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/user_name"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:textSize="16sp"
-                    android:layout_marginStart="8dp"/>
-
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/like_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/unliked_image"
-                    android:background="@color/transparent"/>
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"
+                    android:text="@string/mark"
+                    android:textColor="@color/tint"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/like_counter"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textSize="16sp"/>
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"
+                    android:textColor="@color/font"
+                    android:textSize="16sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/photo_carousel"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_marginBottom="24dp"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                <TextView
+                    android:id="@+id/mark_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:id="@+id/info_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/user_image" />
+
+                    <TextView
+                        android:id="@+id/user_name"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:textSize="16sp" />
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/like_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@color/transparent"
+                        android:src="@drawable/unliked_image" />
+
+                    <TextView
+                        android:id="@+id/like_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/close_fragment_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:backgroundTint="@color/additional"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/exit"
+                    android:textColor="#000"
+                    app:cornerRadius="10dp"
+                    app:rippleColor="#5757CD" />
 
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/close_fragment_btn"
+            <com.example.flocator.common.views.LoaderImageView
+                android:id="@+id/loader"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/additional"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:text="@string/exit"
-                android:textColor="#000"
-                app:cornerRadius="10dp"
-                app:rippleColor="#5757CD" />
+                android:layout_height="wrap_content" />
+
+            <com.example.flocator.common.views.RetryImageButton
+                android:id="@+id/retry_fragment_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
-        <com.example.flocator.common.views.LoaderImageView
-            android:id="@+id/loader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <com.example.flocator.common.views.RetryImageButton
-            android:id="@+id/retry_fragment_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -6,6 +6,9 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 open class ConnectionLiveData : LiveData<Boolean>() {
+    init {
+        value = false
+    }
 
     fun postObserveForever(observer: Observer<Boolean>) {
         Completable.create {

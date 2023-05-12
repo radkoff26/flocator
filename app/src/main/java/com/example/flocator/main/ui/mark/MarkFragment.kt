@@ -3,17 +3,22 @@ package com.example.flocator.main.ui.mark
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
+import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
+import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
@@ -21,18 +26,17 @@ import com.example.flocator.databinding.FragmentMarkBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
-import com.example.flocator.main.ui.mark.data.CarouselPhotoState
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
 import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.main.ui.photo.PhotoPagerFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MarkFragment : BottomSheetDialogFragment(), MainSection {
+class MarkFragment : ResponsiveBottomSheetDialogFragment(
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+), MainSection {
     private var _binding: FragmentMarkBinding? = null
     private val binding
         get() = _binding!!
@@ -42,45 +46,43 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
     @Inject
     lateinit var repository: MainRepository
 
-    private lateinit var markFragmentViewModel: MarkFragmentViewModel
+    private val viewModel: MarkFragmentViewModel by viewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
-
-        dialog.setContentView(R.layout.fragment_mark)
-
-        dialog.setOnShowListener {
-            val view = (it as BottomSheetDialog).findViewById<LinearLayout>(R.id.bs)
-                ?: return@setOnShowListener
-
-            expandBottomSheet(view)
+        return super.onCreateDialog(savedInstanceState).apply {
+            setContentView(R.layout.fragment_mark)
         }
-
-        return dialog
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val view = inflater.inflate(R.layout.fragment_mark, container, false)
+
+        _binding = FragmentMarkBinding.bind(view)
+
         val markId =
             requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.MARK_ID)
         val userId =
             requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.USER_ID)
-        markFragmentViewModel = MarkFragmentViewModel(
-            repository,
-            markId,
-            userId
-        )
-        return inflater.inflate(R.layout.fragment_mark, container, false)
+
+        viewModel.initialize(markId, userId)
+
+        return view
     }
+
+    override fun getCoordinatorLayout(): CoordinatorLayout = binding.coordinator
+
+    override fun getBottomSheetScrollView(): NestedScrollView = binding.bs
+
+    override fun getInnerLayout(): ViewGroup = binding.linearContainer
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentMarkBinding.bind(view)
 
         binding.likeBtn.setOnClickListener {
-            markFragmentViewModel.toggleLike()
+            viewModel.toggleLike()
         }
 
         binding.closeFragmentBtn.setOnClickListener {
@@ -88,13 +90,13 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         }
 
         binding.retryFragmentButton.setOnRetryCallback {
-            markFragmentViewModel.loadData()
+            viewModel.loadData()
         }
 
-        markFragmentViewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
-        markFragmentViewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
-        markFragmentViewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
-        markFragmentViewModel.markFragmentStateLiveData.observe(
+        viewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
+        viewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
+        viewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onPhotosUpdated)
+        viewModel.markFragmentStateLiveData.observe(
             viewLifecycleOwner,
             this::onUpdateFragmentState
         )
@@ -105,21 +107,20 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         _binding = null
     }
 
+    private fun onPhotosUpdated(value: LruCache<String, PhotoState>) {
+        carouselAdapter?.updatePhotos(value.snapshot())
+    }
+
     private fun openPhotoPager(position: Int) {
         val photoPagerFragment = PhotoPagerFragment()
         val bundle = Bundle()
         bundle.putInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION, position)
         bundle.putStringArrayList(
             BundleArgumentsContraction.PhotoPagerFragment.URI_LIST,
-            ArrayList(markFragmentViewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
+            ArrayList(viewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
         )
         photoPagerFragment.arguments = bundle
         photoPagerFragment.show(requireActivity().supportFragmentManager, TAG)
-    }
-
-    private fun expandBottomSheet(bottomSheetView: View) {
-        val behavior = BottomSheetBehavior.from(bottomSheetView)
-        behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     private fun onUpdateFragmentState(value: MarkFragmentState) {
@@ -135,6 +136,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.retryFragmentButton.visibility = GONE
         binding.loader.visibility = VISIBLE
         binding.loader.startAnimation()
+        layoutBottomSheet()
     }
 
     private fun setLoadedState() {
@@ -142,6 +144,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.retryFragmentButton.visibility = GONE
         binding.loader.visibility = GONE
         binding.loader.stopAnimation()
+        layoutBottomSheet()
     }
 
     private fun setFailureState() {
@@ -149,17 +152,11 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
         binding.retryFragmentButton.visibility = VISIBLE
         binding.loader.visibility = GONE
         binding.loader.stopAnimation()
+        layoutBottomSheet()
     }
 
-    private fun loadPhoto(position: Int) {
-        markFragmentViewModel.loadPhotoByPosition(position)
-    }
-
-    private fun onUpdatePhotos(value: List<CarouselPhotoState>?) {
-        if (value == null) {
-            return
-        }
-        carouselAdapter?.updatePhotos(value)
+    private fun loadPhoto(uri: String) {
+        viewModel.loadPhotoByUri(uri)
     }
 
     private fun onUpdateMarkData(value: MarkWithPhotos?) {
@@ -171,7 +168,12 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
 
         if (carouselAdapter == null) {
             carouselAdapter =
-                MarkPhotoCarouselAdapter(value.photos.size, this::loadPhoto, this::openPhotoPager)
+                MarkPhotoCarouselAdapter(
+                    value.photos.size,
+                    value.photos.map(MarkPhoto::uri),
+                    this::loadPhoto,
+                    this::openPhotoPager
+                )
             binding.photoCarousel.adapter = carouselAdapter
             val itemDecoration = DividerItemDecoration(requireContext(), RecyclerView.HORIZONTAL)
             itemDecoration.setDrawable(
@@ -181,6 +183,10 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
                 )!!
             )
             binding.photoCarousel.addItemDecoration(itemDecoration)
+            val photos = viewModel.photosStateLiveData.value
+            if (photos != null && photos.size() == value.photos.size) {
+                carouselAdapter!!.updatePhotos(photos.snapshot())
+            }
         }
 
         if (value.mark.hasUserLiked) {
@@ -214,5 +220,7 @@ class MarkFragment : BottomSheetDialogFragment(), MainSection {
 
     companion object {
         const val TAG = "Mark Fragment"
+        const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
+        const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
     }
 }

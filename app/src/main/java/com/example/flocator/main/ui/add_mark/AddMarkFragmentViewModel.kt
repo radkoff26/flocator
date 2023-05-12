@@ -68,7 +68,7 @@ class AddMarkFragmentViewModel @Inject constructor(
         )
     }
 
-    fun updateLiveData(list: List<Uri>) {
+    fun updatePhotosLiveData(list: List<Uri>) {
         if (_carouselLiveData.value == null || _carouselLiveData.value!!.isEmpty()) {
             _carouselLiveData.value = list.map { CarouselItemState(it, false) }
             return
