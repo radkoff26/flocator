@@ -2,6 +2,7 @@ package com.example.flocator.main.ui.main.views
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -65,6 +66,8 @@ class FriendMapView @JvmOverloads constructor(
             )
         )
         userNameTextView.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
+        userNameTextView.maxLines = 1
+        userNameTextView.ellipsize = TextUtils.TruncateAt.END
 
         addView(userNameTextView)
     }

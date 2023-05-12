@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.cache.runtime.PhotoState
-import com.example.flocator.common.connection.live_data.ConnectionLiveData
+import com.example.flocator.common.exceptions.LostConnectionException
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
@@ -20,20 +20,16 @@ import com.example.flocator.main.utils.MarksDiffUtils
 import com.example.flocator.main.utils.MarksUtils
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.VisibleRegion
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
 @Suppress("UNCHECKED_CAST")
-class MainFragmentViewModel @AssistedInject constructor(
-    private val repository: MainRepository,
-    @Assisted private val connectionLiveData: ConnectionLiveData
+class MainFragmentViewModel @Inject constructor(
+    private val repository: MainRepository
 ) : ViewModel() {
     val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
 
@@ -74,7 +70,7 @@ class MainFragmentViewModel @AssistedInject constructor(
     private fun initialFetch() {
         val userId = userInfo!!.userId
         compositeDisposable.addAll(
-            repository.restApi.getAllFriendsOfUser(userId, connectionLiveData)
+            repository.restApi.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -84,7 +80,7 @@ class MainFragmentViewModel @AssistedInject constructor(
                         Log.e(TAG, "Initialization: marks loading failed!", it)
                     }
                 ),
-            repository.restApi.getMarksForUser(userId, connectionLiveData)
+            repository.restApi.getMarksForUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -177,8 +173,11 @@ class MainFragmentViewModel @AssistedInject constructor(
     fun requestInitialLoading() {
         retrieveDataFromCache()
         compositeDisposable.add(
-            repository.restApi.getCurrentUserInfo(connectionLiveData)
+            repository.restApi.getCurrentUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
+                .retry(TIMES_TO_RETRY_INITIAL_FETCHING.toLong()) { throwable ->
+                    throwable is LostConnectionException
+                }
                 .subscribe(
                     {
                         _userInfo = it
@@ -203,20 +202,17 @@ class MainFragmentViewModel @AssistedInject constructor(
         compositeDisposable.add(
             repository.restApi.postUserLocation(
                 _userInfo!!.userId,
-                _userLocationLiveData.value!!,
-                connectionLiveData
+                _userLocationLiveData.value!!
             )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_LOCATION_POST.toLong())
-                .subscribe(
-                    {
-
-                    },
-                    {
-                        Log.e(TAG, "postLocation: error", it)
-                    }
-                )
+                .retry(TIMES_TO_RETRY_LOCATION_POST.toLong()) {
+                    it is LostConnectionException
+                }
+                .doOnError {
+                    Log.e(TAG, "postLocation: error", it)
+                }
+                .subscribe()
         )
     }
 
@@ -254,14 +250,12 @@ class MainFragmentViewModel @AssistedInject constructor(
             setCameraPoint(point)
         }
         _userLocationLiveData.value = point
-        CoroutineScope(Dispatchers.IO).launch {
-            repository.locationCache.updateUserLocationData(
-                UserLocationPoint(
-                    point.latitude,
-                    point.longitude
-                )
+        repository.locationCache.updateUserLocationData(
+            UserLocationPoint(
+                point.latitude,
+                point.longitude
             )
-        }
+        )
     }
 
     fun setCameraFollowOnFriendMark(friendId: Long) {
@@ -333,20 +327,19 @@ class MainFragmentViewModel @AssistedInject constructor(
 
     private fun fetchFriends() {
         if (userInfo == null) {
-            Log.i(TAG, "POST_DELAYED_ON_USER_ID_NULL")
             friendsHandler.postDelayed(this::fetchFriends, 5000)
             return
         }
         compositeDisposable.add(
-            repository.restApi.getAllFriendsOfUser(userInfo!!.userId, connectionLiveData)
+            repository.restApi.getAllFriendsOfUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_FRIENDS_FETCHING.toLong())
+                .retry(TIMES_TO_RETRY_FRIENDS_FETCHING.toLong()) {
+                    it is LostConnectionException
+                }
                 .subscribe(
                     {
-                        Log.i(TAG, "fetchFriends: fetched!")
                         updateFriends(it)
-                        Log.i(TAG, "POST_DELAYED_ON_SUCCESS")
                         friendsHandler.postDelayed(this::fetchFriends, 5000)
                     },
                     {
@@ -363,10 +356,12 @@ class MainFragmentViewModel @AssistedInject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.getMarksForUser(userInfo!!.userId, connectionLiveData)
+            repository.restApi.getMarksForUser(userInfo!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_MARKS_FETCHING.toLong())
+                .retry(TIMES_TO_RETRY_MARKS_FETCHING.toLong()) {
+                    it is LostConnectionException
+                }
                 .subscribe(
                     {
                         updateMarks(it)
@@ -406,16 +401,12 @@ class MainFragmentViewModel @AssistedInject constructor(
         _cameraStatusLiveData.value = cameraStatus
     }
 
-    @AssistedFactory
-    interface Factory {
-        fun build(connectionLiveData: ConnectionLiveData): MainFragmentViewModel
-    }
-
     companion object {
         const val TAG = "Main Fragment View Model"
         const val COMPRESSION_FACTOR = 20
         const val TIMES_TO_RETRY_LOCATION_POST = 5
         const val TIMES_TO_RETRY_FRIENDS_FETCHING = 10
         const val TIMES_TO_RETRY_MARKS_FETCHING = 7
+        const val TIMES_TO_RETRY_INITIAL_FETCHING = 5
     }
 }
