@@ -8,9 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.widget.NestedScrollView
 import com.example.flocator.R
+import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.main.api.ClientAPI
+import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -21,19 +25,37 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
+class ChangePasswordFragment :
+    ResponsiveBottomSheetDialogFragment(
+        AddMarkFragment.BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+        AddMarkFragment.BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+    ),
+    SettingsSection {
     @Inject
     lateinit var clientAPI: ClientAPI
     @Inject
     lateinit var mainRepository: MainRepository
 
+    private lateinit var fragmentView: View
     val compositeDisposable = CompositeDisposable()
+    override fun getCoordinatorLayout(): CoordinatorLayout {
+        return fragmentView.findViewById(R.id.coordinator)
+    }
+
+    override fun getBottomSheetScrollView(): NestedScrollView {
+        return fragmentView.findViewById(R.id.bs)
+    }
+
+    override fun getInnerLayout(): ViewGroup {
+        return fragmentView.findViewById(R.id.content)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragmentView = inflater.inflate(R.layout.fragment_change_password, container, false)
+        fragmentView = inflater.inflate(R.layout.fragment_change_password, container, false)
         val confirmButton = fragmentView.findViewById<MaterialButton>(R.id.change_pass_confirm_button)
         val closeButton = fragmentView.findViewById<FrameLayout>(R.id.change_password_close_button)
         val messageField = fragmentView.findViewById<TextView>(R.id.change_pass_message)
