@@ -12,9 +12,9 @@ import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.storage.store.point.UserLocationPoint
 import com.example.flocator.common.storage.store.user.data.UserData
-import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
@@ -22,6 +22,7 @@ import com.example.flocator.main.data.response.AddressResponse
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
+import com.example.flocator.settings.SettingsAPI
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import java.sql.Timestamp
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,6 +48,7 @@ class MainRepository @Inject constructor(
     private val userDataStore: DataStore<UserData>,
     private val userInfoStore: DataStore<UserInfo>,
     private val photoCacheManager: PhotoCacheManager,
+    private val settingsAPI: SettingsAPI,
     private val connectionLiveData: ConnectionLiveData
 ) {
     val restApi = RestApi()
@@ -205,12 +208,56 @@ class MainRepository @Inject constructor(
         fun getCurrentUserInfo(): Single<UserInfo> {
             return userDataCache.getUserData()
                 .flatMap {
-                    ConnectionWrapper.of(
-                        getUser(it.userId),
-                        connectionLiveData
-                    ).connect()
+                    getUser(it.userId)
+                        .subscribeOn(Schedulers.io())
                 }
                 .subscribeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                settingsAPI.changeAvatar(
+                    it.userId,
+                    ava
+                )
+                    .subscribeOn(Schedulers.io())
+            }
+                .subscribeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserBirthdate(date: Timestamp): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                settingsAPI.setBirthDate(
+                    it.userId,
+                    date
+                )
+                    .subscribeOn(Schedulers.io())
+            }
+                .subscribeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserName(firstName: String, lastName: String): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                settingsAPI.changeName(
+                    it.userId,
+                    firstName,
+                    lastName
+                )
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
+        fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
+            return userDataCache.getUserData().flatMap {
+                settingsAPI.changePassword(
+                    it.userId,
+                    prevPass,
+                    pass
+                )
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
         }
     }
 
