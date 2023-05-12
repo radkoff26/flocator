@@ -1,5 +1,7 @@
 package com.example.flocator.community.adapters
 
+import com.example.flocator.community.data_classes.UserExternalFriends
+
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,51 +12,46 @@ import com.example.flocator.community.data_classes.User
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.UserExternal
-import com.example.flocator.settings.Friend
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
-class FriendAdapter(private val friendActionListener: FriendActionListener) :
-    RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(), View.OnClickListener {
-    var data: MutableList<Friends> = mutableListOf()
+class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActionListener) :
+    RecyclerView.Adapter<ExternalFriendAdapter.ExternalFriendViewHolder>(), View.OnClickListener {
+    var data: MutableList<UserExternalFriends> = mutableListOf()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
         }
 
-    class FriendViewHolder(val binding: PersonYourFriendItemBinding) :
+    class ExternalFriendViewHolder(val binding: PersonYourFriendItemBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExternalFriendViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = PersonYourFriendItemBinding.inflate(inflater, parent, false)
         binding.root.setOnClickListener(this)
-        return FriendViewHolder(binding)
+        return ExternalFriendViewHolder(binding)
     }
 
     override fun getItemCount(): Int = data.size
 
-    override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ExternalFriendViewHolder, position: Int) {
         val person = data[position]
         val context = holder.itemView.context
 
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            if(person.avatarUri == null){
-                setAvatar("", holder)
-            } else {
-                setAvatar(person.avatarUri!!, holder)
-            }
+            setAvatar(person.avatarUri!!, holder)
         }
         holder.itemView.tag = person
     }
 
     override fun onClick(view: View?) {
-        val user: Friends = view?.tag as Friends
+        val user: UserExternalFriends = view?.tag as UserExternalFriends
         friendActionListener.onPersonOpenProfile(user)
     }
 
-    private fun setAvatar(uri: String, holder: FriendViewHolder){
+    private fun setAvatar(uri: String, holder: ExternalFriendViewHolder){
         LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

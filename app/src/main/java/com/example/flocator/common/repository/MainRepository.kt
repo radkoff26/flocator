@@ -16,6 +16,7 @@ import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.storage.store.point.UserLocationPoint
 import com.example.flocator.common.storage.store.user.data.UserData
 import com.example.flocator.common.utils.LoadUtils
+import com.example.flocator.community.api.UserApi
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.main.data.response.AddressResponse
@@ -43,6 +44,7 @@ import javax.inject.Singleton
 class MainRepository @Inject constructor(
     private val clientAPI: ClientAPI,
     private val geocoderAPI: GeocoderAPI,
+    private val userApi: UserApi,
     private val applicationDatabase: ApplicationDatabase,
     private val userLocationDataStore: DataStore<UserLocationPoint>,
     private val userDataStore: DataStore<UserData>,
@@ -214,6 +216,23 @@ class MainRepository @Inject constructor(
                 .subscribeOn(Schedulers.io())
         }
 
+<<<<<<< HEAD
+        fun addFriendByLogin(userId: Long, login: String): Completable {
+            return userApi.addNewFriendByLogin(userId, login).subscribeOn(Schedulers.io())
+        }
+
+        fun rejectNewFriend(userId: Long, friendId: Long): Completable{
+            return userApi.rejectNewFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+        fun acceptNewFriend(userId: Long, friendId: Long): Completable{
+            return userApi.acceptNewFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+
+
+=======
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
                 settingsAPI.changeAvatar(
@@ -258,6 +277,10 @@ class MainRepository @Inject constructor(
                     .observeOn(Schedulers.io())
             }
                 .observeOn(Schedulers.io())
+<<<<<<< HEAD
+
+=======
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
         }
     }
 

@@ -105,7 +105,11 @@ class SettingsFragment: Fragment(), SettingsSection {
                         })
                 )
                 compositeDisposable.add(
+<<<<<<< HEAD
+                    mainRepository.restApi.getCurrentUserInfo()
+=======
                     mainRepository.restApi.getCurrentUserInfo(networkReceiver.networkState)
+>>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
