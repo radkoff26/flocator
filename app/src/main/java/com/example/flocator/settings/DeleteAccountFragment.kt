@@ -24,7 +24,7 @@ class DeleteAccountFragment : BottomSheetDialogFragment(), SettingsSection {
         closeButton.setOnClickListener {
             dismiss()
         }
-2
+
         confirmButton.setOnClickListener {
             exitProcess(-1) // временная заглушка
         }

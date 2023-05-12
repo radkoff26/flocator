@@ -13,15 +13,11 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
-import com.example.flocator.common.connection.live_data.ConnectionLiveData
-import com.example.flocator.common.receivers.NetworkReceiver
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.FragmentNavigationUtils
-import com.example.flocator.main.api.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -35,13 +31,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SettingsFragment: Fragment(), SettingsSection {
     private val compositeDisposable = CompositeDisposable()
-    private val networkReceiver = NetworkReceiver()
 
     private lateinit var fragmentView: View
 
-    //    val clientAPI: ClientAPI = retrofit.create(ClientAPI::class.java)
-    @Inject lateinit var clientAPI: ClientAPI
     @Inject lateinit var mainRepository: MainRepository
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -65,10 +59,11 @@ class SettingsFragment: Fragment(), SettingsSection {
                             )
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe({}, {Log.e("Loading image from storage", "error", it)})
+                                .subscribe({
+                                    emitter.onComplete()
+                                }, {Log.e("Loading image from storage", "error", it)})
                         )
 
-                        emitter.onComplete()
                         stream.close()
                     }
                         .subscribeOn(Schedulers.io())
@@ -105,7 +100,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                         })
                 )
                 compositeDisposable.add(
-                    mainRepository.restApi.getCurrentUserInfo(networkReceiver.networkState)
+                    mainRepository.restApi.getCurrentUserInfo()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
