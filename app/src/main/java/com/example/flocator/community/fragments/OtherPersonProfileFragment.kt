@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flocator.R
+import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.adapters.ExternalFriendActionListener
 import com.example.flocator.community.adapters.ExternalFriendAdapter
@@ -18,16 +19,23 @@ import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.*
 import com.example.flocator.community.view_models.OtherPersonProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentPersonProfileBinding
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.sql.Timestamp
+import javax.inject.Inject
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class OtherPersonProfileFragment() : Fragment() {
     private var _binding: FragmentPersonProfileBinding? = null
     private val binding: FragmentPersonProfileBinding
         get() = _binding!!
-    private val otherPersonProfileFragmentViewModel = OtherPersonProfileFragmentViewModel()
+
+    @Inject
+    lateinit var repository: MainRepository
+
+    private lateinit var otherPersonProfileFragmentViewModel: OtherPersonProfileFragmentViewModel
     private var btnAddFriendIsActive = false
     private lateinit var adapterForFriends: ExternalFriendAdapter
     private var currentUserId by Delegates.notNull<Long>()
@@ -35,6 +43,7 @@ class OtherPersonProfileFragment() : Fragment() {
         -1, "", "", "", false,
         Timestamp(System.currentTimeMillis()), ArrayList<UserExternalFriends>(), false, false
     )
+    private var thisUserId by Delegates.notNull<Long>()
 
     object Constants {
         const val NAME_AND_SURNAME = "nameAndSurnamePerson"
@@ -50,6 +59,7 @@ class OtherPersonProfileFragment() : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
+        otherPersonProfileFragmentViewModel = OtherPersonProfileFragmentViewModel(repository)
         val args: Bundle? = arguments
         if (args != null) {
             currentUserId = args.getLong(Constants.CURRENT_USER_ID)
@@ -77,7 +87,7 @@ class OtherPersonProfileFragment() : Fragment() {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
             }
-            println(currentUser.friends[0].firstName)
+            thisUserId = currentUser.userId!!
         })
 
         binding.buttonBack.setOnClickListener {
@@ -100,6 +110,7 @@ class OtherPersonProfileFragment() : Fragment() {
                 binding.addPersonToFriend.text = "Отменить заявку"
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 btnAddFriendIsActive = true
+                otherPersonProfileFragmentViewModel.addOtherUserToFriend(currentUserId, thisUserId)
             } else {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
                 binding.addPersonToFriend.text = "Добавить в друзья"

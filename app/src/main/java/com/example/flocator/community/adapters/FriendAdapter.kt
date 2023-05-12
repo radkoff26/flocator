@@ -40,7 +40,11 @@ class FriendAdapter(private val friendActionListener: FriendActionListener) :
 
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            setAvatar(person.avatarUri!!, holder)
+            if(person.avatarUri == null){
+                setAvatar("", holder)
+            } else {
+                setAvatar(person.avatarUri!!, holder)
+            }
         }
         holder.itemView.tag = person
     }

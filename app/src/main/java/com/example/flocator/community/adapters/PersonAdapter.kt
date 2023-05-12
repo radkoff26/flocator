@@ -10,10 +10,16 @@ import com.example.flocator.R
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.PersonNewFriendItemBinding
 import com.example.flocator.common.utils.LoadUtils
+import com.example.flocator.community.api.UserApi
 import com.example.flocator.community.data_classes.FriendRequests
 import com.example.flocator.community.data_classes.UserExternal
+import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
 class PersonAdapter(private val userNewFriendActionListener: UserNewFriendActionListener) :
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
@@ -27,6 +33,7 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
             field = newValue
             notifyDataSetChanged()
         }
+
 
     class PersonViewHolder(val binding: PersonNewFriendItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -50,6 +57,11 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
         return data.size
     }
 
+    fun getAllCount(): Int{
+
+        return data.size
+    }
+
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
         val person = data[position]
         val context = holder.itemView.context
@@ -57,7 +69,11 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
 
         with(holder.binding) {
             newFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            setAvatar(person.avatarUri!!, holder)
+            if(person.avatarUri == null){
+                setAvatar("", holder)
+            } else {
+                setAvatar(person.avatarUri!!, holder)
+            }
         }
 
         holder.itemView.tag = person
@@ -66,7 +82,7 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
 
     }
     override fun onClick(view: View?) {
-        val user: UserExternal = view?.tag as UserExternal
+        val user: FriendRequests = view?.tag as FriendRequests
         when (view.id) {
             R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(user)
             R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(user)

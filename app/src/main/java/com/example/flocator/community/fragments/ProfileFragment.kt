@@ -54,15 +54,15 @@ class ProfileFragment : Fragment(), CommunitySection {
         profileFragmentViewModel.fetchUser()
         adapterForNewFriends = PersonAdapter(object :
             com.example.flocator.community.adapters.UserNewFriendActionListener {
-            override fun onPersonOpenProfile(user: UserExternal) {
-                onPersonOpenProfile(user)
+            override fun onPersonOpenProfile(user: FriendRequests) {
+                openPersonProfile(user)
             }
 
-            override fun onPersonAccept(user: UserExternal) {
+            override fun onPersonAccept(user: FriendRequests) {
                 checkSizeNewFriendsList(profileFragmentViewModel.acceptPerson(user))
             }
 
-            override fun onPersonCancel(user: UserExternal) {
+            override fun onPersonCancel(user: FriendRequests) {
                 checkSizeNewFriendsList(profileFragmentViewModel.cancelPerson(user))
             }
         })
@@ -75,6 +75,25 @@ class ProfileFragment : Fragment(), CommunitySection {
         profileFragmentViewModel.newFriendsLiveData.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 adapterForNewFriends.data = it
+                val size = adapterForNewFriends.data.size
+                if(size != 0){
+                    binding.friendRequests.text = "Заявки в друзья"
+                    binding.friendRequests.setTextColor(resources.getColor(R.color.black))
+                }
+                if(size <= 2){
+                    binding.buttonViewAll.visibility = View.GONE
+                    binding.buttonNotViewAll.visibility = View.GONE
+                    if(size == 0){
+                        binding.friendRequests.text = "Новых заявок пока нет!"
+                        binding.friendRequests.setTextColor(resources.getColor(R.color.font))
+                    }
+                }
+                if(size > 2){
+                    binding.friendRequests.text = "Заявки в друзья"
+                    binding.friendRequests.setTextColor(resources.getColor(R.color.black))
+                    binding.buttonViewAll.visibility = View.VISIBLE
+                    binding.buttonNotViewAll.visibility = View.GONE
+                }
             }
         })
         profileFragmentViewModel.friendsLiveData.observe(viewLifecycleOwner, Observer {
@@ -87,14 +106,7 @@ class ProfileFragment : Fragment(), CommunitySection {
             binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
             setAvatar(currentUser.avatarUri!!)
         })
-        if(adapterForNewFriends.data.size <= 2){
-            binding.buttonViewAll.visibility = View.GONE
-            binding.buttonNotViewAll.visibility = View.GONE
-            if(adapterForNewFriends.data.isEmpty()){
-                binding.friendRequests.text = "Новых заявок пока нет!"
-                binding.friendRequests.setTextColor(resources.getColor(R.color.font))
-            }
-        }
+
 
 
         binding.newFriendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -103,7 +115,14 @@ class ProfileFragment : Fragment(), CommunitySection {
         binding.yourFriendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.yourFriendsRecyclerView.adapter = adapterForYourFriends
 
-
+        if(adapterForNewFriends.getAllCount() <= 2){
+            binding.buttonViewAll.visibility = View.GONE
+            binding.buttonNotViewAll.visibility = View.GONE
+            if(adapterForNewFriends.getAllCount() == 0){
+                binding.friendRequests.text = "Новых заявок пока нет!"
+                binding.friendRequests.setTextColor(resources.getColor(R.color.font))
+            }
+        }
         binding.buttonViewAll.setOnClickListener {
             adapterForNewFriends.isOpen = true
             binding.buttonViewAll.visibility = View.INVISIBLE
@@ -117,7 +136,10 @@ class ProfileFragment : Fragment(), CommunitySection {
         }
 
         binding.addFriend.setOnClickListener {
+            val args: Bundle = Bundle()
+            args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
             val addFriendByLinkFragment = AddFriendByLinkFragment()
+            addFriendByLinkFragment.arguments = args
             addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
         }
         binding.buttonBack.setOnClickListener {
@@ -126,20 +148,25 @@ class ProfileFragment : Fragment(), CommunitySection {
                 MainFragment()
             )
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    FragmentNavigationUtils.openFragment(
-                        requireActivity().supportFragmentManager,
-                        MainFragment()
-                    )
-                }
-            }
-        )
+
         return binding.root
     }
 
     fun openPersonProfile(user: Friends) {
+        val args: Bundle = Bundle()
+        args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
+        user.userId?.let { args.putLong("userId", it.toLong()) }
+        args.putString("nameAndSurnamePerson", user.firstName + " " + user.lastName)
+        args.putString("personPhoto", user.avatarUri)
+        val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
+        profilePersonFragment.arguments = args
+        val transaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.community_fragment, profilePersonFragment)
+        transaction.addToBackStack(null)
+        transaction.commit()
+    }
+
+    fun openPersonProfile(user: FriendRequests) {
         val args: Bundle = Bundle()
         args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
         user.userId?.let { args.putLong("userId", it.toLong()) }

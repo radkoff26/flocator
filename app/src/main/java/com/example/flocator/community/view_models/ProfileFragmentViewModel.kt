@@ -27,6 +27,7 @@ import retrofit2.create
 import javax.inject.Inject
 
 typealias UserNewFriendActionListener = (persons: List<User>) -> Unit
+
 @HiltViewModel
 @Suppress("UNCHECKED_CAST")
 class ProfileFragmentViewModel @Inject constructor(
@@ -39,6 +40,7 @@ class ProfileFragmentViewModel @Inject constructor(
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<User> = _currentUserLiveData
     private val userId = repository.userDataCache.getUserData().blockingGet().userId
+    private val compositeDisposable = CompositeDisposable()
 
 
     private val userApi: UserApi by lazy {
@@ -59,24 +61,26 @@ class ProfileFragmentViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        //removeListener(listener)
+        compositeDisposable.dispose()
     }
 
-    fun getCurrentUserId(): Long{
+    fun getCurrentUserId(): Long {
         return userId
     }
 
     fun fetchUser() {
-        userApi.getUser(userId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    updateUser(it)
-                },
-                {
-                    Log.e(ProfileFragment.TAG, it.message, it)
-                })
+        compositeDisposable.add(
+            userApi.getUser(userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        updateUser(it)
+                    },
+                    {
+                        Log.e(ProfileFragment.TAG, it.message, it)
+                    })
+        )
     }
 
     private fun updateUser(user: User) {
@@ -85,7 +89,20 @@ class ProfileFragmentViewModel @Inject constructor(
         _newFriendsLiveData.value = user.friendRequests
     }
 
-    fun cancelPerson(user: UserExternal): Int {
+    fun cancelPerson(user: FriendRequests): Int {
+        compositeDisposable.add(
+            repository.restApi.rejectNewFriend(userId, user.userId!!)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(TAG, "rejectFriend ERROR", it)
+                    }
+                )
+        )
         val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId?.toLong() }
         val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         if (index == -1) {
@@ -98,8 +115,22 @@ class ProfileFragmentViewModel @Inject constructor(
         return newFriends?.size ?: 0
     }
 
-    fun acceptPerson(user: UserExternal): Int {
-        val findingPerson: Friends = Friends(-1,"","","")
+    fun acceptPerson(user: FriendRequests): Int {
+        compositeDisposable.add(
+            repository.restApi.acceptNewFriend(userId, user.userId!!)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(TAG, "acceptFriend ERROR", it)
+                    }
+                )
+        )
+
+        val findingPerson: Friends = Friends(-1, "", "", "")
         val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId }
         val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         val friends: MutableList<Friends>? = _friendsLiveData.value
@@ -131,6 +162,10 @@ class ProfileFragmentViewModel @Inject constructor(
 
     private val listener: UserNewFriendActionListener = {
         _newFriendsLiveData.value = it as MutableList<FriendRequests>
+    }
+
+    companion object{
+        const val TAG = "ProfileFragment"
     }
 
 }

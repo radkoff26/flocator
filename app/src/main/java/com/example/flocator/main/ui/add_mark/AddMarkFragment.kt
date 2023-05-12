@@ -1,24 +1,25 @@
 package com.example.flocator.main.ui.add_mark
 
 import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.example.flocator.R
+import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.databinding.FragmentAddMarkBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
@@ -26,14 +27,14 @@ import com.example.flocator.main.ui.add_mark.adapters.CarouselRecyclerViewAdapte
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
+class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+), MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
@@ -45,17 +46,9 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     private var valueAnimator: ValueAnimator? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
-
-        dialog.setContentView(R.layout.fragment_add_mark)
-
-        dialog.setOnShowListener {
-            val view = (it as BottomSheetDialog).findViewById<LinearLayout>(R.id.bs)
-                ?: return@setOnShowListener
-            expandBottomSheet(view)
+        return super.onCreateDialog(savedInstanceState).apply {
+            setContentView(R.layout.fragment_add_mark)
         }
-
-        return dialog
     }
 
     override fun onCreateView(
@@ -63,37 +56,26 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val view = inflater.inflate(R.layout.fragment_add_mark, container, false)
+
+        _binding = FragmentAddMarkBinding.bind(view)
+
         photoAddLauncher =
             registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
-                viewModel.updateLiveData(result)
+                viewModel.updatePhotosLiveData(result)
             }
 
-        return inflater.inflate(R.layout.fragment_add_mark, container, false)
+        return view
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        valueAnimator?.end()
-        _binding = null
-    }
+    override fun getCoordinatorLayout(): CoordinatorLayout = binding.coordinator
 
-    override fun onStart() {
-        super.onStart()
-        binding.coordinator.post {
-            binding.bs.measure(
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
-            )
-            binding.coordinator.requestLayout()
-        }
-        val behavior = BottomSheetBehavior.from(binding.bs)
-        behavior.isHideable = true
-        behavior.skipCollapsed = true
-    }
+    override fun getBottomSheetScrollView(): NestedScrollView = binding.bs
+
+    override fun getInnerLayout(): ViewGroup = binding.content
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentAddMarkBinding.bind(view)
 
         binding.addPhotoBtn.setOnClickListener {
             launchPhotoPicker()
@@ -125,6 +107,12 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
         extractCurrentLocation()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        valueAnimator?.end()
+        _binding = null
+    }
+
     private fun onAddressUpdated(value: String?) {
         if (value != null) {
             binding.address.text = value
@@ -147,11 +135,6 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
 
     private fun launchPhotoPicker() {
         photoAddLauncher.launch("image/*")
-    }
-
-    private fun expandBottomSheet(bottomSheetView: View) {
-        val behavior = BottomSheetBehavior.from(bottomSheetView)
-        behavior.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     private fun adjustRecyclerView() {
@@ -201,7 +184,7 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
         carouselAdapter.updateData(value)
     }
 
-    private fun onFragmentStateChangedCallback(value: AddMarkFragmentState) { // TODO: make it work
+    private fun onFragmentStateChangedCallback(value: AddMarkFragmentState) {
         when (value) {
             is AddMarkFragmentState.Editing -> setEditing()
             is AddMarkFragmentState.Saving -> setSaving()
@@ -211,11 +194,16 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     }
 
     private fun setFailed(throwable: Throwable) {
-        Toast.makeText(requireContext(), "Ошибка во время сохранения: ${throwable.message}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            requireContext(),
+            "Ошибка во время сохранения: ${throwable.message}",
+            Toast.LENGTH_SHORT
+        ).show()
+        setEditing()
     }
 
     private fun setEditing() {
-        binding.loaderImage.clearAnimation()
+        binding.loader.stopAnimation()
         binding.loader.visibility = GONE
         binding.buttons.visibility = VISIBLE
     }
@@ -223,14 +211,7 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
     private fun setSaving() {
         binding.buttons.visibility = GONE
         binding.loader.visibility = VISIBLE
-        valueAnimator = ObjectAnimator.ofFloat(0f, 360f)
-        valueAnimator!!.repeatCount = ValueAnimator.INFINITE
-        valueAnimator!!.repeatMode = ValueAnimator.RESTART
-        valueAnimator!!.duration = 500
-        valueAnimator!!.addUpdateListener {
-            binding.loaderImage.rotation = it.animatedValue as Float
-        }
-        valueAnimator!!.start()
+        binding.loader.startAnimation()
     }
 
     private fun prepareAndGetMark(): AddMarkDto {
@@ -351,5 +332,7 @@ class AddMarkFragment: BottomSheetDialogFragment(), MainSection {
 
     companion object {
         const val TAG = "Add Mark Fragment"
+        const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
+        const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
     }
 }
