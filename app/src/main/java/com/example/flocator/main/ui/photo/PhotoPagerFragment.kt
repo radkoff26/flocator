@@ -2,15 +2,21 @@ package com.example.flocator.main.ui.photo
 
 import android.animation.ValueAnimator
 import android.app.Dialog
-import android.graphics.Bitmap
+import android.content.Context
 import android.os.Bundle
-import android.view.*
+import android.util.LruCache
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
 import com.example.flocator.R
+import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.databinding.FragmentPhotoPagerBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
+import com.example.flocator.main.ui.photo.adapters.Photo
 import com.example.flocator.main.ui.photo.adapters.PhotoRecyclerViewAdapter
 
 class PhotoPagerFragment : DialogFragment(), MainSection {
@@ -18,11 +24,19 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
     private val binding
         get() = _binding!!
 
-    private lateinit var viewModel: PhotoPagerFragmentViewModel
+    private val viewModel: PhotoPagerFragmentViewModel by viewModels()
 
     private lateinit var adapter: PhotoRecyclerViewAdapter
+    private lateinit var uriList: List<String>
 
     private var animator: ValueAnimator? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // Must be passed to Fragment
+        uriList =
+            requireArguments().getStringArrayList(BundleArgumentsContraction.PhotoPagerFragment.URI_LIST)!!
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -33,9 +47,6 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.PhotoDialogTheme)
-        val uriList =
-            requireArguments().getStringArrayList(BundleArgumentsContraction.PhotoPagerFragment.URI_LIST)
-        viewModel = PhotoPagerFragmentViewModel(uriList!!.toList())
     }
 
     override fun onCreateView(
@@ -53,7 +64,7 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.photosLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
+        viewModel.photoCacheLiveData.observe(viewLifecycleOwner, this::onUpdatePhotos)
         viewModel.toolbarDisplayedStateLiveData.observe(
             viewLifecycleOwner
         ) {
@@ -119,7 +130,7 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
 
     private fun adjustViewPager() {
         adapter = PhotoRecyclerViewAdapter(
-            viewModel.photosLiveData.value!!,
+            constructPhotos(viewModel.photoCacheLiveData.value!!),
             {
                 viewModel.requestPhotoLoading(it)
             },
@@ -136,8 +147,20 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
         binding.photoPager.setCurrentItem(position, false)
     }
 
-    private fun onUpdatePhotos(value: List<Bitmap?>) {
-        adapter.updatePhotos(value)
+    private fun onUpdatePhotos(value: LruCache<String, PhotoState>) {
+        adapter.updatePhotos(constructPhotos(value))
+    }
+
+    private fun constructPhotos(value: LruCache<String, PhotoState>): List<Photo> {
+        if (!this::uriList.isInitialized) {
+            return emptyList()
+        }
+        return uriList.map {
+            Photo(
+                it,
+                value[it] ?: PhotoState.Loading
+            )
+        }
     }
 
     companion object {

@@ -1,58 +1,30 @@
 package com.example.flocator.main.ui.photo
 
-import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.utils.LoadUtils
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.example.flocator.common.cache.runtime.PhotoCacheLiveData
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
-class PhotoPagerFragmentViewModel constructor(private val uriList: List<String>) : ViewModel() {
-    private val _photosLiveData: MutableLiveData<List<Bitmap?>> =
-        MutableLiveData(MutableList(uriList.size) { null })
+class PhotoPagerFragmentViewModel: ViewModel() {
     private val _toolbarDisplayedStateLiveData = MutableLiveData(true)
 
-    val photosLiveData: LiveData<List<Bitmap?>> = _photosLiveData
     val toolbarDisplayedStateLiveData: LiveData<Boolean> = _toolbarDisplayedStateLiveData
-
-    private val photosState: MutableList<Boolean?> = MutableList(uriList.size) { null }
+    val photoCacheLiveData: PhotoCacheLiveData = PhotoCacheLiveData(COMPRESSION_QUALITY)
 
     private val compositeDisposable = CompositeDisposable()
 
-    override fun onCleared() {
-        super.onCleared()
-        compositeDisposable.dispose()
-    }
-
-    fun requestPhotoLoading(position: Int) {
-        if (photosState[position] == null || photosState[position] == false) {
-            compositeDisposable.add(
-                LoadUtils.loadPictureFromUrl(uriList[position], COMPRESSION_QUALITY)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        {
-                            updatePhoto(position, it)
-                            photosState[position] = true
-                        },
-                        {
-                            photosState[position] = false
-                        }
-                    )
-            )
-        }
+    fun requestPhotoLoading(uri: String) {
+        photoCacheLiveData.requestPhotoLoading(uri)
     }
 
     fun switchToolbarState() {
         _toolbarDisplayedStateLiveData.value = !_toolbarDisplayedStateLiveData.value!!
     }
 
-    private fun updatePhoto(position: Int, bitmap: Bitmap) {
-        val photos = _photosLiveData.value!!.toMutableList()
-        photos[position] = bitmap
-        _photosLiveData.value = photos
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.dispose()
     }
 
     companion object {

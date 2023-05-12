@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
+import com.example.flocator.settings.FriendViewUtilities.getNumOfColumns
 
 class BlackListFragment : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
@@ -27,7 +28,7 @@ class BlackListFragment : Fragment(), SettingsSection {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        recyclerView.layoutManager = GridLayoutManager(context, 3)
+        recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
 
         friendListAdapter = FriendListAdapter(getFriends())
 

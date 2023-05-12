@@ -3,6 +3,9 @@ package com.example.flocator.di
 import com.example.flocator.common.config.Constants
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
+import com.example.flocator.settings.SettingsAPI
+import com.example.flocator.main.data.response.AddressResponse
+import com.example.flocator.main.deserializers.AddressDeserializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -41,5 +44,18 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideGeocoderAPI(retrofit: Retrofit): GeocoderAPI = retrofit.create()
+    fun provideSettingsAPI(retrofit: Retrofit): SettingsAPI = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideGeocoderAPI(): GeocoderAPI = Retrofit.Builder()
+        .baseUrl(Constants.GEOCODER_URL)
+        .addConverterFactory(GsonConverterFactory.create(
+            GsonBuilder()
+                .registerTypeAdapter(AddressResponse::class.java, AddressDeserializer())
+                .setLenient()
+                .create()
+        ))
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+        .build().create()
 }
