@@ -15,7 +15,7 @@
         android:layout_height="72dp"
         android:id="@+id/friend_back"
         android:src="@drawable/privacy_friend_circle"/>
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:id="@+id/friend_avatar"

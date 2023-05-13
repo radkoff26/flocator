@@ -280,6 +280,39 @@ class MainRepository @Inject constructor(
             }
                 .observeOn(Schedulers.io())
         }
+
+        fun getCurrentUserBlocked(): Single<List<UserInfo>> {
+            return userDataCache.getUserData().flatMap {
+                settingsAPI.getBlocked(
+                    it.userId
+                )
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
+        fun blockUser(userId: Long): Completable {
+            return userDataCache.getUserData().flatMapCompletable {
+                settingsAPI.blockUser(
+                    it.userId,
+                    userId
+                )
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
+        fun unblockUser(userId: Long): Completable {
+            return userDataCache.getUserData().flatMapCompletable {
+                settingsAPI.unblockUser(
+                    it.userId,
+                    userId
+                )
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
     }
 
     inner class CacheDatabase {

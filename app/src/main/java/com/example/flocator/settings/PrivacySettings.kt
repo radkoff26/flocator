@@ -16,20 +16,6 @@ import com.example.flocator.settings.FriendViewUtilities.getNumOfColumns
 class PrivacySettings : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
-    private fun getFriends(): ArrayList<Friend> {
-        val ans = ArrayList<Friend>()
-        for (i in 1..10000) {
-            ans.add(
-                Friend(
-                    R.drawable.avatar_svgrepo_com,
-                    "Тут стоит ник",
-                    false
-                )
-            )
-        }
-        return ans
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,8 +33,8 @@ class PrivacySettings : Fragment(), SettingsSection {
         }
         recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
 
-        friendListAdapter = FriendListAdapter(getFriends())
-        recyclerView.adapter = friendListAdapter
+//        friendListAdapter = FriendListAdapter(getFriends())
+//        recyclerView.adapter = friendListAdapter
 
         selectAllButton.setOnClickListener {
             if (friendListAdapter.all { friend -> friend.isChecked }) {
