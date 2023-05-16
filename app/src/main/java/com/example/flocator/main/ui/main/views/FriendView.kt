@@ -13,7 +13,7 @@ import com.example.flocator.R
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.google.android.material.imageview.ShapeableImageView
 
-class FriendMapView @JvmOverloads constructor(
+class FriendView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -30,13 +30,17 @@ class FriendMapView @JvmOverloads constructor(
     private val userAvatarImageView: ShapeableImageView
     private val userNameTextView: TextView
 
+    private var _avatarUri: String? = null
+    val avatarUri: String?
+        get() = _avatarUri
+
     init {
         if (attrs != null) {
             val typedAttrs =
-                context.obtainStyledAttributes(attrs, R.styleable.FriendMapView, defStyleAttr, 0)
+                context.obtainStyledAttributes(attrs, R.styleable.FriendView, defStyleAttr, 0)
             diameter =
                 typedAttrs.getDimension(
-                    R.styleable.FriendMapView_diameter,
+                    R.styleable.FriendView_diameter,
                     defaultDiameter.toFloat()
                 )
                     .toInt()
@@ -49,6 +53,14 @@ class FriendMapView @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.round_image_view, this, true)
         userAvatarFrameLayout = findViewById(R.id.layout)
         userAvatarImageView = findViewById(R.id.image)
+
+        userAvatarImageView.setImageDrawable(
+            ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.circle_bg,
+                null
+            )!!
+        )
 
         // User Name
         userNameTextView = TextView(context)
@@ -89,7 +101,12 @@ class FriendMapView @JvmOverloads constructor(
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         userAvatarFrameLayout.layout(0, 0, diameter, diameter)
-        userNameTextView.layout(0, diameter + padding, diameter, diameter + padding + textViewHeight)
+        userNameTextView.layout(
+            0,
+            diameter + padding,
+            diameter,
+            diameter + padding + textViewHeight
+        )
     }
 
     fun setBitmap(bitmap: Bitmap) {
@@ -97,13 +114,7 @@ class FriendMapView @JvmOverloads constructor(
     }
 
     fun setPlaceHolder() {
-        userAvatarImageView.setImageDrawable(
-            ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.circle_bg,
-                null
-            )!!
-        )
+//        userAvatarImageView.setImageBitmap(bitmap)
     }
 
     fun setUserName(userName: String) {

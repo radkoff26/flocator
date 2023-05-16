@@ -13,7 +13,7 @@ import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.ShapeAppearanceModel
 
-class MarkMapView @JvmOverloads constructor(
+class MarkView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

@@ -21,9 +21,9 @@ import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.example.flocator.main.ui.main.data.*
-import com.example.flocator.main.ui.main.views.FriendMapView
-import com.example.flocator.main.ui.main.views.MarkGroupMapView
-import com.example.flocator.main.ui.main.views.MarkMapView
+import com.example.flocator.main.ui.main.views.FriendView
+import com.example.flocator.main.ui.main.views.MarkGroupView
+import com.example.flocator.main.ui.main.views.MarkView
 import com.example.flocator.main.ui.mark.MarkFragment
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.example.flocator.settings.SettingsFragment
@@ -287,15 +287,15 @@ class MainFragment : Fragment(), MainSection {
         }
         val userInfo = viewModel.userInfo!!
         if (usersViewState[userInfo.userId] == null) {
-            val friendMapView = FriendMapView(requireContext())
-            friendMapView.setUserName("${userInfo.firstName} ${userInfo.lastName}")
-            val viewProvider = ViewProvider(friendMapView)
+            val friendView = FriendView(requireContext())
+            friendView.setUserName("${userInfo.firstName} ${userInfo.lastName}")
+            val viewProvider = ViewProvider(friendView)
             usersViewState[userInfo.userId] = FriendViewDto(
                 usersCollection.addPlacemark(
                     point,
                     viewProvider
                 ),
-                friendMapView,
+                friendView,
                 null
             )
             if (userInfo.avatarUri != null) {
@@ -311,7 +311,7 @@ class MainFragment : Fragment(), MainSection {
             val id = userEntry.key
             val user = userEntry.value
             if (usersViewState[id] == null) {
-                val friendView = FriendMapView(requireContext())
+                val friendView = FriendView(requireContext())
                 friendView.setUserName("${user.firstName} ${user.lastName}")
                 val viewProvider = ViewProvider(friendView)
                 usersViewState[id] = FriendViewDto(
@@ -368,11 +368,11 @@ class MainFragment : Fragment(), MainSection {
                     val mark = group.marks[0].mark
                     val photos = group.marks[0].photos
                     val id = mark.markId
-                    val markMapView = MarkMapView(requireContext())
-                    val viewProvider = ViewProvider(markMapView)
+                    val markView = MarkView(requireContext())
+                    val viewProvider = ViewProvider(markView)
                     marksViewState[id] = MarkViewDto(
                         marksCollection.addPlacemark(mark.location, viewProvider),
-                        markMapView,
+                        markView,
                         null,
                         null
                     )
@@ -394,7 +394,7 @@ class MainFragment : Fragment(), MainSection {
                     }
                     marksViewState[id]!!.placemark.addTapListener(markClickListeners[id]!!)
                     if (photos.isEmpty()) {
-                        markMapView.setMarkBitmapPlaceHolder()
+                        markView.setMarkBitmapPlaceHolder()
                         viewProvider.snapshot()
                         marksViewState[id]!!.placemark.setView(viewProvider)
                         marksViewState[id]!!.thumbnailUri = null
@@ -402,17 +402,17 @@ class MainFragment : Fragment(), MainSection {
                         viewModel.loadPhoto(photos[0].uri)
                     }
                     val avatar = marksViewState[id]!!.avatarUrl
-                    if (avatar != null && !marksViewState[id]!!.markMapView.hasAvatar) {
+                    if (avatar != null && !marksViewState[id]!!.markView.hasAvatar) {
                         viewModel.loadPhoto(avatar)
                     }
                 } else {
-                    val markGroupMapView = MarkGroupMapView(requireContext())
-                    markGroupMapView.setCount(group.marks.size)
-                    val viewProvider = ViewProvider(markGroupMapView)
+                    val markGroupView = MarkGroupView(requireContext())
+                    markGroupView.setCount(group.marks.size)
+                    val viewProvider = ViewProvider(markGroupView)
                     markGroupsViewState.add(
                         MarkGroupViewDto(
                             markGroupsCollection.addPlacemark(group.center, viewProvider),
-                            markGroupMapView,
+                            markGroupView,
                             group.marks
                         )
                     )
@@ -474,7 +474,7 @@ class MainFragment : Fragment(), MainSection {
                 if (user.avatarUri != userInfo.avatarUri && value[userInfo.avatarUri] != null) {
                     val photo = value[userInfo.avatarUri]
                     if (photo is PhotoState.Loaded) {
-                        user.friendMapView.setBitmap(photo.bitmap)
+                        user.friendView.setBitmap(photo.bitmap)
                         user.avatarUri = userInfo.avatarUri
                         updateUserView(user)
                     } else if (photo is PhotoState.Failed) {
@@ -494,7 +494,7 @@ class MainFragment : Fragment(), MainSection {
             if (photos.isEmpty()) {
                 // If photo has already been set, then this photo is no longer present
                 if (mark.value.thumbnailUri != null) {
-                    mark.value.markMapView.setMarkBitmapPlaceHolder()
+                    mark.value.markView.setMarkBitmapPlaceHolder()
                     mark.value.thumbnailUri = null
                     updateMarkView(mark.value)
                 }
@@ -505,11 +505,11 @@ class MainFragment : Fragment(), MainSection {
                 if (value[thumbnailUri] != null && mark.value.thumbnailUri != thumbnailUri) {
                     val photo = value[thumbnailUri]!!
                     if (photo is PhotoState.Loaded) {
-                        mark.value.markMapView.setMarkBitmapImage(photo.bitmap)
+                        mark.value.markView.setMarkBitmapImage(photo.bitmap)
                         mark.value.thumbnailUri = thumbnailUri
                         updateMarkView(mark.value)
                     } else if (photo is PhotoState.Failed) {
-                        mark.value.markMapView.setMarkBitmapPlaceHolder()
+                        mark.value.markView.setMarkBitmapPlaceHolder()
                         viewModel.loadPhoto(thumbnailUri)
                     }
                 }
@@ -525,14 +525,14 @@ class MainFragment : Fragment(), MainSection {
             // If user doesn't have an avatar image
             if (url == null && mark.value.avatarUrl != null) {
                 // Then there goes a placeholder
-                mark.value.markMapView.setFriendBitmapPlaceHolder()
+                mark.value.markView.setFriendBitmapPlaceHolder()
                 mark.value.avatarUrl = null
                 updateMarkView(mark.value)
             } else {
                 if (url != null && value[url] != null && url != mark.value.avatarUrl) {
                     val photo = value[url]!!
                     if (photo is PhotoState.Loaded) {
-                        mark.value.markMapView.setFriendBitmapImage(photo.bitmap)
+                        mark.value.markView.setFriendBitmapImage(photo.bitmap)
                         mark.value.avatarUrl = url
                         updateMarkView(mark.value)
                     } else if (photo is PhotoState.Failed) {
@@ -549,14 +549,14 @@ class MainFragment : Fragment(), MainSection {
             }
             val url = viewModel.friendsLiveData.value!![friend.key]!!.avatarUrl
             if (url == null) {
-                friend.value.friendMapView.setPlaceHolder()
+                friend.value.friendView.setPlaceHolder()
                 friend.value.avatarUri = null
                 updateUserView(friend.value)
             } else {
                 if (url != friend.value.avatarUri && value[url] != null) {
                     val photo = value[url]!!
                     if (photo is PhotoState.Loaded) {
-                        friend.value.friendMapView.setBitmap(photo.bitmap)
+                        friend.value.friendView.setBitmap(photo.bitmap)
                         friend.value.avatarUri = url
                         updateUserView(friend.value)
                     } else {
@@ -568,13 +568,13 @@ class MainFragment : Fragment(), MainSection {
     }
 
     private fun updateMarkView(mark: MarkViewDto) {
-        val viewProvider = ViewProvider(mark.markMapView)
+        val viewProvider = ViewProvider(mark.markView)
         viewProvider.snapshot()
         mark.placemark.setView(viewProvider)
     }
 
     private fun updateUserView(user: FriendViewDto) {
-        val viewProvider = ViewProvider(user.friendMapView)
+        val viewProvider = ViewProvider(user.friendView)
         viewProvider.snapshot()
         user.placemark.setView(viewProvider)
     }

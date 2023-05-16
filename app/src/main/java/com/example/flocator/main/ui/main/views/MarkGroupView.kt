@@ -9,7 +9,7 @@ import androidx.core.content.res.ResourcesCompat
 import com.example.flocator.R
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 
-class MarkGroupMapView @JvmOverloads constructor(
+class MarkGroupView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
