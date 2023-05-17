@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".main.ui.main.MainFragment">
 
-    <com.yandex.mapkit.mapview.MapView
+    <com.example.flocator.main.ui.main.views.map.FlocatorMapView
         android:id="@+id/map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

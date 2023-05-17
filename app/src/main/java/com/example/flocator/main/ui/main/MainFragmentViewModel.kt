@@ -34,11 +34,11 @@ class MainFragmentViewModel @Inject constructor(
     val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
 
     // Data inside of Live Data is non-nullable
-    private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())//
-    private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())//
-    private val _cameraStatusLiveData = MutableLiveData(CameraStatus())//
-    private val _userLocationLiveData = MutableLiveData<Point?>(null)//
-    private val _photoCacheLiveData = MutableLiveData<LruCache<String, PhotoState>>(//
+    private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
+    private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
+    private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
+    private val _userLocationLiveData = MutableLiveData<Point?>(null)
+    private val _photoCacheLiveData = MutableLiveData<LruCache<String, PhotoState>>(
         object : LruCache<String, PhotoState>(maxPhotoCacheSize) {
             override fun sizeOf(key: String?, value: PhotoState?): Int {
                 return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
@@ -51,19 +51,19 @@ class MainFragmentViewModel @Inject constructor(
     val marks: Map<Long, MarkWithPhotos>
         get() = _marks
 
-    private var currentVisibleRegion: VisibleRegion? = null//
-    private var mapWidth: Float? = null//
-    private var markWidth: Float? = null//
+    private var currentVisibleRegion: VisibleRegion? = null
+    private var mapWidth: Float? = null
+    private var markWidth: Float? = null
 
-    private val friendsHandler: Handler = Handler(Looper.getMainLooper())//
-    private val marksHandler: Handler = Handler(Looper.getMainLooper())//
+    private val friendsHandler: Handler = Handler(Looper.getMainLooper())
+    private val marksHandler: Handler = Handler(Looper.getMainLooper())
     private val compositeDisposable = CompositeDisposable()
 
-    val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData//
-    val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData//
-    val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData//
-    val userLocationLiveData: LiveData<Point?> = _userLocationLiveData//
-    val photoCacheLiveData: LiveData<LruCache<String, PhotoState>> = _photoCacheLiveData//
+    val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData
+    val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData
+    val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
+    val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
+    val photoCacheLiveData: LiveData<LruCache<String, PhotoState>> = _photoCacheLiveData
     val userInfo: UserInfo?
         get() = _userInfo
 
@@ -94,21 +94,26 @@ class MainFragmentViewModel @Inject constructor(
     }
 
     fun loadPhoto(uri: String) {
-        if (_photoCacheLiveData.value!!.get(uri) == null) {
-            updateCacheState(uri, PhotoState.Loading)
-        }
-        compositeDisposable.add(
-            repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        updateCacheState(uri, PhotoState.Loaded(it))
-                    },
-                    {
-                        updateCacheState(uri, PhotoState.Failed(it))
-                    }
+        when (_photoCacheLiveData.value!!.get(uri)) {
+            null, is PhotoState.Failed -> {
+                updateCacheState(uri, PhotoState.Loading)
+                compositeDisposable.add(
+                    repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            {
+                                updateCacheState(uri, PhotoState.Loaded(it))
+                            },
+                            {
+                                updateCacheState(uri, PhotoState.Failed(it))
+                            }
+                        )
                 )
-        )
+            }
+            else -> {
+                return
+            }
+        }
     }
 
     private fun updateCacheState(uri: String, photoState: PhotoState) {
@@ -125,7 +130,11 @@ class MainFragmentViewModel @Inject constructor(
                         _userInfo = it
                     },
                     {
-
+                        Log.e(
+                            TAG,
+                            "initialFetch: error while fetching user info from cache",
+                            it
+                        )
                     }
                 ),
             repository.locationCache.getUserLocationData()

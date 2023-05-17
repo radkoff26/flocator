@@ -17,5 +17,5 @@ data class User(
     @SerializedName("location")
     var location: Point,
     @SerializedName("avatarUrl")
-    val avatarUrl: String?
+    val avatarUri: String?
 )

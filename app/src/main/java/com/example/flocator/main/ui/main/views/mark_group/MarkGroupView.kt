@@ -1,4 +1,4 @@
-package com.example.flocator.main.ui.main.views
+package com.example.flocator.main.ui.main.views.mark_group
 
 import android.content.Context
 import android.util.AttributeSet
@@ -30,7 +30,7 @@ class MarkGroupView @JvmOverloads constructor(
 
         addView(countTextView)
 
-        background = ResourcesCompat.getDrawable(resources, R.drawable.circle_bg, null)
+        background = ResourcesCompat.getDrawable(resources, R.drawable.friend_circle_bg, null)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -49,6 +49,11 @@ class MarkGroupView @JvmOverloads constructor(
     }
 
     fun setCount(count: Int) {
-        countTextView.text = count.toString()
+        val text = if (count > 99) {
+            "99+"
+        } else {
+            count.toString()
+        }
+        countTextView.text = text
     }
 }
