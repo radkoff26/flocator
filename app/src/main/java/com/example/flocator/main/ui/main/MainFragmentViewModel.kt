@@ -94,21 +94,26 @@ class MainFragmentViewModel @Inject constructor(
     }
 
     fun loadPhoto(uri: String) {
-        if (_photoCacheLiveData.value!!.get(uri) == null) {
-            updateCacheState(uri, PhotoState.Loading)
-        }
-        compositeDisposable.add(
-            repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        updateCacheState(uri, PhotoState.Loaded(it))
-                    },
-                    {
-                        updateCacheState(uri, PhotoState.Failed(it))
-                    }
+        when (_photoCacheLiveData.value!!.get(uri)) {
+            null, is PhotoState.Failed -> {
+                updateCacheState(uri, PhotoState.Loading)
+                compositeDisposable.add(
+                    repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            {
+                                updateCacheState(uri, PhotoState.Loaded(it))
+                            },
+                            {
+                                updateCacheState(uri, PhotoState.Failed(it))
+                            }
+                        )
                 )
-        )
+            }
+            else -> {
+                return
+            }
+        }
     }
 
     private fun updateCacheState(uri: String, photoState: PhotoState) {
@@ -125,7 +130,11 @@ class MainFragmentViewModel @Inject constructor(
                         _userInfo = it
                     },
                     {
-
+                        Log.e(
+                            TAG,
+                            "initialFetch: error while fetching user info from cache",
+                            it
+                        )
                     }
                 ),
             repository.locationCache.getUserLocationData()
