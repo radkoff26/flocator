@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="FriendMapView">
+    <declare-styleable name="UserView">
         <attr name="diameter" format="dimension"/>
     </declare-styleable>
 </resources>

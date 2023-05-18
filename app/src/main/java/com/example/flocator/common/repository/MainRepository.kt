@@ -228,7 +228,6 @@ class MainRepository @Inject constructor(
             return userApi.acceptNewFriend(userId, friendId).subscribeOn(Schedulers.io())
         }
 
-
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
                 settingsAPI.changeAvatar(

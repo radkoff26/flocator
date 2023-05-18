@@ -4,7 +4,6 @@ import android.content.IntentFilter
 import android.util.Log
 import com.example.flocator.common.config.Actions
 import com.example.flocator.common.config.Constants.MAPS_API_KEY
-import com.example.flocator.community.fragments.UserRepository
 import com.example.flocator.common.receivers.NetworkReceiver
 import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.HiltAndroidApp
@@ -14,8 +13,6 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class Application : android.app.Application() {
-    val userRepository by lazy { UserRepository() }
-
     @Inject
     lateinit var networkReceiver: NetworkReceiver
 
