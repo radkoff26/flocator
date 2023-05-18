@@ -1,6 +1,7 @@
 package com.example.flocator.settings
 
 import com.example.flocator.common.storage.store.user.info.UserInfo
+import com.example.flocator.settings.data_models.PrivacyData
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
@@ -50,4 +51,8 @@ interface SettingsAPI {
         @Query("blockedId") blockedId: Long
     ): Completable
 
+    @GET("user/friendship/privacy")
+    fun getPrivacyData(
+        @Query("userId") userId: Long
+    ): Single<List<PrivacyData>>
 }

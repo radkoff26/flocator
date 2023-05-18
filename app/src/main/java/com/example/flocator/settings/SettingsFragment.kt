@@ -155,6 +155,20 @@ class SettingsFragment: Fragment(), SettingsSection {
                 )
         )
 
+        compositeDisposable.add(
+            mainRepository.restApi.getCurrentUserBlocked()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        blacklistCnt.text = it.size.toString()
+                    },
+                    {
+                        Log.e("Getting blacklist size error", it.stackTraceToString(), it)
+                    }
+                )
+        )
+
         avatar.setOnClickListener {
             photoChangeLauncher.launch("image/*")
         }

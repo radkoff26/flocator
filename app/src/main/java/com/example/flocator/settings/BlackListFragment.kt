@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
@@ -36,7 +37,7 @@ class BlackListFragment : Fragment(), SettingsSection {
         val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.blacklist_recycler_view)
         val backButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_back_button)
         val unselectAllButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_unselect_all_frame)
-
+        fragmentView.findViewById<TextView>(R.id.blacklist_title).text = getString(R.string.black_list)
         backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
@@ -122,5 +123,10 @@ class BlackListFragment : Fragment(), SettingsSection {
             )
         }
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        compositeDisposable.dispose()
+        super.onDestroyView()
     }
 }

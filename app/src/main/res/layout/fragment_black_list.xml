@@ -26,10 +26,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/black_list"
+            android:text=""
             android:gravity="center_vertical"
             android:textSize="24sp"
             android:textColor="@color/tint"
+            android:id="@+id/blacklist_title"
             />
     </LinearLayout>
     <FrameLayout

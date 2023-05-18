@@ -1,5 +1,6 @@
 package com.example.flocator.common.repository
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -25,6 +26,8 @@ import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.settings.SettingsAPI
+import com.example.flocator.settings.data_models.PrivacyData
+import com.example.flocator.settings.data_models.PrivacyStates
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
@@ -38,6 +41,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.sql.Timestamp
+import java.util.stream.Collectors
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -308,6 +312,31 @@ class MainRepository @Inject constructor(
                     it.userId,
                     userId
                 )
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
+        fun getCurrentUserPrivacy(): Single<Map<Long, PrivacyStates>> {
+            return userDataCache.getUserData().flatMap {
+                settingsAPI.getPrivacyData(it.userId)
+            }. map { privacyData ->
+                privacyData.parallelStream().collect(
+                    Collectors.toMap(
+                        {
+                            it.id
+                        },
+                        {
+                            it.status
+                        }
+                    )
+                )
+            }
+        }
+
+        fun getFriendsOfCurrentUser(): Single<List<User>> {
+            return userDataCache.getUserData().flatMap {
+                getAllFriendsOfUser(it.userId)
                     .observeOn(Schedulers.io())
             }
                 .observeOn(Schedulers.io())

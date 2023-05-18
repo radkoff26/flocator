@@ -6,5 +6,5 @@ data class PrivacyData(
     @SerializedName("userId")
     val id: Long,
     @SerializedName("status")
-    val avatarUrl: String
+    val status: PrivacyStates
 )

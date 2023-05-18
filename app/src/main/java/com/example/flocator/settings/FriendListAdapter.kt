@@ -99,6 +99,16 @@ class FriendListAdapter (
         }
     }
 
+    fun changeStates(states: Map<Long, Boolean>) {
+       for ((i, friend) in friends.withIndex()) {
+           val newState = states[friend.userId]
+           if (newState != null && friend.isChecked != newState) {
+               friend.isChecked = newState
+               notifyItemChanged(i)
+           }
+       }
+    }
+
     fun all(filter: (friend: Friend) -> Boolean): Boolean {
         return friends.all(filter)
     }
