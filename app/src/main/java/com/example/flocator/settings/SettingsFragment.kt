@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
-import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.receivers.NetworkReceiver
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.store.user.info.UserInfo
@@ -21,7 +20,6 @@ import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.api.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -105,11 +103,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                         })
                 )
                 compositeDisposable.add(
-<<<<<<< HEAD
                     mainRepository.restApi.getCurrentUserInfo()
-=======
-                    mainRepository.restApi.getCurrentUserInfo(networkReceiver.networkState)
->>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
