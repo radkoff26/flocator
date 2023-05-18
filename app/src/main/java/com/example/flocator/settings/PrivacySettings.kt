@@ -35,14 +35,16 @@ class PrivacySettings : Fragment(), SettingsSection {
         val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.blacklist_recycler_view)
         val backButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_back_button)
         val selectAllButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_unselect_all_frame)
+        fragmentView.findViewById<TextView>(R.id.blacklist_title).text = "Приватность"
+
 
         backButton.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
 
-//        friendListAdapter = FriendListAdapter(getFriends())
-//        recyclerView.adapter = friendListAdapter
+        friendListAdapter = FriendListAdapter()
+        recyclerView.adapter = friendListAdapter
 
         selectAllButton.setOnClickListener {
             if (friendListAdapter.all { friend -> friend.isChecked }) {
@@ -69,7 +71,7 @@ class PrivacySettings : Fragment(), SettingsSection {
                                 Log.e("Getting friends privacy error", it.stackTraceToString(), it)
                             }
                             .subscribe {
-                                privData ->
+                                    privData ->
                                 activity?.runOnUiThread {
                                     friendListAdapter.setFriendList(
                                         friends.map {
@@ -77,7 +79,7 @@ class PrivacySettings : Fragment(), SettingsSection {
                                                 it.id,
                                                 it.avatarUrl,
                                                 it.firstName + " " + it.lastName,
-                                                privData[it.id] == PrivacyStates.FIXED
+                                                privData[it.id] == "FIXED"
                                             )
                                         }
                                     )
@@ -87,8 +89,29 @@ class PrivacySettings : Fragment(), SettingsSection {
                 }
         )
 
-
-
+        compositeDisposable.add(
+            friendListAdapter.publisher
+                .observeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .doOnError {
+                    Log.e("Error getting privacy change info", it.stackTraceToString(), it)
+                }
+                .subscribe {
+                    var newStatus = "PRECISE"
+                    if (it.isChecked) {
+                        newStatus = "FIXED"
+                    }
+                    compositeDisposable.add(
+                        mainRepository.restApi.changePrivacy(it.userId, newStatus)
+                            .observeOn(Schedulers.io())
+                            .subscribeOn(AndroidSchedulers.mainThread())
+                            .doOnError {
+                                Log.e("Changing friend privacy error", it.stackTraceToString(), it)
+                            }
+                            .subscribe()
+                    )
+                }
+        )
 
         return fragmentView
     }

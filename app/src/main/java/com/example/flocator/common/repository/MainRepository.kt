@@ -317,7 +317,7 @@ class MainRepository @Inject constructor(
                 .observeOn(Schedulers.io())
         }
 
-        fun getCurrentUserPrivacy(): Single<Map<Long, PrivacyStates>> {
+        fun getCurrentUserPrivacy(): Single<Map<Long, String>> {
             return userDataCache.getUserData().flatMap {
                 settingsAPI.getPrivacyData(it.userId)
             }. map { privacyData ->
@@ -334,9 +334,26 @@ class MainRepository @Inject constructor(
             }
         }
 
+
+        fun changePrivacy(friendId: Long, status: String): Completable {
+            return userDataCache.getUserData().flatMapCompletable {
+                settingsAPI.changePrivacyData(it.userId, friendId, status)
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
         fun getFriendsOfCurrentUser(): Single<List<User>> {
             return userDataCache.getUserData().flatMap {
                 getAllFriendsOfUser(it.userId)
+                    .observeOn(Schedulers.io())
+            }
+                .observeOn(Schedulers.io())
+        }
+
+        fun deleteCurrentAccount(pass: String): Completable {
+            return userDataCache.getUserData().flatMapCompletable {
+                settingsAPI.deleteAccount(it.userId, pass)
                     .observeOn(Schedulers.io())
             }
                 .observeOn(Schedulers.io())

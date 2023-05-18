@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.example.flocator.R
 import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.api.ClientAPI
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
@@ -19,6 +20,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
+import com.example.flocator.authentication.authorization.AuthFragment
 
 @AndroidEntryPoint
 class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
@@ -78,6 +80,12 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
                                 messageField.text = getString(R.string.password_is_incorrect)
                             }
                             messageField.visibility = View.VISIBLE
+                            mainRepository.userDataCache.clearUserData()
+                            mainRepository.userInfoCache.clearUserInfo()
+                            FragmentNavigationUtils.clearAllAndOpenFragment(
+                                requireActivity().supportFragmentManager,
+                                AuthFragment()
+                            )
                         },
                         {
                             Log.e("Changing password", "error", it)

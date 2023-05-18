@@ -51,8 +51,21 @@ interface SettingsAPI {
         @Query("blockedId") blockedId: Long
     ): Completable
 
-    @GET("user/friendship/privacy")
+    @GET("friendship/privacy")
     fun getPrivacyData(
         @Query("userId") userId: Long
     ): Single<List<PrivacyData>>
+
+    @POST("friendship/privacy/change")
+    fun changePrivacyData(
+        @Query("userId") userId: Long,
+        @Query("friendId") friendId: Long,
+        @Query("status") status: String
+    ): Completable
+
+    @DELETE("user")
+    fun deleteAccount(
+        @Query("userId") userId: Long,
+        @Query("password") password: String
+    ): Completable
 }
