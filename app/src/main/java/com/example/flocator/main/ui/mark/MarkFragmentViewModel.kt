@@ -9,7 +9,7 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
-import com.example.flocator.main.ui.mark.data.UserNameDto
+import com.example.flocator.main.models.dto.UsernameDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -22,13 +22,13 @@ class MarkFragmentViewModel @Inject constructor(
 
 ) : ViewModel(), MainSection {
     private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
-    private val _userNameLiveData = MutableLiveData<UserNameDto?>(null)
+    private val _userNameLiveData = MutableLiveData<UsernameDto?>(null)
     private val _fragmentStateLiveData: MutableLiveData<MarkFragmentState> = MutableLiveData(
         MarkFragmentState.Loading
     )
 
     val markLiveData: LiveData<MarkWithPhotos?> = _markLiveData
-    val userNameLiveData: LiveData<UserNameDto?> = _userNameLiveData
+    val userNameLiveData: LiveData<UsernameDto?> = _userNameLiveData
     val photosStateLiveData: PhotoCacheLiveData = PhotoCacheLiveData(QUALITY_FACTOR)
     val markFragmentStateLiveData: LiveData<MarkFragmentState> = _fragmentStateLiveData
 
@@ -85,7 +85,7 @@ class MarkFragmentViewModel @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        _userNameLiveData.value = UserNameDto(
+                        _userNameLiveData.value = UsernameDto(
                             it.firstName,
                             it.lastName
                         )

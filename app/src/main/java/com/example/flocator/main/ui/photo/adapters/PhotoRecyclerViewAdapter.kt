@@ -11,6 +11,7 @@ import com.example.flocator.R
 import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.views.LoaderImageView
 import com.example.flocator.common.views.RetryImageButton
+import com.example.flocator.main.data.Photo
 
 class PhotoRecyclerViewAdapter(
     private var photoData: List<Photo>,

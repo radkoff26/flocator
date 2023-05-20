@@ -4,6 +4,7 @@ import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.common.storage.store.user.info.UserInfo
+import com.example.flocator.main.models.dto.UsernameDto
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
@@ -15,7 +16,6 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
-import java.sql.Timestamp
 
 interface ClientAPI {
     @GET("friendship/located")
@@ -46,4 +46,6 @@ interface ClientAPI {
     @POST("mark/unlike")
     fun unlikeMark(@Query("markId") markId: Long, @Query("userId") userId: Long): Completable
 
+    @GET("user/username/{userId}")
+    fun getUsername(@Path("userId") userId: Long): Single<UsernameDto>
 }
