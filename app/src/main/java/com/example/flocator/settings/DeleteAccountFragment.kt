@@ -8,8 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.widget.NestedScrollView
 import com.example.flocator.R
+import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -20,16 +24,32 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DeleteAccountFragment : BottomSheetDialogFragment(), SettingsSection {
+class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
+    AddMarkFragment.BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    AddMarkFragment.BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+), SettingsSection {
+    lateinit var fragmentView: View
     @Inject
     lateinit var mainRepository: MainRepository
     val compositeDisposable = CompositeDisposable()
+    override fun getCoordinatorLayout(): CoordinatorLayout {
+       return fragmentView.findViewById(R.id.coordinator)
+    }
+
+    override fun getBottomSheetScrollView(): NestedScrollView {
+        return fragmentView.findViewById(R.id.bs)
+    }
+
+    override fun getInnerLayout(): ViewGroup {
+        return fragmentView.findViewById(R.id.content)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragmentView = inflater.inflate(R.layout.fragment_delete_account, container, false)
+        fragmentView = inflater.inflate(R.layout.fragment_delete_account, container, false)
         val closeButton = fragmentView.findViewById<ImageView>(R.id.delete_account_close_button)
         val passwordField = fragmentView.findViewById<TextInputEditText>(R.id.delete_account_pass_field)
         val confirmButton = fragmentView.findViewById<MaterialButton>(R.id.delete_account_confirm_button)

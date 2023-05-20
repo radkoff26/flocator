@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
@@ -19,6 +21,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
 import org.json.JSONArray
+import org.w3c.dom.Text
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,14 +38,23 @@ class BlackListFragment : Fragment(), SettingsSection {
         // Inflate the layout for this fragment
         val fragmentView = inflater.inflate(R.layout.fragment_black_list, container, false)
         val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.blacklist_recycler_view)
-        val backButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_back_button)
         val unselectAllButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_unselect_all_frame)
-        fragmentView.findViewById<TextView>(R.id.blacklist_title).text = getString(R.string.black_list)
-        backButton.setOnClickListener {
+        val toolbar = fragmentView.findViewById<Toolbar>(R.id.toolbar)
+        val message = fragmentView.findViewById<TextView>(R.id.blacklist_msg)
+
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            title = getString(R.string.black_list)
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+            setHomeAsUpIndicator(R.drawable.back)
+        }
+        toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
+
 
         friendListAdapter = FriendListAdapter()
 
@@ -54,6 +66,12 @@ class BlackListFragment : Fragment(), SettingsSection {
                     .subscribe(
                         { userInfos ->
                             activity?.runOnUiThread {
+                                if (userInfos.isEmpty()) {
+                                    message.text = getString(R.string.blacklist_is_empty)
+                                    message.visibility = View.VISIBLE
+                                    return@runOnUiThread
+                                }
+                                message.visibility = View.GONE
                                 friendListAdapter.setFriendList(
                                     userInfos.map {
                                         Friend(

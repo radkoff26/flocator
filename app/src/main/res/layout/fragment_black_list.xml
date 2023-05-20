@@ -1,39 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".settings.SettingsFragment"
     android:orientation="vertical"
     android:background="#fff">
-    <LinearLayout
+
+    <androidx.appcompat.widget.Toolbar
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/toolbar"
+        app:titleTextColor="#1515B9"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingEnd="12dp"
-            android:id="@+id/blacklist_back_button"
-            tools:ignore="RtlSymmetry">
-            <ImageView
-                android:layout_width="15dp"
-                android:layout_height="20dp"
-                android:layout_margin="12dp"
-                android:background="@drawable/tint_back_arrow"
-                android:contentDescription="@string/go_back"
-                />
-        </FrameLayout>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text=""
-            android:gravity="center_vertical"
-            android:textSize="24sp"
-            android:textColor="@color/tint"
-            android:id="@+id/blacklist_title"
-            />
-    </LinearLayout>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        />
+
     <FrameLayout
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintRight_toRightOf="parent"
         android:id="@+id/blacklist_unselect_all_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -52,10 +39,26 @@
             android:alpha="0.7"
             />
     </FrameLayout>
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/blacklist_unselect_all_frame"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/blacklist_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="8dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:visibility="gone"
+        />
     <androidx.recyclerview.widget.RecyclerView
+        app:layout_constraintTop_toBottomOf="@id/blacklist_unselect_all_frame"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:layout_gravity="center_horizontal"
         android:foregroundGravity="center_horizontal"
         android:id="@+id/blacklist_recycler_view"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
-</LinearLayout>
+        android:layout_height="wrap_content"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

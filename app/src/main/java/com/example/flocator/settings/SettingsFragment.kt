@@ -10,18 +10,17 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.flocator.R
-import com.example.flocator.common.connection.live_data.ConnectionLiveData
-import com.example.flocator.common.receivers.NetworkReceiver
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.api.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -35,7 +34,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SettingsFragment: Fragment(), SettingsSection {
     private val compositeDisposable = CompositeDisposable()
-    private val networkReceiver = NetworkReceiver()
 
     private lateinit var fragmentView: View
 
@@ -90,9 +88,20 @@ class SettingsFragment: Fragment(), SettingsSection {
         val nameField = fragmentView.findViewById<EditText>(R.id.name_field)
         val avatar = fragmentView.findViewById<CircleImageView>(R.id.avatar)
         val blacklistCnt = fragmentView.findViewById<TextView>(R.id.blacklist_cnt)
+        val toolbar = fragmentView.findViewById<Toolbar>(R.id.toolbar)
+
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+            setHomeAsUpIndicator(R.drawable.back)
+        }
+        toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
 
         compositeDisposable.add(
-            io.reactivex.Observable.create<UserInfo> {
+            io.reactivex.Observable.create {
                     emitter ->
                 compositeDisposable.add(
                     mainRepository.userInfoCache.getUserInfo()

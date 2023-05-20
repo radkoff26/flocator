@@ -8,12 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.settings.FriendViewUtilities.getNumOfColumns
-import com.example.flocator.settings.data_models.PrivacyStates
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -33,14 +34,21 @@ class PrivacySettings : Fragment(), SettingsSection {
     ): View? {
         val fragmentView = inflater.inflate(R.layout.fragment_black_list, container, false)
         val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.blacklist_recycler_view)
-        val backButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_back_button)
         val selectAllButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_unselect_all_frame)
-        fragmentView.findViewById<TextView>(R.id.blacklist_title).text = "Приватность"
-
-
-        backButton.setOnClickListener {
+        val toolbar = fragmentView.findViewById<Toolbar>(R.id.toolbar)
+        val message = fragmentView.findViewById<TextView>(R.id.blacklist_msg)
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            title = getString(R.string.privacy)
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+            setHomeAsUpIndicator(R.drawable.back)
+        }
+        toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+
+
         recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
 
         friendListAdapter = FriendListAdapter()
@@ -73,11 +81,17 @@ class PrivacySettings : Fragment(), SettingsSection {
                             .subscribe {
                                     privData ->
                                 activity?.runOnUiThread {
+                                    if (friends.isEmpty()) {
+                                        message.text = getString(R.string.privacy_no_friends)
+                                        message.visibility = View.VISIBLE
+                                        return@runOnUiThread
+                                    }
+                                    message.visibility = View.GONE
                                     friendListAdapter.setFriendList(
                                         friends.map {
                                             Friend(
                                                 it.id,
-                                                it.avatarUrl,
+                                                it.avatarUri,
                                                 it.firstName + " " + it.lastName,
                                                 privData[it.id] == "FIXED"
                                             )
