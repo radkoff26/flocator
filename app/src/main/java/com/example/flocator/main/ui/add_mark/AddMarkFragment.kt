@@ -2,7 +2,6 @@ package com.example.flocator.main.ui.add_mark
 
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +26,7 @@ import com.example.flocator.main.ui.add_mark.adapters.CarouselRecyclerViewAdapte
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
+import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,13 +43,6 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
 
     private lateinit var carouselAdapter: CarouselRecyclerViewAdapter
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
-    private var valueAnimator: ValueAnimator? = null
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
-            setContentView(R.layout.fragment_add_mark)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -89,11 +82,28 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             viewModel.removeItems()
         }
 
-        binding.addMarkBtn.setOnClickListener {
-            viewModel.saveMark(
-                prepareAndGetMark(),
-                carouselAdapter.getSetOfPhotos()
-            )
+        binding.saveMarkBtn.setOnClickListener {
+            val photos = carouselAdapter.getSetOfPhotos()
+            if (photos.isEmpty()) {
+                Snackbar.make(
+                    binding.root,
+                    resources.getString(R.string.no_photo_chosen),
+                    Snackbar.LENGTH_LONG
+                ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+                return@setOnClickListener
+            }
+            try {
+                viewModel.saveMark(
+                    prepareAndGetMark(),
+                    photos
+                )
+            } catch (e: IllegalStateException) {
+                Snackbar.make(
+                    binding.root,
+                    resources.getString(R.string.no_address_available),
+                    Snackbar.LENGTH_LONG
+                ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+            }
         }
 
         binding.cancelMarkBtn.setOnClickListener {
@@ -109,7 +119,6 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
 
     override fun onDestroyView() {
         super.onDestroyView()
-        valueAnimator?.end()
         _binding = null
     }
 
@@ -148,7 +157,7 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         itemDecoration.setDrawable(
             ContextCompat.getDrawable(
                 requireContext(),
-                R.drawable.rv_divider
+                R.drawable.big_whitespace_rv_divider
             )!!
         )
         binding.photoCarousel.addItemDecoration(itemDecoration)
@@ -215,12 +224,15 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun prepareAndGetMark(): AddMarkDto {
+        if (viewModel.addressLiveData.value == null) {
+            throw IllegalStateException()
+        }
         return AddMarkDto(
             0,
             viewModel.userPoint,
             binding.markText.text.toString(),
             binding.isPublicCheckBox.isChecked,
-            viewModel.addressLiveData.value ?: ""
+            viewModel.addressLiveData.value!!
         )
     }
 

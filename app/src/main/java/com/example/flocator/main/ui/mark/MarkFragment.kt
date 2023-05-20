@@ -1,7 +1,6 @@
 package com.example.flocator.main.ui.mark
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.os.Bundle
 import android.util.LruCache
 import android.view.LayoutInflater
@@ -25,9 +24,9 @@ import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.databinding.FragmentMarkBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
+import com.example.flocator.main.models.dto.UsernameDto
 import com.example.flocator.main.ui.mark.adapters.MarkPhotoCarouselAdapter
 import com.example.flocator.main.ui.mark.data.MarkFragmentState
-import com.example.flocator.main.ui.mark.data.UserNameDto
 import com.example.flocator.main.ui.photo.PhotoPagerFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -47,12 +46,6 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var repository: MainRepository
 
     private val viewModel: MarkFragmentViewModel by viewModels()
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return super.onCreateDialog(savedInstanceState).apply {
-            setContentView(R.layout.fragment_mark)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -114,9 +107,9 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun openPhotoPager(position: Int) {
         val photoPagerFragment = PhotoPagerFragment()
         val bundle = Bundle()
-        bundle.putInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION, position)
+        bundle.putInt(BundleArgumentsContraction.PhotoPagerFragmentArguments.POSITION, position)
         bundle.putStringArrayList(
-            BundleArgumentsContraction.PhotoPagerFragment.URI_LIST,
+            BundleArgumentsContraction.PhotoPagerFragmentArguments.URI_LIST,
             ArrayList(viewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
         )
         photoPagerFragment.arguments = bundle
@@ -179,7 +172,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
             itemDecoration.setDrawable(
                 ContextCompat.getDrawable(
                     requireContext(),
-                    R.drawable.rv_divider
+                    R.drawable.big_whitespace_rv_divider
                 )!!
             )
             binding.photoCarousel.addItemDecoration(itemDecoration)
@@ -211,7 +204,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     @SuppressLint("SetTextI18n")
-    private fun onUpdateUserData(value: UserNameDto?) {
+    private fun onUpdateUserData(value: UsernameDto?) {
         if (value == null) {
             return
         }

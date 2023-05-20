@@ -1,8 +1,8 @@
-package com.example.flocator.main.ui.mark.data
+package com.example.flocator.main.models.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class UserNameDto(
+data class UsernameDto(
     @SerializedName("firstName")
     val firstName: String,
     @SerializedName("lastName")

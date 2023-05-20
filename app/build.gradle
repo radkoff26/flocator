@@ -35,6 +35,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
@@ -55,14 +56,14 @@ dependencies {
     implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha06'
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
 
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
 
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
 
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     runtimeOnly 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
 
@@ -77,6 +78,13 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+
+    implementation 'com.faltenreich:skeletonlayout:4.0.0'
+
+    //paging3
+    implementation "androidx.paging:paging-runtime:3.2.0-alpha05"
+    //optional dependency for RxJava support
+    implementation "androidx.paging:paging-rxjava2-ktx:3.2.0-alpha05"
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"

@@ -7,7 +7,7 @@ import com.example.flocator.di.annotations.GeocoderApi
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.settings.SettingsAPI
-import com.example.flocator.main.data.response.AddressResponse
+import com.example.flocator.main.data.AddressResponse
 import com.example.flocator.main.deserializers.AddressDeserializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

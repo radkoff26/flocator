@@ -74,7 +74,7 @@ abstract class ResponsiveBottomSheetDialogFragment(
                 BottomSheetBehavior.STATE_EXPANDED
         } else {
             behavior.state =
-                BottomSheetBehavior.STATE_HALF_EXPANDED
+                BottomSheetBehavior.STATE_HALF_EXPANDED // TODO: full expand if height is big
         }
     }
 
@@ -84,11 +84,12 @@ abstract class ResponsiveBottomSheetDialogFragment(
 
     private fun expandBottomSheet() {
         val coordinator = getCoordinatorLayout()
-        (dialog as BottomSheetDialog).behavior.addBottomSheetCallback(object :
+        val bottomSheetDialog = dialog as BottomSheetDialog
+        bottomSheetDialog.behavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if ((dialog as BottomSheetDialog).behavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
-                    (dialog as BottomSheetDialog).behavior.state = BottomSheetBehavior.STATE_HIDDEN
+                if (bottomSheetDialog.behavior.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                    bottomSheetDialog.behavior.state = BottomSheetBehavior.STATE_HIDDEN
                 }
             }
 
@@ -98,7 +99,7 @@ abstract class ResponsiveBottomSheetDialogFragment(
         })
         val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                val behavior = (dialog as BottomSheetDialog).behavior
+                val behavior = bottomSheetDialog.behavior
                 behavior.peekHeight = 0
                 behavior.skipCollapsed = false
                 behavior.isHideable = true

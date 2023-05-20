@@ -19,7 +19,8 @@ import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.api.UserApi
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
-import com.example.flocator.main.data.response.AddressResponse
+import com.example.flocator.main.data.AddressResponse
+import com.example.flocator.main.models.dto.UsernameDto
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
@@ -63,65 +64,66 @@ class MainRepository @Inject constructor(
     inner class RestApi {
         fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
-            return ConnectionWrapper.of(
-                Single.create { emitter ->
-                    compositeDisposable.add(
-                        ConnectionWrapper.of(
-                            clientAPI.getUserFriendsLocated(userId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                            connectionLiveData
-                        )
-                            .connect()
-                            .subscribe(
-                                {
-                                    emitter.onSuccess(it)
-                                    compositeDisposable.add(
-                                        cacheDatabase.updateFriends(it)
-                                            .subscribeOn(Schedulers.io())
-                                            .observeOn(Schedulers.io())
-                                            .doOnError { throwable ->
-                                                Log.e(
-                                                    TAG,
-                                                    "getAllFriendsOfUser: error while saving friends to cache!",
-                                                    throwable
-                                                )
-                                            }
-                                            .subscribe()
-                                    )
-                                },
-                                {
-                                    Log.e(
-                                        TAG,
-                                        "getAllFriendsOfUser: error while fetching data from server!",
-                                        it
-                                    )
-                                    emitter.onError(it)
-                                }
-                            )
+            return Single.create { emitter ->
+                compositeDisposable.add(
+                    ConnectionWrapper.of(
+                        clientAPI.getUserFriendsLocated(userId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io()),
+                        connectionLiveData
                     )
-                }.subscribeOn(Schedulers.io()),
-                connectionLiveData
-            ).connect().doOnDispose { compositeDisposable.dispose() }
+                        .connect()
+                        .subscribe(
+                            {
+                                Log.d(TAG, "getAllFriendsOfUser: friends $it")
+                                emitter.onSuccess(it)
+                                compositeDisposable.add(
+                                    cacheDatabase.updateFriends(it)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(Schedulers.io())
+                                        .doOnError { throwable ->
+                                            Log.e(
+                                                TAG,
+                                                "getAllFriendsOfUser: error while saving friends to cache!",
+                                                throwable
+                                            )
+                                        }
+                                        .subscribe()
+                                )
+                            },
+                            {
+                                Log.e(
+                                    TAG,
+                                    "getAllFriendsOfUser: error while fetching data from server!",
+                                    it
+                                )
+                                emitter.onError(it)
+                            }
+                        )
+                )
+            }
+                .subscribeOn(Schedulers.io())
+                .doOnDispose { compositeDisposable.dispose() }
         }
 
         fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
             val compositeDisposable = CompositeDisposable()
-            return ConnectionWrapper.of(
-                Single.create<List<MarkWithPhotos>> { emitter ->
-                    compositeDisposable.add(
-                        ConnectionWrapper.of(
-                            clientAPI.getUserAndFriendsMarks(userId)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io()),
-                            connectionLiveData
-                        )
-                            .connect()
-                            .subscribe(
-                                {
-                                    val marks = it.map(MarkDto::toMarkWithPhotos)
-                                    emitter.onSuccess(marks)
-                                    val photos = marks.map(MarkWithPhotos::photos).flatten()
+            return Single.create<List<MarkWithPhotos>> { emitter ->
+                compositeDisposable.add(
+                    ConnectionWrapper.of(
+                        clientAPI.getUserAndFriendsMarks(userId)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(Schedulers.io()),
+                        connectionLiveData
+                    )
+                        .connect()
+                        .subscribe(
+                            {
+                                Log.d(TAG, "getMarksForUser: marks $it")
+                                val marks = it.map(MarkDto::toMarkWithPhotos)
+                                emitter.onSuccess(marks)
+                                val photos = marks.map(MarkWithPhotos::photos).flatten()
+                                compositeDisposable.add(
                                     Completable.concatArray(
                                         cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
                                         cacheDatabase.updateMarkPhotos(photos)
@@ -136,20 +138,21 @@ class MainRepository @Inject constructor(
                                             )
                                         }
                                         .subscribe()
-                                },
-                                {
-                                    emitter.onError(it)
-                                    Log.e(
-                                        TAG,
-                                        "getMarksForUser: error while fetching marks from server!",
-                                        it
-                                    )
-                                }
-                            ),
-                    )
-                },
-                connectionLiveData
-            ).connect().doOnDispose { compositeDisposable.dispose() }
+                                )
+                            },
+                            {
+                                Log.e(
+                                    TAG,
+                                    "getMarksForUser: error while fetching marks from server!",
+                                    it
+                                )
+                                emitter.onError(it)
+                            }
+                        ),
+                )
+            }
+                .subscribeOn(Schedulers.io())
+                .doOnDispose { compositeDisposable.dispose() }
         }
 
         fun postMark(markDto: AddMarkDto, photos: Set<Map.Entry<Uri, ByteArray>>): Completable {
@@ -170,6 +173,10 @@ class MainRepository @Inject constructor(
 
         fun getUser(userId: Long): Single<UserInfo> {
             return clientAPI.getUser(userId).subscribeOn(Schedulers.io())
+        }
+
+        fun getUsername(userId: Long): Single<UsernameDto> {
+            return clientAPI.getUsername(userId).subscribeOn(Schedulers.io())
         }
 
         fun postUserLocation(userId: Long, location: Point): Completable {
@@ -220,11 +227,11 @@ class MainRepository @Inject constructor(
             return userApi.addNewFriendByLogin(userId, login).subscribeOn(Schedulers.io())
         }
 
-        fun rejectNewFriend(userId: Long, friendId: Long): Completable{
+        fun rejectNewFriend(userId: Long, friendId: Long): Completable {
             return userApi.rejectNewFriend(userId, friendId).subscribeOn(Schedulers.io())
         }
 
-        fun acceptNewFriend(userId: Long, friendId: Long): Completable{
+        fun acceptNewFriend(userId: Long, friendId: Long): Completable {
             return userApi.acceptNewFriend(userId, friendId).subscribeOn(Schedulers.io())
         }
 

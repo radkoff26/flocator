@@ -1,6 +1,6 @@
 package com.example.flocator.main.deserializers
 
-import com.example.flocator.main.data.response.AddressResponse
+import com.example.flocator.main.data.AddressResponse
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
