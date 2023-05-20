@@ -1,7 +1,5 @@
 package com.example.flocator.main.ui.main
 
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.util.LruCache
 import androidx.lifecycle.LiveData
@@ -9,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.exceptions.LostConnectionException
+import com.example.flocator.common.polling.PollingEmitter
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
@@ -55,8 +54,6 @@ class MainFragmentViewModel @Inject constructor(
     private var mapWidth: Float? = null
     private var markWidth: Float? = null
 
-    private val friendsHandler: Handler = Handler(Looper.getMainLooper())
-    private val marksHandler: Handler = Handler(Looper.getMainLooper())
     private val compositeDisposable = CompositeDisposable()
 
     val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData
@@ -218,21 +215,14 @@ class MainFragmentViewModel @Inject constructor(
                 .retry(TIMES_TO_RETRY_LOCATION_POST.toLong()) {
                     it is LostConnectionException
                 }
+                .doOnComplete {
+                    Log.d(TAG, "postLocation: posted!")
+                }
                 .doOnError {
                     Log.e(TAG, "postLocation: error", it)
                 }
                 .subscribe()
         )
-    }
-
-    fun startPolling() {
-        friendsHandler.post(this::fetchFriends)
-        marksHandler.post(this::fetchMarks)
-    }
-
-    fun stopPolling() {
-        friendsHandler.removeCallbacks(this::fetchFriends)
-        marksHandler.removeCallbacks(this::fetchMarks)
     }
 
     fun setWidths(mapWidth: Float, markWidth: Float) {
@@ -293,7 +283,6 @@ class MainFragmentViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        stopPolling()
         compositeDisposable.dispose()
     }
 
@@ -334,9 +323,9 @@ class MainFragmentViewModel @Inject constructor(
                 (point.latitude in minLatitude..maxLatitude)
     }
 
-    private fun fetchFriends() {
+    fun fetchFriends(emitter: PollingEmitter) {
         if (userInfo == null) {
-            friendsHandler.postDelayed(this::fetchFriends, 5000)
+            emitter.emit()
             return
         }
         compositeDisposable.add(
@@ -348,20 +337,21 @@ class MainFragmentViewModel @Inject constructor(
                 }
                 .subscribe(
                     {
+                        Log.d(TAG, "fetchFriends: fetched $it")
                         updateFriends(it)
-                        friendsHandler.postDelayed(this::fetchFriends, 5000)
+                        emitter.emit()
                     },
                     {
                         Log.e(TAG, "Failed while loading friends!", it)
-                        friendsHandler.postDelayed(this::fetchFriends, 5000)
+                        emitter.emit()
                     }
                 )
         )
     }
 
-    private fun fetchMarks() {
+    fun fetchMarks(emitter: PollingEmitter) {
         if (userInfo == null) {
-            marksHandler.postDelayed(this::fetchMarks, 10000)
+            emitter.emit()
             return
         }
         compositeDisposable.add(
@@ -373,12 +363,13 @@ class MainFragmentViewModel @Inject constructor(
                 }
                 .subscribe(
                     {
+                        Log.d(TAG, "fetchMarks: fetched $it")
                         updateMarks(it)
-                        marksHandler.postDelayed(this::fetchMarks, 10000)
+                        emitter.emit()
                     },
                     {
                         Log.e(TAG, "Failed while loading marks!", it)
-                        marksHandler.postDelayed(this::fetchMarks, 10000)
+                        emitter.emit()
                     }
                 )
         )

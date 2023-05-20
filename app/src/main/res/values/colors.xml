@@ -12,4 +12,5 @@
     <color name="black_alpha_50">#80000000</color>
     <color name="additional">#EBEBEB</color>
     <color name="gold">#F4BF00</color>
+    <color name="light_grey">#CCCCCC</color>
 </resources>

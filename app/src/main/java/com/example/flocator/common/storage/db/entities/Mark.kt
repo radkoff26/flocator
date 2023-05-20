@@ -4,6 +4,7 @@ import androidx.room.*
 import com.google.android.gms.common.internal.Objects
 import com.google.gson.annotations.SerializedName
 import com.yandex.mapkit.geometry.Point
+import java.sql.Timestamp
 
 @Entity(tableName = "mark")
 data class Mark(
@@ -24,14 +25,17 @@ data class Mark(
     val isPublic: Boolean,
 
     @SerializedName("place")
-    val place: String?,
+    val place: String,
 
     @SerializedName("likesCount")
     var likesCount: Int,
 
     @SerializedName("hasUserLiked")
     var hasUserLiked: Boolean,
-) {
+
+    @SerializedName("createdAt")
+    val createdAt: Timestamp
+) : java.io.Serializable {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -6,7 +6,7 @@ import android.os.Parcelable
 data class PointDto(
     val latitude: Double,
     val longitude: Double
-) : Parcelable {
+) : Parcelable, java.io.Serializable {
     constructor(parcel: Parcel) : this(
         parcel.readDouble(),
         parcel.readDouble()

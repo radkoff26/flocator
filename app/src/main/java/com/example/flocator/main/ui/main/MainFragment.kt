@@ -10,19 +10,23 @@ import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.polling.TimeoutPoller
+import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.utils.FragmentNavigationUtils
+import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.community.fragments.ProfileFragment
 import com.example.flocator.databinding.FragmentMainBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
-import com.example.flocator.main.handlers.UserLocationHandler
 import com.example.flocator.main.models.CameraStatus
 import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.example.flocator.main.ui.main.data.CameraPositionDto
 import com.example.flocator.main.ui.main.data.MarkGroup
+import com.example.flocator.main.ui.main.data.PointDto
 import com.example.flocator.main.ui.mark.MarkFragment
+import com.example.flocator.main.ui.marks_list.MarksListFragment
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -31,11 +35,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraListener
-import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.InertiaMoveListener
+import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
-import com.yandex.mapkit.map.MapObjectTapListener
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.lang.Float.max
@@ -55,7 +56,9 @@ class MainFragment : Fragment(), MainSection {
     private val compositeDisposable = CompositeDisposable()
 
     // Handlers
-    private lateinit var userLocationHandler: UserLocationHandler
+    private lateinit var userLocationTimeoutPoller: TimeoutPoller
+    private lateinit var marksFetchingTimeoutPoller: TimeoutPoller
+    private lateinit var friendsFetchingTimeoutPoller: TimeoutPoller
 
     // Locations
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -127,9 +130,34 @@ class MainFragment : Fragment(), MainSection {
                     true
                 }
             },
-            { id ->
+            { marks ->
                 MapObjectTapListener { _, _ ->
-                    TODO("Implement later!")
+                    if (viewModel.userLocationLiveData.value != null) {
+                        val marksListFragment = MarksListFragment().apply {
+                            arguments = Bundle().apply {
+                                val markDtoList = ArrayList(
+                                    marks.map(MarkWithPhotos::toMarkDto)
+                                )
+                                putSerializable(
+                                    BundleArgumentsContraction.MarksListFragmentArguments.MARKS,
+                                    markDtoList
+                                )
+                                val userPoint = viewModel.userLocationLiveData.value!!
+                                putSerializable(
+                                    BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT,
+                                    PointDto(
+                                        userPoint.latitude,
+                                        userPoint.longitude
+                                    )
+                                )
+                            }
+                        }
+                        marksListFragment.show(
+                            requireActivity().supportFragmentManager,
+                            MarksListFragment.TAG
+                        )
+                    }
+                    true
                 }
             }
         )
@@ -212,15 +240,36 @@ class MainFragment : Fragment(), MainSection {
 
         viewModel.requestInitialLoading()
 
-        userLocationHandler = UserLocationHandler(requireContext(), viewLifecycleOwner) {
-            viewModel.updateUserLocation(
-                Point(
-                    it.latitude,
-                    it.longitude
-                )
-            )
-            viewModel.postLocation()
-        }
+        userLocationTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_POLL_LOCATION_POST,
+            { emitter ->
+                LocationUtils.getCurrentLocation(requireContext(), fusedLocationProviderClient) {
+                    if (it != null) {
+                        viewModel.updateUserLocation(
+                            Point(
+                                it.latitude,
+                                it.longitude
+                            )
+                        )
+                        viewModel.postLocation()
+                    }
+                    emitter.emit()
+                }
+            }
+        )
+
+        friendsFetchingTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_FETCH_FRIENDS,
+            viewModel::fetchFriends
+        )
+
+        marksFetchingTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_FETCH_MARKS,
+            viewModel::fetchMarks
+        )
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -257,16 +306,6 @@ class MainFragment : Fragment(), MainSection {
         binding.mapView.onStart()
         MapKitFactory.getInstance().onStart()
         super.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.startPolling()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.stopPolling()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -354,5 +393,8 @@ class MainFragment : Fragment(), MainSection {
     companion object {
         const val TAG = "Main Fragment"
         const val MIN_ZOOM_SCALE = 15f
+        const val TIMEOUT_TO_POLL_LOCATION_POST = 3000L
+        const val TIMEOUT_TO_FETCH_FRIENDS = 5000L
+        const val TIMEOUT_TO_FETCH_MARKS = 10000L
     }
 }

@@ -1,4 +1,4 @@
-package com.example.flocator.main.ui.photo.adapters
+package com.example.flocator.main.data
 
 import com.example.flocator.common.cache.runtime.PhotoState
 

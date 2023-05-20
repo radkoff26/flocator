@@ -25,7 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 typealias LoadPhotoCallback = (uri: String) -> Unit
 typealias OnFriendViewClickCallback = (id: Long) -> MapObjectTapListener
 typealias OnMarkViewClickCallback = (id: Long) -> MapObjectTapListener
-typealias OnMarkGroupViewClickCallback = (id: Long) -> MapObjectTapListener
+typealias OnMarkGroupViewClickCallback = (marks: List<MarkWithPhotos>) -> MapObjectTapListener
 
 class FlocatorMapView @JvmOverloads constructor(
     context: Context,
@@ -214,16 +214,19 @@ class FlocatorMapView @JvmOverloads constructor(
                     }
                 } else {
                     val markGroupView = MarkGroupView(context)
-                    // TODO: Set listener
                     markGroupView.setCount(group.marks.size)
                     val viewProvider = ViewProvider(markGroupView)
-                    markGroupsViewState.add(
-                        MarkGroupViewDto(
-                            markGroupsCollection.addPlacemark(group.center, viewProvider),
-                            markGroupView,
-                            group.marks
-                        )
+                    val markGroup = MarkGroupViewDto(
+                        markGroupsCollection.addPlacemark(group.center, viewProvider),
+                        markGroupView,
+                        group.marks
                     )
+                    if (onMarkGroupViewClickCallback != null) {
+                        markGroupClickListeners[groupIndex.toLong()] =
+                            onMarkGroupViewClickCallback!!.invoke(group.marks)
+                        markGroup.placemark.addTapListener(markGroupClickListeners[groupIndex.toLong()]!!)
+                    }
+                    markGroupsViewState.add(markGroup)
                 }
             }
         }
