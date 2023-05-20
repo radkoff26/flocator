@@ -37,11 +37,11 @@ class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActi
 
     override fun onBindViewHolder(holder: ExternalFriendViewHolder, position: Int) {
         val person = data[position]
-        val context = holder.itemView.context
-
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            setAvatar(person.avatarUri!!, holder)
+            if(person.avatarUri != null){
+                setAvatar(person.avatarUri!!, holder)
+            }
         }
         holder.itemView.tag = person
     }

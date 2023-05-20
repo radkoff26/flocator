@@ -72,19 +72,9 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideGeocoderAPI(): GeocoderAPI = Retrofit.Builder()
-        .baseUrl(Constants.GEOCODER_URL)
-        .addConverterFactory(GsonConverterFactory.create(
-            GsonBuilder()
-                .registerTypeAdapter(AddressResponse::class.java, AddressDeserializer())
-                .setLenient()
-                .create()
-        ))
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .build().create()
+    fun provideGeocoderAPI(@GeocoderApi retrofit: Retrofit): GeocoderAPI = retrofit.create()
 
     @Provides
     @Singleton
-    fun provideUserAPI(retrofit: Retrofit): UserApi = retrofit.create()
-    fun provideGeocoderAPI(@GeocoderApi retrofit: Retrofit): GeocoderAPI = retrofit.create()
+    fun provideUserAPI(@BaseApi retrofit: Retrofit): UserApi = retrofit.create()
 }

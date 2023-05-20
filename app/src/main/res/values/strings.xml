@@ -37,7 +37,7 @@
     <string name="remove">Удалить</string>
     <string name="save">Сохранить</string>
     <string name="add_friend_by_link">Добавить друга</string>
-    <string name="link_friend">Ссылка на пользователя</string>
+    <string name="login_friend">Логин пользователя</string>
     <string name="isPublic">Видно всем?</string>
     <string name="loading">Загрузка</string>
     <!-- TODO: Remove or change this placeholder text -->

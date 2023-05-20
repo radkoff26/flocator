@@ -100,6 +100,7 @@ class ProfileFragment : Fragment(), CommunitySection {
             if (it != null) {
                 adapterForYourFriends.data = it
             }
+            println("Текущий юзер!!!!   " + adapterForYourFriends.data[0].firstName)
         })
         profileFragmentViewModel.currentUserLiveData.observe(viewLifecycleOwner, Observer {
             currentUser = it

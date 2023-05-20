@@ -14,8 +14,6 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.adapters.ExternalFriendActionListener
 import com.example.flocator.community.adapters.ExternalFriendAdapter
-import com.example.flocator.community.adapters.FriendActionListener
-import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.*
 import com.example.flocator.community.view_models.OtherPersonProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentPersonProfileBinding
@@ -111,6 +109,7 @@ class OtherPersonProfileFragment() : Fragment() {
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 btnAddFriendIsActive = true
                 otherPersonProfileFragmentViewModel.addOtherUserToFriend(currentUserId, thisUserId)
+                println("POST!!!!!!!!! $currentUserId   ----    $thisUserId")
             } else {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
                 binding.addPersonToFriend.text = "Добавить в друзья"

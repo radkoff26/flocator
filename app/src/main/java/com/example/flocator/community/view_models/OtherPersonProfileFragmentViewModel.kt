@@ -56,7 +56,7 @@ class OtherPersonProfileFragmentViewModel constructor(
 
     fun addOtherUserToFriend(userId: Long, friendId: Long){
         compositeDisposable.add(
-            repository.restApi.acceptNewFriend(userId, friendId)
+            repository.restApi.addNewFriendByBtn(userId, friendId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
