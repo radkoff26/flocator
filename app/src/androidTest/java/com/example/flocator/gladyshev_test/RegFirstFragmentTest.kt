@@ -1,6 +1,6 @@
 package com.example.flocator.gladyshev_test
 
-import RegFirstFragmentPage
+import com.example.flocator.gladyshev_test.pages.RegFragmentPage
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -15,11 +15,15 @@ import org.junit.Test
 
 @LargeTest
 class RegFirstFragmentTest : BaseTest() {
-    private lateinit var regFirstFragmentPage: RegFirstFragmentPage
+    private lateinit var regFirstFragmentPage: RegFragmentPage
+
+    companion object {
+        private const val EMPTY_FIELDS_ERROR = "Поля не должны быть пустыми!"
+    }
 
     @Before
     fun setup() {
-        regFirstFragmentPage = RegFirstFragmentPage()
+        regFirstFragmentPage = RegFragmentPage()
 
         activityScenario.scenario.onActivity {
             FragmentNavigationUtils.clearAllAndOpenFragment(
@@ -27,13 +31,16 @@ class RegFirstFragmentTest : BaseTest() {
                 RegFirstFragment()
             )
         }
+
+        onView(withId(R.id.submit_btn)).check(matches(isDisplayed()))
     }
 
     @Test
     fun testEmptyFirstNameAndLastName() {
-        regFirstFragmentPage.clickSubmitButton()
-        onView(withId(R.id.registration_error_message_text)).check(matches(isDisplayed()))
-        onView(withId(R.id.registration_error_message_text)).check(matches(withText("Поля не должны быть пустыми!")))
+        regFirstFragmentPage.clickButton(R.id.submit_btn)
+        onView(withId(R.id.registration_error_message_text))
+            .check(matches(isDisplayed()))
+            .check(matches(withText(EMPTY_FIELDS_ERROR)))
     }
 
     @Test
@@ -41,11 +48,11 @@ class RegFirstFragmentTest : BaseTest() {
         val firstName = "ivan"
         val lastName = "ivanov"
 
-        regFirstFragmentPage.typeFirstName(firstName)
-        regFirstFragmentPage.typeLastName(lastName)
-        regFirstFragmentPage.clickSubmitButton()
+        regFirstFragmentPage
+            .enterTextAndCloseKeyboard(R.id.first_input_edit_field, firstName)
+            .enterTextAndCloseKeyboard(R.id.second_input_edit_field, lastName)
+            .clickButton(R.id.submit_btn)
 
         onView(withId(R.id.second_fragment_root)).check(matches(isDisplayed()))
     }
-
 }
