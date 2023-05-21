@@ -18,7 +18,8 @@ import io.reactivex.disposables.CompositeDisposable
 class MarksListRecyclerViewAdapter(
     private var marksList: List<ListMarkDto>,
     private val requestPhotoLoadingCallback: (uri: String) -> Unit,
-    private val requestAuthorNameLoadingCallback: (userId: Long) -> Unit
+    private val requestAuthorNameLoadingCallback: (userId: Long) -> Unit,
+    private val openMarkFragmentCallback: (markId: Long) -> Unit
 ) : Adapter<MarksListRecyclerViewAdapter.MarksListViewHolder>() {
     private val compositeDisposable = CompositeDisposable()
 
@@ -27,6 +28,10 @@ class MarksListRecyclerViewAdapter(
 
         fun bind(position: Int) {
             val listMarkDto = marksList[position]
+
+            binding.root.setOnClickListener {
+                openMarkFragmentCallback.invoke(listMarkDto.mark.markId)
+            }
 
             binding.distanceToMark.text = listMarkDto.stringifiedDistanceToMark
             binding.markAddress.text = listMarkDto.mark.place

@@ -93,12 +93,22 @@ class MarkPhotoCarouselAdapter(
     }
 
     fun updatePhotos(value: Map<String, PhotoState>) {
-        val prev = photosState.toList()
-        photosState = value.toList()
-        for (i in photosState.indices) {
-            if (photosState[i] != prev[i]) {
-                notifyItemChanged(i)
+        val photosList = photosState.toMutableList()
+        val listOfChanges = ArrayList<Int>()
+        for (i in photosList.indices) {
+            val uri = photosList[i].first
+            val valueState = value[uri]
+            if (photosList[i].second != valueState && valueState != null) {
+                photosList[i] = Pair(
+                    uri,
+                    valueState
+                )
+                listOfChanges.add(i)
             }
+        }
+        photosState = photosList
+        listOfChanges.forEach {
+            notifyItemChanged(it)
         }
     }
 }

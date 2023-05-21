@@ -72,6 +72,7 @@ class MarkFragmentViewModel @Inject constructor(
                         loadAuthorData()
                     },
                     {
+                        Log.e(TAG, "loadMark: failed to load mark!", it)
                         _fragmentStateLiveData.value = MarkFragmentState.Failed(it)
                     }
                 )

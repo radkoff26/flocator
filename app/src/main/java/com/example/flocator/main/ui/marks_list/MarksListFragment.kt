@@ -20,10 +20,13 @@ import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.data.Photo
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.ui.main.data.PointDto
+import com.example.flocator.main.ui.mark.MarkFragment
 import com.example.flocator.main.ui.marks_list.adapters.MarksListRecyclerViewAdapter
 import com.example.flocator.main.ui.marks_list.data.ListMarkDto
+import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.disposables.CompositeDisposable
 
 @AndroidEntryPoint
 class MarksListFragment :
@@ -31,6 +34,8 @@ class MarksListFragment :
     private var _binding: FragmentMarksListBinding? = null
     private val binding: FragmentMarksListBinding
         get() = _binding!!
+
+    private val compositeDisposable = CompositeDisposable()
 
     private val viewModel: MarksListFragmentViewModel by viewModels()
 
@@ -127,7 +132,39 @@ class MarksListFragment :
             listMarkDtoList,
             viewModel::requestPhotoLoading,
             viewModel::requestUsernameLoading
-        )
+        ) { markId ->
+            compositeDisposable.add(
+                viewModel.getUserId()
+                    .subscribe(
+                        { userId ->
+                            val markFragment = MarkFragment().apply {
+                                arguments = Bundle().apply {
+                                    putLong(
+                                        BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
+                                        markId
+                                    )
+                                    putLong(
+                                        BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
+                                        userId
+                                    )
+                                }
+                            }
+                            markFragment.show(
+                                requireActivity().supportFragmentManager,
+                                MarkFragment.TAG
+                            )
+                        },
+                        {
+                            Snackbar.make(
+                                binding.root,
+                                "Ошибка!",
+                                Snackbar.LENGTH_SHORT
+                            ).setAnimationMode(Snackbar.ANIMATION_MODE_FADE).show()
+                            Log.e(TAG, "adjustRecyclerView: error while fetching user id", it)
+                        }
+                    )
+            )
+        }
         val horizontalLineDecoration = DividerItemDecoration(
             context,
             VERTICAL

@@ -6,10 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.cache.runtime.PhotoCacheLiveData
 import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.main.data.Photo
 import com.example.flocator.main.models.dto.UsernameDto
 import com.example.flocator.main.ui.marks_list.data.ListMarkDto
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -71,6 +73,12 @@ class MarksListFragmentViewModel @Inject constructor(
         marks.forEach {
             _photoToMarkRelation[it.photo.uri] = it.mark.markId
         }
+    }
+
+    fun getUserId(): Single<Long> {
+        return mainRepository.userInfoCache.getUserInfo()
+            .observeOn(AndroidSchedulers.mainThread())
+            .map(UserInfo::userId)
     }
 
     private fun updatePhoto(uri: String) {

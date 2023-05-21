@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bs"
@@ -14,90 +11,75 @@
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-
         <LinearLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="35dp"
             android:layout_gravity="center_vertical"
-            android:isScrollContainer="true"
+            android:layout_marginHorizontal="35dp"
+            android:orientation="vertical"
             android:paddingBottom="4dp">
 
-            <LinearLayout
-                style="@style/Widget.Material3.BottomSheet"
+            <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                android:id="@+id/drag_handle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
-                android:orientation="vertical"
-                app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-                >
+                android:layout_marginTop="8dp"
+                android:theme="@style/Theme.FLocator.DragHandle" />
 
-                <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-                    android:id="@+id/drag_handle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:theme="@style/Theme.FLocator.DragHandle" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp">
-                    <TextView
-                        android:id="@+id/settings_exit_account_popup_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/exit_account"
-                        android:textColor="@color/tint"
-                        android:gravity="center"
-                        android:textSize="24sp"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/exit_account_close_button"
-                        app:layout_constraintBottom_toBottomOf="@id/exit_account_close_button"
-                        />
-
-                    <ImageView
-                        app:layout_constraintLeft_toRightOf="@id/settings_exit_account_popup_title"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        android:layout_gravity="end"
-                        android:padding="10dp"
-                        android:id="@+id/exit_account_close_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/settings_close_popup"
-                        android:visibility="invisible"
-                        android:contentDescription="@string/close_window"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sure_exit_account"
-                    android:gravity="center_horizontal"
-                    android:textSize="16sp"
-                    android:textColor="#757575"
-
-                    />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/exit_account_confirm_button"
+                    android:id="@+id/settings_exit_account_popup_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    app:cornerRadius="9dp"
-                    android:text="@string/confirm"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    android:textColor="#FFF"
-                    android:backgroundTint="@color/tint"
-                    android:layout_marginTop="8dp"
-                    />
+                    android:gravity="center"
+                    android:text="@string/exit_account"
+                    android:textColor="@color/tint"
+                    android:textSize="24sp"
+                    app:layout_constraintBottom_toBottomOf="@id/exit_account_close_button"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/exit_account_close_button" />
 
-            </LinearLayout>
+                <ImageView
+                    android:id="@+id/exit_account_close_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:contentDescription="@string/close_window"
+                    android:padding="10dp"
+                    android:src="@drawable/settings_close_popup"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/settings_exit_account_popup_title"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/sure_exit_account"
+                android:textColor="#757575"
+                android:textSize="16sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/exit_account_confirm_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/tint"
+                android:text="@string/confirm"
+                android:textAllCaps="false"
+                android:textColor="#FFF"
+                android:textSize="16sp"
+                app:cornerRadius="9dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
