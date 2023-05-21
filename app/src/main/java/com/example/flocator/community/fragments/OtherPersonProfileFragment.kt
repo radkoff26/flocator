@@ -14,8 +14,6 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.adapters.ExternalFriendActionListener
 import com.example.flocator.community.adapters.ExternalFriendAdapter
-import com.example.flocator.community.adapters.FriendActionListener
-import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.data_classes.*
 import com.example.flocator.community.view_models.OtherPersonProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentPersonProfileBinding
@@ -40,10 +38,20 @@ class OtherPersonProfileFragment() : Fragment() {
     private lateinit var adapterForFriends: ExternalFriendAdapter
     private var currentUserId by Delegates.notNull<Long>()
     private var currentUser: UserExternal = UserExternal(
-        -1, "", "", "", false,
-        Timestamp(System.currentTimeMillis()), ArrayList<UserExternalFriends>(), false, false
+        -1,
+        "",
+        "",
+        "",
+        false,
+        Timestamp(System.currentTimeMillis()),
+        ArrayList<UserExternalFriends>(),
+        false,
+        false,
+        false,
+        false
     )
     private var thisUserId by Delegates.notNull<Long>()
+    private var isFriend = false
 
     object Constants {
         const val NAME_AND_SURNAME = "nameAndSurnamePerson"
@@ -63,7 +71,10 @@ class OtherPersonProfileFragment() : Fragment() {
         val args: Bundle? = arguments
         if (args != null) {
             currentUserId = args.getLong(Constants.CURRENT_USER_ID)
-            otherPersonProfileFragmentViewModel.fetchUser(currentUserId, args.getLong(Constants.USER_ID))
+            otherPersonProfileFragmentViewModel.fetchUser(
+                currentUserId,
+                args.getLong(Constants.USER_ID)
+            )
         }
         adapterForFriends = ExternalFriendAdapter(object : ExternalFriendActionListener {
             override fun onPersonOpenProfile(user: UserExternalFriends) {
@@ -78,17 +89,113 @@ class OtherPersonProfileFragment() : Fragment() {
         binding.friendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.friendsRecyclerView.adapter = adapterForFriends
 
-        otherPersonProfileFragmentViewModel.currentUserLiveData.observe(viewLifecycleOwner, Observer {
-            currentUser = it
-            binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
-            currentUser.avatarUri?.let { it1 -> setAvatar(it1) }
-            if(currentUser.isFriend == true){
-                binding.addPersonToFriend.text = "Удалить из друзей"
-                binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
-                binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
-            }
-            thisUserId = currentUser.userId!!
-        })
+        otherPersonProfileFragmentViewModel.currentUserLiveData.observe(
+            viewLifecycleOwner,
+            Observer {
+                currentUser = it
+                binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
+                currentUser.avatarUri?.let { it1 -> setAvatar(it1) }
+
+                if (currentUser.isFriend!!) {
+                    binding.addPersonToFriend.text = "Удалить из друзей"
+                    binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
+                    binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
+                    binding.addPersonToFriend.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.deleteMyFriend(
+                            currentUserId,
+                            thisUserId
+                        )
+                        binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
+                        binding.addPersonToFriend.text = "Добавить в друзья"
+                        binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
+                    }
+                } else if (currentUser.hasUserRequestedFriendship!!) {
+                    binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
+                    binding.addPersonToFriend.text = "Принять заявку"
+                    binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
+                    binding.addPersonToFriend.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.acceptFriend(currentUserId, thisUserId)
+                        binding.addPersonToFriend.text = "Удалить из друзей"
+                        binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
+                        binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
+                    }
+                } else {
+                    binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
+                    binding.addPersonToFriend.text = "Добавить в друзья"
+                    binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
+                    binding.addPersonToFriend.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.addOtherUserToFriend(
+                            currentUserId,
+                            thisUserId
+                        )
+                        binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
+                        binding.addPersonToFriend.text = "Отменить заявку"
+                        binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
+                    }
+                }
+                thisUserId = currentUser.userId!!
+                if (currentUser.isOnline == true) {
+                    binding.wasOnline.text = "Online"
+                } else {
+                    binding.wasOnline.text = "Был в сети " + currentUser.lastOnline.toString()
+                }
+                println("БЛОКККК    " + currentUser.isBlockedByUser)
+                if (currentUser.isBlockedByUser!! && !currentUser.hasBlockedUser!!) {
+                    collapseInfo()
+                    binding.friends.text = "Вы заблокировали пользователя"
+                    binding.friends.setTextColor(resources.getColor(R.color.font))
+                    binding.blockPerson.text = "Разблокировать"
+                    binding.blockPerson.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.unblock(currentUserId, thisUserId)
+                        showInfo()
+                        binding.friends.text = "Друзья"
+                        binding.friends.setTextColor(resources.getColor(R.color.dark))
+                        binding.blockPerson.text = "Заблокировать"
+                    }
+                }
+
+                if (!currentUser.isBlockedByUser!! && !currentUser.hasBlockedUser!!) {
+                    binding.blockPerson.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.deleteMyFriend(
+                            currentUserId,
+                            thisUserId
+                        )
+                        otherPersonProfileFragmentViewModel.block(currentUserId, thisUserId)
+                        collapseInfo()
+                        binding.friends.text = "Вы заблокировали пользователя"
+                        binding.friends.setTextColor(resources.getColor(R.color.font))
+                        binding.blockPerson.text = "Разблокировать"
+                    }
+                }
+
+                if (currentUser.hasBlockedUser!! && !currentUser.isBlockedByUser!!) {
+                    collapseInfo()
+                    binding.friends.text = "Пользователь вас заблокировал"
+                    binding.friends.setTextColor(resources.getColor(R.color.font))
+                    binding.blockPerson.text = "Заблокировать"
+                    binding.blockPerson.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.block(currentUserId, thisUserId)
+                        binding.friends.text = "Вы заблокировали пользователя"
+                        binding.friends.setTextColor(resources.getColor(R.color.font))
+                        binding.blockPerson.text = "Разблокировать"
+                    }
+
+                }
+
+                if (currentUser.hasBlockedUser!! && currentUser.isBlockedByUser!!) {
+                    collapseInfo()
+                    binding.friends.text = "Вы заблокировали пользователя"
+                    binding.friends.setTextColor(resources.getColor(R.color.font))
+                    binding.blockPerson.text = "Разблокировать"
+                    binding.blockPerson.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.unblock(currentUserId, thisUserId)
+                        binding.friends.text = "Пользователь вас заблокировал"
+                        binding.friends.setTextColor(resources.getColor(R.color.font))
+                        binding.blockPerson.text = "Заблокировать"
+                    }
+                }
+
+            })
 
         binding.buttonBack.setOnClickListener {
             if (parentFragmentManager.backStackEntryCount > 0) {
@@ -104,21 +211,7 @@ class OtherPersonProfileFragment() : Fragment() {
                 }
             }
         )
-        binding.addPersonToFriend.setOnClickListener {
-            if (!btnAddFriendIsActive) {
-                binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
-                binding.addPersonToFriend.text = "Отменить заявку"
-                binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
-                btnAddFriendIsActive = true
-                otherPersonProfileFragmentViewModel.addOtherUserToFriend(currentUserId, thisUserId)
-            } else {
-                binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
-                binding.addPersonToFriend.text = "Добавить в друзья"
-                binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
-                btnAddFriendIsActive = false
-            }
 
-        }
         return binding.root
     }
 
@@ -149,13 +242,25 @@ class OtherPersonProfileFragment() : Fragment() {
         }
     }
 
+    fun collapseInfo() {
+        binding.friendsRecyclerView.visibility = View.GONE
+        binding.addPersonToFriend.visibility = View.GONE
+    }
+
+    fun showInfo() {
+        binding.friendsRecyclerView.visibility = View.VISIBLE
+        binding.addPersonToFriend.visibility = View.VISIBLE
+    }
+
     private fun setAvatar(uri: String) {
+        binding.userPhotoSkeleton.showSkeleton()
         LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {
                     binding.profileImage.setImageBitmap(it)
+                    binding.userPhotoSkeleton.showOriginal()
                 },
                 {
                     Log.d("TestLog", "no")

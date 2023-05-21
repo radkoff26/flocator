@@ -26,8 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="18dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/drag_handle_image" />
+                android:theme="@style/Theme.FLocator.DragHandle" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -152,7 +151,7 @@
                 android:weightSum="2">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/add_mark_btn"
+                    android:id="@+id/save_mark_btn"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_marginBottom="12dp"

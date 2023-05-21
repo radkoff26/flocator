@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Round Image View -->
     <style name="ShapeAppearance.App.CircleImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
@@ -8,6 +9,7 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">15%</item>
     </style>
+    <!-- Dialog -->
     <style name="DialogTheme" parent="Theme.FLocator">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">false</item>
@@ -17,6 +19,7 @@
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
+    <!-- Bottom Sheet -->
     <style name="BottomSheetDialogTheme"
         parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppModalStyle</item>
@@ -24,5 +27,10 @@
     <style name="AppModalStyle"
         parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/rounded_dialog</item>
+    </style>
+    <!-- Drag Handle -->
+    <style name="Theme.FLocator.DragHandle" parent="Theme.FLocator">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:src">@drawable/drag_handle_image</item>
     </style>
 </resources>

@@ -11,8 +11,13 @@ sealed class BundleArgumentsContraction {
         const val USER_ID = "USER_ID"
     }
 
-    object PhotoPagerFragment: BundleArgumentsContraction() {
+    object PhotoPagerFragmentArguments: BundleArgumentsContraction() {
         const val URI_LIST = "URI_LIST"
         const val POSITION = "POSITION"
+    }
+
+    object MarksListFragmentArguments: BundleArgumentsContraction() {
+        const val USER_POINT = "USER_POINT"
+        const val MARKS = "MARKS"
     }
 }

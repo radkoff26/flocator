@@ -19,4 +19,4 @@ data class MarkPhoto(
     @PrimaryKey
     val uri: String,
     val markId: Long
-)
+) : java.io.Serializable

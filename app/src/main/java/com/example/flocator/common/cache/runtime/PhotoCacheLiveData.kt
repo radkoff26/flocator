@@ -5,11 +5,12 @@ import android.util.Log
 import android.util.LruCache
 import androidx.lifecycle.LiveData
 import com.example.flocator.common.utils.LoadUtils
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
 class PhotoCacheLiveData(
-    private val qualityFactor: Int
+    private val qualityFactor: Int = 100
 ) : LiveData<LruCache<String, PhotoState>>() {
     private val compositeDisposable = CompositeDisposable()
     private val maxCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
@@ -43,8 +44,25 @@ class PhotoCacheLiveData(
         }
     }
 
-    // Dangerous function: can lead to NPE, so invoke only if made sure
-    fun getPhoto(uri: String): Bitmap? {
+    fun getPhotoAsync(uri: String): Single<Bitmap> {
+        val photoState = value!![uri]
+        if (photoState !is PhotoState.Loaded) {
+            return LoadUtils.loadPictureFromUrl(uri, qualityFactor)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    value!!.put(uri, PhotoState.Loading)
+                }
+                .doOnSuccess {
+                    updateMap(uri, PhotoState.Loaded(it))
+                }
+                .doOnError {
+                    updateMap(uri, PhotoState.Failed(it))
+                }
+        }
+        return Single.just(photoState.bitmap)
+    }
+
+    private fun getPhoto(uri: String): Bitmap? {
         val photo = value!![uri]
         if (photo != null && photo is PhotoState.Loaded) {
             return photo.bitmap

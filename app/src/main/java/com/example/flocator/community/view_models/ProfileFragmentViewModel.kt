@@ -14,7 +14,6 @@ import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.User
 import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.fragments.ProfileFragment
-import com.example.flocator.community.fragments.UserRepository
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers

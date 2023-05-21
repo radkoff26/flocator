@@ -48,6 +48,6 @@ class UserLocationHandler(
     }
 
     companion object {
-        const val FREQUENCY = 5000L
+        const val FREQUENCY = 2000L
     }
 }

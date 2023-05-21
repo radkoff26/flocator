@@ -37,11 +37,11 @@ class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActi
 
     override fun onBindViewHolder(holder: ExternalFriendViewHolder, position: Int) {
         val person = data[position]
-        val context = holder.itemView.context
-
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            setAvatar(person.avatarUri!!, holder)
+            if(person.avatarUri != null){
+                setAvatar(person.avatarUri!!, holder)
+            }
         }
         holder.itemView.tag = person
     }
@@ -52,12 +52,16 @@ class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActi
     }
 
     private fun setAvatar(uri: String, holder: ExternalFriendViewHolder){
+        holder.binding.userPhotoSkeleton.showSkeleton()
+        holder.binding.userNameSkeleton.showSkeleton()
         LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {
                     holder.binding.profileImage.setImageBitmap(it)
+                    holder.binding.userNameSkeleton.showOriginal()
+                    holder.binding.userPhotoSkeleton.showOriginal()
                 },
                 {
                     Log.d("TestLog", "no")

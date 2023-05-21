@@ -16,7 +16,7 @@ import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.databinding.FragmentPhotoPagerBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
-import com.example.flocator.main.ui.photo.adapters.Photo
+import com.example.flocator.main.data.Photo
 import com.example.flocator.main.ui.photo.adapters.PhotoRecyclerViewAdapter
 
 class PhotoPagerFragment : DialogFragment(), MainSection {
@@ -35,7 +35,7 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
         super.onAttach(context)
         // Must be passed to Fragment
         uriList =
-            requireArguments().getStringArrayList(BundleArgumentsContraction.PhotoPagerFragment.URI_LIST)!!
+            requireArguments().getStringArrayList(BundleArgumentsContraction.PhotoPagerFragmentArguments.URI_LIST)!!
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -142,7 +142,7 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
         binding.photoPager.adapter = adapter
 
         val position =
-            requireArguments().getInt(BundleArgumentsContraction.PhotoPagerFragment.POSITION)
+            requireArguments().getInt(BundleArgumentsContraction.PhotoPagerFragmentArguments.POSITION)
 
         binding.photoPager.setCurrentItem(position, false)
     }
