@@ -69,9 +69,7 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
 
         with(holder.binding) {
             newFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            if(person.avatarUri == null){
-                setAvatar("", holder)
-            } else {
+            if(person.avatarUri != null){
                 setAvatar(person.avatarUri!!, holder)
             }
         }

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -30,6 +31,7 @@ import com.faltenreich.skeletonlayout.Skeleton
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -47,7 +49,7 @@ class ProfileFragment : Fragment(), CommunitySection {
     private lateinit var adapterForYourFriends: FriendAdapter
     private var currentUser: User = User(1, "1", "1", "1",false,
         Timestamp(System.currentTimeMillis()),ArrayList<FriendRequests>(),ArrayList<Friends>())
-    private lateinit var skeleton: Skeleton
+    private val compositeDisposable = CompositeDisposable()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -147,9 +149,25 @@ class ProfileFragment : Fragment(), CommunitySection {
             addFriendByLinkFragment.arguments = args
             addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
         }
-        binding.buttonBack.setOnClickListener {
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+            setHomeAsUpIndicator(R.drawable.back)
+        }
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+        
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (parentFragmentManager.backStackEntryCount > 0) {
+                        parentFragmentManager.popBackStack()
+                    }
+                }
+            }
+        )
 
         return binding.root
     }
@@ -195,18 +213,24 @@ class ProfileFragment : Fragment(), CommunitySection {
 
     private fun setAvatar(uri: String) {
         binding.userPhotoSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    binding.profileImage.setImageBitmap(it)
-                    binding.userPhotoSkeleton.showOriginal()
-                },
-                {
-                    Log.d("TestLog", "no")
-                }
-            )
+        compositeDisposable.add(
+            LoadUtils.loadPictureFromUrl(uri, 100)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        binding.profileImage.setImageBitmap(it)
+                        binding.userPhotoSkeleton.showOriginal()
+                    },
+                    {
+                        Log.d("TestLog", "no")
+                    }
+                )
+        )
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 
     override fun onDestroyView() {

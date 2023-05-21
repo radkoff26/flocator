@@ -253,6 +253,10 @@ class MainRepository @Inject constructor(
             return userApi.unblockUser(blockerId, blockedId).subscribeOn(Schedulers.io())
         }
 
+        fun checkLogin(login: String): Single<Boolean>{
+            return userApi.isLoginAvailable(login).subscribeOn(Schedulers.io())
+        }
+
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
                 settingsAPI.changeAvatar(

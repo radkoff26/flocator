@@ -19,15 +19,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageButton
-                android:id="@+id/buttonBack"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:background="@android:color/transparent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/back_image" />
-
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                app:titleTextColor="#1515B9"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/white"
+                />
 
             <com.faltenreich.skeletonlayout.SkeletonLayout
                 android:id="@+id/user_photo_skeleton"
@@ -36,7 +34,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/buttonBack"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar"
                 app:maskCornerRadius="50dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView

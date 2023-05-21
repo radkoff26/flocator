@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,6 +47,7 @@ class OtherPersonProfileFragment() : Fragment() {
         false,
         Timestamp(System.currentTimeMillis()),
         ArrayList<UserExternalFriends>(),
+        false,
         false,
         false,
         false,
@@ -120,7 +122,18 @@ class OtherPersonProfileFragment() : Fragment() {
                         binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                         binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                     }
-                } else {
+                } else if(currentUser.hasTargetUserRequestedFriendship!!){
+                    binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
+                    binding.addPersonToFriend.text = "Отменить заявку"
+                    binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
+                    binding.addPersonToFriend.setOnClickListener {
+                        otherPersonProfileFragmentViewModel.cancelFriendRequest(thisUserId, currentUserId)
+                        binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
+                        binding.addPersonToFriend.text = "Добавить в друзья"
+                        binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
+                    }
+                }
+                else {
                     binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
                     binding.addPersonToFriend.text = "Добавить в друзья"
                     binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
@@ -204,11 +217,20 @@ class OtherPersonProfileFragment() : Fragment() {
 
             })
 
-        binding.buttonBack.setOnClickListener {
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            title=""
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+            setHomeAsUpIndicator(R.drawable.back)
+        }
+
+        binding.toolbar.setNavigationOnClickListener {
             if (parentFragmentManager.backStackEntryCount > 0) {
                 parentFragmentManager.popBackStack()
             }
         }
+
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {

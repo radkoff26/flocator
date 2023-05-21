@@ -146,19 +146,6 @@ class ProfileFragmentViewModel @Inject constructor(
         return newFriends?.size ?: 0
     }
 
-    /*private fun addListener(listener: UserNewFriendActionListener) {
-        listeners.add(listener)
-        listener.invoke(newFriendsLiveData.value as List<User>)
-    }
-
-    private fun removeListener(listener: UserNewFriendActionListener) {
-        listeners.remove(listener)
-        listener.invoke(newFriendsLiveData.value as List<User>)
-    }
-
-    private fun notifyChanges() =
-        listeners.forEach { it.invoke(newFriendsLiveData.value as List<User>) }*/
-
     private val listener: UserNewFriendActionListener = {
         _newFriendsLiveData.value = it as MutableList<FriendRequests>
     }

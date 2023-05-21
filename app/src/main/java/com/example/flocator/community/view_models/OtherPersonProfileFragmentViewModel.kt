@@ -137,6 +137,22 @@ class OtherPersonProfileFragmentViewModel constructor(
         )
     }
 
+    fun cancelFriendRequest(userId: Long, friendId: Long){
+        compositeDisposable.add(
+            repository.restApi.rejectNewFriend(userId, friendId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(TAG, "cancelFriendRequest ERROR", it)
+                    }
+                )
+        )
+    }
+
     private fun updateFriends(user: UserExternal) {
         _currentUserLiveData.value = user
         _friendsLiveData.value = user.friends
