@@ -355,9 +355,11 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val cameraPosition =
-            CameraPositionDto.fromCameraPosition(binding.mapView.map.cameraPosition)
-        outState.putParcelable("CAMERA_POSITION", cameraPosition)
+        if  (_binding != null) {
+            val cameraPosition =
+                CameraPositionDto.fromCameraPosition(binding.mapView.map.cameraPosition)
+            outState.putParcelable("CAMERA_POSITION", cameraPosition)
+        }
     }
 
     override fun onPause() {
