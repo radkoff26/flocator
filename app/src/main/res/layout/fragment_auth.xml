@@ -36,11 +36,11 @@
         app:layout_constraintVertical_weight="0.8">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/email_login_field"
+            android:id="@+id/login_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:hint="@string/email"
+            android:hint="@string/login"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
