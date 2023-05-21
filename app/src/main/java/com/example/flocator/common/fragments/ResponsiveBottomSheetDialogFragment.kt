@@ -69,12 +69,12 @@ abstract class ResponsiveBottomSheetDialogFragment(
         )
         coordinator.requestLayout()
         val behavior = (dialog as BottomSheetDialog).behavior
-        if (isPortrait()) {
+        if (isPortrait() || innerLayout.measuredHeight < height / 2) {
             behavior.state =
                 BottomSheetBehavior.STATE_EXPANDED
         } else {
             behavior.state =
-                BottomSheetBehavior.STATE_HALF_EXPANDED // TODO: full expand if height is big
+                BottomSheetBehavior.STATE_HALF_EXPANDED // TODO: full expanded if height is low
         }
     }
 

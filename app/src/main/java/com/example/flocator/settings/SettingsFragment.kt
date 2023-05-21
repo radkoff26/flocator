@@ -37,7 +37,6 @@ class SettingsFragment: Fragment(), SettingsSection {
 
     private lateinit var fragmentView: View
 
-    //    val clientAPI: ClientAPI = retrofit.create(ClientAPI::class.java)
     @Inject lateinit var clientAPI: ClientAPI
     @Inject lateinit var mainRepository: MainRepository
     override fun onCreateView(

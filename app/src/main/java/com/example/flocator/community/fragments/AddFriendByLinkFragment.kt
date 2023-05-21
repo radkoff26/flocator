@@ -23,8 +23,8 @@ import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
-    AddMarkFragment.BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
-    AddMarkFragment.BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
 ), CommunitySection {
     private var _binding: FragmentAddFriendBinding? = null
     private val binding: FragmentAddFriendBinding
@@ -63,6 +63,7 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
 
         binding.addFriendConfirmButton.setOnClickListener {
             if(binding.userLoginText.text.toString().isNotEmpty()){
+                println(binding.userLoginText.text.toString())
                 addFriendByLinkFragmentViewModel.addFriendByLogin(currentUserId, binding.userLoginText.text.toString())
                 dismiss()
             }

@@ -79,7 +79,6 @@ class MainRepository @Inject constructor(
                         .connect()
                         .subscribe(
                             {
-                                Log.d(TAG, "getAllFriendsOfUser: friends $it")
                                 emitter.onSuccess(it)
                                 compositeDisposable.add(
                                     cacheDatabase.updateFriends(it)
@@ -123,7 +122,6 @@ class MainRepository @Inject constructor(
                         .connect()
                         .subscribe(
                             {
-                                Log.d(TAG, "getMarksForUser: marks $it")
                                 val marks = it.map(MarkDto::toMarkWithPhotos)
                                 emitter.onSuccess(marks)
                                 val photos = marks.map(MarkWithPhotos::photos).flatten()
@@ -237,6 +235,22 @@ class MainRepository @Inject constructor(
 
         fun acceptNewFriend(userId: Long, friendId: Long): Completable {
             return userApi.acceptNewFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+        fun addNewFriendByBtn(userId: Long, friendId: Long): Completable{
+            return userApi.addNewFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+        fun deleteFriendByBtn(userId: Long, friendId: Long): Completable{
+            return userApi.deleteFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+        fun blockUserByBtn(blockerId: Long, blockedId: Long): Completable{
+            return userApi.blockUser(blockerId, blockedId).subscribeOn(Schedulers.io())
+        }
+
+        fun unblockUserByBtn(blockerId: Long, blockedId: Long): Completable{
+            return userApi.unblockUser(blockerId, blockedId).subscribeOn(Schedulers.io())
         }
 
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
@@ -360,6 +374,13 @@ class MainRepository @Inject constructor(
         }
 
 
+        fun goOnline(userId: Long): Completable {
+            return clientAPI.goOnline(userId).subscribeOn(Schedulers.io())
+        }
+
+        fun goOffline(userId: Long): Completable {
+            return clientAPI.goOffline(userId).subscribeOn(Schedulers.io())
+        }
     }
 
     inner class CacheDatabase {

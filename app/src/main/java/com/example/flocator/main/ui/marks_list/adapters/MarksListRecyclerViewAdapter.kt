@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.flocator.R
 import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.utils.TimePresentationUtils
 import com.example.flocator.databinding.MarksListItemBinding
 import com.example.flocator.main.data.Photo
 import com.example.flocator.main.ui.marks_list.data.ListMarkDto
@@ -29,7 +30,8 @@ class MarksListRecyclerViewAdapter(
 
             binding.distanceToMark.text = listMarkDto.stringifiedDistanceToMark
             binding.markAddress.text = listMarkDto.mark.place
-            binding.whenCreated.text = listMarkDto.mark.createdAt.toString()
+            binding.whenCreated.text =
+                TimePresentationUtils.timestampToHumanPresentation(listMarkDto.mark.createdAt)
             binding.photosCount.text =
                 view.resources.getString(R.string.photo_count, listMarkDto.photoCount)
 

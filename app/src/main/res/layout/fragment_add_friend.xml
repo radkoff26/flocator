@@ -80,8 +80,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="36dp"
                     android:background="@drawable/settings_popup_textfields"
-                    android:hint="@string/link_friend"
-                    android:inputType="textPassword"
+                    android:hint="@string/login_friend"
                     android:padding="0dp"
                     android:textSize="16sp" />
             </com.google.android.material.textfield.TextInputLayout>

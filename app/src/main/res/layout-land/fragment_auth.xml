@@ -7,48 +7,42 @@
     android:background="@android:color/white"
     tools:context=".authentication.authorization.AuthFragment">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
-        android:id="@id/logo_flocator"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-
-        android:layout_marginTop="60dp"
-        android:gravity="center_horizontal"
+        android:id="@+id/logo_flocator"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:src="@drawable/logo"
-        android:textColor="#1515B9"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/window_registration_name"
-        app:layout_constraintHorizontal_weight="0.8"
-        app:layout_constraintLeft_toRightOf="@id/guideline_left"
-        app:layout_constraintRight_toLeftOf="@id/guideline_right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_weight="0.2" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintHorizontal_bias="0.5" />
+
+
 
     <LinearLayout
-        android:id="@+id/window_registration_name"
+        android:id="@+id/window_auth"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center_horizontal|center_vertical"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintLeft_toRightOf="@id/guideline_left"
         app:layout_constraintRight_toLeftOf="@id/guideline_right"
         app:layout_constraintTop_toBottomOf="@id/logo_flocator"
         app:layout_constraintVertical_weight="0.8">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/first_input_field"
+            android:id="@+id/email_login_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="6dp"
+            android:hint="@string/email"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -58,17 +52,18 @@
             app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/first_input_edit_field"
+                android:id="@+id/email_login_field_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/second_input_field"
+            android:id="@+id/password_login_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="2dp"
+            android:hint="@string/password_hint"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -78,53 +73,56 @@
             app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/second_input_edit_field"
+                android:id="@+id/password_login_field_edit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
 
             <TextView
-                android:id="@+id/registration_error_message_text"
+                android:id="@+id/login_error_message_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:textColor="@android:color/holo_red_dark"
                 android:textSize="12sp"
                 android:visibility="gone" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
+
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/submit_btn"
+            android:id="@+id/entrance_btn"
             style="@style/Widget.Material3.Button.IconButton.Filled"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:backgroundTint="@color/tint"
-            android:textColor="@color/white"
+            android:text="@string/entry_button_text"
             android:textSize="16sp"
             app:cornerRadius="9dp" />
 
-        <TextView
-            android:id="@+id/already_registered_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:text="@string/already_registered"
-            android:textColor="@color/tint"
-            android:textSize="16sp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/registration_btn"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:backgroundTint="#EBEBEB"
+            android:text="@string/register_button_text"
+            android:textColor="#121212"
+            android:textSize="16sp"
+            app:cornerRadius="9dp" />
 
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@id/guideline_left"
+        android:id="@+id/guideline_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.1" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@id/guideline_right"
+        android:id="@+id/guideline_right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

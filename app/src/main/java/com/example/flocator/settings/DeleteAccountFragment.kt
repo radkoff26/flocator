@@ -57,7 +57,7 @@ class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
         closeButton.setOnClickListener {
             dismiss()
         }
-2
+
         confirmButton.setOnClickListener {
             val pass = passwordField.text
             if (pass == null || pass.isEmpty()) {

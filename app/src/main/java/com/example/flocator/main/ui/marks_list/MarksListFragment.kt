@@ -94,6 +94,7 @@ class MarksListFragment :
         val marks = requireArguments().getSerializable(
             BundleArgumentsContraction.MarksListFragmentArguments.MARKS
         ) as ArrayList<MarkDto>
+        binding.marksCount.text = resources.getString(R.string.marks_count, marks.size)
         // If data has been already loaded into view model,
         // then it's very likely that its data will be more complete
         val listMarkDtoList = if (viewModel.marksListLiveData.value == null) {
@@ -150,6 +151,6 @@ class MarksListFragment :
     companion object {
         const val TAG = "Marks List Fragment"
         const val WIDTH_RATION_PORTRAIT = 1.0
-        const val WIDTH_RATION_LANDSCAPE = 1.0
+        const val WIDTH_RATION_LANDSCAPE = 0.9
     }
 }

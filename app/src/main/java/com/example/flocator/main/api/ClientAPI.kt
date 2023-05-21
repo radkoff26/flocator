@@ -48,4 +48,10 @@ interface ClientAPI {
 
     @GET("user/username/{userId}")
     fun getUsername(@Path("userId") userId: Long): Single<UsernameDto>
+
+    @POST("user/online")
+    fun goOnline(@Query("userId") userId: Long): Completable
+
+    @POST("user/offline")
+    fun goOffline(@Query("userId") userId: Long): Completable
 }

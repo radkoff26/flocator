@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -109,6 +110,15 @@ class RegSecondFragment : Fragment(), Authentication {
         }
 
         binding.secondInputEditField.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        val displayMetrics = resources.displayMetrics
+        val screenHeight = displayMetrics.heightPixels
+        val marginTopPercent = 0.05
+        val marginTop = (screenHeight * marginTopPercent).toInt()
+
+        val logoImageView = binding.logoFlocator
+        val layoutParams = logoImageView.layoutParams as ConstraintLayout.LayoutParams
+        layoutParams.setMargins(0, marginTop, 0, 0)
+        logoImageView.layoutParams = layoutParams
         return binding.root
     }
 
