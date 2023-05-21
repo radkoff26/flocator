@@ -9,10 +9,13 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.example.flocator.R
 import com.example.flocator.common.cache.runtime.PhotoState
+import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.polling.TimeoutPoller
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.community.fragments.ProfileFragment
@@ -41,6 +44,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.lang.Float.max
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), MainSection {
@@ -52,11 +56,16 @@ class MainFragment : Fragment(), MainSection {
     // ViewModel
     private val viewModel: MainFragmentViewModel by viewModels()
 
+    // Connection
+    @Inject
+    lateinit var connectionLiveData: ConnectionLiveData
+
     // Rx
     private val compositeDisposable = CompositeDisposable()
 
     // Handlers
     private lateinit var userLocationTimeoutPoller: TimeoutPoller
+    private lateinit var userInfoTimeoutPoller: TimeoutPoller
     private lateinit var marksFetchingTimeoutPoller: TimeoutPoller
     private lateinit var friendsFetchingTimeoutPoller: TimeoutPoller
 
@@ -111,22 +120,24 @@ class MainFragment : Fragment(), MainSection {
             },
             { id ->
                 MapObjectTapListener { _, _ ->
-                    val markFragment = MarkFragment().apply {
-                        arguments = Bundle().apply {
-                            putLong(
-                                BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
-                                id
-                            )
-                            putLong(
-                                BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
-                                viewModel.userInfo!!.userId
-                            )
+                    if (viewModel.userInfoLiveData.value != null) {
+                        val markFragment = MarkFragment().apply {
+                            arguments = Bundle().apply {
+                                putLong(
+                                    BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
+                                    id
+                                )
+                                putLong(
+                                    BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
+                                    viewModel.userInfoLiveData.value!!.userId
+                                )
+                            }
                         }
+                        markFragment.show(
+                            requireActivity().supportFragmentManager,
+                            TAG
+                        )
                     }
-                    markFragment.show(
-                        requireActivity().supportFragmentManager,
-                        TAG
-                    )
                     true
                 }
             },
@@ -237,6 +248,14 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onPhotoLoaded
         )
+        viewModel.userInfoLiveData.observe(
+            viewLifecycleOwner,
+            this::onUserInfoChanged
+        )
+        connectionLiveData.observe(
+            viewLifecycleOwner,
+            this::onConnectionChanged
+        )
 
         viewModel.requestInitialLoading()
 
@@ -257,6 +276,12 @@ class MainFragment : Fragment(), MainSection {
                     emitter.emit()
                 }
             }
+        )
+
+        userInfoTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_FETCH_USER_INFO,
+            viewModel::fetchUserInfo
         )
 
         friendsFetchingTimeoutPoller = TimeoutPoller(
@@ -289,6 +314,25 @@ class MainFragment : Fragment(), MainSection {
         }
     }
 
+    private fun onConnectionChanged(value: Boolean) {
+        if (value) {
+            // Has connection
+            Snackbar.make(
+                binding.root,
+                resources.getString(R.string.return_to_connection),
+                Snackbar.LENGTH_LONG
+            ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+            viewModel.goOnlineAsUser()
+        } else {
+            // No connection
+            Snackbar.make(
+                binding.root,
+                resources.getString(R.string.no_connection),
+                Snackbar.LENGTH_LONG
+            ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
+        }
+    }
+
     private fun initializeWidths() {
         val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -306,6 +350,7 @@ class MainFragment : Fragment(), MainSection {
         binding.mapView.onStart()
         MapKitFactory.getInstance().onStart()
         super.onStart()
+        viewModel.goOnlineAsUser()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -313,6 +358,11 @@ class MainFragment : Fragment(), MainSection {
         val cameraPosition =
             CameraPositionDto.fromCameraPosition(binding.mapView.map.cameraPosition)
         outState.putParcelable("CAMERA_POSITION", cameraPosition)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.goOfflineAsUser()
     }
 
     override fun onStop() {
@@ -329,7 +379,7 @@ class MainFragment : Fragment(), MainSection {
 
     // Listener callbacks
     private fun onUserLocationChanged(point: Point?) {
-        if (point == null || viewModel.userInfo == null) {
+        if (point == null || viewModel.userInfoLiveData.value == null) {
             return
         }
         if (!isInitializedCamera.get()) {
@@ -345,7 +395,18 @@ class MainFragment : Fragment(), MainSection {
         }
         binding.mapView.updateUserOnMap(
             point,
-            viewModel.userInfo!!,
+            viewModel.userInfoLiveData.value!!,
+            viewModel.photoCacheLiveData.value!!
+        )
+    }
+
+    private fun onUserInfoChanged(value: UserInfo?) {
+        if (viewModel.userLocationLiveData.value == null || value == null) {
+            return
+        }
+        binding.mapView.updateUserOnMap(
+            viewModel.userLocationLiveData.value!!,
+            value,
             viewModel.photoCacheLiveData.value!!
         )
     }
@@ -373,18 +434,24 @@ class MainFragment : Fragment(), MainSection {
     }
 
     private fun onMarksStateChanged(value: List<MarkGroup>) {
+        if (viewModel.userInfoLiveData.value == null) {
+            return
+        }
         binding.mapView.updateVisibleMarksOnMap(
             value,
             viewModel.friendsLiveData.value!!,
             viewModel.photoCacheLiveData.value!!,
-            viewModel.userInfo
+            viewModel.userInfoLiveData.value!!
         )
     }
 
     private fun onPhotoLoaded(value: LruCache<String, PhotoState>) {
+        if (viewModel.userInfoLiveData.value == null) {
+            return
+        }
         binding.mapView.updateThumbnailsOnMap(
             value,
-            viewModel.userInfo,
+            viewModel.userInfoLiveData.value!!,
             viewModel.marks,
             viewModel.friendsLiveData.value!!
         )
@@ -396,5 +463,6 @@ class MainFragment : Fragment(), MainSection {
         const val TIMEOUT_TO_POLL_LOCATION_POST = 3000L
         const val TIMEOUT_TO_FETCH_FRIENDS = 5000L
         const val TIMEOUT_TO_FETCH_MARKS = 10000L
+        const val TIMEOUT_TO_FETCH_USER_INFO = 10000L
     }
 }

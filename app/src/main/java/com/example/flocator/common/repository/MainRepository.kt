@@ -280,6 +280,14 @@ class MainRepository @Inject constructor(
             }
                 .observeOn(Schedulers.io())
         }
+
+        fun goOnline(userId: Long): Completable {
+            return clientAPI.goOnline(userId).subscribeOn(Schedulers.io())
+        }
+
+        fun goOffline(userId: Long): Completable {
+            return clientAPI.goOffline(userId).subscribeOn(Schedulers.io())
+        }
     }
 
     inner class CacheDatabase {

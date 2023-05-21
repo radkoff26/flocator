@@ -46,8 +46,11 @@
     <string name="exit">Закрыть</string>
     <string name="image">Картинка</string>
     <string name="photo_count" formatted="true">%d фото</string>
+    <string name="marks_count" formatted="true">%d меток найдено</string>
     <string name="no_photo_chosen" formatted="true">Вам нужно выбрать как минимум одну картинку!</string>
     <string name="no_address_available" formatted="true">Проблемы с геолокацией…</string>
+    <string name="no_connection" formatted="true">Нет подключения к сети…</string>
+    <string name="return_to_connection" formatted="true">Соединение установлено!</string>
     <!-- Auth: -->
     <string name="location_request_text">Разрешите доступ к вашему местоположению</string>
     <string name="reason_we_need_access">Нам необходимо знать ваше местоположение, чтобы позволить вашим друзьям видеть, где вы находитесь</string>
