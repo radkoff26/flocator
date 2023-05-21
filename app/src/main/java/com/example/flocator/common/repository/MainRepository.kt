@@ -75,7 +75,6 @@ class MainRepository @Inject constructor(
                         .connect()
                         .subscribe(
                             {
-                                Log.d(TAG, "getAllFriendsOfUser: friends $it")
                                 emitter.onSuccess(it)
                                 compositeDisposable.add(
                                     cacheDatabase.updateFriends(it)
@@ -119,7 +118,6 @@ class MainRepository @Inject constructor(
                         .connect()
                         .subscribe(
                             {
-                                Log.d(TAG, "getMarksForUser: marks $it")
                                 val marks = it.map(MarkDto::toMarkWithPhotos)
                                 emitter.onSuccess(marks)
                                 val photos = marks.map(MarkWithPhotos::photos).flatten()

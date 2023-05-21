@@ -35,11 +35,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SettingsFragment: Fragment(), SettingsSection {
     private val compositeDisposable = CompositeDisposable()
-    private val networkReceiver = NetworkReceiver()
 
     private lateinit var fragmentView: View
 
-    //    val clientAPI: ClientAPI = retrofit.create(ClientAPI::class.java)
     @Inject lateinit var clientAPI: ClientAPI
     @Inject lateinit var mainRepository: MainRepository
     override fun onCreateView(
@@ -105,11 +103,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                         })
                 )
                 compositeDisposable.add(
-<<<<<<< HEAD
                     mainRepository.restApi.getCurrentUserInfo()
-=======
-                    mainRepository.restApi.getCurrentUserInfo(networkReceiver.networkState)
->>>>>>> 82fd7eea302be13cb5802dabe4f556995d96a73c
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({

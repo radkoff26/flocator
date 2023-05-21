@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flocator.R
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.LoadUtils
+import com.example.flocator.common.utils.TimePresentationUtils
 import com.example.flocator.community.adapters.ExternalFriendActionListener
 import com.example.flocator.community.adapters.ExternalFriendAdapter
 import com.example.flocator.community.data_classes.*
@@ -135,9 +136,15 @@ class OtherPersonProfileFragment() : Fragment() {
                 }
                 thisUserId = currentUser.userId!!
                 if (currentUser.isOnline == true) {
-                    binding.wasOnline.text = "Online"
+                    binding.wasOnline.text = "В сети"
                 } else {
-                    binding.wasOnline.text = "Был в сети " + currentUser.lastOnline.toString()
+                    binding.wasOnline.text = if (currentUser.lastOnline != null) {
+                        "Был в сети " + TimePresentationUtils.timestampToHumanPresentation(
+                            currentUser.lastOnline!!
+                        )
+                    } else {
+                        "Был в сети недавно"
+                    }
                 }
                 println("БЛОКККК    " + currentUser.isBlockedByUser)
                 if (currentUser.isBlockedByUser!! && !currentUser.hasBlockedUser!!) {

@@ -210,7 +210,6 @@ class MainFragmentViewModel @Inject constructor(
                 }
                 .subscribe(
                     {
-                        Log.d(TAG, "fetchUserInfo: user info")
                         _userInfoLiveData.value = it
                         emitter.emit()
                     },
@@ -239,9 +238,6 @@ class MainFragmentViewModel @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_LOCATION_POST.toLong()) {
                     it is LostConnectionException
-                }
-                .doOnComplete {
-                    Log.d(TAG, "postLocation: posted!")
                 }
                 .doOnError {
                     Log.e(TAG, "postLocation: error", it)
@@ -362,7 +358,6 @@ class MainFragmentViewModel @Inject constructor(
                 }
                 .subscribe(
                     {
-                        Log.d(TAG, "fetchFriends: fetched $it")
                         updateFriends(it)
                         emitter.emit()
                     },
@@ -388,7 +383,6 @@ class MainFragmentViewModel @Inject constructor(
                 }
                 .subscribe(
                     {
-                        Log.d(TAG, "fetchMarks: fetched $it")
                         updateMarks(it)
                         emitter.emit()
                     },
