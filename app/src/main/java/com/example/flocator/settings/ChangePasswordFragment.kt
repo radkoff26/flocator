@@ -56,7 +56,7 @@ class ChangePasswordFragment :
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragmentView = inflater.inflate(R.layout.fragment_change_password, container, false)
+        fragmentView = inflater.inflate(R.layout.fragment_change_password, container, false)
         val confirmButton = fragmentView.findViewById<MaterialButton>(R.id.change_pass_confirm_button)
         val closeButton = fragmentView.findViewById<FrameLayout>(R.id.change_password_close_button)
         val messageField = fragmentView.findViewById<TextView>(R.id.change_pass_message)
