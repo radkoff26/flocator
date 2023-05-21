@@ -24,6 +24,9 @@ data class UserExternal(
     var hasBlockedUser: Boolean?,
     @SerializedName("hasUserRequestedFriendship")
     var hasUserRequestedFriendship: Boolean?,
+    @SerializedName("hasTargetUserRequestedFriendship")
+    var hasTargetUserRequestedFriendship: Boolean?,
     @SerializedName("isFriend")
     var isFriend: Boolean?
+
 )

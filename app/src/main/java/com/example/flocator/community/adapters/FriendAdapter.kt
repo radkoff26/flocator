@@ -39,9 +39,8 @@ class FriendAdapter(private val friendActionListener: FriendActionListener) :
         val context = holder.itemView.context
         with(holder.binding) {
             yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            if(person.avatarUri == null){
-                setAvatar("", holder)
-            } else {
+            println("АВАТАРРРР  ->   " + person.avatarUri)
+            if(person.avatarUri != null){
                 setAvatar(person.avatarUri!!, holder)
             }
         }

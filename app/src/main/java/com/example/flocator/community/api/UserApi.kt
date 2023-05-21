@@ -44,4 +44,7 @@ interface UserApi {
 
     @POST("user/unblock")
     fun unblockUser(@Query("blockerId") blockerId: Long, @Query("blockedId") blockedId: Long): Completable
+
+    @GET("user/is_login_available")
+    fun isLoginAvailable(@Query("login") login: String): Single<Boolean>
 }

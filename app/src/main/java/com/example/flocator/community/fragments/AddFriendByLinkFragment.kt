@@ -1,6 +1,7 @@
 package com.example.flocator.community.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,9 @@ import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlin.properties.Delegates
 import kotlin.system.exitProcess
@@ -30,6 +34,7 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     private val binding: FragmentAddFriendBinding
         get() = _binding!!
     private var currentUserId by Delegates.notNull<Long>()
+    private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var repository: MainRepository
@@ -63,9 +68,33 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
 
         binding.addFriendConfirmButton.setOnClickListener {
             if(binding.userLoginText.text.toString().isNotEmpty()){
-                println(binding.userLoginText.text.toString())
-                addFriendByLinkFragmentViewModel.addFriendByLogin(currentUserId, binding.userLoginText.text.toString())
-                dismiss()
+                compositeDisposable.add(
+                    repository.restApi.checkLogin(binding.userLoginText.text.toString())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            {
+                                if(!it){
+                                    binding.message.visibility = View.VISIBLE
+                                    binding.message.setTextColor(resources.getColor(R.color.black))
+                                    binding.message.text = "Запрос в друзья отправлен!"
+                                } else {
+                                    binding.message.visibility = View.VISIBLE
+                                    binding.message.setTextColor(resources.getColor(R.color.danger))
+                                    binding.message.text = "Пользователя не существует!"
+                                }
+                            },
+                            {
+                                Log.e(AddFriendByLinkFragmentViewModel.TAG, "checkLogin ERROR", it)
+                            }
+                        )
+                )
+                addFriendByLinkFragmentViewModel.addFriendByLogin(currentUserId,binding.userLoginText.text.toString())
+                //println("СУЩЕСТВУЕТ??????????  " +  addFriendByLinkFragmentViewModel.checkUserLogin(binding.userLoginText.text.toString()))
+            } else {
+                binding.message.visibility = View.VISIBLE
+                binding.message.setTextColor(resources.getColor(R.color.black))
+                binding.message.text = "Поле должно быть заполнено!"
             }
         }
 
@@ -86,6 +115,9 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
+    }
 
 }
