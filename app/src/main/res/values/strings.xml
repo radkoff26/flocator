@@ -58,7 +58,7 @@
     <string name="logo">FLocator</string>
     <string name="come_back">Вернуться назад</string>
     <string name="already_registered">Уже есть аккаунт?</string>
-    <string name="email">Email</string>
+    <string name="login">Логин</string>
     <string name="password_hint">Пароль</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="entry_button_text">Войти</string>
