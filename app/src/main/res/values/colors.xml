@@ -13,4 +13,5 @@
     <color name="additional">#EBEBEB</color>
     <color name="gold">#F4BF00</color>
     <color name="light_grey">#CCCCCC</color>
+    <color name="dark">#121212</color>
 </resources>

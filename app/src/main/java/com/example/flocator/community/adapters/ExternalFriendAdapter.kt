@@ -52,12 +52,16 @@ class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActi
     }
 
     private fun setAvatar(uri: String, holder: ExternalFriendViewHolder){
+        holder.binding.userPhotoSkeleton.showSkeleton()
+        holder.binding.userNameSkeleton.showSkeleton()
         LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {
                     holder.binding.profileImage.setImageBitmap(it)
+                    holder.binding.userNameSkeleton.showOriginal()
+                    holder.binding.userPhotoSkeleton.showOriginal()
                 },
                 {
                     Log.d("TestLog", "no")

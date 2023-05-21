@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.community.api.UserApi
+import com.example.flocator.community.data_classes.FriendRequests
+import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.data_classes.UserExternalFriends
 import com.example.flocator.community.fragments.ProfileFragment
@@ -65,6 +67,71 @@ class OtherPersonProfileFragmentViewModel constructor(
                     },
                     {
                         Log.e(TAG, "addFriend ERROR", it)
+                    }
+                )
+        )
+    }
+
+    fun deleteMyFriend(userId: Long, friendId: Long){
+        compositeDisposable.add(
+            repository.restApi.deleteFriendByBtn(userId, friendId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(TAG, "deleteFriend ERROR", it)
+                    }
+                )
+        )
+    }
+
+
+    fun acceptFriend(userId: Long, friendId: Long) {
+        compositeDisposable.add(
+            repository.restApi.acceptNewFriend(userId, friendId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(ProfileFragmentViewModel.TAG, "acceptFriend ERROR", it)
+                    }
+                )
+        )
+    }
+
+    fun block(blockerId: Long, blockedId: Long){
+        compositeDisposable.add(
+            repository.restApi.blockUserByBtn(blockerId, blockedId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(ProfileFragmentViewModel.TAG, "blockUser ERROR", it)
+                    }
+                )
+        )
+    }
+
+    fun unblock(blockerId: Long, blockedId: Long){
+        compositeDisposable.add(
+            repository.restApi.unblockUserByBtn(blockerId, blockedId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        return@subscribe
+                    },
+                    {
+                        Log.e(ProfileFragmentViewModel.TAG, "unblockUser ERROR", it)
                     }
                 )
         )

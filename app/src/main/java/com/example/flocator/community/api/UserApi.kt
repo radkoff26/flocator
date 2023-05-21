@@ -5,6 +5,7 @@ import com.example.flocator.community.data_classes.User
 import com.example.flocator.community.data_classes.UserExternal
 import io.reactivex.Completable
 import io.reactivex.Single
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -35,5 +36,12 @@ interface UserApi {
     @POST("friendship/add")
     fun addNewFriend(@Query("userId") userId: Long, @Query("friendId") friendId: Long): Completable
 
+    @DELETE("friendship")
+    fun deleteFriend(@Query("userId") userId: Long, @Query("friendId") friendId: Long): Completable
 
+    @POST("user/block")
+    fun blockUser(@Query("blockerId") blockerId: Long, @Query("blockedId") blockedId: Long): Completable
+
+    @POST("user/unblock")
+    fun unblockUser(@Query("blockerId") blockerId: Long, @Query("blockedId") blockedId: Long): Completable
 }
