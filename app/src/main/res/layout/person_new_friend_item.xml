@@ -42,7 +42,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Имя Фамилия"
             android:textColor="#121212"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"

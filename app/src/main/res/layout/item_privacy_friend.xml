@@ -49,7 +49,6 @@
         android:gravity="center"
         android:layout_height="wrap_content"
         android:id="@+id/friend_name"
-        tools:text="Емельянов Виталий"
         android:textSize="12sp"
         app:layout_constraintLeft_toLeftOf="@id/friend_back"
         app:layout_constraintRight_toRightOf="@id/friend_back"

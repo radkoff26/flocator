@@ -30,7 +30,6 @@
         android:layout_marginEnd="16dp"
         android:ellipsize="end"
         android:maxLines="2"
-        android:text="Big addressdafsdgsgsdfdsfsdgsgsdgsdsdbdfbdbdb sfdsfsg"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@id/distance_to_mark"
         app:layout_constraintHorizontal_bias="0.0"
@@ -43,7 +42,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:text="50000km"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -64,7 +62,6 @@
             android:layout_marginBottom="20dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="User Name Big nameeeeeeeeee"
             android:textSize="16sp" />
 
     </com.faltenreich.skeletonlayout.SkeletonLayout>
@@ -75,7 +72,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:text="1 week ago"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -88,7 +84,6 @@
         android:maxLines="1"
         android:paddingHorizontal="4dp"
         android:paddingVertical="2dp"
-        android:text="3 фото"
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/mark_thumbnail_skeleton"
