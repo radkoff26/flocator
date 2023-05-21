@@ -148,10 +148,7 @@ class ProfileFragment : Fragment(), CommunitySection {
             addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
         }
         binding.buttonBack.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
-                requireActivity().supportFragmentManager,
-                MainFragment()
-            )
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         return binding.root
