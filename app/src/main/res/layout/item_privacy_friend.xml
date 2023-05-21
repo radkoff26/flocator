@@ -14,8 +14,9 @@
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:id="@+id/friend_back"
-        android:src="@drawable/privacy_friend_circle"/>
-    <ImageView
+        android:src="@drawable/privacy_friend_circle"
+        android:contentDescription="@string/your_friend" />
+    <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:id="@+id/friend_avatar"
@@ -31,7 +32,8 @@
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:id="@+id/friend_tick_field"
-        android:src="@drawable/privacy_friend_tick_field"/>
+        android:src="@drawable/privacy_friend_tick_field"
+        android:contentDescription="@string/set_a_tick" />
     <ImageView
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -39,7 +41,7 @@
         android:layout_height="72dp"
         android:id="@+id/friend_tick"
         android:src="@drawable/privacy_friend_tick"
-        />
+        android:contentDescription="@string/tick_is_set" />
     <TextView
         android:layout_width="0dp"
         android:maxLines="2"

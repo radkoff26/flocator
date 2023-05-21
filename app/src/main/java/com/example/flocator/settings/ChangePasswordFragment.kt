@@ -10,24 +10,47 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.example.flocator.R
 import com.example.flocator.common.repository.MainRepository
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.widget.NestedScrollView
 import com.example.flocator.main.api.ClientAPI
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
+import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
+import com.example.flocator.main.ui.add_mark.AddMarkFragment
+import com.example.flocator.authentication.authorization.AuthFragment
 
 @AndroidEntryPoint
-class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
+class ChangePasswordFragment :
+    ResponsiveBottomSheetDialogFragment(
+    AddMarkFragment.BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    AddMarkFragment.BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+),
+    SettingsSection {
     @Inject
     lateinit var clientAPI: ClientAPI
     @Inject
     lateinit var mainRepository: MainRepository
 
+    private lateinit var fragmentView: View
     val compositeDisposable = CompositeDisposable()
+    override fun getCoordinatorLayout(): CoordinatorLayout {
+        return fragmentView.findViewById(R.id.coordinator)
+    }
+
+    override fun getBottomSheetScrollView(): NestedScrollView {
+        return fragmentView.findViewById(R.id.bs)
+    }
+
+    override fun getInnerLayout(): ViewGroup {
+        return fragmentView.findViewById(R.id.content)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -78,6 +101,12 @@ class ChangePasswordFragment : BottomSheetDialogFragment(), SettingsSection {
                                 messageField.text = getString(R.string.password_is_incorrect)
                             }
                             messageField.visibility = View.VISIBLE
+                            mainRepository.userDataCache.clearUserData()
+                            mainRepository.userInfoCache.clearUserInfo()
+                            FragmentNavigationUtils.clearAllAndOpenFragment(
+                                requireActivity().supportFragmentManager,
+                                AuthFragment()
+                            )
                         },
                         {
                             Log.e("Changing password", "error", it)

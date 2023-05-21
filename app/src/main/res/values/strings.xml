@@ -25,9 +25,9 @@
     <string name="current_location">Точно</string>
     <string name="approx_location">Примерно</string>
     <string name="date_of_birth">День рождения</string>
-    <string name="date_of_birth_mock">xx.xx.xxxx</string>
-    <string name="blacklist_cnt_mock">12</string>
-    <string name="privacy">Приватность</string>
+    <string name="date_of_birth_mock" />
+    <string name="blacklist_cnt_mock"/>
+    <string name="privacy">Скрыть местоположение</string>
     <string name="change_pass">Сменить пароль</string>
     <string name="log_out">Выйти из аккаунта</string>
     <string name="delete_account">Удалить аккаунт</string>
@@ -69,4 +69,16 @@
     <string name="fields_must_not_be_empty">Поля не должны быть пустыми!</string>
     <string name="passwords_are_not_similar">Пароли не совпадают!</string>
     <string name="new_password_is_similar">Новый пароль совпадает со старым!</string>
+    <string name="password_cannot_be_empty">Пароль не может быть пустым!</string>
+    <string name="incorrect_pass">Неверный пароль!</string>
+    <string name="close_popup">Close popup</string>
+    <string name="your_friend">Your friend</string>
+    <string name="set_a_tick">Set a tick</string>
+    <string name="tick_is_set">Tick is set</string>
+    <string name="change_password_title">Сменить пароль</string>
+    <string name="old_password">Старый пароль</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="new_password_again">Новый пароль повторно</string>
+    <string name="blacklist_is_empty">Черный список пуст. Так держать!</string>
+    <string name="privacy_no_friends">Вам пока не от кого скрывать свое местоположение. Сначала найдите друзей</string>
 </resources>
