@@ -12,9 +12,9 @@ object DistanceUtils {
         val meters = distance / METER
         return if (meters >= 1000) {
             // Getting integer part of kilometers
-            val kilometers = (meters / METER).toInt()
+            val kilometers = (meters / 1000).toInt()
             // Getting integer part of the 100-th of meters
-            val rest = ((meters % METER) / 100).toInt()
+            val rest = ((meters % 1000) / 100).toInt()
             "$kilometers.${rest}км"
         } else {
             "${meters.toInt()}м"
