@@ -63,6 +63,7 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
 
         binding.addFriendConfirmButton.setOnClickListener {
             if(binding.userLoginText.text.toString().isNotEmpty()){
+                println(binding.userLoginText.text.toString())
                 addFriendByLinkFragmentViewModel.addFriendByLogin(currentUserId, binding.userLoginText.text.toString())
                 dismiss()
             }

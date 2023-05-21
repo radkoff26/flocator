@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LoadUtils
@@ -25,6 +26,7 @@ import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.view_models.ProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentCommunityBinding
 import com.example.flocator.main.ui.main.MainFragment
+import com.faltenreich.skeletonlayout.Skeleton
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -45,6 +47,7 @@ class ProfileFragment : Fragment(), CommunitySection {
     private lateinit var adapterForYourFriends: FriendAdapter
     private var currentUser: User = User(1, "1", "1", "1",false,
         Timestamp(System.currentTimeMillis()),ArrayList<FriendRequests>(),ArrayList<Friends>())
+    private lateinit var skeleton: Skeleton
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -104,7 +107,9 @@ class ProfileFragment : Fragment(), CommunitySection {
         profileFragmentViewModel.currentUserLiveData.observe(viewLifecycleOwner, Observer {
             currentUser = it
             binding.nameAndSurname.text = currentUser.firstName + " " + currentUser.lastName
-            setAvatar(currentUser.avatarUri!!)
+            if(currentUser.avatarUri != null){
+                setAvatar(currentUser.avatarUri!!)
+            }
         })
 
 
@@ -192,12 +197,14 @@ class ProfileFragment : Fragment(), CommunitySection {
     }
 
     private fun setAvatar(uri: String) {
+        binding.userPhotoSkeleton.showSkeleton()
         LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 {
                     binding.profileImage.setImageBitmap(it)
+                    binding.userPhotoSkeleton.showOriginal()
                 },
                 {
                     Log.d("TestLog", "no")

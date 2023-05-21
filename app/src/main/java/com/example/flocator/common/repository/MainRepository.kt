@@ -235,6 +235,22 @@ class MainRepository @Inject constructor(
             return userApi.acceptNewFriend(userId, friendId).subscribeOn(Schedulers.io())
         }
 
+        fun addNewFriendByBtn(userId: Long, friendId: Long): Completable{
+            return userApi.addNewFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+        fun deleteFriendByBtn(userId: Long, friendId: Long): Completable{
+            return userApi.deleteFriend(userId, friendId).subscribeOn(Schedulers.io())
+        }
+
+        fun blockUserByBtn(blockerId: Long, blockedId: Long): Completable{
+            return userApi.blockUser(blockerId, blockedId).subscribeOn(Schedulers.io())
+        }
+
+        fun unblockUserByBtn(blockerId: Long, blockedId: Long): Completable{
+            return userApi.unblockUser(blockerId, blockedId).subscribeOn(Schedulers.io())
+        }
+
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
             return userDataCache.getUserData().flatMap {
                 settingsAPI.changeAvatar(

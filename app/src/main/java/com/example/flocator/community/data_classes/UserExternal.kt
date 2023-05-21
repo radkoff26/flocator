@@ -18,8 +18,12 @@ data class UserExternal(
     var lastOnline: Timestamp?,
     @SerializedName("friends")
     var friends: ArrayList<UserExternalFriends> = arrayListOf(),
-    @SerializedName("isBlocked")
-    var isBlocked: Boolean?,
+    @SerializedName("isBlockedByUser")
+    var isBlockedByUser: Boolean?,
+    @SerializedName("hasBlockedUser")
+    var hasBlockedUser: Boolean?,
+    @SerializedName("hasUserRequestedFriendship")
+    var hasUserRequestedFriendship: Boolean?,
     @SerializedName("isFriend")
     var isFriend: Boolean?
 )

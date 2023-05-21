@@ -28,17 +28,22 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/back_image" />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profileImage"
+
+            <com.faltenreich.skeletonlayout.SkeletonLayout
+                android:id="@+id/user_photo_skeleton"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:src="@drawable/base_avatar_image"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/buttonBack" />
+                app:layout_constraintTop_toBottomOf="@+id/buttonBack"
+                app:maskCornerRadius="50dp">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/base_avatar_image"/>
+            </com.faltenreich.skeletonlayout.SkeletonLayout>
 
             <TextView
                 android:id="@+id/nameAndSurname"
@@ -78,9 +83,9 @@
                 android:layout_width="150dp"
                 android:layout_height="75dp"
                 android:layout_marginStart="12dp"
-                app:layout_constraintBottom_toBottomOf="@+id/profileImage"
-                app:layout_constraintStart_toEndOf="@+id/profileImage"
-                app:layout_constraintTop_toTopOf="@+id/profileImage" />
+                app:layout_constraintBottom_toBottomOf="@+id/user_photo_skeleton"
+                app:layout_constraintStart_toEndOf="@+id/user_photo_skeleton"
+                app:layout_constraintTop_toTopOf="@+id/user_photo_skeleton" />
 
             <TextView
                 android:id="@+id/friendRequests"
@@ -93,7 +98,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profileImage" />
+                app:layout_constraintTop_toBottomOf="@+id/user_photo_skeleton" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/newFriendsRecyclerView"
