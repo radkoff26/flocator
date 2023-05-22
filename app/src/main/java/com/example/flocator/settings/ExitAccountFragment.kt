@@ -29,6 +29,7 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     @Inject
     lateinit var repository: MainRepository
     lateinit var fragmentView: View
+
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return fragmentView.findViewById(R.id.coordinator)
     }
@@ -77,7 +78,8 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun openAuthFragment() {
-        FragmentNavigationUtils.openFragmentExcludingMain(
+        dismiss()
+        FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
             AuthFragment()
         )

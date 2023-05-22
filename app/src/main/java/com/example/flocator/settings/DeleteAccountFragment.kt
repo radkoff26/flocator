@@ -102,7 +102,8 @@ class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun openAuthFragment() {
-        FragmentNavigationUtils.openFragmentExcludingMain(
+        dismiss()
+        FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
             AuthFragment()
         )
