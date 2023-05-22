@@ -11,8 +11,10 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import com.example.flocator.R
+import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
+import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
@@ -74,6 +76,17 @@ class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
                             message.visibility = View.VISIBLE
                     }
                     .subscribe {
+                        compositeDisposable.add(
+                            mainRepository.clearAllCache()
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .doOnError {
+                                    Log.e(TAG, "onCreateView: failed to clear cache!", it)
+                                    openAuthFragment()
+                                }
+                                .subscribe {
+                                    openAuthFragment()
+                                }
+                        )
                         Log.i("Got ans", it.toString())
                     }
                 )
@@ -81,6 +94,18 @@ class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
 
         }
         return fragmentView
+    }
+
+    override fun onDestroyView() {
+        compositeDisposable.dispose()
+        super.onDestroyView()
+    }
+
+    private fun openAuthFragment() {
+        FragmentNavigationUtils.openFragmentExcludingMain(
+            requireActivity().supportFragmentManager,
+            AuthFragment()
+        )
     }
 
     companion object {

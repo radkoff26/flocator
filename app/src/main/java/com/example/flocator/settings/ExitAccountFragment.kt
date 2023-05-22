@@ -1,6 +1,7 @@
 package com.example.flocator.settings
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -21,6 +24,7 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
 ), SettingsSection {
+    private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var repository: MainRepository
@@ -51,15 +55,32 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
         }
 
         confirmButton.setOnClickListener {
-            repository.userDataCache.clearUserData()
-            repository.userInfoCache.clearUserInfo()
-            FragmentNavigationUtils.clearAllAndOpenFragment(
-                requireActivity().supportFragmentManager,
-                AuthFragment()
+            compositeDisposable.add(
+                repository.clearAllCache()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError {
+                        Log.e(TAG, "onCreateView: failed to clear cache!", it)
+                        openAuthFragment()
+                    }
+                    .subscribe {
+                        openAuthFragment()
+                    }
             )
         }
 
         return fragmentView
+    }
+
+    override fun onDestroyView() {
+        compositeDisposable.dispose()
+        super.onDestroyView()
+    }
+
+    private fun openAuthFragment() {
+        FragmentNavigationUtils.openFragmentExcludingMain(
+            requireActivity().supportFragmentManager,
+            AuthFragment()
+        )
     }
 
     companion object {

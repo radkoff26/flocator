@@ -1,6 +1,5 @@
 package com.example.flocator.common.repository
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -26,8 +25,6 @@ import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.settings.SettingsAPI
-import com.example.flocator.settings.data_models.PrivacyData
-import com.example.flocator.settings.data_models.PrivacyStates
 import com.google.gson.Gson
 import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
@@ -408,6 +405,14 @@ class MainRepository @Inject constructor(
         fun retrieveFriendsFromCache(): Single<List<User>> {
             return applicationDatabase.userDao().getAllFriends().subscribeOn(Schedulers.io())
         }
+
+        fun clearDatabase(): Completable {
+            return Completable.concatArray(
+                applicationDatabase.markPhotoDao().clearAll(),
+                applicationDatabase.markDao().clearAll(),
+                applicationDatabase.userDao().clearAll()
+            )
+        }
     }
 
     inner class UserDataCache {
@@ -482,6 +487,10 @@ class MainRepository @Inject constructor(
                 userLocationDataStore.updateData { userLocationPoint }
             }
         }
+
+        fun clearLocation() {
+            updateUserLocationData(UserLocationPoint.DEFAULT)
+        }
     }
 
     inner class PhotoLoader {
@@ -501,6 +510,13 @@ class MainRepository @Inject constructor(
                 }
                 .subscribeOn(Schedulers.io())
         }
+    }
+
+    fun clearAllCache(): Completable {
+        userInfoCache.clearUserInfo()
+        userDataCache.clearUserData()
+        locationCache.clearLocation()
+        return cacheDatabase.clearDatabase().subscribeOn(Schedulers.io())
     }
 
     companion object {
