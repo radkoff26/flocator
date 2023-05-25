@@ -21,11 +21,13 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
-                app:titleTextColor="#1515B9"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/white"
-                />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:titleTextColor="#1515B9" />
 
             <com.faltenreich.skeletonlayout.SkeletonLayout
                 android:id="@+id/user_photo_skeleton"
