@@ -1,10 +1,6 @@
 package com.example.flocator.main.utils
 
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.MapObjectCollection
-import com.yandex.mapkit.map.PlacemarkMapObject
-import com.yandex.mapkit.mapview.MapView
-import com.yandex.runtime.ui_view.ViewProvider
 import kotlin.math.abs
 import kotlin.math.sqrt
 

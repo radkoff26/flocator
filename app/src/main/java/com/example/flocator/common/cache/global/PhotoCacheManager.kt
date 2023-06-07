@@ -18,24 +18,26 @@ class PhotoCacheManager @Inject constructor(@ApplicationContext context: Context
         }
     }
 
-    fun isPhotoCached(uri: String): Boolean {
+    fun isPhotoCached(uri: String, qualityFactor: Int): Boolean {
         val files = directory.listFiles()!!
-        return files.any { it.nameWithoutExtension == uri }
+        val filename = buildFullFileName(uri, qualityFactor)
+        return files.any { it.nameWithoutExtension == filename }
     }
 
-    fun getPhotoFromCache(uri: String): Bitmap? {
+    fun getPhotoFromCache(uri: String, qualityFactor: Int): Bitmap? {
         val files = directory.listFiles()!!
-        val photo = files.find { it.nameWithoutExtension == uri } ?: return null
+        val filename = buildFullFileName(uri, qualityFactor)
+        val photo = files.find { it.nameWithoutExtension == filename } ?: return null
         return getBitmapOutOfFile(photo)
     }
 
-    fun savePhotoToCache(uri: String, bitmap: Bitmap) {
-        if (isPhotoCached(uri)) {
+    fun savePhotoToCache(uri: String, bitmap: Bitmap, qualityFactor: Int) {
+        if (isPhotoCached(uri, qualityFactor)) {
             return
         }
         ByteArrayOutputStream().use {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-            val photo = File(directory.absolutePath + "/${uri}")
+            val photo = File(buildAbsoluteFileName(uri, qualityFactor))
             photo.writeBytes(it.toByteArray())
             photo.createNewFile()
         }
@@ -48,6 +50,11 @@ class PhotoCacheManager @Inject constructor(@ApplicationContext context: Context
             out
         }
     }
+
+    private fun buildFullFileName(uri: String, qualityFactor: Int): String = "${uri}${qualityFactor}"
+
+    private fun buildAbsoluteFileName(uri: String, qualityFactor: Int): String =
+        "${directory.absolutePath}/${buildFullFileName(uri, qualityFactor)}"
 
     companion object {
         const val TAG = "Photo Cache Manager"

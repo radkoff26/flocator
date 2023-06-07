@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.community.CommunitySection
-import com.example.flocator.main.MainSection
-import com.example.flocator.main.ui.mark.MarkFragmentViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

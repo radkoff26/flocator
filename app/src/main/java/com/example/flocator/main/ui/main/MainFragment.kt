@@ -1,8 +1,6 @@
 package com.example.flocator.main.ui.main
 
 import android.os.Bundle
-import android.util.Log
-import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +8,6 @@ import android.view.ViewTreeObserver
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.flocator.R
-import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.connection.live_data.ConnectionLiveData
 import com.example.flocator.common.polling.TimeoutPoller
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
@@ -22,27 +19,20 @@ import com.example.flocator.community.fragments.ProfileFragment
 import com.example.flocator.databinding.FragmentMainBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
-import com.example.flocator.main.models.CameraStatus
-import com.example.flocator.main.models.CameraStatusType
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
-import com.example.flocator.main.ui.main.data.CameraPositionDto
-import com.example.flocator.main.ui.main.data.MarkGroup
 import com.example.flocator.main.ui.main.data.PointDto
+import com.example.flocator.main.ui.main.views.map.FLocatorMapFragment
 import com.example.flocator.main.ui.mark.MarkFragment
 import com.example.flocator.main.ui.marks_list.MarksListFragment
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.example.flocator.settings.SettingsFragment
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.yandex.mapkit.Animation
-import com.yandex.mapkit.MapKitFactory
-import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.*
-import com.yandex.mapkit.map.Map
+import com.yandex.mapkit.map.MapObjectTapListener
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
-import java.lang.Float.max
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -74,28 +64,7 @@ class MainFragment : Fragment(), MainSection {
 
     private val isInitializedCamera = AtomicBoolean(false)
 
-    // Listeners
-    // Due to weak references stored in map, these listeners should be stored separately
-    private val inertiaMoveListener = object : InertiaMoveListener {
-        override fun onStart(p0: Map, p1: CameraPosition) {
-            viewModel.setCameraFixed()
-            viewModel.cameraStatusLiveData.removeObserver(this@MainFragment::onCameraStatusChanged)
-        }
-
-        override fun onCancel(p0: Map, p1: CameraPosition) {
-
-        }
-
-        override fun onFinish(p0: Map, p1: CameraPosition) {
-
-        }
-    }
-    private val cameraListener =
-        CameraListener { map, _, _, _ ->
-            viewModel.updateVisibleRegion(
-                map.visibleRegion
-            )
-        }
+    private lateinit var mapFragment: FLocatorMapFragment
 
     // Fragment lifecycle methods
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,72 +78,61 @@ class MainFragment : Fragment(), MainSection {
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        binding.mapView.initialize(
+        mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as FLocatorMapFragment
+
+        mapFragment.initialize(
             viewModel::loadPhoto,
+            null,
             { id ->
-                MapObjectTapListener { _, _ ->
-                    viewModel.setCameraFollowOnFriendMark(id)
-                    viewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
-                    true
-                }
-            },
-            { id ->
-                MapObjectTapListener { _, _ ->
-                    if (viewModel.userInfoLiveData.value != null) {
-                        val markFragment = MarkFragment().apply {
-                            arguments = Bundle().apply {
-                                putLong(
-                                    BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
-                                    id
-                                )
-                                putLong(
-                                    BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
-                                    viewModel.userInfoLiveData.value!!.userId
-                                )
-                            }
+                if (viewModel.userInfoLiveData.value != null) {
+                    val markFragment = MarkFragment().apply {
+                        arguments = Bundle().apply {
+                            putLong(
+                                BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
+                                id
+                            )
+                            putLong(
+                                BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
+                                viewModel.userInfoLiveData.value!!.userId
+                            )
                         }
-                        markFragment.show(
-                            requireActivity().supportFragmentManager,
-                            TAG
-                        )
                     }
-                    true
+                    markFragment.show(
+                        requireActivity().supportFragmentManager,
+                        TAG
+                    )
                 }
             },
             { marks ->
-                MapObjectTapListener { _, _ ->
-                    if (viewModel.userLocationLiveData.value != null) {
-                        val marksListFragment = MarksListFragment().apply {
-                            arguments = Bundle().apply {
-                                val markDtoList = ArrayList(
-                                    marks.map(MarkWithPhotos::toMarkDto)
+                if (viewModel.userLocationLiveData.value != null) {
+                    val marksListFragment = MarksListFragment().apply {
+                        arguments = Bundle().apply {
+                            val markDtoList = ArrayList(
+                                marks.map(MarkWithPhotos::toMarkDto)
+                            )
+                            putSerializable(
+                                BundleArgumentsContraction.MarksListFragmentArguments.MARKS,
+                                markDtoList
+                            )
+                            val userPoint = viewModel.userLocationLiveData.value!!
+                            putSerializable(
+                                BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT,
+                                PointDto(
+                                    userPoint.latitude,
+                                    userPoint.longitude
                                 )
-                                putSerializable(
-                                    BundleArgumentsContraction.MarksListFragmentArguments.MARKS,
-                                    markDtoList
-                                )
-                                val userPoint = viewModel.userLocationLiveData.value!!
-                                putSerializable(
-                                    BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT,
-                                    PointDto(
-                                        userPoint.latitude,
-                                        userPoint.longitude
-                                    )
-                                )
-                            }
+                            )
                         }
-                        marksListFragment.show(
-                            requireActivity().supportFragmentManager,
-                            MarksListFragment.TAG
-                        )
                     }
-                    true
+                    marksListFragment.show(
+                        requireActivity().supportFragmentManager,
+                        MarksListFragment.TAG
+                    )
                 }
             }
         )
 
-        binding.mapView.map.addInertiaMoveListener(inertiaMoveListener)
-        binding.mapView.map.addCameraListener(cameraListener)
+        locateMapToUser()
 
         binding.openAddMarkFragment.setOnClickListener {
             if (viewModel.userLocationLiveData.value == null) {
@@ -216,8 +174,10 @@ class MainFragment : Fragment(), MainSection {
         }
 
         binding.targetBtn.setOnClickListener {
-            viewModel.setCameraFollowOnUserMark()
-            viewModel.cameraStatusLiveData.observeForever(this::onCameraStatusChanged)
+            if (viewModel.userInfoLiveData.value != null) {
+                val userId = viewModel.userInfoLiveData.value!!.userId
+                mapFragment.followUser(userId)
+            }
         }
 
         return binding.root
@@ -228,10 +188,6 @@ class MainFragment : Fragment(), MainSection {
 
         initializeWidths()
 
-        viewModel.updateVisibleRegion(
-            binding.mapView.map.visibleRegion
-        )
-
         viewModel.userLocationLiveData.observe(
             viewLifecycleOwner,
             this::onUserLocationChanged
@@ -240,13 +196,9 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onFriendsStateChanged
         )
-        viewModel.visibleMarksLiveData.observe(
+        viewModel.marksLiveData.observe(
             viewLifecycleOwner,
             this::onMarksStateChanged
-        )
-        viewModel.photoCacheLiveData.observe(
-            viewLifecycleOwner,
-            this::onPhotoLoaded
         )
         viewModel.userInfoLiveData.observe(
             viewLifecycleOwner,
@@ -266,7 +218,7 @@ class MainFragment : Fragment(), MainSection {
                 LocationUtils.getCurrentLocation(requireContext(), fusedLocationProviderClient) {
                     if (it != null) {
                         viewModel.updateUserLocation(
-                            Point(
+                            LatLng(
                                 it.latitude,
                                 it.longitude
                             )
@@ -297,23 +249,15 @@ class MainFragment : Fragment(), MainSection {
         )
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            // IMPORTANT: here is deprecated method used due to error occurring in non-deprecated one
-            val cameraPosition: CameraPosition? =
-                (savedInstanceState.getParcelable(
-                    "CAMERA_POSITION"
-                ) as CameraPositionDto?)?.toCameraPosition()
-            if (cameraPosition != null) {
-                binding.mapView.map.move(cameraPosition)
-                viewModel.updateVisibleRegion(binding.mapView.map.visibleRegion)
-                isInitializedCamera.set(true)
-                Log.d(TAG, "onViewStateRestored: $cameraPosition")
-            }
+    private fun locateMapToUser() {
+        val userLocation = viewModel.userLocationLiveData.value
+
+        if (userLocation != null) {
+            mapFragment.moveCameraTo(userLocation)
         }
     }
 
+    // TODO: move to MainActivity
     private fun onConnectionChanged(value: Boolean) {
         if (value) {
             // Has connection
@@ -334,43 +278,27 @@ class MainFragment : Fragment(), MainSection {
     }
 
     private fun initializeWidths() {
+        val mapView = mapFragment.requireView()
         val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 viewModel.setWidths(
-                    binding.mapView.width.toFloat(),
+                    mapView.width.toFloat(),
                     dpToPx(56, requireContext()).toFloat()
                 )
-                binding.mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         }
-        binding.mapView.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        mapView.viewTreeObserver.addOnGlobalLayoutListener(listener)
     }
 
     override fun onStart() {
-        binding.mapView.onStart()
-        MapKitFactory.getInstance().onStart()
         super.onStart()
         viewModel.goOnlineAsUser()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        if  (_binding != null) {
-            val cameraPosition =
-                CameraPositionDto.fromCameraPosition(binding.mapView.map.cameraPosition)
-            outState.putParcelable("CAMERA_POSITION", cameraPosition)
-        }
     }
 
     override fun onPause() {
         super.onPause()
         viewModel.goOfflineAsUser()
-    }
-
-    override fun onStop() {
-        binding.mapView.onStop()
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
     }
 
     override fun onDestroyView() {
@@ -379,89 +307,35 @@ class MainFragment : Fragment(), MainSection {
         compositeDisposable.dispose()
     }
 
-    // Listener callbacks
-    private fun onUserLocationChanged(point: Point?) {
-        if (point == null || viewModel.userInfoLiveData.value == null) {
+    // Observer callbacks
+    private fun onUserLocationChanged(latLng: LatLng?) {
+        if (latLng == null || viewModel.userInfoLiveData.value == null) {
             return
         }
         if (!isInitializedCamera.get()) {
-            binding.mapView.map.move(
-                CameraPosition(
-                    point,
-                    MIN_ZOOM_SCALE,
-                    0F,
-                    0.0F
-                )
-            )
+            mapFragment.moveCameraTo(latLng)
             isInitializedCamera.set(true)
         }
-        binding.mapView.updateUserOnMap(
-            point,
-            viewModel.userInfoLiveData.value!!,
-            viewModel.photoCacheLiveData.value!!
-        )
+        mapFragment.updateUserLocation(latLng)
     }
 
     private fun onUserInfoChanged(value: UserInfo?) {
         if (viewModel.userLocationLiveData.value == null || value == null) {
             return
         }
-        binding.mapView.updateUserOnMap(
-            viewModel.userLocationLiveData.value!!,
-            value,
-            viewModel.photoCacheLiveData.value!!
-        )
+        mapFragment.submitUser(value)
     }
 
-    private fun onFriendsStateChanged(value: kotlin.collections.Map<Long, User>) {
-        binding.mapView.updateFriendsOnMap(
-            value,
-            viewModel.photoCacheLiveData.value!!
-        )
+    private fun onFriendsStateChanged(value: List<User>) {
+        mapFragment.submitFriends(value)
     }
 
-    private fun onCameraStatusChanged(value: CameraStatus) {
-        if (value.cameraStatusType == CameraStatusType.FOLLOW_FRIEND || value.cameraStatusType == CameraStatusType.FOLLOW_USER) {
-            binding.mapView.map.move(
-                CameraPosition(
-                    value.point!!,
-                    max(MIN_ZOOM_SCALE, binding.mapView.map.cameraPosition.zoom),
-                    0.0f,
-                    0.0f
-                ),
-                Animation(Animation.Type.SMOOTH, 1f),
-                null
-            )
-        }
-    }
-
-    private fun onMarksStateChanged(value: List<MarkGroup>) {
-        if (viewModel.userInfoLiveData.value == null) {
-            return
-        }
-        binding.mapView.updateVisibleMarksOnMap(
-            value,
-            viewModel.friendsLiveData.value!!,
-            viewModel.photoCacheLiveData.value!!,
-            viewModel.userInfoLiveData.value!!
-        )
-    }
-
-    private fun onPhotoLoaded(value: LruCache<String, PhotoState>) {
-        if (viewModel.userInfoLiveData.value == null) {
-            return
-        }
-        binding.mapView.updateThumbnailsOnMap(
-            value,
-            viewModel.userInfoLiveData.value!!,
-            viewModel.marks,
-            viewModel.friendsLiveData.value!!
-        )
+    private fun onMarksStateChanged(value: List<MarkWithPhotos>) {
+        mapFragment.submitMarks(value)
     }
 
     companion object {
         const val TAG = "Main Fragment"
-        const val MIN_ZOOM_SCALE = 15f
         const val TIMEOUT_TO_POLL_LOCATION_POST = 3000L
         const val TIMEOUT_TO_FETCH_FRIENDS = 5000L
         const val TIMEOUT_TO_FETCH_MARKS = 10000L

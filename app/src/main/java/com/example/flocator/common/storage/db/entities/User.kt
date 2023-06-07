@@ -2,11 +2,11 @@ package com.example.flocator.common.storage.db.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
-import com.yandex.mapkit.geometry.Point
 
 @Entity(tableName = "user")
-data class User(
+open class User(
     @PrimaryKey
     @SerializedName("id")
     val id: Long,
@@ -15,7 +15,7 @@ data class User(
     @SerializedName("lastName")
     val lastName: String,
     @SerializedName("location")
-    var location: Point,
+    var location: LatLng,
     @SerializedName("avatarUrl")
     val avatarUri: String?
 )

@@ -7,19 +7,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 import com.example.flocator.R
-import com.example.flocator.community.data_classes.User
 import com.example.flocator.databinding.PersonNewFriendItemBinding
 import com.example.flocator.common.utils.LoadUtils
-import com.example.flocator.community.api.UserApi
 import com.example.flocator.community.data_classes.FriendRequests
-import com.example.flocator.community.data_classes.UserExternal
-import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 class PersonAdapter(private val userNewFriendActionListener: UserNewFriendActionListener) :
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {

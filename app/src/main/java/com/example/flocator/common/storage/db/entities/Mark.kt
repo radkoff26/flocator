@@ -2,8 +2,8 @@ package com.example.flocator.common.storage.db.entities
 
 import androidx.room.*
 import com.google.android.gms.common.internal.Objects
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
-import com.yandex.mapkit.geometry.Point
 import java.sql.Timestamp
 
 @Entity(tableName = "mark")
@@ -16,7 +16,7 @@ data class Mark(
     val authorId: Long,
 
     @SerializedName("point")
-    val location: Point,
+    val location: LatLng,
 
     @SerializedName("text")
     val text: String,

@@ -1,13 +1,10 @@
 package com.example.flocator.settings
 
-import android.os.Parcel
-import android.os.Parcelable
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.decodeStructure
 import java.util.*
 
 @kotlinx.serialization.Serializable

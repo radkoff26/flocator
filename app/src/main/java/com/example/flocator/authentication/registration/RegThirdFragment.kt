@@ -11,8 +11,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
-import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.client.dto.UserRegistrationDto
 import com.example.flocator.authentication.viewmodel.RegistrationViewModel
@@ -22,7 +20,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RegThirdFragment : Fragment(), Authentication {
+class RegThirdFragment : Fragment(), com.example.flocator.authentication.Authentication {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -65,7 +63,7 @@ class RegThirdFragment : Fragment(), Authentication {
         binding.alreadyRegisteredText.setOnClickListener {
             FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
-                AuthFragment()
+                com.example.flocator.authentication.authorization.AuthFragment()
             )
         }
 
@@ -131,7 +129,7 @@ class RegThirdFragment : Fragment(), Authentication {
                         if (isSuccess) {
                             FragmentNavigationUtils.clearAllAndOpenFragment(
                                 requireActivity().supportFragmentManager,
-                                AuthFragment()
+                                com.example.flocator.authentication.authorization.AuthFragment()
                             )
                         }
                     }, { error ->

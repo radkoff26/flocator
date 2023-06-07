@@ -1,10 +1,10 @@
 package com.example.flocator.main.ui.main.data
 
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
-import com.yandex.mapkit.geometry.Point
-import java.util.Objects
+import com.google.android.gms.maps.model.LatLng
+import java.util.*
 
-data class MarkGroup(val marks: List<MarkWithPhotos>, val center: Point) {
+data class MarkGroup(val marks: List<MarkWithPhotos>, val center: LatLng) {
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is MarkGroup) {
             return false

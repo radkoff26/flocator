@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.authentication.client.RetrofitClient
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openFirstFragment() {
         compositeDisposable.add(
-            repository.userDataCache.getUserData()
+            repository.userCredentialsCache.getUserCredentials()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -79,7 +78,7 @@ class MainActivity : AppCompatActivity() {
                                     { throwable ->
                                         if (throwable is UnknownHostException || throwable is ConnectException) {
                                             Log.i(
-                                                TAG,
+                                                com.example.flocator.MainActivity.Companion.TAG,
                                                 "openFirstFragment: no connection, but user authorized previously",
                                                 throwable
                                             )
@@ -89,13 +88,13 @@ class MainActivity : AppCompatActivity() {
                                             )
                                         } else {
                                             Log.e(
-                                                TAG,
+                                                com.example.flocator.MainActivity.Companion.TAG,
                                                 "openFirstFragment: not authorized!",
                                                 throwable
                                             )
                                             FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
-                                                AuthFragment()
+                                                com.example.flocator.authentication.authorization.AuthFragment()
                                             )
                                         }
                                     }
@@ -105,9 +104,9 @@ class MainActivity : AppCompatActivity() {
                     {
                         FragmentNavigationUtils.openFragment(
                             supportFragmentManager,
-                            AuthFragment()
+                            com.example.flocator.authentication.authorization.AuthFragment()
                         )
-                        Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
+                        Log.e(com.example.flocator.MainActivity.Companion.TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }
                 )
         )

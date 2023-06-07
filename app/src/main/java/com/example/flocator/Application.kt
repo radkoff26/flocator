@@ -21,7 +21,7 @@ class Application : android.app.Application() {
         MapKitFactory.setApiKey(MAPS_API_KEY)
         RxJavaPlugins.setErrorHandler {
             if (it is UndeliverableException) {
-                Log.i(TAG, "Flow was disposed before finishing its work!", it)
+                Log.i(com.example.flocator.Application.Companion.TAG, "Flow was disposed before finishing its work!", it)
             }
         }
         registerReceiver(

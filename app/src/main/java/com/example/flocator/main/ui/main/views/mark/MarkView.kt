@@ -9,41 +9,35 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
 import com.example.flocator.R
+import com.example.flocator.main.ui.main.views.BitmapCreator
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.shape.ShapeAppearanceModel
 
 class MarkView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-    val isTargetUserMark: Boolean = false
-) : FrameLayout(context, attrs, defStyleAttr) {
+    isTargetUserMark: Boolean = false
+) : FrameLayout(context, attrs, defStyleAttr), BitmapCreator {
     private val markImageSize = dpToPx(56, context)
     private val avatarFrameSize = dpToPx(24, context)
     private val roundedPath = Path()
     private val angularCoefficient = 0.16f
     private val cornerSize = markImageSize * angularCoefficient
-    private val markImage: ShapeableImageView
+    private val markImage: AppCompatImageView
     private val userAvatarFrameLayout: FrameLayout
     private val userAvatarImageView: ShapeableImageView
-    private var _markImageUri: String? = null
-    private var _authorImageUri: String? = null
 
-    val markImageUri: String?
-        get() = _markImageUri
-
-    val authorImageUri: String?
-        get() = _authorImageUri
+    private var markImageUri: String? = null
+    private var authorImageUri: String? = null
 
     init {
         // Mark Image
-        markImage = ShapeableImageView(context)
+        markImage = AppCompatImageView(context)
 
-        markImage.shapeAppearanceModel = ShapeAppearanceModel()
-            .withCornerSize(cornerSize)
         markImage.scaleType = ImageView.ScaleType.CENTER_CROP
         markImage.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.primary, null))
 
@@ -107,13 +101,13 @@ class MarkView @JvmOverloads constructor(
     }
 
     fun setMarkBitmapImage(bitmap: Bitmap, uri: String?) {
-        if (_markImageUri != uri) {
+        if (markImageUri != uri) {
             if (uri != null) {
                 markImage.setImageBitmap(bitmap)
             } else {
                 setMarkBitmapPlaceHolder()
             }
-            _markImageUri = uri
+            markImageUri = uri
         }
     }
 
@@ -128,13 +122,13 @@ class MarkView @JvmOverloads constructor(
     }
 
     fun setAuthorBitmapImage(bitmap: Bitmap, uri: String?) {
-        if (uri != _authorImageUri) {
+        if (uri != authorImageUri) {
             if (uri == null) {
                 setAuthorBitmapPlaceHolder()
             } else {
                 userAvatarImageView.setImageBitmap(bitmap)
             }
-            _authorImageUri = uri
+            authorImageUri = uri
         }
     }
 
@@ -146,5 +140,25 @@ class MarkView @JvmOverloads constructor(
                 null
             )
         )
+    }
+
+    override fun createBitmap(): Bitmap {
+        measure(0, 0)
+        layout(0, 0, markImageSize, markImageSize)
+
+        // Create a bitmap with the dimensions of the custom view
+        val bitmap = Bitmap.createBitmap(
+            measuredWidth,
+            measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        // Create a canvas with the bitmap
+        val canvas = Canvas(bitmap)
+
+        // Draw the custom view onto the canvas
+        draw(canvas)
+
+        return bitmap
     }
 }

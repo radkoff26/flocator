@@ -9,21 +9,21 @@ import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
-class UserDataSerializer : Serializer<UserData> {
-    override val defaultValue: UserData = UserData.DEFAULT
+class UserDataSerializer : Serializer<UserCredentials> {
+    override val defaultValue: UserCredentials = UserCredentials.DEFAULT
 
-    override suspend fun readFrom(input: InputStream): UserData {
+    override suspend fun readFrom(input: InputStream): UserCredentials {
         return try {
-            Json.decodeFromString(UserData.serializer(), input.readBytes().decodeToString())
+            Json.decodeFromString(UserCredentials.serializer(), input.readBytes().decodeToString())
         } catch (e: SerializationException) {
             throw CorruptionException("Unable to parse this UserData object", e)
         }
     }
 
-    override suspend fun writeTo(t: UserData, output: OutputStream) {
+    override suspend fun writeTo(t: UserCredentials, output: OutputStream) {
         withContext(Dispatchers.IO) {
             output.write(
-                Json.encodeToString(UserData.serializer(), t).encodeToByteArray()
+                Json.encodeToString(UserCredentials.serializer(), t).encodeToByteArray()
             )
         }
     }

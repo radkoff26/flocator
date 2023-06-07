@@ -1,19 +1,22 @@
 package com.example.flocator.main.ui.main.views.mark_group
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.example.flocator.R
+import com.example.flocator.main.ui.main.views.BitmapCreator
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 
 class MarkGroupView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr) {
+) : FrameLayout(context, attrs, defStyleAttr), BitmapCreator {
     private val diameter = dpToPx(56, context)
     private val countTextView: TextView
 
@@ -55,5 +58,25 @@ class MarkGroupView @JvmOverloads constructor(
             count.toString()
         }
         countTextView.text = text
+    }
+
+    override fun createBitmap(): Bitmap {
+        measure(0, 0)
+        layout(0, 0, diameter, diameter)
+
+        // Create a bitmap with the dimensions of the custom view
+        val bitmap = Bitmap.createBitmap(
+            measuredWidth,
+            measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        // Create a canvas with the bitmap
+        val canvas = Canvas(bitmap)
+
+        // Draw the custom view onto the canvas
+        draw(canvas)
+
+        return bitmap
     }
 }

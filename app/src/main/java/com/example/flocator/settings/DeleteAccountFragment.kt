@@ -1,6 +1,5 @@
 package com.example.flocator.settings
 
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,12 +10,10 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import com.example.flocator.R
-import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,7 +102,7 @@ class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
         dismiss()
         FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
-            AuthFragment()
+            com.example.flocator.authentication.authorization.AuthFragment()
         )
     }
 

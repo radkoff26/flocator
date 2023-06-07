@@ -1,14 +1,14 @@
 package com.example.flocator.common.utils
 
-import com.yandex.mapkit.geometry.Point
+import com.google.android.gms.maps.model.LatLng
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 object DistanceUtils {
     private const val METER = 0.000009468
 
-    fun distanceBetweenToString(point1: Point, point2: Point): String {
-        val distance = calculateDistance(point1, point2)
+    fun distanceBetweenToString(latLng1: LatLng, latLng2: LatLng): String {
+        val distance = calculateDistance(latLng1, latLng2)
         val meters = distance / METER
         return if (meters >= 1000) {
             // Getting integer part of kilometers
@@ -21,9 +21,9 @@ object DistanceUtils {
         }
     }
 
-    private fun calculateDistance(point1: Point, point2: Point): Double {
-        val latitudeDelta = (point1.latitude - point2.latitude)
-        val longitudeDelta = (point1.longitude - point2.longitude)
+    private fun calculateDistance(latLng1: LatLng, latLng2: LatLng): Double {
+        val latitudeDelta = (latLng1.latitude - latLng2.latitude)
+        val longitudeDelta = (latLng1.longitude - latLng2.longitude)
         return sqrt(latitudeDelta.pow(2) + longitudeDelta.pow(2))
     }
 }

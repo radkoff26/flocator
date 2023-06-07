@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.repository.MainRepository
-import com.example.flocator.common.storage.store.user.data.UserData
+import com.example.flocator.common.storage.store.user.data.UserCredentials
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
@@ -47,8 +47,8 @@ class AddMarkFragmentViewModel @Inject constructor(
     }
 
     private fun getUserId(): Single<Long> {
-        return repository.userDataCache.getUserData()
-            .map(UserData::userId)
+        return repository.userCredentialsCache.getUserCredentials()
+            .map(UserCredentials::userId)
             .observeOn(AndroidSchedulers.mainThread())
     }
 

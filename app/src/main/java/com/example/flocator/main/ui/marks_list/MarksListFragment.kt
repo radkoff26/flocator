@@ -23,6 +23,7 @@ import com.example.flocator.main.ui.main.data.PointDto
 import com.example.flocator.main.ui.mark.MarkFragment
 import com.example.flocator.main.ui.marks_list.adapters.MarksListRecyclerViewAdapter
 import com.example.flocator.main.ui.marks_list.data.ListMarkDto
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
@@ -114,7 +115,7 @@ class MarksListFragment :
                         PhotoState.Loading
                     ),
                     DistanceUtils.distanceBetweenToString(
-                        Point(
+                        LatLng(
                             userPoint.latitude,
                             userPoint.longitude
                         ),

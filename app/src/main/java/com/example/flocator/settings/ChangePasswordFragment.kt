@@ -23,7 +23,6 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
-import com.example.flocator.authentication.authorization.AuthFragment
 
 @AndroidEntryPoint
 class ChangePasswordFragment :
@@ -101,11 +100,11 @@ class ChangePasswordFragment :
                                 messageField.text = getString(R.string.password_is_incorrect)
                             }
                             messageField.visibility = View.VISIBLE
-                            mainRepository.userDataCache.clearUserData()
+                            mainRepository.userCredentialsCache.clearUserCredentials()
                             mainRepository.userInfoCache.clearUserInfo()
                             FragmentNavigationUtils.clearAllAndOpenFragment(
                                 requireActivity().supportFragmentManager,
-                                AuthFragment()
+                                com.example.flocator.authentication.authorization.AuthFragment()
                             )
                         },
                         {
