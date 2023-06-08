@@ -166,6 +166,6 @@ class MarkFragmentViewModel @Inject constructor(
 
     companion object {
         const val TAG = "Mark Fragment"
-        const val QUALITY_FACTOR = 40
+        const val QUALITY_FACTOR = 25
     }
 }

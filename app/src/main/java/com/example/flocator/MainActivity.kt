@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.authentication.client.RetrofitClient
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
@@ -13,7 +12,6 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.main.ui.main.MainFragment
-import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -32,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
-        MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
 
@@ -49,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openFirstFragment() {
         compositeDisposable.add(
-            repository.userDataCache.getUserData()
+            repository.userCredentialsCache.getUserCredentials()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -95,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                                             )
                                             FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
-                                                AuthFragment()
+                                                com.example.flocator.authentication.authorization.AuthFragment()
                                             )
                                         }
                                     }
@@ -105,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                     {
                         FragmentNavigationUtils.openFragment(
                             supportFragmentManager,
-                            AuthFragment()
+                            com.example.flocator.authentication.authorization.AuthFragment()
                         )
                         Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }

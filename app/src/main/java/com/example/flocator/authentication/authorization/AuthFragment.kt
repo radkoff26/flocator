@@ -1,20 +1,17 @@
 package com.example.flocator.authentication.authorization
 
 import android.os.Bundle
-import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.client.dto.UserCredentialsDto
 import com.example.flocator.authentication.getlocation.LocationRequestFragment
 import com.example.flocator.authentication.registration.RegFirstFragment
 import com.example.flocator.common.repository.MainRepository
-import com.example.flocator.common.storage.store.user.data.UserData
+import com.example.flocator.common.storage.store.user.data.UserCredentials
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.databinding.FragmentAuthBinding
@@ -26,7 +23,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AuthFragment : Fragment(), Authentication {
+class AuthFragment : Fragment(), com.example.flocator.authentication.Authentication {
     private var _binding: FragmentAuthBinding? = null
     private val binding: FragmentAuthBinding
         get() = _binding!!
@@ -73,8 +70,8 @@ class AuthFragment : Fragment(), Authentication {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
-                    repository.userDataCache.updateUserData(
-                        UserData(
+                    repository.userCredentialsCache.updateUserCredentials(
+                        UserCredentials(
                             userId!!,
                             login,
                             password
@@ -93,7 +90,7 @@ class AuthFragment : Fragment(), Authentication {
                     }
                 }, { error ->
                     showErrorMessage("Неверный логин или пароль")
-                    Log.e(TAG, "Ошибка входа", error)
+                    Log.e(com.example.flocator.authentication.authorization.AuthFragment.Companion.TAG, "Ошибка входа", error)
                 })
         )
     }

@@ -26,8 +26,8 @@ import com.example.flocator.main.ui.add_mark.adapters.CarouselRecyclerViewAdapte
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -135,7 +135,7 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             requireArguments().getDouble(BundleArgumentsContraction.AddMarkFragmentArguments.LONGITUDE)
 
         viewModel.updateUserPoint(
-            Point(
+            LatLng(
                 latitude,
                 longitude
             )

@@ -1,11 +1,9 @@
 package com.example.flocator.main.ui.main
 
 import android.util.Log
-import android.util.LruCache
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.common.cache.runtime.PhotoState
 import com.example.flocator.common.exceptions.LostConnectionException
 import com.example.flocator.common.polling.PollingEmitter
 import com.example.flocator.common.repository.MainRepository
@@ -14,11 +12,7 @@ import com.example.flocator.common.storage.db.entities.User
 import com.example.flocator.common.storage.store.point.UserLocationPoint
 import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.main.models.*
-import com.example.flocator.main.ui.main.data.MarkGroup
-import com.example.flocator.main.utils.MarksDiffUtils
-import com.example.flocator.main.utils.MarksUtils
-import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.VisibleRegion
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -30,39 +24,26 @@ import javax.inject.Inject
 class MainFragmentViewModel @Inject constructor(
     private val repository: MainRepository
 ) : ViewModel() {
-    val maxPhotoCacheSize = (Runtime.getRuntime().maxMemory() / 1024).toInt() / 2
+    private val _friendsLiveData = MutableLiveData<List<User>>(emptyList())
+    val friendsLiveData: LiveData<List<User>>
+        get() = _friendsLiveData
 
-    // Data inside of Live Data is non-nullable
-    private val _friendsLiveData = MutableLiveData<Map<Long, User>>(HashMap())
-    private val _visibleMarksLiveData = MutableLiveData<List<MarkGroup>>(ArrayList())
-    private val _cameraStatusLiveData = MutableLiveData(CameraStatus())
-    private val _userLocationLiveData = MutableLiveData<Point?>(null)
-    private val _photoCacheLiveData = MutableLiveData<LruCache<String, PhotoState>>(
-        object : LruCache<String, PhotoState>(maxPhotoCacheSize) {
-            override fun sizeOf(key: String?, value: PhotoState?): Int {
-                return if (value is PhotoState.Loaded) value.bitmap.byteCount / 1024 else 0
-            }
-        }
-    )
+    private val _userLocationLiveData = MutableLiveData<LatLng?>(null)
+    val userLocationLiveData: LiveData<LatLng?>
+        get() = _userLocationLiveData
+
     private val _userInfoLiveData: MutableLiveData<UserInfo?> = MutableLiveData(null)
+    val userInfoLiveData: LiveData<UserInfo?>
+        get() = _userInfoLiveData
 
-    private val _marks: MutableMap<Long, MarkWithPhotos> = HashMap()
-    val marks: Map<Long, MarkWithPhotos>
-        get() = _marks
+    private val _marksLiveData: MutableLiveData<List<MarkWithPhotos>> = MutableLiveData(emptyList())
+    val marksLiveData: LiveData<List<MarkWithPhotos>>
+        get() = _marksLiveData
 
-    private var currentVisibleRegion: VisibleRegion? = null
     private var mapWidth: Float? = null
     private var markWidth: Float? = null
 
     private val compositeDisposable = CompositeDisposable()
-
-    val friendsLiveData: LiveData<Map<Long, User>> = _friendsLiveData
-    val visibleMarksLiveData: LiveData<List<MarkGroup>> = _visibleMarksLiveData
-    val cameraStatusLiveData: LiveData<CameraStatus> = _cameraStatusLiveData
-    val userLocationLiveData: LiveData<Point?> = _userLocationLiveData
-    val photoCacheLiveData: LiveData<LruCache<String, PhotoState>> = _photoCacheLiveData
-    val userInfoLiveData: LiveData<UserInfo?>
-        get() = _userInfoLiveData
 
     private fun initialFetch() {
         val userId = userInfoLiveData.value!!.userId
@@ -90,33 +71,7 @@ class MainFragmentViewModel @Inject constructor(
         )
     }
 
-    fun loadPhoto(uri: String) {
-        when (_photoCacheLiveData.value!!.get(uri)) {
-            null, is PhotoState.Failed -> {
-                updateCacheState(uri, PhotoState.Loading)
-                compositeDisposable.add(
-                    repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                            {
-                                updateCacheState(uri, PhotoState.Loaded(it))
-                            },
-                            {
-                                updateCacheState(uri, PhotoState.Failed(it))
-                            }
-                        )
-                )
-            }
-            else -> {
-                return
-            }
-        }
-    }
-
-    private fun updateCacheState(uri: String, photoState: PhotoState) {
-        _photoCacheLiveData.value!!.put(uri, photoState)
-        _photoCacheLiveData.value = _photoCacheLiveData.value
-    }
+    fun loadPhoto(uri: String) = repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
 
     private fun retrieveDataFromCache() {
         compositeDisposable.addAll(
@@ -139,7 +94,7 @@ class MainFragmentViewModel @Inject constructor(
                 .subscribe(
                     {
                         _userLocationLiveData.postValue(
-                            Point(
+                            LatLng(
                                 it.latitude,
                                 it.longitude
                             )
@@ -251,97 +206,19 @@ class MainFragmentViewModel @Inject constructor(
         this.markWidth = markWidth
     }
 
-    fun updateVisibleRegion(visibleRegion: VisibleRegion) {
-        currentVisibleRegion = visibleRegion
-        if (mapWidth != null && markWidth != null) {
-            val marksInVisibleRegionGrouped = getVisibleRegionMarksGrouped(visibleRegion)
-            if (MarksDiffUtils.isChanged(
-                    _visibleMarksLiveData.value!!.toList(),
-                    marksInVisibleRegionGrouped
-                )
-            ) {
-                _visibleMarksLiveData.value = marksInVisibleRegionGrouped
-            }
-        }
-    }
-
-    fun updateUserLocation(point: Point) {
-        if (_cameraStatusLiveData.value!!.cameraStatusType == CameraStatusType.FOLLOW_USER) {
-            setCameraPoint(point)
-        }
-        _userLocationLiveData.value = point
+    fun updateUserLocation(location: LatLng) {
+        _userLocationLiveData.value = location
         repository.locationCache.updateUserLocationData(
             UserLocationPoint(
-                point.latitude,
-                point.longitude
+                location.latitude,
+                location.longitude
             )
         )
-    }
-
-    fun setCameraFollowOnFriendMark(friendId: Long) {
-        if (_friendsLiveData.value!![friendId] == null) {
-            return
-        }
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFollowOnFriendMark(friendId, _friendsLiveData.value!![friendId]!!.location)
-        _cameraStatusLiveData.value = cameraStatus
-    }
-
-    fun setCameraFollowOnUserMark() {
-        if (_userLocationLiveData.value == null || userInfoLiveData.value == null) {
-            return
-        }
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFollowOnUserMark(userInfoLiveData.value!!.userId, _userLocationLiveData.value!!)
-        _cameraStatusLiveData.value = cameraStatus
-    }
-
-    fun setCameraFixed() {
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.setFixed()
-        _cameraStatusLiveData.value = cameraStatus
     }
 
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.dispose()
-    }
-
-    private fun getVisibleRegionMarksGrouped(
-        visibleRegion: VisibleRegion
-    ): List<MarkGroup> {
-        val marksInVisibleRegion =
-            getMarksInVisibleRegionOnly(visibleRegion, _marks.values.toList())
-        return MarksUtils.groupMarks(marksInVisibleRegion, visibleRegion, mapWidth!!, markWidth!!)
-    }
-
-    private fun getMarksInVisibleRegionOnly(
-        visibleRegion: VisibleRegion,
-        marks: List<MarkWithPhotos>
-    ): List<MarkWithPhotos> {
-        return marks.filter { isInVisibleRegion(it.mark.location, visibleRegion) }
-    }
-
-    private fun isInVisibleRegion(point: Point, visibleRegion: VisibleRegion): Boolean {
-        val longitudes = listOf(
-            visibleRegion.bottomRight.longitude,
-            visibleRegion.bottomLeft.longitude,
-            visibleRegion.topRight.longitude,
-            visibleRegion.topLeft.longitude
-        )
-        val latitudes = listOf(
-            visibleRegion.bottomRight.latitude,
-            visibleRegion.bottomLeft.latitude,
-            visibleRegion.topRight.latitude,
-            visibleRegion.topLeft.latitude
-        )
-        val minLongitude = longitudes.min()
-        val maxLongitude = longitudes.max()
-        val minLatitude = latitudes.min()
-        val maxLatitude = latitudes.max()
-        return (point.longitude in minLongitude..maxLongitude)
-                &&
-                (point.latitude in minLatitude..maxLatitude)
     }
 
     fun fetchFriends(emitter: PollingEmitter) {
@@ -409,34 +286,16 @@ class MainFragmentViewModel @Inject constructor(
     }
 
     private fun updateFriends(users: List<User>) {
-        val map: MutableMap<Long, User> = _friendsLiveData.value!!.toMutableMap()
-        for (user in users) {
-            map[user.id] = user
-            if (_cameraStatusLiveData.value!!.cameraStatusType == CameraStatusType.FOLLOW_FRIEND && _cameraStatusLiveData.value!!.markId == user.id) {
-                setCameraPoint(user.location)
-            }
-        }
-        _friendsLiveData.value = map
+        _friendsLiveData.value = users
     }
 
     private fun updateMarks(value: List<MarkWithPhotos>) {
-        for (mark in value) {
-            _marks[mark.mark.markId] = mark
-        }
-        if (currentVisibleRegion != null && mapWidth != null && markWidth != null) {
-            updateVisibleRegion(currentVisibleRegion!!)
-        }
-    }
-
-    private fun setCameraPoint(point: Point) {
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.point = point
-        _cameraStatusLiveData.value = cameraStatus
+        _marksLiveData.value = value
     }
 
     companion object {
         const val TAG = "Main Fragment View Model"
-        const val COMPRESSION_FACTOR = 20
+        const val COMPRESSION_FACTOR = 10
         const val TIMES_TO_RETRY_LOCATION_POST = 5
         const val TIMES_TO_RETRY_FRIENDS_FETCHING = 10
         const val TIMES_TO_RETRY_MARKS_FETCHING = 7

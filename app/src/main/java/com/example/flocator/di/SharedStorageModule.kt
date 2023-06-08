@@ -8,7 +8,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.flocator.common.storage.store.point.UserLocationPoint
 import com.example.flocator.common.storage.store.point.UserLocationPointSerializer
-import com.example.flocator.common.storage.store.user.data.UserData
+import com.example.flocator.common.storage.store.user.data.UserCredentials
 import com.example.flocator.common.storage.store.user.data.UserDataSerializer
 import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.storage.store.user.info.UserInfoSerializer
@@ -52,7 +52,7 @@ object SharedStorageModule {
 
     @Provides
     @Singleton
-    fun userDataStore(@ApplicationContext context: Context): DataStore<UserData> =
+    fun userDataStore(@ApplicationContext context: Context): DataStore<UserCredentials> =
         DataStoreFactory.create(
             UserDataSerializer(),
             produceFile = { context.dataStoreFile(USER_DATA_STORE_FILE) }

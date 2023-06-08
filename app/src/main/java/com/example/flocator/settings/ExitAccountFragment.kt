@@ -9,7 +9,6 @@ import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import com.example.flocator.R
-import com.example.flocator.authentication.authorization.AuthFragment
 import com.example.flocator.common.fragments.ResponsiveBottomSheetDialogFragment
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
@@ -81,7 +80,7 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
         dismiss()
         FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
-            AuthFragment()
+            com.example.flocator.authentication.authorization.AuthFragment()
         )
     }
 

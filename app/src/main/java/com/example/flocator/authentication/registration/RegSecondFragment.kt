@@ -12,8 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
-import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.client.RetrofitClient.authenticationApi
 import com.example.flocator.authentication.viewmodel.RegistrationViewModel
 import com.example.flocator.databinding.FragmentRegistrationBinding
@@ -23,7 +21,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class RegSecondFragment : Fragment(), Authentication {
+class RegSecondFragment : Fragment(), com.example.flocator.authentication.Authentication {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -105,7 +103,7 @@ class RegSecondFragment : Fragment(), Authentication {
         binding.alreadyRegisteredText.setOnClickListener {
             FragmentNavigationUtils.clearAllAndOpenFragment(
                 requireActivity().supportFragmentManager,
-                AuthFragment()
+                com.example.flocator.authentication.authorization.AuthFragment()
             )
         }
 

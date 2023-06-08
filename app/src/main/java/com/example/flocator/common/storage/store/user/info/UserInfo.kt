@@ -1,11 +1,9 @@
 package com.example.flocator.common.storage.store.user.info
 
 import com.google.gson.annotations.SerializedName
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.sql.Timestamp

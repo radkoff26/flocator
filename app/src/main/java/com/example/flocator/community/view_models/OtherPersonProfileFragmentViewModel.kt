@@ -6,8 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.community.api.UserApi
-import com.example.flocator.community.data_classes.FriendRequests
-import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.data_classes.UserExternalFriends
 import com.example.flocator.community.fragments.ProfileFragment

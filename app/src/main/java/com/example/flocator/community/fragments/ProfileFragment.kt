@@ -11,32 +11,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.flocator.R
-import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.adapters.FriendAdapter
 import com.example.flocator.community.adapters.PersonAdapter
-import com.example.flocator.community.api.UserApi
 import com.example.flocator.community.data_classes.FriendRequests
 import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.User
-import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.view_models.ProfileFragmentViewModel
 import com.example.flocator.databinding.FragmentCommunityBinding
-import com.example.flocator.main.ui.main.MainFragment
-import com.faltenreich.skeletonlayout.Skeleton
-import com.google.gson.GsonBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import java.sql.Timestamp
 
 @AndroidEntryPoint

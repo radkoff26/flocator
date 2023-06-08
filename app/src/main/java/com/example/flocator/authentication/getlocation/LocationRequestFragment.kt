@@ -18,11 +18,9 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.example.flocator.authentication.Authentication
-import com.example.flocator.databinding.FragmentAuthBinding
 import com.example.flocator.main.ui.main.MainFragment
 
-class LocationRequestFragment : Fragment(), Authentication {
+class LocationRequestFragment : Fragment(), com.example.flocator.authentication.Authentication {
     private var _binding: FragmentLocationRequestBinding? = null
     private val binding: FragmentLocationRequestBinding
         get() = _binding!!

@@ -3,7 +3,7 @@ package com.example.flocator.common.storage.db.entities
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.example.flocator.main.models.dto.MarkDto
-import com.example.flocator.main.ui.main.data.PointDto
+import com.example.flocator.main.ui.main.data.LatLngDto
 
 data class MarkWithPhotos(
     @Embedded
@@ -17,7 +17,7 @@ data class MarkWithPhotos(
         return MarkDto(
             mark.markId,
             mark.authorId,
-            PointDto(
+            LatLngDto(
                 mark.location.latitude,
                 mark.location.longitude
             ),

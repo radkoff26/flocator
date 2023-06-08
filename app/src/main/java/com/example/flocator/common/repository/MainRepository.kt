@@ -12,21 +12,21 @@ import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
 import com.example.flocator.common.storage.db.entities.User
-import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.storage.store.point.UserLocationPoint
-import com.example.flocator.common.storage.store.user.data.UserData
+import com.example.flocator.common.storage.store.user.data.UserCredentials
+import com.example.flocator.common.storage.store.user.info.UserInfo
 import com.example.flocator.common.utils.LoadUtils
 import com.example.flocator.community.api.UserApi
 import com.example.flocator.main.api.ClientAPI
 import com.example.flocator.main.api.GeocoderAPI
 import com.example.flocator.main.data.AddressResponse
-import com.example.flocator.main.models.dto.UsernameDto
 import com.example.flocator.main.models.dto.MarkDto
 import com.example.flocator.main.models.dto.UserLocationDto
+import com.example.flocator.main.models.dto.UsernameDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.settings.SettingsAPI
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
-import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -42,6 +42,8 @@ import java.util.stream.Collectors
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private typealias LoadingImage = Pair<String, Int>
+
 @Singleton
 class MainRepository @Inject constructor(
     private val clientAPI: ClientAPI,
@@ -49,7 +51,7 @@ class MainRepository @Inject constructor(
     private val userApi: UserApi,
     private val applicationDatabase: ApplicationDatabase,
     private val userLocationDataStore: DataStore<UserLocationPoint>,
-    private val userDataStore: DataStore<UserData>,
+    private val userCredentialsStore: DataStore<UserCredentials>,
     private val userInfoStore: DataStore<UserInfo>,
     private val photoCacheManager: PhotoCacheManager,
     private val settingsAPI: SettingsAPI,
@@ -57,12 +59,15 @@ class MainRepository @Inject constructor(
 ) {
     val restApi = RestApi()
     val cacheDatabase = CacheDatabase()
-    val userDataCache = UserDataCache()
+    val userCredentialsCache = UserCredentialsCache()
     val userInfoCache = UserInfoCache()
     val locationCache = LocationCache()
     val photoLoader = PhotoLoader()
 
     inner class RestApi {
+        /**
+         * Получение всех друзей юзера
+         * */
         fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
             return Single.create { emitter ->
@@ -178,7 +183,7 @@ class MainRepository @Inject constructor(
             return clientAPI.getUsername(userId).subscribeOn(Schedulers.io())
         }
 
-        fun postUserLocation(userId: Long, location: Point): Completable {
+        fun postUserLocation(userId: Long, location: LatLng): Completable {
             return ConnectionWrapper.of(
                 clientAPI.updateLocation(
                     UserLocationDto(
@@ -207,14 +212,14 @@ class MainRepository @Inject constructor(
             return clientAPI.unlikeMark(markId, userId).subscribeOn(Schedulers.io())
         }
 
-        fun getAddress(point: Point): Single<String> {
-            return geocoderAPI.getAddress("${point.latitude}, ${point.longitude}")
+        fun getAddress(latLng: LatLng): Single<String> {
+            return geocoderAPI.getAddress("${latLng.latitude}, ${latLng.longitude}")
                 .map(AddressResponse::address)
                 .subscribeOn(Schedulers.io())
         }
 
         fun getCurrentUserInfo(): Single<UserInfo> {
-            return userDataCache.getUserData()
+            return userCredentialsCache.getUserCredentials()
                 .flatMap {
                     getUser(it.userId)
                         .subscribeOn(Schedulers.io())
@@ -255,7 +260,7 @@ class MainRepository @Inject constructor(
         }
 
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 settingsAPI.changeAvatar(
                     it.userId,
                     ava
@@ -266,7 +271,7 @@ class MainRepository @Inject constructor(
         }
 
         fun changeCurrentUserBirthdate(date: Timestamp): Single<Boolean> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 settingsAPI.setBirthDate(
                     it.userId,
                     date
@@ -277,7 +282,7 @@ class MainRepository @Inject constructor(
         }
 
         fun changeCurrentUserName(firstName: String, lastName: String): Single<Boolean> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 settingsAPI.changeName(
                     it.userId,
                     firstName,
@@ -289,7 +294,7 @@ class MainRepository @Inject constructor(
         }
 
         fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 settingsAPI.changePassword(
                     it.userId,
                     prevPass,
@@ -301,7 +306,7 @@ class MainRepository @Inject constructor(
         }
 
         fun getCurrentUserBlocked(): Single<List<UserInfo>> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 settingsAPI.getBlocked(
                     it.userId
                 )
@@ -311,7 +316,7 @@ class MainRepository @Inject constructor(
         }
 
         fun blockUser(userId: Long): Completable {
-            return userDataCache.getUserData().flatMapCompletable {
+            return userCredentialsCache.getUserCredentials().flatMapCompletable {
                 settingsAPI.blockUser(
                     it.userId,
                     userId
@@ -322,7 +327,7 @@ class MainRepository @Inject constructor(
         }
 
         fun unblockUser(userId: Long): Completable {
-            return userDataCache.getUserData().flatMapCompletable {
+            return userCredentialsCache.getUserCredentials().flatMapCompletable {
                 settingsAPI.unblockUser(
                     it.userId,
                     userId
@@ -333,7 +338,7 @@ class MainRepository @Inject constructor(
         }
 
         fun getCurrentUserPrivacy(): Single<Map<Long, String>> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 settingsAPI.getPrivacyData(it.userId)
             }. map { privacyData ->
                 privacyData.parallelStream().collect(
@@ -351,7 +356,7 @@ class MainRepository @Inject constructor(
 
 
         fun changePrivacy(friendId: Long, status: String): Completable {
-            return userDataCache.getUserData().flatMapCompletable {
+            return userCredentialsCache.getUserCredentials().flatMapCompletable {
                 settingsAPI.changePrivacyData(it.userId, friendId, status)
                     .observeOn(Schedulers.io())
             }
@@ -359,7 +364,7 @@ class MainRepository @Inject constructor(
         }
 
         fun getFriendsOfCurrentUser(): Single<List<User>> {
-            return userDataCache.getUserData().flatMap {
+            return userCredentialsCache.getUserCredentials().flatMap {
                 getAllFriendsOfUser(it.userId)
                     .observeOn(Schedulers.io())
             }
@@ -367,7 +372,7 @@ class MainRepository @Inject constructor(
         }
 
         fun deleteCurrentAccount(pass: String): Completable {
-            return userDataCache.getUserData().flatMapCompletable {
+            return userCredentialsCache.getUserCredentials().flatMapCompletable {
                 settingsAPI.deleteAccount(it.userId, pass)
                     .observeOn(Schedulers.io())
             }
@@ -415,12 +420,12 @@ class MainRepository @Inject constructor(
         }
     }
 
-    inner class UserDataCache {
-        fun getUserData(): Single<UserData> {
+    inner class UserCredentialsCache {
+        fun getUserCredentials(): Single<UserCredentials> {
             return Single.create { emitter ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    userDataStore.data.collect {
-                        if (it == UserData.DEFAULT) {
+                    userCredentialsStore.data.collect {
+                        if (it == UserCredentials.DEFAULT) {
                             emitter.onError(NoSuchElementException("Data is not yet assigned!"))
                         } else {
                             emitter.onSuccess(it)
@@ -430,14 +435,14 @@ class MainRepository @Inject constructor(
             }.subscribeOn(Schedulers.io())
         }
 
-        fun updateUserData(userData: UserData) {
+        fun updateUserCredentials(userCredentials: UserCredentials) {
             CoroutineScope(Dispatchers.IO).launch {
-                userDataStore.updateData { userData }
+                userCredentialsStore.updateData { userCredentials }
             }
         }
 
-        fun clearUserData() {
-            updateUserData(UserData.DEFAULT)
+        fun clearUserCredentials() {
+            updateUserCredentials(UserCredentials.DEFAULT)
         }
     }
 
@@ -494,19 +499,28 @@ class MainRepository @Inject constructor(
     }
 
     inner class PhotoLoader {
-        fun getPhoto(uri: String, compressionFactor: Int = 100): Single<Bitmap> {
-            if (photoCacheManager.isPhotoCached(uri)) {
-                return Single.just(photoCacheManager.getPhotoFromCache(uri)!!)
+        private val state: MutableSet<LoadingImage> = HashSet()
+
+        fun getPhoto(uri: String, qualityFactor: Int = 100): Single<Bitmap> {
+            if (photoCacheManager.isPhotoCached(uri, qualityFactor)) {
+                return Single.just(photoCacheManager.getPhotoFromCache(uri, qualityFactor)!!)
                     .subscribeOn(Schedulers.io())
             }
-            return LoadUtils.loadPictureFromUrl(uri, compressionFactor)
+            val processState = LoadingImage(uri, qualityFactor)
+            state.add(processState)
+            return LoadUtils.loadPictureFromUrl(uri, qualityFactor)
                 .doOnSuccess {
                     try {
-                        photoCacheManager.savePhotoToCache(uri, it)
+                        photoCacheManager.savePhotoToCache(uri, it, qualityFactor)
                     } catch (e: Exception) {
                         // Ignore any exceptions to prevent from onError callback
                         Log.e(TAG, "getPhoto: error while saving to cache!", e)
+                    } finally {
+                        state.remove(processState)
                     }
+                }
+                .doOnError {
+                    state.remove(processState)
                 }
                 .subscribeOn(Schedulers.io())
         }
@@ -514,7 +528,7 @@ class MainRepository @Inject constructor(
 
     fun clearAllCache(): Completable {
         userInfoCache.clearUserInfo()
-        userDataCache.clearUserData()
+        userCredentialsCache.clearUserCredentials()
         locationCache.clearLocation()
         return cacheDatabase.clearDatabase().subscribeOn(Schedulers.io())
     }

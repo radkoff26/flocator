@@ -1,13 +1,13 @@
 package com.example.flocator.main.ui.add_mark.data
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
-import com.yandex.mapkit.geometry.Point
 
 data class AddMarkDto(
     @SerializedName("authorId")
     var authorId: Long,
     @SerializedName("point")
-    val location: Point,
+    val location: LatLng,
     @SerializedName("text")
     val text: String,
     @SerializedName("isPublic")

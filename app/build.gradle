@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -27,11 +28,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     buildFeatures {
         viewBinding true
@@ -40,6 +41,8 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
     // Versions
     def room_version = "2.5.1"
     def kotlin_version = '1.8.10'
@@ -70,7 +73,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.0.0'
     implementation 'com.github.javafaker:javafaker:1.0.2'
 
-    implementation 'com.yandex.android:maps.mobile:4.3.1-lite'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
 
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"

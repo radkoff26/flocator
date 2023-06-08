@@ -1,7 +1,8 @@
-package com.example.flocator.main.ui.main.views.friend
+package com.example.flocator.main.ui.map.ui.views
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
@@ -10,15 +11,17 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.example.flocator.R
+import com.example.flocator.main.ui.map.ui.BitmapCreator
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
 import com.google.android.material.imageview.ShapeableImageView
+
 
 class UserView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     val isTargetUser: Boolean = false
-) : FrameLayout(context, attrs, defStyleAttr) {
+) : FrameLayout(context, attrs, defStyleAttr), BitmapCreator {
     // Default values for measurement
     private val defaultDiameter = dpToPx(48, context)
     private val textViewHeight = dpToPx(16, context)
@@ -112,6 +115,26 @@ class UserView @JvmOverloads constructor(
             diameter,
             diameter + padding + textViewHeight
         )
+    }
+
+    override fun createBitmap(): Bitmap {
+        measure(0, 0)
+        layout(0, 0, defaultDiameter, defaultDiameter)
+
+        // Create a bitmap with the dimensions of the custom view
+        val bitmap = Bitmap.createBitmap(
+            measuredWidth,
+            measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        // Create a canvas with the bitmap
+        val canvas = Canvas(bitmap)
+
+        // Draw the custom view onto the canvas
+        draw(canvas)
+
+        return bitmap
     }
 
     fun setAvatarBitmap(bitmap: Bitmap, uri: String?) {

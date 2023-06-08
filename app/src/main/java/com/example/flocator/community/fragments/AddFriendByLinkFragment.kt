@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import com.example.flocator.R
@@ -14,16 +13,12 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.community.CommunitySection
 import com.example.flocator.community.view_models.AddFriendByLinkFragmentViewModel
 import com.example.flocator.databinding.FragmentAddFriendBinding
-import com.example.flocator.main.ui.add_mark.AddMarkFragment
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlin.properties.Delegates
-import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(

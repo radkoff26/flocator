@@ -3,9 +3,9 @@ package com.example.flocator.main.models.dto
 import com.example.flocator.common.storage.db.entities.Mark
 import com.example.flocator.common.storage.db.entities.MarkPhoto
 import com.example.flocator.common.storage.db.entities.MarkWithPhotos
-import com.example.flocator.main.ui.main.data.PointDto
+import com.example.flocator.main.ui.main.data.LatLngDto
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
-import com.yandex.mapkit.geometry.Point
 import java.sql.Timestamp
 
 data class MarkDto(
@@ -17,7 +17,7 @@ data class MarkDto(
     val authorId: Long,
 
     @SerializedName("point")
-    val location: PointDto,
+    val location: LatLngDto,
 
     @SerializedName("text")
     val text: String,
@@ -51,7 +51,7 @@ data class MarkDto(
             Mark(
                 markId,
                 authorId,
-                Point(
+                LatLng(
                     location.latitude,
                     location.longitude
                 ),

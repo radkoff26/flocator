@@ -1,18 +1,14 @@
 package com.example.flocator.community.view_models
 
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.flocator.Application
 import com.example.flocator.common.repository.MainRepository
-import com.example.flocator.community.adapters.FriendActionListener
 import com.example.flocator.community.api.UserApi
 import com.example.flocator.community.data_classes.FriendRequests
 import com.example.flocator.community.data_classes.Friends
 import com.example.flocator.community.data_classes.User
-import com.example.flocator.community.data_classes.UserExternal
 import com.example.flocator.community.fragments.ProfileFragment
 import com.google.gson.GsonBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,7 +34,7 @@ class ProfileFragmentViewModel @Inject constructor(
     var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<User> = _currentUserLiveData
-    private val userId = repository.userDataCache.getUserData().blockingGet().userId
+    private val userId = repository.userCredentialsCache.getUserCredentials().blockingGet().userId
     private val compositeDisposable = CompositeDisposable()
 
 

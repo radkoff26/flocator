@@ -81,4 +81,5 @@
     <string name="new_password_again">Новый пароль повторно</string>
     <string name="blacklist_is_empty">Черный список пуст. Так держать!</string>
     <string name="privacy_no_friends">Вам пока не от кого скрывать свое местоположение. Сначала найдите друзей</string>
+    <string name="user_name_on_map" formatted="true">%s %s</string>
 </resources>

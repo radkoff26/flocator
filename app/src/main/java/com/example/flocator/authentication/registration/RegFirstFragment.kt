@@ -9,13 +9,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
-import com.example.flocator.authentication.authorization.AuthFragment
-import com.example.flocator.authentication.Authentication
 import com.example.flocator.authentication.viewmodel.RegistrationViewModel
 import com.example.flocator.databinding.FragmentRegistrationBinding
 import com.example.flocator.common.utils.FragmentNavigationUtils
 
-class RegFirstFragment : Fragment(), Authentication {
+class RegFirstFragment : Fragment(), com.example.flocator.authentication.Authentication {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -60,7 +58,7 @@ class RegFirstFragment : Fragment(), Authentication {
         binding.alreadyRegisteredText.setOnClickListener {
             FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
-                AuthFragment()
+                com.example.flocator.authentication.authorization.AuthFragment()
             )
         }
 
