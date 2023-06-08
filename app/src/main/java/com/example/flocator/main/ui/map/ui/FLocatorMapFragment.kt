@@ -235,20 +235,27 @@ class FLocatorMapFragment :
         if (viewModel.userInfoLiveData.value == null) {
             return null
         }
-        val userId = viewModel.userInfoLiveData.value!!.userId
+        val userInfo = viewModel.userInfoLiveData.value!!
+        val userId = userInfo.userId
         val friends = viewModel.allFriends
         val singleMarks = newMarks.filter { item ->
             item.marks.size == 1
         }.map { markGroup ->
             // TODO: get rid of this entity creation overhead
             val mark = markGroup.marks[0]
+            val authorId = mark.mark.authorId
+            val avatar = if (authorId == userId) {
+                userInfo.avatarUri
+            } else {
+                friends[authorId]?.avatarUri
+            }
             MarkViewDto(
                 MarkView(
                     requireContext(),
-                    isTargetUserMark = mark.mark.markId == userId
+                    isTargetUserMark = authorId == userId
                 ),
                 mark,
-                friends[mark.mark.authorId]?.avatarUri
+                avatar
             )
         }
         val currentSingleMarksList = marksState
