@@ -295,7 +295,7 @@ class MainFragmentViewModel @Inject constructor(
 
     companion object {
         const val TAG = "Main Fragment View Model"
-        const val COMPRESSION_FACTOR = 20
+        const val COMPRESSION_FACTOR = 10
         const val TIMES_TO_RETRY_LOCATION_POST = 5
         const val TIMES_TO_RETRY_FRIENDS_FETCHING = 10
         const val TIMES_TO_RETRY_MARKS_FETCHING = 7

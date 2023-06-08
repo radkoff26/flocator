@@ -12,7 +12,6 @@ import com.example.flocator.common.repository.MainRepository
 import com.example.flocator.common.utils.FragmentNavigationUtils
 import com.example.flocator.common.utils.LocationUtils
 import com.example.flocator.main.ui.main.MainFragment
-import com.yandex.mapkit.MapKitFactory
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -31,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
-        MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
 
@@ -78,7 +76,7 @@ class MainActivity : AppCompatActivity() {
                                     { throwable ->
                                         if (throwable is UnknownHostException || throwable is ConnectException) {
                                             Log.i(
-                                                com.example.flocator.MainActivity.Companion.TAG,
+                                                TAG,
                                                 "openFirstFragment: no connection, but user authorized previously",
                                                 throwable
                                             )
@@ -88,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                                             )
                                         } else {
                                             Log.e(
-                                                com.example.flocator.MainActivity.Companion.TAG,
+                                                TAG,
                                                 "openFirstFragment: not authorized!",
                                                 throwable
                                             )
@@ -106,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                             supportFragmentManager,
                             com.example.flocator.authentication.authorization.AuthFragment()
                         )
-                        Log.e(com.example.flocator.MainActivity.Companion.TAG, "openFirstFragment: error while fetching cached user id!", it)
+                        Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }
                 )
         )

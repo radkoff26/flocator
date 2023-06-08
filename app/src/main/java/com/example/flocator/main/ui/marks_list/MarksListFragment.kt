@@ -19,13 +19,12 @@ import com.example.flocator.databinding.FragmentMarksListBinding
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.data.Photo
 import com.example.flocator.main.models.dto.MarkDto
-import com.example.flocator.main.ui.main.data.PointDto
+import com.example.flocator.main.ui.main.data.LatLngDto
 import com.example.flocator.main.ui.mark.MarkFragment
 import com.example.flocator.main.ui.marks_list.adapters.MarksListRecyclerViewAdapter
 import com.example.flocator.main.ui.marks_list.data.ListMarkDto
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 
@@ -96,7 +95,7 @@ class MarksListFragment :
         }
         val userPoint = requireArguments().getSerializable(
             BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT
-        ) as PointDto
+        ) as LatLngDto
         val marks = requireArguments().getSerializable(
             BundleArgumentsContraction.MarksListFragmentArguments.MARKS
         ) as ArrayList<MarkDto>

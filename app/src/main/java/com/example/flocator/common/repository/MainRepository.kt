@@ -27,7 +27,6 @@ import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.settings.SettingsAPI
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
-import com.yandex.mapkit.geometry.Point
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -66,6 +65,9 @@ class MainRepository @Inject constructor(
     val photoLoader = PhotoLoader()
 
     inner class RestApi {
+        /**
+         * Получение всех друзей юзера
+         * */
         fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
             val compositeDisposable = CompositeDisposable()
             return Single.create { emitter ->
@@ -210,8 +212,8 @@ class MainRepository @Inject constructor(
             return clientAPI.unlikeMark(markId, userId).subscribeOn(Schedulers.io())
         }
 
-        fun getAddress(point: Point): Single<String> {
-            return geocoderAPI.getAddress("${point.latitude}, ${point.longitude}")
+        fun getAddress(latLng: LatLng): Single<String> {
+            return geocoderAPI.getAddress("${latLng.latitude}, ${latLng.longitude}")
                 .map(AddressResponse::address)
                 .subscribeOn(Schedulers.io())
         }

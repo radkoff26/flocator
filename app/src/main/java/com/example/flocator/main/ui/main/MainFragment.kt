@@ -20,8 +20,8 @@ import com.example.flocator.databinding.FragmentMainBinding
 import com.example.flocator.main.MainSection
 import com.example.flocator.main.config.BundleArgumentsContraction
 import com.example.flocator.main.ui.add_mark.AddMarkFragment
-import com.example.flocator.main.ui.main.data.PointDto
-import com.example.flocator.main.ui.main.views.map.FLocatorMapFragment
+import com.example.flocator.main.ui.main.data.LatLngDto
+import com.example.flocator.main.ui.map.ui.FLocatorMapFragment
 import com.example.flocator.main.ui.mark.MarkFragment
 import com.example.flocator.main.ui.marks_list.MarksListFragment
 import com.example.flocator.main.utils.ViewUtils.Companion.dpToPx
@@ -30,7 +30,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import com.yandex.mapkit.map.MapObjectTapListener
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import java.util.concurrent.atomic.AtomicBoolean
@@ -117,7 +116,7 @@ class MainFragment : Fragment(), MainSection {
                             val userPoint = viewModel.userLocationLiveData.value!!
                             putSerializable(
                                 BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT,
-                                PointDto(
+                                LatLngDto(
                                     userPoint.latitude,
                                     userPoint.longitude
                                 )

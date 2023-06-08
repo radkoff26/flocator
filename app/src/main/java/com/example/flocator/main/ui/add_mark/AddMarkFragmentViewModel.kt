@@ -10,7 +10,7 @@ import com.example.flocator.common.storage.store.user.data.UserCredentials
 import com.example.flocator.main.ui.add_mark.data.AddMarkDto
 import com.example.flocator.main.ui.add_mark.data.AddMarkFragmentState
 import com.example.flocator.main.ui.add_mark.data.CarouselItemState
-import com.yandex.mapkit.geometry.Point
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,17 +27,17 @@ class AddMarkFragmentViewModel @Inject constructor(
         AddMarkFragmentState.Editing
     )
     private val _addressLiveData = MutableLiveData<String>(null)
-    private lateinit var _userPoint: Point
+    private lateinit var _userPoint: LatLng
 
     private val compositeDisposable = CompositeDisposable()
 
     val carouselLiveData: LiveData<List<CarouselItemState>> = _carouselLiveData
     val fragmentStateLiveData: LiveData<AddMarkFragmentState> = _fragmentStateLiveData
     val addressLiveData: LiveData<String> = _addressLiveData
-    val userPoint: Point
+    val userPoint: LatLng
         get() = _userPoint
 
-    fun updateUserPoint(point: Point) {
+    fun updateUserPoint(point: LatLng) {
         _userPoint = point
         obtainAddress()
     }
