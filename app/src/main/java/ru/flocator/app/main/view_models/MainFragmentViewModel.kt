@@ -11,7 +11,6 @@ import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
 import ru.flocator.app.common.storage.db.entities.User
 import ru.flocator.app.common.storage.store.point.UserLocationPoint
 import ru.flocator.app.common.storage.store.user.info.UserInfo
-import ru.flocator.app.main.models.*
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
