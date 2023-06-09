@@ -5,7 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ru.flocator.app.main.ui.add_mark.AddMarkFragment">
+    tools:context="ru.flocator.app.add_mark.ui.AddMarkFragment">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bs"

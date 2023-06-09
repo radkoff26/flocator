@@ -13,7 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flocator.R
 import ru.flocator.app.common.utils.LoadUtils
-import ru.flocator.app.community.CommunitySection
+import ru.flocator.app.common.sections.CommunitySection
 import ru.flocator.app.community.adapters.FriendActionListener
 import ru.flocator.app.community.adapters.FriendAdapter
 import ru.flocator.app.community.adapters.PersonAdapter

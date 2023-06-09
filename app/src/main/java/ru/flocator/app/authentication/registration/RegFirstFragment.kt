@@ -11,11 +11,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.flocator.R
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import com.example.flocator.databinding.FragmentRegistrationBinding
-import ru.flocator.app.authentication.Authentication
+import ru.flocator.app.common.sections.AuthenticationSection
 import ru.flocator.app.authentication.authorization.AuthFragment
 import ru.flocator.app.common.utils.FragmentNavigationUtils
 
-class RegFirstFragment : Fragment(), Authentication {
+class RegFirstFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!

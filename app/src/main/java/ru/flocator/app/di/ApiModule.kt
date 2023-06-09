@@ -4,11 +4,11 @@ import ru.flocator.app.common.config.Constants
 import ru.flocator.app.community.api.UserApi
 import ru.flocator.app.di.annotations.BaseApi
 import ru.flocator.app.di.annotations.GeocoderApi
-import ru.flocator.app.main.api.ClientAPI
-import ru.flocator.app.main.api.GeocoderAPI
+import ru.flocator.app.main.data_source.ClientAPI
+import ru.flocator.app.main.data_source.GeocoderAPI
 import ru.flocator.app.settings.data_source.SettingsAPI
-import ru.flocator.app.main.data.AddressResponse
-import ru.flocator.app.main.deserializers.AddressDeserializer
+import ru.flocator.app.main.domain.address.AddressResponse
+import ru.flocator.app.main.domain.address.AddressDeserializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module

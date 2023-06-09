@@ -23,6 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
+import ru.flocator.app.common.sections.SettingsSection
 import javax.inject.Inject
 
 @AndroidEntryPoint

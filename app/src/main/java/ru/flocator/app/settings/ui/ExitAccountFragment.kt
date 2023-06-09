@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.app.common.sections.SettingsSection
 import javax.inject.Inject
 
 @AndroidEntryPoint

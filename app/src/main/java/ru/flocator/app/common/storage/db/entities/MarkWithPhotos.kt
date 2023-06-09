@@ -2,8 +2,8 @@ package ru.flocator.app.common.storage.db.entities
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import ru.flocator.app.main.models.dto.MarkDto
-import ru.flocator.app.main.ui.main.data.LatLngDto
+import ru.flocator.app.common.dto.mark.MarkDto
+import ru.flocator.app.common.dto.location.LatLngDto
 
 data class MarkWithPhotos(
     @Embedded

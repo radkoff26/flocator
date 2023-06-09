@@ -20,10 +20,10 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.authentication.Authentication
+import ru.flocator.app.common.sections.AuthenticationSection
 import ru.flocator.app.authentication.authorization.AuthFragment
 
-class RegSecondFragment : Fragment(), Authentication {
+class RegSecondFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!

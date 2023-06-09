@@ -12,7 +12,7 @@ import com.example.flocator.R
 import ru.flocator.app.common.repository.MainRepository
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import ru.flocator.app.main.api.ClientAPI
+import ru.flocator.app.main.data_source.ClientAPI
 import com.google.android.material.button.MaterialButton
 import ru.flocator.app.common.utils.FragmentNavigationUtils
 import com.google.android.material.textfield.TextInputEditText
@@ -23,7 +23,8 @@ import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.authentication.authorization.AuthFragment
 import javax.inject.Inject
 import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.app.main.ui.add_mark.AddMarkFragment
+import ru.flocator.app.add_mark.ui.AddMarkFragment
+import ru.flocator.app.common.sections.SettingsSection
 
 @AndroidEntryPoint
 class ChangePasswordFragment :

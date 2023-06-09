@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="@color/white"
-    tools:context="ru.flocator.app.main.ui.photo.PhotoPagerFragment">
+    tools:context="ru.flocator.app.photo.ui.PhotoPagerFragment">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/photo_pager"

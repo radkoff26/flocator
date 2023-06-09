@@ -12,7 +12,7 @@ import ru.flocator.app.authentication.getlocation.LocationRequestFragment
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.utils.FragmentNavigationUtils
 import ru.flocator.app.common.utils.LocationUtils
-import ru.flocator.app.main.ui.main.MainFragment
+import ru.flocator.app.main.ui.MainFragment
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

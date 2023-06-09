@@ -18,7 +18,7 @@ import com.example.flocator.R
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.storage.store.user.info.UserInfo
 import ru.flocator.app.common.utils.FragmentNavigationUtils
-import ru.flocator.app.main.api.ClientAPI
+import ru.flocator.app.main.data_source.ClientAPI
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,6 +27,7 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import ru.flocator.app.common.sections.SettingsSection
 import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject

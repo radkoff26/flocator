@@ -15,16 +15,16 @@ import ru.flocator.app.common.storage.store.user.data.UserCredentials
 import ru.flocator.app.common.utils.FragmentNavigationUtils
 import ru.flocator.app.common.utils.LocationUtils
 import com.example.flocator.databinding.FragmentAuthBinding
-import ru.flocator.app.main.ui.main.MainFragment
+import ru.flocator.app.main.ui.MainFragment
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.authentication.Authentication
+import ru.flocator.app.common.sections.AuthenticationSection
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AuthFragment : Fragment(), Authentication {
+class AuthFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentAuthBinding? = null
     private val binding: FragmentAuthBinding
         get() = _binding!!

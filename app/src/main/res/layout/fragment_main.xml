@@ -5,13 +5,13 @@
     android:id="@+id/main_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ru.flocator.app.main.ui.main.MainFragment">
+    tools:context="ru.flocator.app.main.ui.MainFragment">
 
     <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/map_fragment"
-        android:name="ru.flocator.app.main.ui.map.ui.FLocatorMapFragment"
+        android:name="ru.flocator.app.map.ui.FLocatorMapFragment"
         tools:context="ru.flocator.app.MainActivity"/>
 
     <com.google.android.material.button.MaterialButton

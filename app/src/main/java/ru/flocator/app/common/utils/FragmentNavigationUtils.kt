@@ -4,10 +4,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.example.flocator.R
-import ru.flocator.app.authentication.Authentication
-import ru.flocator.app.community.CommunitySection
-import ru.flocator.app.main.MainSection
-import ru.flocator.app.settings.ui.SettingsSection
+import ru.flocator.app.common.sections.AuthenticationSection
+import ru.flocator.app.common.sections.CommunitySection
+import ru.flocator.app.common.sections.MainSection
+import ru.flocator.app.common.sections.SettingsSection
 
 object FragmentNavigationUtils {
 
@@ -72,8 +72,8 @@ object FragmentNavigationUtils {
             is MainSection -> {
                 MainSection::class.java
             }
-            is Authentication -> {
-                Authentication::class.java
+            is AuthenticationSection -> {
+                AuthenticationSection::class.java
             }
             is CommunitySection -> {
                 CommunitySection::class.java
