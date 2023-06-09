@@ -5,7 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".community.fragments.AddFriendByLinkFragment">
+    tools:context="ru.flocator.app.community.fragments.AddFriendByLinkFragment">
 
 
     <androidx.core.widget.NestedScrollView

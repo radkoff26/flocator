@@ -6,7 +6,7 @@
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".community.fragments.OtherPersonProfileFragment">
+    tools:context="ru.flocator.app.community.fragments.OtherPersonProfileFragment">
 
     <ScrollView
         android:layout_width="match_parent"
