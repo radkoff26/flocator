@@ -7,7 +7,7 @@
     android:background="@android:color/white"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    tools:context=".MainActivity">
+    tools:context="ru.flocator.app.MainActivity">
 
     <TextView
         android:id="@+id/title_text"

@@ -19,7 +19,7 @@
         <LinearLayout xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:context=".settings.SettingsFragment"
+            tools:context="ru.flocator.app.settings.ui.SettingsFragment"
             android:paddingHorizontal="20dp"
             android:paddingTop="8dp"
             android:orientation="vertical"

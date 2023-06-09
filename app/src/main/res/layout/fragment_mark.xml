@@ -5,7 +5,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.ui.add_mark.AddMarkFragment">
+    tools:context="ru.flocator.app.add_mark.ui.AddMarkFragment">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bs"
@@ -122,12 +122,12 @@
 
             </LinearLayout>
 
-            <com.example.flocator.common.views.LoaderImageView
+            <ru.flocator.app.common.views.LoaderImageView
                 android:id="@+id/loader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <com.example.flocator.common.views.RetryImageButton
+            <ru.flocator.app.common.views.RetryImageButton
                 android:id="@+id/retry_fragment_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

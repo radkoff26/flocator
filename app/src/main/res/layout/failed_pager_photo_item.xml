@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.flocator.common.views.RetryImageButton
+    <ru.flocator.app.common.views.RetryImageButton
         android:id="@+id/retry_image_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
