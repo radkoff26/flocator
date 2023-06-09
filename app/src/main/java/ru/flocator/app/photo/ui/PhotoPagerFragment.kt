@@ -11,9 +11,9 @@ import android.view.ViewGroup
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.cache.runtime.PhotoState
-import com.example.flocator.databinding.FragmentPhotoPagerBinding
+import ru.flocator.app.databinding.FragmentPhotoPagerBinding
 import ru.flocator.app.common.sections.MainSection
 import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.main.domain.photo.Photo

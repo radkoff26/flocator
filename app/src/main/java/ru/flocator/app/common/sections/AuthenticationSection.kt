@@ -1,4 +1,3 @@
 package ru.flocator.app.common.sections
 
-interface AuthenticationSection {
-}
+interface AuthenticationSection

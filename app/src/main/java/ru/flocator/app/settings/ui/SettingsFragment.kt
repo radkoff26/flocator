@@ -14,7 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.storage.store.user.info.UserInfo
 import ru.flocator.app.common.utils.FragmentNavigationUtils

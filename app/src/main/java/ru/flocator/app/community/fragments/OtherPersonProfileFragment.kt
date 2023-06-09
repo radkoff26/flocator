@@ -10,14 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.utils.LoadUtils
 import ru.flocator.app.common.utils.TimePresentationUtils
 import ru.flocator.app.community.adapters.ExternalFriendActionListener
 import ru.flocator.app.community.adapters.ExternalFriendAdapter
 import ru.flocator.app.community.view_models.OtherPersonProfileFragmentViewModel
-import com.example.flocator.databinding.FragmentPersonProfileBinding
+import ru.flocator.app.databinding.FragmentPersonProfileBinding
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

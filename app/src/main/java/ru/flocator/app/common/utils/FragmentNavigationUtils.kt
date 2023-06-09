@@ -3,7 +3,7 @@ package ru.flocator.app.common.utils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.sections.AuthenticationSection
 import ru.flocator.app.common.sections.CommunitySection
 import ru.flocator.app.common.sections.MainSection

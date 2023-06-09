@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.utils.FragmentNavigationUtils

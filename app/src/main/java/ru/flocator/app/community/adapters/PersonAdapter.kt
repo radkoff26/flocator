@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-import com.example.flocator.R
-import com.example.flocator.databinding.PersonNewFriendItemBinding
+import ru.flocator.app.R
+import ru.flocator.app.databinding.PersonNewFriendItemBinding
 import ru.flocator.app.common.utils.LoadUtils
 import ru.flocator.app.community.data_classes.FriendRequests
 import io.reactivex.android.schedulers.AndroidSchedulers

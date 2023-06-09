@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.settings.ui.adapters.FriendListAdapter
 import ru.flocator.app.settings.utils.FriendViewUtils.getNumOfColumns

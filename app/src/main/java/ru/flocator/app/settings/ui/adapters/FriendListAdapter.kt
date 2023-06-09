@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.settings.domain.friend.Friend
 import ru.flocator.app.common.utils.LoadUtils
 import io.reactivex.android.schedulers.AndroidSchedulers

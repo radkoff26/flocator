@@ -7,7 +7,7 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.cache.runtime.PhotoState
 import ru.flocator.app.common.views.LoaderImageView
 import ru.flocator.app.common.views.RetryImageButton
