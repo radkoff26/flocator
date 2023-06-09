@@ -7,24 +7,27 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.flocator.R
-import ru.flocator.app.settings.utils.FriendViewUtils
 import ru.flocator.app.settings.domain.friend.Friend
+import ru.flocator.app.common.utils.LoadUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
 
-class FriendListAdapter (
-): RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
+class FriendListAdapter(
+) : RecyclerView.Adapter<FriendListAdapter.ViewHolder>() {
 
     private var friends = mutableListOf<Friend>()
     val publisher = PublishSubject.create<Friend>()
+
     @SuppressLint("NotifyDataSetChanged")
     fun setFriendList(friends: List<Friend>) {
         this.friends = friends.toMutableList()
         notifyDataSetChanged()
     }
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val icon: ImageView = itemView.findViewById(R.id.friend_avatar)
         private val name: TextView = itemView.findViewById(R.id.friend_name)
         private val tick: ImageView = itemView.findViewById(R.id.friend_tick)
@@ -36,10 +39,23 @@ class FriendListAdapter (
 
             val avaUri = friend.avaURI
             if (avaUri != null) {
-                Glide.with(holder.itemView.context)
-                    .load(FriendViewUtils.getUrlForImage(avaUri))
-                    .error(R.drawable.base_avatar_image)
-                    .into(icon)
+
+                LoadUtils.loadPictureFromUrl(avaUri, QUALITY_FACTOR)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        {
+                            icon.setImageBitmap(it)
+                        },
+                        {
+                            icon.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    holder.friendElement.resources,
+                                    R.drawable.base_avatar_image,
+                                    null
+                                )
+                            )
+                        }
+                    )
             }
 
             if (friend.isChecked) {
@@ -99,16 +115,20 @@ class FriendListAdapter (
     }
 
     fun changeStates(states: Map<Long, Boolean>) {
-       for ((i, friend) in friends.withIndex()) {
-           val newState = states[friend.userId]
-           if (newState != null && friend.isChecked != newState) {
-               friend.isChecked = newState
-               notifyItemChanged(i)
-           }
-       }
+        for ((i, friend) in friends.withIndex()) {
+            val newState = states[friend.userId]
+            if (newState != null && friend.isChecked != newState) {
+                friend.isChecked = newState
+                notifyItemChanged(i)
+            }
+        }
     }
 
     fun all(filter: (friend: Friend) -> Boolean): Boolean {
         return friends.all(filter)
+    }
+
+    companion object {
+        const val QUALITY_FACTOR = 30
     }
 }
