@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.sections.CommunitySection
 import ru.flocator.app.community.view_models.AddFriendByLinkFragmentViewModel
-import com.example.flocator.databinding.FragmentAddFriendBinding
+import ru.flocator.app.databinding.FragmentAddFriendBinding
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

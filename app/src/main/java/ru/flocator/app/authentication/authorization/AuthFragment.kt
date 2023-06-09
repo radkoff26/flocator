@@ -14,7 +14,7 @@ import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.storage.store.user.data.UserCredentials
 import ru.flocator.app.common.utils.FragmentNavigationUtils
 import ru.flocator.app.common.utils.LocationUtils
-import com.example.flocator.databinding.FragmentAuthBinding
+import ru.flocator.app.databinding.FragmentAuthBinding
 import ru.flocator.app.main.ui.MainFragment
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers

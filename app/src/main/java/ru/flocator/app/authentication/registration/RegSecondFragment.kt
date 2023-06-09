@@ -11,10 +11,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
-import com.example.flocator.databinding.FragmentRegistrationBinding
+import ru.flocator.app.databinding.FragmentRegistrationBinding
 import ru.flocator.app.common.utils.FragmentNavigationUtils
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers

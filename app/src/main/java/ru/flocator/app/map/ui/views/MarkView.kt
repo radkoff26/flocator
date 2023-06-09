@@ -11,7 +11,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.map.ui.BitmapCreator
 import ru.flocator.app.common.utils.ViewUtils.dpToPx
 import com.google.android.material.imageview.ShapeableImageView

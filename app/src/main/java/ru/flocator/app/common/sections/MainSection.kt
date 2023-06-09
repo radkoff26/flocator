@@ -1,4 +1,3 @@
 package ru.flocator.app.common.sections
 
-interface MainSection {
-}
+interface MainSection

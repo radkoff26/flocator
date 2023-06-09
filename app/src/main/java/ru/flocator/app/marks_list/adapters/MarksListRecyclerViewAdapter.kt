@@ -7,10 +7,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.cache.runtime.PhotoState
 import ru.flocator.app.common.utils.TimePresentationUtils
-import com.example.flocator.databinding.MarksListItemBinding
+import ru.flocator.app.databinding.MarksListItemBinding
 import ru.flocator.app.main.domain.photo.Photo
 import ru.flocator.app.marks_list.domain.dto.ListMarkDto
 import io.reactivex.disposables.CompositeDisposable

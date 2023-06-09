@@ -15,13 +15,13 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.cache.runtime.PhotoState
 import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.app.common.repository.MainRepository
 import ru.flocator.app.common.storage.db.entities.MarkPhoto
 import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import com.example.flocator.databinding.FragmentMarkBinding
+import ru.flocator.app.databinding.FragmentMarkBinding
 import ru.flocator.app.common.sections.MainSection
 import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.common.dto.user_name.UsernameDto

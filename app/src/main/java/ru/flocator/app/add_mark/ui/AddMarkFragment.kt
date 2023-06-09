@@ -17,9 +17,9 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
-import com.example.flocator.databinding.FragmentAddMarkBinding
+import ru.flocator.app.databinding.FragmentAddMarkBinding
 import ru.flocator.app.common.sections.MainSection
 import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.add_mark.adapters.CarouselRecyclerViewAdapter

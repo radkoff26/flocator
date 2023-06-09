@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.viewModels
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
 import ru.flocator.app.common.storage.db.entities.User
 import ru.flocator.app.common.storage.store.user.info.UserInfo

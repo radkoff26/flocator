@@ -11,11 +11,11 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.common.cache.runtime.PhotoState
 import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.app.common.utils.DistanceUtils
-import com.example.flocator.databinding.FragmentMarksListBinding
+import ru.flocator.app.databinding.FragmentMarksListBinding
 import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.main.domain.photo.Photo
 import ru.flocator.app.common.dto.mark.MarkDto

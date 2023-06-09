@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.flocator.R
 import ru.flocator.app.authentication.client.RetrofitClient
 import ru.flocator.app.authentication.client.dto.UserCredentialsDto
 import ru.flocator.app.authentication.getlocation.LocationRequestFragment

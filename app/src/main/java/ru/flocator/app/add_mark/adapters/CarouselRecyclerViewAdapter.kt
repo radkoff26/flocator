@@ -10,7 +10,7 @@ import android.widget.CheckBox
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flocator.R
+import ru.flocator.app.R
 import ru.flocator.app.add_mark.domain.carousel.CarouselItemState
 import ru.flocator.app.add_mark.utils.DiffUtilsCallback
 import java.io.ByteArrayOutputStream
