@@ -1,12 +1,12 @@
 package ru.flocator.app.map.domain.dto
 
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.map.domain.map_item.DisposableMapItem
-import ru.flocator.app.map.ui.BitmapCreator
-import ru.flocator.app.map.ui.views.MarkView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import io.reactivex.disposables.Disposable
+import ru.flocator.app.map.domain.map_item.DisposableMapItem
+import ru.flocator.app.map.ui.BitmapCreator
+import ru.flocator.app.map.ui.views.MarkView
+import ru.flocator.core_database.entities.MarkWithPhotos
 
 data class MarkViewDto(
     val markView: MarkView,

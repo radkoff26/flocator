@@ -10,8 +10,26 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://kotlin.bintray.com/kotlinx" }
     }
 }
 rootProject.name = "FLocator"
 include ':app'
 include ':core-dependency'
+include ':core-cache'
+include ':core-utils'
+include ':core-config'
+include ':core-sections'
+include ':core-sections'
+include ':core-connection'
+include ':core-contractions'
+include ':core-dto'
+include ':core-exceptions'
+include ':core-extensions'
+include ':core-design'
+include ':core-polling'
+include ':core-receivers'
+include ':core-api'
+include ':core-database'
+include ':core-data-store'
+include ':core-client'

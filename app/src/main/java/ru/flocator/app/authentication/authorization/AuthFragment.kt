@@ -7,24 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
-import ru.flocator.app.authentication.client.dto.UserCredentialsDto
+import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.app.authentication.getlocation.LocationRequestFragment
 import ru.flocator.app.authentication.registration.RegFirstFragment
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.store.user.data.UserCredentials
-import ru.flocator.app.common.utils.FragmentNavigationUtils
-import ru.flocator.app.common.utils.LocationUtils
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.databinding.FragmentAuthBinding
 import ru.flocator.app.main.ui.MainFragment
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.common.sections.AuthenticationSection
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AuthFragment : Fragment(), AuthenticationSection {
+class AuthFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection {
     private var _binding: FragmentAuthBinding? = null
     private val binding: FragmentAuthBinding
         get() = _binding!!
@@ -55,7 +51,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
         }
 
         binding.registrationBtn.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
+            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
                 RegFirstFragment()
             )
@@ -72,19 +68,19 @@ class AuthFragment : Fragment(), AuthenticationSection {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
                     repository.userCredentialsCache.updateUserCredentials(
-                        UserCredentials(
+                        ru.flocator.core_data_store.user.data.UserCredentials(
                             userId!!,
                             login,
                             password
                         )
                     )
-                    if (LocationUtils.hasLocationPermission(requireContext())) {
-                        FragmentNavigationUtils.clearAllAndOpenFragment(
+                    if (ru.flocator.core_utils.LocationUtils.hasLocationPermission(requireContext())) {
+                        ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
                             requireActivity().supportFragmentManager,
                             MainFragment()
                         )
                     } else {
-                        FragmentNavigationUtils.clearAllAndOpenFragment(
+                        ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
                             requireActivity().supportFragmentManager,
                             LocationRequestFragment()
                         )

@@ -11,9 +11,9 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
-import ru.flocator.app.R
+import ru.flocator.core_design.R
 import ru.flocator.app.map.ui.BitmapCreator
-import ru.flocator.app.common.utils.ViewUtils.dpToPx
+import ru.flocator.core_utils.ViewUtils.dpToPx
 import com.google.android.material.imageview.ShapeableImageView
 
 class MarkView @JvmOverloads constructor(
@@ -44,15 +44,15 @@ class MarkView @JvmOverloads constructor(
         addView(markImage)
 
         // User Image
-        LayoutInflater.from(context).inflate(R.layout.round_image_view, this, true)
-        userAvatarFrameLayout = findViewById(R.id.layout)
-        userAvatarImageView = findViewById(R.id.image)
+        LayoutInflater.from(context).inflate(ru.flocator.app.R.layout.round_image_view, this, true)
+        userAvatarFrameLayout = findViewById(ru.flocator.app.R.id.layout)
+        userAvatarImageView = findViewById(ru.flocator.app.R.id.image)
 
         if (isTargetUserMark) {
             userAvatarFrameLayout.background =
                 ResourcesCompat.getDrawable(
                     resources,
-                    R.drawable.user_circle_bg,
+                    ru.flocator.app.R.drawable.user_circle_bg,
                     null
                 )
         }
@@ -115,7 +115,7 @@ class MarkView @JvmOverloads constructor(
         markImage.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.placeholder_image,
+                ru.flocator.app.R.drawable.placeholder_image,
                 null
             )
         )
@@ -136,7 +136,7 @@ class MarkView @JvmOverloads constructor(
         userAvatarImageView.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.base_avatar_image,
+                ru.flocator.app.R.drawable.base_avatar_image,
                 null
             )
         )

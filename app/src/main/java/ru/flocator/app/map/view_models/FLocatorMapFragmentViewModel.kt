@@ -3,9 +3,11 @@ package ru.flocator.app.map.view_models
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.common.storage.store.user.info.UserInfo
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.VisibleRegion
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.flocator.app.map.domain.camera.CameraStatus
 import ru.flocator.app.map.domain.configuration.MapConfiguration
 import ru.flocator.app.map.domain.dto.MarkGroup
@@ -13,11 +15,9 @@ import ru.flocator.app.map.utils.MapComparingUtils
 import ru.flocator.app.map.utils.MapFilterUtils
 import ru.flocator.app.map.utils.MarksGroupingUtils
 import ru.flocator.app.map.utils.VisibilityUtils
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.VisibleRegion
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
 
 internal class FLocatorMapFragmentViewModel : ViewModel() {
     private val _cameraStatusLiveData: MutableLiveData<CameraStatus> =

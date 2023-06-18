@@ -10,19 +10,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import ru.flocator.app.R
+import ru.flocator.core_design.R
 import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
-import ru.flocator.app.authentication.client.dto.UserRegistrationDto
+import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
-import ru.flocator.app.common.utils.FragmentNavigationUtils
 import ru.flocator.app.databinding.FragmentRegistrationBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.common.sections.AuthenticationSection
 import ru.flocator.app.authentication.authorization.AuthFragment
 
-class RegThirdFragment : Fragment(), AuthenticationSection {
+class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -55,7 +53,7 @@ class RegThirdFragment : Fragment(), AuthenticationSection {
             title = ""
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.app.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -63,7 +61,7 @@ class RegThirdFragment : Fragment(), AuthenticationSection {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
+            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
                 AuthFragment()
             )
@@ -129,7 +127,7 @@ class RegThirdFragment : Fragment(), AuthenticationSection {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ isSuccess ->
                         if (isSuccess) {
-                            FragmentNavigationUtils.clearAllAndOpenFragment(
+                            ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
                                 requireActivity().supportFragmentManager,
                                 AuthFragment()
                             )

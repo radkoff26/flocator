@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentMainBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -15,27 +13,27 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.app.add_mark.ui.AddMarkFragment
-import ru.flocator.app.common.connection.live_data.ConnectionLiveData
-import ru.flocator.app.common.polling.TimeoutPoller
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.common.storage.store.user.info.UserInfo
-import ru.flocator.app.common.utils.FragmentNavigationUtils
-import ru.flocator.app.common.utils.LocationUtils
 import ru.flocator.app.community.fragments.ProfileFragment
-import ru.flocator.app.common.contractions.BundleArgumentsContraction
-import ru.flocator.app.common.dto.location.LatLngDto
-import ru.flocator.app.common.sections.MainSection
+import ru.flocator.app.databinding.FragmentMainBinding
 import ru.flocator.app.main.view_models.MainFragmentViewModel
 import ru.flocator.app.map.ui.FLocatorMapFragment
 import ru.flocator.app.mark.ui.MarkFragment
 import ru.flocator.app.marks_list.ui.MarksListFragment
 import ru.flocator.app.settings.ui.SettingsFragment
+import ru.flocator.core_contractions.BundleArgumentsContraction
+import ru.flocator.core_design.R
+import ru.flocator.core_dto.location.LatLngDto
+import ru.flocator.core_dto.mark.MarkDto
+import ru.flocator.core_database.entities.MarkPhoto
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
+import ru.flocator.core_polling.TimeoutPoller
+import ru.flocator.core_utils.LocationUtils
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainFragment : Fragment(), MainSection {
+class MainFragment : Fragment(), ru.flocator.core_sections.MainSection {
     // Binding
     private var _binding: FragmentMainBinding? = null
     private val binding: FragmentMainBinding
@@ -46,7 +44,7 @@ class MainFragment : Fragment(), MainSection {
 
     // Connection
     @Inject
-    lateinit var connectionLiveData: ConnectionLiveData
+    lateinit var connectionLiveData: ru.flocator.core_connection.live_data.ConnectionLiveData
 
     // Rx
     private val compositeDisposable = CompositeDisposable()
@@ -76,7 +74,7 @@ class MainFragment : Fragment(), MainSection {
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as FLocatorMapFragment
+        mapFragment = childFragmentManager.findFragmentById(ru.flocator.app.R.id.map_fragment) as FLocatorMapFragment
 
         mapFragment.initialize(
             viewModel::loadPhoto,
@@ -106,7 +104,24 @@ class MainFragment : Fragment(), MainSection {
                     val marksListFragment = MarksListFragment().apply {
                         arguments = Bundle().apply {
                             val markDtoList = ArrayList(
-                                marks.map(MarkWithPhotos::toMarkDto)
+                                marks.map {
+                                    val mark = it.mark
+                                    MarkDto(
+                                        mark.markId,
+                                        mark.authorId,
+                                        LatLngDto(
+                                            mark.location.latitude,
+                                            mark.location.longitude
+                                        ),
+                                        mark.text,
+                                        mark.isPublic,
+                                        it.photos.map(MarkPhoto::uri),
+                                        mark.place,
+                                        mark.likesCount,
+                                        mark.hasUserLiked,
+                                        mark.createdAt
+                                    )
+                                }
                             )
                             putSerializable(
                                 BundleArgumentsContraction.MarksListFragmentArguments.MARKS,
@@ -158,14 +173,14 @@ class MainFragment : Fragment(), MainSection {
         }
 
         binding.communityBtn.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
+            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
                 ProfileFragment()
             )
         }
 
         binding.settingsBtn.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
+            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
                 SettingsFragment()
             )
@@ -259,7 +274,7 @@ class MainFragment : Fragment(), MainSection {
             // Has connection
             Snackbar.make(
                 binding.root,
-                resources.getString(R.string.return_to_connection),
+                resources.getString(ru.flocator.app.R.string.return_to_connection),
                 Snackbar.LENGTH_LONG
             ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
             viewModel.goOnlineAsUser()
@@ -267,7 +282,7 @@ class MainFragment : Fragment(), MainSection {
             // No connection
             Snackbar.make(
                 binding.root,
-                resources.getString(R.string.no_connection),
+                resources.getString(ru.flocator.app.R.string.no_connection),
                 Snackbar.LENGTH_LONG
             ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
         }
@@ -301,7 +316,7 @@ class MainFragment : Fragment(), MainSection {
         mapFragment.updateUserLocation(latLng)
     }
 
-    private fun onUserInfoChanged(value: UserInfo?) {
+    private fun onUserInfoChanged(value: ru.flocator.core_data_store.user.info.UserInfo?) {
         if (viewModel.userLocationLiveData.value == null || value == null) {
             return
         }

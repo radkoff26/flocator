@@ -2,12 +2,12 @@ package ru.flocator.app.di
 
 import android.content.Context
 import androidx.room.Room
-import ru.flocator.app.common.storage.db.ApplicationDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import ru.flocator.core_database.ApplicationDatabase
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)

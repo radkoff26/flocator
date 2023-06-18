@@ -6,12 +6,12 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import ru.flocator.app.common.storage.store.point.UserLocationPoint
-import ru.flocator.app.common.storage.store.point.UserLocationPointSerializer
-import ru.flocator.app.common.storage.store.user.data.UserCredentials
-import ru.flocator.app.common.storage.store.user.data.UserDataSerializer
-import ru.flocator.app.common.storage.store.user.info.UserInfo
-import ru.flocator.app.common.storage.store.user.info.UserInfoSerializer
+import ru.flocator.core_data_store.point.UserLocationPoint
+import ru.flocator.core_data_store.point.UserLocationPointSerializer
+import ru.flocator.core_data_store.user.data.UserCredentials
+import ru.flocator.core_data_store.user.data.UserDataSerializer
+import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_data_store.user.info.UserInfoSerializer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,25 +44,25 @@ object SharedStorageModule {
 
     @Provides
     @Singleton
-    fun locationDataStore(@ApplicationContext context: Context): DataStore<UserLocationPoint> =
+    fun locationDataStore(@ApplicationContext context: Context): DataStore<ru.flocator.core_data_store.point.UserLocationPoint> =
         DataStoreFactory.create(
-            UserLocationPointSerializer(),
+            ru.flocator.core_data_store.point.UserLocationPointSerializer(),
             produceFile = { context.dataStoreFile(USER_LOCATION_DATA_STORE_FILE) }
         )
 
     @Provides
     @Singleton
-    fun userDataStore(@ApplicationContext context: Context): DataStore<UserCredentials> =
+    fun userDataStore(@ApplicationContext context: Context): DataStore<ru.flocator.core_data_store.user.data.UserCredentials> =
         DataStoreFactory.create(
-            UserDataSerializer(),
+            ru.flocator.core_data_store.user.data.UserDataSerializer(),
             produceFile = { context.dataStoreFile(USER_DATA_STORE_FILE) }
         )
 
     @Provides
     @Singleton
-    fun userInfoDataStore(@ApplicationContext context: Context): DataStore<UserInfo> =
+    fun userInfoDataStore(@ApplicationContext context: Context): DataStore<ru.flocator.core_data_store.user.info.UserInfo> =
         DataStoreFactory.create(
-            UserInfoSerializer(),
+            ru.flocator.core_data_store.user.info.UserInfoSerializer(),
             produceFile = { context.dataStoreFile(USER_INFO_STORE_FILE) }
         )
 }

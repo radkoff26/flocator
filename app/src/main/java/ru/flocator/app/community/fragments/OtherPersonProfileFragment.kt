@@ -10,10 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import ru.flocator.app.R
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.utils.LoadUtils
-import ru.flocator.app.common.utils.TimePresentationUtils
+import ru.flocator.core_design.R
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.community.adapters.ExternalFriendActionListener
 import ru.flocator.app.community.adapters.ExternalFriendAdapter
 import ru.flocator.app.community.view_models.OtherPersonProfileFragmentViewModel
@@ -21,8 +19,10 @@ import ru.flocator.app.databinding.FragmentPersonProfileBinding
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.community.data_classes.UserExternal
-import ru.flocator.app.community.data_classes.UserExternalFriends
+import ru.flocator.core_dto.user.UserExternal
+import ru.flocator.core_dto.user.UserExternalFriends
+import ru.flocator.core_utils.LoadUtils
+import ru.flocator.core_utils.TimePresentationUtils
 import java.sql.Timestamp
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -223,7 +223,7 @@ class OtherPersonProfileFragment() : Fragment() {
             title=""
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.app.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -251,22 +251,22 @@ class OtherPersonProfileFragment() : Fragment() {
     }
 
     fun openPersonProfile(user: UserExternalFriends) {
-        val args: Bundle = Bundle()
-        if ((user.userId?.toLong() ?: 0) == currentUserId) {
+        val args = Bundle()
+        if ((user.userId ?: 0) == currentUserId) {
             val profileFragment = ProfileFragment()
             val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.person_profile, profileFragment)
+            transaction.replace(ru.flocator.app.R.id.person_profile, profileFragment)
             transaction.addToBackStack(null)
             transaction.commit()
         } else {
             args.putLong(Constants.CURRENT_USER_ID, currentUserId)
-            user.userId?.toLong()?.let { args.putLong(Constants.USER_ID, it) }
+            user.userId?.let { args.putLong(Constants.USER_ID, it) }
             args.putString(Constants.NAME_AND_SURNAME, user.firstName + " " + user.lastName)
             args.putString(Constants.PERSON_PHOTO, user.avatarUri)
             val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
             profilePersonFragment.arguments = args
             val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(R.id.person_profile, profilePersonFragment)
+            transaction.replace(ru.flocator.app.R.id.person_profile, profilePersonFragment)
             transaction.addToBackStack(null)
             transaction.commit()
         }

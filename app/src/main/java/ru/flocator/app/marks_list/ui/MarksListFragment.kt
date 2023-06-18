@@ -11,15 +11,11 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
-import ru.flocator.app.R
-import ru.flocator.app.common.cache.runtime.PhotoState
-import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.app.common.utils.DistanceUtils
+import ru.flocator.core_design.R
+import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.app.databinding.FragmentMarksListBinding
-import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.main.domain.photo.Photo
-import ru.flocator.app.common.dto.mark.MarkDto
-import ru.flocator.app.common.dto.location.LatLngDto
 import ru.flocator.app.mark.ui.MarkFragment
 import ru.flocator.app.marks_list.adapters.MarksListRecyclerViewAdapter
 import ru.flocator.app.marks_list.domain.dto.ListMarkDto
@@ -52,7 +48,7 @@ class MarksListFragment :
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view: View = inflater.inflate(R.layout.fragment_marks_list, container, false)
+        val view: View = inflater.inflate(ru.flocator.app.R.layout.fragment_marks_list, container, false)
 
         _binding = FragmentMarksListBinding.bind(view)
 
@@ -84,23 +80,23 @@ class MarksListFragment :
             arguments == null
             ||
             !requireArguments().containsKey(
-                BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT
+                ru.flocator.core_contractions.BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT
             )
             ||
             !requireArguments().containsKey(
-                BundleArgumentsContraction.MarksListFragmentArguments.MARKS
+                ru.flocator.core_contractions.BundleArgumentsContraction.MarksListFragmentArguments.MARKS
             )
         ) {
             closeDown()
             return
         }
         val userPoint = requireArguments().getSerializable(
-            BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT
-        ) as LatLngDto
+            ru.flocator.core_contractions.BundleArgumentsContraction.MarksListFragmentArguments.USER_POINT
+        ) as ru.flocator.core_dto.location.LatLngDto
         val marks = requireArguments().getSerializable(
-            BundleArgumentsContraction.MarksListFragmentArguments.MARKS
-        ) as ArrayList<MarkDto>
-        binding.marksCount.text = resources.getString(R.string.marks_count, marks.size)
+            ru.flocator.core_contractions.BundleArgumentsContraction.MarksListFragmentArguments.MARKS
+        ) as ArrayList<ru.flocator.core_dto.mark.MarkDto>
+        binding.marksCount.text = resources.getString(ru.flocator.app.R.string.marks_count, marks.size)
         // If data has been already loaded into view model,
         // then it's very likely that its data will be more complete
         val listMarkDtoList = if (viewModel.marksListLiveData.value == null) {
@@ -114,7 +110,7 @@ class MarksListFragment :
                         thumbnail.uri,
                         PhotoState.Loading
                     ),
-                    DistanceUtils.distanceBetweenToString(
+                    ru.flocator.core_utils.DistanceUtils.distanceBetweenToString(
                         LatLng(
                             userPoint.latitude,
                             userPoint.longitude
@@ -141,11 +137,11 @@ class MarksListFragment :
                             val markFragment = MarkFragment().apply {
                                 arguments = Bundle().apply {
                                     putLong(
-                                        BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
+                                        ru.flocator.core_contractions.BundleArgumentsContraction.MarkFragmentArguments.MARK_ID,
                                         markId
                                     )
                                     putLong(
-                                        BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
+                                        ru.flocator.core_contractions.BundleArgumentsContraction.MarkFragmentArguments.USER_ID,
                                         userId
                                     )
                                 }
@@ -173,7 +169,7 @@ class MarksListFragment :
         horizontalLineDecoration.setDrawable(
             ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.line_rv_divider,
+                ru.flocator.app.R.drawable.line_rv_divider,
                 null
             )!!
         )

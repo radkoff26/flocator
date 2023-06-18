@@ -8,9 +8,9 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import ru.flocator.app.R
-import ru.flocator.app.common.cache.runtime.PhotoState
-import ru.flocator.app.common.views.LoaderImageView
-import ru.flocator.app.common.views.RetryImageButton
+import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_design.views.LoaderImageView
+import ru.flocator.core_design.views.RetryImageButton
 import ru.flocator.app.main.domain.photo.Photo
 
 class PhotoRecyclerViewAdapter(

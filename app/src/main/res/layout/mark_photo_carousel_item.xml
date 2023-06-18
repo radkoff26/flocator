@@ -12,12 +12,12 @@
         android:scaleType="fitCenter"
         android:layout_gravity="center" />
 
-    <ru.flocator.app.common.views.LoaderImageView
+    <ru.flocator.core_design.views.LoaderImageView
         android:id="@+id/loader_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <ru.flocator.app.common.views.RetryImageButton
+    <ru.flocator.core_design.views.RetryImageButton
         android:id="@+id/retry_image_button"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

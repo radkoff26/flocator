@@ -1,9 +1,8 @@
 package ru.flocator.app.map.utils
 
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.common.utils.DistanceUtils
-import ru.flocator.app.map.domain.dto.MarkGroup
 import com.google.android.gms.maps.model.LatLng
+import ru.flocator.app.map.domain.dto.MarkGroup
+import ru.flocator.core_database.entities.User
 
 object MapComparingUtils {
     private val ZERO = LatLng(0.0, 0.0)
@@ -21,11 +20,11 @@ object MapComparingUtils {
             }
             val compareResult = o1.marks.size.compareTo(o2.marks.size)
             if (compareResult == 0) {
-                val firstDistance = DistanceUtils.distanceBetweenToString(
+                val firstDistance = ru.flocator.core_utils.DistanceUtils.distanceBetweenToString(
                     o1.center,
                     ZERO
                 )
-                val secondDistance = DistanceUtils.distanceBetweenToString(o2.center,
+                val secondDistance = ru.flocator.core_utils.DistanceUtils.distanceBetweenToString(o2.center,
                     ZERO
                 )
                 return firstDistance.compareTo(secondDistance)

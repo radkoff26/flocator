@@ -6,11 +6,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import ru.flocator.app.authentication.client.RetrofitClient
-import ru.flocator.app.authentication.client.dto.UserCredentialsDto
+import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.app.authentication.getlocation.LocationRequestFragment
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.utils.FragmentNavigationUtils
-import ru.flocator.app.common.utils.LocationUtils
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.main.ui.MainFragment
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -36,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                FragmentNavigationUtils.closeLastFragment(supportFragmentManager, this@MainActivity)
+                ru.flocator.core_utils.FragmentNavigationUtils.closeLastFragment(supportFragmentManager, this@MainActivity)
             }
         })
 
@@ -62,13 +60,13 @@ class MainActivity : AppCompatActivity() {
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                     {
-                                        if (LocationUtils.hasLocationPermission(this)) {
-                                            FragmentNavigationUtils.openFragment(
+                                        if (ru.flocator.core_utils.LocationUtils.hasLocationPermission(this)) {
+                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
                                                 MainFragment()
                                             )
                                         } else {
-                                            FragmentNavigationUtils.openFragment(
+                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
                                                 LocationRequestFragment()
                                             )
@@ -81,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                                                 "openFirstFragment: no connection, but user authorized previously",
                                                 throwable
                                             )
-                                            FragmentNavigationUtils.openFragment(
+                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
                                                 MainFragment()
                                             )
@@ -91,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                                                 "openFirstFragment: not authorized!",
                                                 throwable
                                             )
-                                            FragmentNavigationUtils.openFragment(
+                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
                                                 AuthFragment()
                                             )
@@ -101,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     },
                     {
-                        FragmentNavigationUtils.openFragment(
+                        ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                             supportFragmentManager,
                             AuthFragment()
                         )

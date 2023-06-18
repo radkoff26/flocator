@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.viewModels
-import ru.flocator.app.R
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.common.storage.store.user.info.UserInfo
+import ru.flocator.core_design.R
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
+import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.app.map.domain.configuration.MapConfiguration
 import ru.flocator.app.map.domain.difference.Difference
 import ru.flocator.app.map.domain.difference.MapItemsDifferenceCalculator
@@ -25,7 +25,6 @@ import ru.flocator.app.map.ui.views.MarkView
 import ru.flocator.app.map.ui.views.UserView
 import ru.flocator.app.map.utils.DisposableMapItemsUtils
 import ru.flocator.app.map.view_models.FLocatorMapFragmentViewModel
-import ru.flocator.app.common.utils.ViewUtils
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
@@ -36,7 +35,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.flocator.app.map.domain.comparing.MapItemsCompareCallbacks
-import ru.flocator.app.map.domain.map.*
 import kotlin.math.max
 
 class FLocatorMapFragment :
@@ -125,7 +123,7 @@ class FLocatorMapFragment :
                     isTargetUser = true
                 ).apply {
                     setUserName(
-                        resources.getString(R.string.user_name_on_map, it.firstName, it.lastName)
+                        resources.getString(ru.flocator.app.R.string.user_name_on_map, it.firstName, it.lastName)
                     )
                 },
                 User(
@@ -391,7 +389,7 @@ class FLocatorMapFragment :
             override fun onGlobalLayout() {
                 viewModel.setWidths(
                     mapView.width.toFloat(),
-                    ViewUtils.dpToPx(56, requireContext()).toFloat()
+                    ru.flocator.core_utils.ViewUtils.dpToPx(56, requireContext()).toFloat()
                 )
                 mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
@@ -493,7 +491,7 @@ class FLocatorMapFragment :
 
         userView.setUserName(
             resources.getString(
-                R.string.user_name_on_map,
+                ru.flocator.app.R.string.user_name_on_map,
                 dto.user.firstName,
                 dto.user.lastName
             )

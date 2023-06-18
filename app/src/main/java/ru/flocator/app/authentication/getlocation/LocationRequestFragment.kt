@@ -2,24 +2,23 @@ package ru.flocator.app.authentication.getlocation
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
-import ru.flocator.app.common.utils.FragmentNavigationUtils
-import ru.flocator.app.databinding.FragmentLocationRequestBinding
-import android.content.Intent
-import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import ru.flocator.app.common.sections.AuthenticationSection
+import androidx.fragment.app.Fragment
+import ru.flocator.app.databinding.FragmentLocationRequestBinding
 import ru.flocator.app.main.ui.MainFragment
+import ru.flocator.core_sections.AuthenticationSection
 
 class LocationRequestFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentLocationRequestBinding? = null
@@ -40,7 +39,7 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
 
             if (dontShowAgain) {
                 if (hasLocationPermission(requireContext())) {
-                    FragmentNavigationUtils.clearAllAndOpenFragment(
+                    ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
                         requireActivity().supportFragmentManager,
                         MainFragment()
                     )
@@ -80,7 +79,7 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
         requestPermissionsLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 if (hasLocationPermission(requireContext())) {
-                    FragmentNavigationUtils.openFragment(
+                    ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                         requireActivity().supportFragmentManager,
                         MainFragment()
                     )

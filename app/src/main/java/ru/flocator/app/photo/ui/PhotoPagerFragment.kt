@@ -11,16 +11,15 @@ import android.view.ViewGroup
 import androidx.core.animation.doOnEnd
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import ru.flocator.app.R
-import ru.flocator.app.common.cache.runtime.PhotoState
 import ru.flocator.app.databinding.FragmentPhotoPagerBinding
-import ru.flocator.app.common.sections.MainSection
-import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.main.domain.photo.Photo
-import ru.flocator.app.photo.view_models.PhotoPagerFragmentViewModel
 import ru.flocator.app.photo.adapters.PhotoRecyclerViewAdapter
+import ru.flocator.app.photo.view_models.PhotoPagerFragmentViewModel
+import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_contractions.BundleArgumentsContraction
+import ru.flocator.core_design.R
 
-class PhotoPagerFragment : DialogFragment(), MainSection {
+class PhotoPagerFragment : DialogFragment(), ru.flocator.core_sections.MainSection {
     private var _binding: FragmentPhotoPagerBinding? = null
     private val binding
         get() = _binding!!
@@ -54,7 +53,7 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_photo_pager, container, false)
+        val view = inflater.inflate(ru.flocator.app.R.layout.fragment_photo_pager, container, false)
         _binding = FragmentPhotoPagerBinding.bind(view)
 
         adjustToolbar()
@@ -118,7 +117,7 @@ class PhotoPagerFragment : DialogFragment(), MainSection {
     private fun adjustToolbar() {
         binding.toolbar.title = ""
 
-        binding.toolbar.setNavigationIcon(R.drawable.back)
+        binding.toolbar.setNavigationIcon(ru.flocator.app.R.drawable.back)
 
         binding.toolbar.setNavigationOnClickListener {
             dismiss()

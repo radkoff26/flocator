@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.app.R
-import ru.flocator.app.common.repository.MainRepository
+import ru.flocator.core_design.R
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.settings.ui.adapters.FriendListAdapter
 import ru.flocator.app.settings.utils.FriendViewUtils.getNumOfColumns
 import ru.flocator.app.settings.domain.friend.Friend
@@ -23,11 +23,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
-import ru.flocator.app.common.sections.SettingsSection
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class BlackListFragment : Fragment(), SettingsSection {
+class BlackListFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
     @Inject
@@ -38,18 +37,21 @@ class BlackListFragment : Fragment(), SettingsSection {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val fragmentView = inflater.inflate(R.layout.fragment_black_list, container, false)
-        val recyclerView = fragmentView.findViewById<RecyclerView>(R.id.blacklist_recycler_view)
-        val unselectAllButton = fragmentView.findViewById<FrameLayout>(R.id.blacklist_unselect_all_frame)
-        val toolbar = fragmentView.findViewById<Toolbar>(R.id.toolbar)
-        val message = fragmentView.findViewById<TextView>(R.id.blacklist_msg)
+        val fragmentView =
+            inflater.inflate(ru.flocator.app.R.layout.fragment_black_list, container, false)
+        val recyclerView =
+            fragmentView.findViewById<RecyclerView>(ru.flocator.app.R.id.blacklist_recycler_view)
+        val unselectAllButton =
+            fragmentView.findViewById<FrameLayout>(ru.flocator.app.R.id.blacklist_unselect_all_frame)
+        val toolbar = fragmentView.findViewById<Toolbar>(ru.flocator.app.R.id.toolbar)
+        val message = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.blacklist_msg)
 
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
-            title = getString(R.string.black_list)
+            title = getString(ru.flocator.app.R.string.black_list)
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.app.R.drawable.back)
         }
         toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -69,7 +71,7 @@ class BlackListFragment : Fragment(), SettingsSection {
                         { userInfos ->
                             activity?.runOnUiThread {
                                 if (userInfos.isEmpty()) {
-                                    message.text = getString(R.string.blacklist_is_empty)
+                                    message.text = getString(ru.flocator.app.R.string.blacklist_is_empty)
                                     message.visibility = View.VISIBLE
                                     return@runOnUiThread
                                 }
@@ -121,13 +123,25 @@ class BlackListFragment : Fragment(), SettingsSection {
                         mainRepository.restApi.blockUser(friend.userId)
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
-                            .doOnError { Log.e("Error adding to blacklist", it.stackTraceToString(), it) }
+                            .doOnError {
+                                Log.e(
+                                    "Error adding to blacklist",
+                                    it.stackTraceToString(),
+                                    it
+                                )
+                            }
                             .subscribe()
                     } else {
                         mainRepository.restApi.unblockUser(friend.userId)
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
-                            .doOnError { Log.e("Error removing from blacklist", it.stackTraceToString(), it) }
+                            .doOnError {
+                                Log.e(
+                                    "Error removing from blacklist",
+                                    it.stackTraceToString(),
+                                    it
+                                )
+                            }
                             .subscribe()
                     }
                 }

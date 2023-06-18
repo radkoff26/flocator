@@ -1,12 +1,12 @@
 package ru.flocator.app.map.domain.dto
 
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.map.domain.map_item.DisposableMapItem
-import ru.flocator.app.map.ui.BitmapCreator
-import ru.flocator.app.map.ui.views.UserView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import io.reactivex.disposables.Disposable
+import ru.flocator.app.map.domain.map_item.DisposableMapItem
+import ru.flocator.app.map.ui.BitmapCreator
+import ru.flocator.app.map.ui.views.UserView
+import ru.flocator.core_database.entities.User
 
 data class UserViewDto(
     val userView: UserView,

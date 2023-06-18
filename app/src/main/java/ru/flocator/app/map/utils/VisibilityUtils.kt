@@ -1,9 +1,9 @@
 package ru.flocator.app.map.utils
 
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.VisibleRegion
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
 
 object VisibilityUtils {
     fun emphasizeVisibleMarks(

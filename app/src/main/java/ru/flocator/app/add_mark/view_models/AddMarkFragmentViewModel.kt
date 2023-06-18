@@ -5,9 +5,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.store.user.data.UserCredentials
-import ru.flocator.app.add_mark.domain.dto.AddMarkDto
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_dto.mark.AddMarkDto
 import ru.flocator.app.add_mark.domain.fragment.AddMarkFragmentState
 import ru.flocator.app.add_mark.domain.carousel.CarouselItemState
 import com.google.android.gms.maps.model.LatLng
@@ -48,7 +47,7 @@ class AddMarkFragmentViewModel @Inject constructor(
 
     private fun getUserId(): Single<Long> {
         return repository.userCredentialsCache.getUserCredentials()
-            .map(UserCredentials::userId)
+            .map(ru.flocator.core_data_store.user.data.UserCredentials::userId)
             .observeOn(AndroidSchedulers.mainThread())
     }
 

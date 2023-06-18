@@ -4,24 +4,19 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.community.api.UserApi
-import ru.flocator.app.community.data_classes.FriendRequests
-import ru.flocator.app.community.data_classes.Friends
-import ru.flocator.app.community.data_classes.User
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_client.UserApi
+import ru.flocator.core_dto.user.FriendRequests
+import ru.flocator.core_dto.user.Friends
+import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.app.community.fragments.ProfileFragment
-import com.google.gson.GsonBuilder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import javax.inject.Inject
 
-typealias UserNewFriendActionListener = (persons: List<User>) -> Unit
+typealias UserNewFriendActionListener = (persons: List<TargetUser>) -> Unit
 
 @HiltViewModel
 @Suppress("UNCHECKED_CAST")
@@ -30,29 +25,15 @@ class ProfileFragmentViewModel @Inject constructor(
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<MutableList<Friends>?>()
     private val _newFriendsLiveData = MutableLiveData<MutableList<FriendRequests>?>()
-    private val _currentUserLiveData = MutableLiveData<User>()
+    private val _currentUserLiveData = MutableLiveData<TargetUser>()
     var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
-    val currentUserLiveData: LiveData<User> = _currentUserLiveData
+    val currentUserLiveData: LiveData<TargetUser> = _currentUserLiveData
     private val userId = repository.userCredentialsCache.getUserCredentials().blockingGet().userId
     private val compositeDisposable = CompositeDisposable()
 
-
-    private val userApi: UserApi by lazy {
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://kernelpunik.ru:8080/api/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        retrofit.create()
-    }
-
-    /*fun load() {
-        addListener(listener)
-    }*/
+    @Inject
+    lateinit var userApi: UserApi
 
     override fun onCleared() {
         super.onCleared()
@@ -78,7 +59,7 @@ class ProfileFragmentViewModel @Inject constructor(
         )
     }
 
-    private fun updateUser(user: User) {
+    private fun updateUser(user: TargetUser) {
         _currentUserLiveData.value = user
         _friendsLiveData.value = user.friends
         _newFriendsLiveData.value = user.friendRequests
@@ -146,7 +127,7 @@ class ProfileFragmentViewModel @Inject constructor(
         _newFriendsLiveData.value = it as MutableList<FriendRequests>
     }
 
-    companion object{
+    companion object {
         const val TAG = "ProfileFragment"
     }
 

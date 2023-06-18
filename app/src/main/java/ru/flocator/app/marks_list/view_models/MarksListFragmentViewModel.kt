@@ -4,11 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.cache.runtime.PhotoCacheLiveData
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.store.user.info.UserInfo
+import ru.flocator.cache.runtime.PhotoCacheLiveData
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.main.domain.photo.Photo
-import ru.flocator.app.common.dto.user_name.UsernameDto
 import ru.flocator.app.marks_list.domain.dto.ListMarkDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
@@ -23,7 +21,8 @@ class MarksListFragmentViewModel @Inject constructor(
 ) : ViewModel() {
     private val _marksListLiveData: MutableLiveData<List<ListMarkDto>?> = MutableLiveData(null)
     private val _photoToMarkRelation: MutableMap<String, Long> = HashMap()
-    private val photoCacheLiveData: PhotoCacheLiveData = PhotoCacheLiveData()
+    private val photoCacheLiveData: PhotoCacheLiveData =
+        PhotoCacheLiveData()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -78,7 +77,7 @@ class MarksListFragmentViewModel @Inject constructor(
     fun getUserId(): Single<Long> {
         return mainRepository.userInfoCache.getUserInfo()
             .observeOn(AndroidSchedulers.mainThread())
-            .map(UserInfo::userId)
+            .map(ru.flocator.core_data_store.user.info.UserInfo::userId)
     }
 
     private fun updatePhoto(uri: String) {
@@ -111,7 +110,7 @@ class MarksListFragmentViewModel @Inject constructor(
         }
     }
 
-    private fun formatUsername(usernameDto: UsernameDto): String {
+    private fun formatUsername(usernameDto: ru.flocator.core_dto.user_name.UsernameDto): String {
         return "${usernameDto.firstName} ${usernameDto.lastName}"
     }
 

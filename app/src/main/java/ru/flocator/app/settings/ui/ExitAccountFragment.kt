@@ -9,22 +9,20 @@ import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import ru.flocator.app.R
-import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.utils.FragmentNavigationUtils
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_api.api.MainRepository
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.app.authentication.authorization.AuthFragment
-import ru.flocator.app.common.sections.SettingsSection
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), SettingsSection {
+), ru.flocator.core_sections.SettingsSection {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
@@ -80,7 +78,7 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
 
     private fun openAuthFragment() {
         dismiss()
-        FragmentNavigationUtils.clearAllAndOpenFragment(
+        ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
             AuthFragment()
         )

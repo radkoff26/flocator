@@ -8,12 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import ru.flocator.app.R
+import ru.flocator.core_design.R
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
-import ru.flocator.app.common.sections.AuthenticationSection
+import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.app.authentication.authorization.AuthFragment
-import ru.flocator.app.common.utils.FragmentNavigationUtils
 
 class RegFirstFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
@@ -48,7 +47,7 @@ class RegFirstFragment : Fragment(), AuthenticationSection {
                     binding.secondInputEditField.text.toString()
                 )
 
-                FragmentNavigationUtils.openFragment(
+                ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                     requireActivity().supportFragmentManager,
                     RegSecondFragment()
                 )
@@ -58,7 +57,7 @@ class RegFirstFragment : Fragment(), AuthenticationSection {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
+            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                 requireActivity().supportFragmentManager,
                 AuthFragment()
             )
@@ -69,7 +68,7 @@ class RegFirstFragment : Fragment(), AuthenticationSection {
             title = ""
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.app.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {

@@ -122,12 +122,12 @@
 
             </LinearLayout>
 
-            <ru.flocator.app.common.views.LoaderImageView
+            <ru.flocator.core_design.views.LoaderImageView
                 android:id="@+id/loader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <ru.flocator.app.common.views.RetryImageButton
+            <ru.flocator.core_design.views.RetryImageButton
                 android:id="@+id/retry_fragment_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

@@ -4,32 +4,31 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.cache.runtime.PhotoCacheLiveData
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.sections.MainSection
+import ru.flocator.cache.runtime.PhotoCacheLiveData
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.mark.domain.fragment.MarkFragmentState
-import ru.flocator.app.common.dto.user_name.UsernameDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_database.entities.MarkWithPhotos
 import javax.inject.Inject
 
 @HiltViewModel
 class MarkFragmentViewModel @Inject constructor(
     private val repository: MainRepository,
 
-    ) : ViewModel(), MainSection {
+    ) : ViewModel(), ru.flocator.core_sections.MainSection {
     private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
-    private val _userNameLiveData = MutableLiveData<UsernameDto?>(null)
+    private val _userNameLiveData = MutableLiveData<ru.flocator.core_dto.user_name.UsernameDto?>(null)
     private val _fragmentStateLiveData: MutableLiveData<MarkFragmentState> = MutableLiveData(
         MarkFragmentState.Loading
     )
 
     val markLiveData: LiveData<MarkWithPhotos?> = _markLiveData
-    val userNameLiveData: LiveData<UsernameDto?> = _userNameLiveData
-    val photosStateLiveData: PhotoCacheLiveData = PhotoCacheLiveData(QUALITY_FACTOR)
+    val userNameLiveData: LiveData<ru.flocator.core_dto.user_name.UsernameDto?> = _userNameLiveData
+    val photosStateLiveData: PhotoCacheLiveData =
+        PhotoCacheLiveData(QUALITY_FACTOR)
     val markFragmentStateLiveData: LiveData<MarkFragmentState> = _fragmentStateLiveData
 
     private val compositeDisposable = CompositeDisposable()
@@ -86,7 +85,7 @@ class MarkFragmentViewModel @Inject constructor(
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        _userNameLiveData.value = UsernameDto(
+                        _userNameLiveData.value = ru.flocator.core_dto.user_name.UsernameDto(
                             it.firstName,
                             it.lastName
                         )

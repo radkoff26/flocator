@@ -7,13 +7,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import ru.flocator.app.R
-import ru.flocator.app.common.cache.runtime.PhotoState
-import ru.flocator.app.common.utils.TimePresentationUtils
+import io.reactivex.disposables.CompositeDisposable
+import ru.flocator.core_design.R
 import ru.flocator.app.databinding.MarksListItemBinding
 import ru.flocator.app.main.domain.photo.Photo
 import ru.flocator.app.marks_list.domain.dto.ListMarkDto
-import io.reactivex.disposables.CompositeDisposable
+import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_utils.TimePresentationUtils
 
 class MarksListRecyclerViewAdapter(
     private var marksList: List<ListMarkDto>,
@@ -38,7 +38,7 @@ class MarksListRecyclerViewAdapter(
             binding.whenCreated.text =
                 TimePresentationUtils.timestampToHumanPresentation(listMarkDto.mark.createdAt)
             binding.photosCount.text =
-                view.resources.getString(R.string.photo_count, listMarkDto.photoCount)
+                view.resources.getString(ru.flocator.app.R.string.photo_count, listMarkDto.photoCount)
 
             adjustThumbnail(listMarkDto.photo)
             adjustAuthorName(listMarkDto.authorName, listMarkDto.mark.authorId)
@@ -69,7 +69,7 @@ class MarksListRecyclerViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MarksListViewHolder {
         val view: View =
-            LayoutInflater.from(parent.context).inflate(R.layout.marks_list_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(ru.flocator.app.R.layout.marks_list_item, parent, false)
         return MarksListViewHolder(view)
     }
 

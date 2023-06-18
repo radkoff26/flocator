@@ -1,6 +1,6 @@
 package ru.flocator.app.community.adapters
 
-import ru.flocator.app.community.data_classes.UserExternalFriends
+import ru.flocator.core_dto.user.UserExternalFriends
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.flocator.app.databinding.PersonYourFriendItemBinding
-import ru.flocator.app.common.utils.LoadUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -51,7 +50,7 @@ class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActi
     private fun setAvatar(uri: String, holder: ExternalFriendViewHolder){
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
+        ru.flocator.core_utils.LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

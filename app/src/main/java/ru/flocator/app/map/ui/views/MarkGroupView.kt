@@ -8,9 +8,9 @@ import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import ru.flocator.app.R
+import ru.flocator.core_design.R
 import ru.flocator.app.map.ui.BitmapCreator
-import ru.flocator.app.common.utils.ViewUtils.dpToPx
+import ru.flocator.core_utils.ViewUtils.dpToPx
 
 class MarkGroupView @JvmOverloads constructor(
     context: Context,
@@ -33,7 +33,7 @@ class MarkGroupView @JvmOverloads constructor(
 
         addView(countTextView)
 
-        background = ResourcesCompat.getDrawable(resources, R.drawable.friend_circle_bg, null)
+        background = ResourcesCompat.getDrawable(resources, ru.flocator.app.R.drawable.friend_circle_bg, null)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

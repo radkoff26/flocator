@@ -14,11 +14,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import ru.flocator.app.R
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.store.user.info.UserInfo
-import ru.flocator.app.common.utils.FragmentNavigationUtils
-import ru.flocator.app.main.data_source.ClientAPI
+import ru.flocator.core_design.R
+import ru.flocator.core_api.api.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,18 +24,18 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import ru.flocator.app.common.sections.SettingsSection
+import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_utils.FragmentNavigationUtils
 import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SettingsFragment: Fragment(), SettingsSection {
+class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
     private val compositeDisposable = CompositeDisposable()
 
     private lateinit var fragmentView: View
 
-    @Inject lateinit var clientAPI: ClientAPI
     @Inject lateinit var mainRepository: MainRepository
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,24 +74,24 @@ class SettingsFragment: Fragment(), SettingsSection {
             }
         }
         // Inflate the layout for this fragment
-        fragmentView = inflater.inflate(R.layout.fragment_settings, container, false)
-        val exitLinearLayout = fragmentView.findViewById<LinearLayout>(R.id.exit_account_line)
-        val birthDateLinearLayout = fragmentView.findViewById<LinearLayout>(R.id.date_of_birth_line)
-        val birthDateField = fragmentView.findViewById<TextView>(R.id.date_of_birth_field)
-        val blacklistLine = fragmentView.findViewById<LinearLayout>(R.id.blacklist_line)
-        val privacyLine = fragmentView.findViewById<LinearLayout>(R.id.privacy_line)
-        val changePasswordLine = fragmentView.findViewById<LinearLayout>(R.id.change_password_line)
-        val deleteAccountLine = fragmentView.findViewById<LinearLayout>(R.id.delete_account_line)
-        val nameField = fragmentView.findViewById<EditText>(R.id.name_field)
-        val avatar = fragmentView.findViewById<CircleImageView>(R.id.avatar)
-        val blacklistCnt = fragmentView.findViewById<TextView>(R.id.blacklist_cnt)
-        val toolbar = fragmentView.findViewById<Toolbar>(R.id.toolbar)
+        fragmentView = inflater.inflate(ru.flocator.app.R.layout.fragment_settings, container, false)
+        val exitLinearLayout = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.exit_account_line)
+        val birthDateLinearLayout = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.date_of_birth_line)
+        val birthDateField = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.date_of_birth_field)
+        val blacklistLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.blacklist_line)
+        val privacyLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.privacy_line)
+        val changePasswordLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.change_password_line)
+        val deleteAccountLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.delete_account_line)
+        val nameField = fragmentView.findViewById<EditText>(ru.flocator.app.R.id.name_field)
+        val avatar = fragmentView.findViewById<CircleImageView>(ru.flocator.app.R.id.avatar)
+        val blacklistCnt = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.blacklist_cnt)
+        val toolbar = fragmentView.findViewById<Toolbar>(ru.flocator.app.R.id.toolbar)
 
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.app.R.drawable.back)
         }
         toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -135,9 +132,9 @@ class SettingsFragment: Fragment(), SettingsSection {
                         nameField.setText(userInfo.firstName + " " + userInfo.lastName)
                         val cal = Calendar.getInstance()
                         if (userInfo.birthDate != null) {
-                            cal.timeInMillis = userInfo.birthDate.time
+                            cal.timeInMillis = userInfo.birthDate!!.time
                             birthDateField.text = getString(
-                                R.string.date_with_placeholders,
+                                ru.flocator.app.R.string.date_with_placeholders,
                                 cal.get(Calendar.DAY_OF_MONTH),
                                 cal.get(Calendar.MONTH) + 1,
                                 cal.get(Calendar.YEAR),
@@ -148,7 +145,7 @@ class SettingsFragment: Fragment(), SettingsSection {
 
                         if (userInfo.avatarUri != null) {
                             compositeDisposable.add(
-                                mainRepository.photoLoader.getPhoto(userInfo.avatarUri)
+                                mainRepository.photoLoader.getPhoto(userInfo.avatarUri!!)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(
@@ -196,7 +193,7 @@ class SettingsFragment: Fragment(), SettingsSection {
                     // on below line we are setting
                     // date to our text view.
                     birthDateField.text = getString(
-                        R.string.date_with_placeholders,
+                        ru.flocator.app.R.string.date_with_placeholders,
                         resDay,
                         resMonth + 1,
                         resYear)
@@ -274,7 +271,7 @@ class SettingsFragment: Fragment(), SettingsSection {
     }
 
     private fun changeAvatar(uri: Uri) {
-        val avatar = fragmentView.findViewById<CircleImageView>(R.id.avatar)
+        val avatar = fragmentView.findViewById<CircleImageView>(ru.flocator.app.R.id.avatar)
         avatar.setImageURI(uri)
     }
 

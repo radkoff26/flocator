@@ -3,6 +3,7 @@ package ru.flocator.app.main.domain.address
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import ru.flocator.core_dto.address.AddressResponse
 import java.lang.reflect.Type
 
 class AddressDeserializer: JsonDeserializer<AddressResponse> {

@@ -2,11 +2,11 @@ package ru.flocator.app.community.view_models
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.sections.CommunitySection
+import ru.flocator.core_api.api.MainRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_sections.CommunitySection
 
 class AddFriendByLinkFragmentViewModel constructor(
     private val repository: MainRepository,

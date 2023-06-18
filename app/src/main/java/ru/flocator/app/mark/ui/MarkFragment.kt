@@ -16,27 +16,24 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import ru.flocator.app.R
-import ru.flocator.app.common.cache.runtime.PhotoState
-import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.db.entities.MarkPhoto
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
+import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.databinding.FragmentMarkBinding
-import ru.flocator.app.common.sections.MainSection
-import ru.flocator.app.common.contractions.BundleArgumentsContraction
-import ru.flocator.app.common.dto.user_name.UsernameDto
 import ru.flocator.app.mark.adapters.MarkPhotoCarouselAdapter
 import ru.flocator.app.mark.domain.fragment.MarkFragmentState
 import ru.flocator.app.photo.ui.PhotoPagerFragment
 import dagger.hilt.android.AndroidEntryPoint
 import ru.flocator.app.mark.view_models.MarkFragmentViewModel
+import ru.flocator.core_database.entities.MarkPhoto
+import ru.flocator.core_database.entities.MarkWithPhotos
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MarkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), MainSection {
+), ru.flocator.core_sections.MainSection {
     private var _binding: FragmentMarkBinding? = null
     private val binding
         get() = _binding!!
@@ -57,9 +54,9 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
         _binding = FragmentMarkBinding.bind(view)
 
         val markId =
-            requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.MARK_ID)
+            requireArguments().getLong(ru.flocator.core_contractions.BundleArgumentsContraction.MarkFragmentArguments.MARK_ID)
         val userId =
-            requireArguments().getLong(BundleArgumentsContraction.MarkFragmentArguments.USER_ID)
+            requireArguments().getLong(ru.flocator.core_contractions.BundleArgumentsContraction.MarkFragmentArguments.USER_ID)
 
         viewModel.initialize(markId, userId)
 
@@ -108,9 +105,9 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun openPhotoPager(position: Int) {
         val photoPagerFragment = PhotoPagerFragment()
         val bundle = Bundle()
-        bundle.putInt(BundleArgumentsContraction.PhotoPagerFragmentArguments.POSITION, position)
+        bundle.putInt(ru.flocator.core_contractions.BundleArgumentsContraction.PhotoPagerFragmentArguments.POSITION, position)
         bundle.putStringArrayList(
-            BundleArgumentsContraction.PhotoPagerFragmentArguments.URI_LIST,
+            ru.flocator.core_contractions.BundleArgumentsContraction.PhotoPagerFragmentArguments.URI_LIST,
             ArrayList(viewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
         )
         photoPagerFragment.arguments = bundle
@@ -205,7 +202,7 @@ class MarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     @SuppressLint("SetTextI18n")
-    private fun onUpdateUserData(value: UsernameDto?) {
+    private fun onUpdateUserData(value: ru.flocator.core_dto.user_name.UsernameDto?) {
         if (value == null) {
             return
         }

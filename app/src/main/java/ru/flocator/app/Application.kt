@@ -2,8 +2,8 @@ package ru.flocator.app
 
 import android.content.IntentFilter
 import android.util.Log
-import ru.flocator.app.common.config.Actions
-import ru.flocator.app.common.receivers.NetworkReceiver
+import ru.flocator.core_config.Actions
+import ru.flocator.core_receivers.NetworkReceiver
 import dagger.hilt.android.HiltAndroidApp
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins

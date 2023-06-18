@@ -1,12 +1,12 @@
 package ru.flocator.app.map.domain.map
 
 import android.graphics.Bitmap
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.common.storage.store.user.info.UserInfo
-import ru.flocator.app.map.domain.configuration.MapConfiguration
 import com.google.android.gms.maps.model.LatLng
 import io.reactivex.Single
+import ru.flocator.app.map.domain.configuration.MapConfiguration
+import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
 
 typealias LoadPhotoCallback = (uri: String) -> Single<Bitmap>
 typealias OnFriendViewClickCallback = (id: Long) -> Unit

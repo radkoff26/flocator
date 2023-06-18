@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.community.api.UserApi
-import ru.flocator.app.community.data_classes.UserExternal
-import ru.flocator.app.community.data_classes.UserExternalFriends
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_client.UserApi
+import ru.flocator.core_dto.user.UserExternal
+import ru.flocator.core_dto.user.UserExternalFriends
 import ru.flocator.app.community.fragments.ProfileFragment
 import com.google.gson.GsonBuilder
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,6 +17,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import javax.inject.Inject
 
 class OtherPersonProfileFragmentViewModel constructor(
     private val repository: MainRepository,
@@ -27,17 +28,8 @@ class OtherPersonProfileFragmentViewModel constructor(
     val currentUserLiveData: LiveData<UserExternal> = _currentUserLiveData
     private val compositeDisposable = CompositeDisposable()
 
-    private val userApi: UserApi by lazy {
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://kernelpunik.ru:8080/api/")
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        retrofit.create()
-    }
+    @Inject
+    lateinit var userApi: UserApi
 
     fun fetchUser(userId: Long, currentUserId: Long) {
         compositeDisposable.add(

@@ -11,7 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import ru.flocator.app.R
 import ru.flocator.app.settings.domain.friend.Friend
-import ru.flocator.app.common.utils.LoadUtils
+import ru.flocator.core_utils.LoadUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
 
@@ -40,7 +40,7 @@ class FriendListAdapter(
             val avaUri = friend.avaURI
             if (avaUri != null) {
 
-                LoadUtils.loadPictureFromUrl(avaUri, QUALITY_FACTOR)
+                ru.flocator.core_utils.LoadUtils.loadPictureFromUrl(avaUri, QUALITY_FACTOR)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         {

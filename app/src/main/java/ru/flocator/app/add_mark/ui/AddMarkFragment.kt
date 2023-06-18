@@ -18,12 +18,10 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import ru.flocator.app.R
-import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.app.databinding.FragmentAddMarkBinding
-import ru.flocator.app.common.sections.MainSection
-import ru.flocator.app.common.contractions.BundleArgumentsContraction
 import ru.flocator.app.add_mark.adapters.CarouselRecyclerViewAdapter
-import ru.flocator.app.add_mark.domain.dto.AddMarkDto
+import ru.flocator.core_dto.mark.AddMarkDto
 import ru.flocator.app.add_mark.domain.fragment.AddMarkFragmentState
 import ru.flocator.app.add_mark.domain.carousel.CarouselItemState
 import com.google.android.gms.maps.model.LatLng
@@ -35,7 +33,7 @@ import ru.flocator.app.add_mark.view_models.AddMarkFragmentViewModel
 class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), MainSection {
+), ru.flocator.core_sections.MainSection {
     private var _binding: FragmentAddMarkBinding? = null
     private val binding: FragmentAddMarkBinding
         get() = _binding!!
@@ -131,9 +129,9 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
 
     private fun extractCurrentLocation() {
         val latitude =
-            requireArguments().getDouble(BundleArgumentsContraction.AddMarkFragmentArguments.LATITUDE)
+            requireArguments().getDouble(ru.flocator.core_contractions.BundleArgumentsContraction.AddMarkFragmentArguments.LATITUDE)
         val longitude =
-            requireArguments().getDouble(BundleArgumentsContraction.AddMarkFragmentArguments.LONGITUDE)
+            requireArguments().getDouble(ru.flocator.core_contractions.BundleArgumentsContraction.AddMarkFragmentArguments.LONGITUDE)
 
         viewModel.updateUserPoint(
             LatLng(
@@ -264,7 +262,7 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             binding.addPhotoBtn.requestLayout()
         }
         val marginStartAnimator = ValueAnimator.ofInt(
-            requireContext().resources.getDimensionPixelSize(R.dimen.margin_between_btns),
+            requireContext().resources.getDimensionPixelSize(ru.flocator.core_design.R.dimen.margin_between_btns),
             0
         )
         marginStartAnimator.addUpdateListener {
@@ -291,7 +289,7 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         }
         val marginStartAnimator = ValueAnimator.ofInt(
             0,
-            requireContext().resources.getDimensionPixelSize(R.dimen.margin_between_btns)
+            requireContext().resources.getDimensionPixelSize(ru.flocator.core_design.R.dimen.margin_between_btns)
         )
         marginStartAnimator.addUpdateListener {
             val layoutParams = binding.removePhotoBtn.layoutParams as LinearLayout.LayoutParams
@@ -308,13 +306,13 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun enableRemovePhotoButton() {
         binding.removePhotoBtn.isEnabled = true
         binding.removePhotoBtn.iconTint =
-            ContextCompat.getColorStateList(requireContext(), R.color.white)
+            ContextCompat.getColorStateList(requireContext(), ru.flocator.core_design.R.color.white)
         binding.removePhotoBtn.backgroundTintList =
-            ContextCompat.getColorStateList(requireContext(), R.color.danger)
+            ContextCompat.getColorStateList(requireContext(), ru.flocator.core_design.R.color.danger)
         binding.removePhotoBtn.setTextColor(
             ContextCompat.getColorStateList(
                 requireContext(),
-                R.color.white
+                ru.flocator.core_design.R.color.white
             )
         )
     }
@@ -322,13 +320,13 @@ class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun disableRemovePhotoButton() {
         binding.removePhotoBtn.isEnabled = false
         binding.removePhotoBtn.iconTint =
-            ContextCompat.getColorStateList(requireContext(), R.color.danger)
+            ContextCompat.getColorStateList(requireContext(), ru.flocator.core_design.R.color.danger)
         binding.removePhotoBtn.backgroundTintList =
-            ContextCompat.getColorStateList(requireContext(), R.color.white)
+            ContextCompat.getColorStateList(requireContext(), ru.flocator.core_design.R.color.white)
         binding.removePhotoBtn.setTextColor(
             ContextCompat.getColorStateList(
                 requireContext(),
-                R.color.danger
+                ru.flocator.core_design.R.color.danger
             )
         )
     }

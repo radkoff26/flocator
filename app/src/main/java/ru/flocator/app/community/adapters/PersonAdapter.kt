@@ -8,8 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import ru.flocator.app.R
 import ru.flocator.app.databinding.PersonNewFriendItemBinding
-import ru.flocator.app.common.utils.LoadUtils
-import ru.flocator.app.community.data_classes.FriendRequests
+import ru.flocator.core_dto.user.FriendRequests
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -83,7 +82,7 @@ class PersonAdapter(private val userNewFriendActionListener: UserNewFriendAction
     private fun setAvatar(uri: String, holder: PersonViewHolder){
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
+        ru.flocator.core_utils.LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

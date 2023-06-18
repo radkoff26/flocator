@@ -1,13 +1,13 @@
 package ru.flocator.app.di
 
-import ru.flocator.app.common.config.Constants
-import ru.flocator.app.community.api.UserApi
+import ru.flocator.core_config.Constants
+import ru.flocator.core_client.UserApi
 import ru.flocator.app.di.annotations.BaseApi
 import ru.flocator.app.di.annotations.GeocoderApi
-import ru.flocator.app.main.data_source.ClientAPI
-import ru.flocator.app.main.data_source.GeocoderAPI
-import ru.flocator.app.settings.data_source.SettingsAPI
-import ru.flocator.app.main.domain.address.AddressResponse
+import ru.flocator.core_client.ClientAPI
+import ru.flocator.core_client.GeocoderAPI
+import ru.flocator.core_client.SettingsAPI
+import ru.flocator.core_dto.address.AddressResponse
 import ru.flocator.app.main.domain.address.AddressDeserializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

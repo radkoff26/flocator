@@ -4,18 +4,15 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.app.common.exceptions.LostConnectionException
-import ru.flocator.app.common.polling.PollingEmitter
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
-import ru.flocator.app.common.storage.store.point.UserLocationPoint
-import ru.flocator.app.common.storage.store.user.info.UserInfo
+import ru.flocator.core_polling.PollingEmitter
+import ru.flocator.core_api.api.MainRepository
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,8 +28,8 @@ class MainFragmentViewModel @Inject constructor(
     val userLocationLiveData: LiveData<LatLng?>
         get() = _userLocationLiveData
 
-    private val _userInfoLiveData: MutableLiveData<UserInfo?> = MutableLiveData(null)
-    val userInfoLiveData: LiveData<UserInfo?>
+    private val _userInfoLiveData: MutableLiveData<ru.flocator.core_data_store.user.info.UserInfo?> = MutableLiveData(null)
+    val userInfoLiveData: LiveData<ru.flocator.core_data_store.user.info.UserInfo?>
         get() = _userInfoLiveData
 
     private val _marksLiveData: MutableLiveData<List<MarkWithPhotos>> = MutableLiveData(emptyList())
@@ -133,7 +130,7 @@ class MainFragmentViewModel @Inject constructor(
             repository.restApi.getCurrentUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_INITIAL_FETCHING.toLong()) { throwable ->
-                    throwable is LostConnectionException
+                    throwable is ru.flocator.core_exceptions.LostConnectionException
                 }
                 .subscribe(
                     {
@@ -157,7 +154,7 @@ class MainFragmentViewModel @Inject constructor(
             repository.restApi.getCurrentUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_USER_INFO_FETCHING.toLong()) {
-                    it is LostConnectionException
+                    it is ru.flocator.core_exceptions.LostConnectionException
                 }
                 .subscribe(
                     {
@@ -188,7 +185,7 @@ class MainFragmentViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_LOCATION_POST.toLong()) {
-                    it is LostConnectionException
+                    it is ru.flocator.core_exceptions.LostConnectionException
                 }
                 .doOnError {
                     Log.e(TAG, "postLocation: error", it)
@@ -200,7 +197,7 @@ class MainFragmentViewModel @Inject constructor(
     fun updateUserLocation(location: LatLng) {
         _userLocationLiveData.value = location
         repository.locationCache.updateUserLocationData(
-            UserLocationPoint(
+            ru.flocator.core_data_store.point.UserLocationPoint(
                 location.latitude,
                 location.longitude
             )
@@ -222,7 +219,7 @@ class MainFragmentViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_FRIENDS_FETCHING.toLong()) {
-                    it is LostConnectionException
+                    it is ru.flocator.core_exceptions.LostConnectionException
                 }
                 .subscribe(
                     {
@@ -247,7 +244,7 @@ class MainFragmentViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_MARKS_FETCHING.toLong()) {
-                    it is LostConnectionException
+                    it is ru.flocator.core_exceptions.LostConnectionException
                 }
                 .subscribe(
                     {

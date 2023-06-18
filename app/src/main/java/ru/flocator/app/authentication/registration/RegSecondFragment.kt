@@ -11,17 +11,16 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import ru.flocator.app.R
-import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
-import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
-import ru.flocator.app.databinding.FragmentRegistrationBinding
-import ru.flocator.app.common.utils.FragmentNavigationUtils
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.common.sections.AuthenticationSection
+import ru.flocator.core_design.R
 import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
+import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
+import ru.flocator.app.databinding.FragmentRegistrationBinding
+import ru.flocator.core_sections.AuthenticationSection
 
 class RegSecondFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
@@ -77,7 +76,7 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
                                 return@subscribe
                             }
                             registrationViewModel.loginEmailData.value = Pair(lastName, email)
-                            FragmentNavigationUtils.openFragment(
+                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                 requireActivity().supportFragmentManager,
                                 RegThirdFragment()
                             )
@@ -95,7 +94,7 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
             title = ""
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.app.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -103,7 +102,7 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            FragmentNavigationUtils.clearAllAndOpenFragment(
+            ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
                 requireActivity().supportFragmentManager,
                 AuthFragment()
             )

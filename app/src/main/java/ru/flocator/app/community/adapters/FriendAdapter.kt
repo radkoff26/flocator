@@ -6,8 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.flocator.app.databinding.PersonYourFriendItemBinding
-import ru.flocator.app.common.utils.LoadUtils
-import ru.flocator.app.community.data_classes.Friends
+import ru.flocator.core_dto.user.Friends
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -52,7 +51,7 @@ class FriendAdapter(private val friendActionListener: FriendActionListener) :
     private fun setAvatar(uri: String, holder: FriendViewHolder){
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
+        ru.flocator.core_utils.LoadUtils.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

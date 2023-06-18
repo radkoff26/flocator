@@ -1,9 +1,9 @@
 package ru.flocator.app.map.utils
 
-import ru.flocator.app.common.storage.db.entities.MarkWithPhotos
-import ru.flocator.app.common.storage.db.entities.User
 import ru.flocator.app.map.domain.configuration.MapConfiguration
 import ru.flocator.app.map.domain.configuration.MapFilterType
+import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_database.entities.User
 
 object MapFilterUtils {
     fun filterMarksByMapConfiguration(

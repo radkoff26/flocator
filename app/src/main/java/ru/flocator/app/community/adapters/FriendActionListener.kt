@@ -1,7 +1,7 @@
 package ru.flocator.app.community.adapters
 
 
-import ru.flocator.app.community.data_classes.Friends
+import ru.flocator.core_dto.user.Friends
 
 interface FriendActionListener {
     fun onPersonOpenProfile(user: Friends)

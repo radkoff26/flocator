@@ -8,9 +8,8 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import ru.flocator.app.R
-import ru.flocator.app.common.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.app.common.repository.MainRepository
-import ru.flocator.app.common.sections.CommunitySection
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_api.api.MainRepository
 import ru.flocator.app.community.view_models.AddFriendByLinkFragmentViewModel
 import ru.flocator.app.databinding.FragmentAddFriendBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,7 +23,7 @@ import kotlin.properties.Delegates
 class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), CommunitySection {
+), ru.flocator.core_sections.CommunitySection {
     private var _binding: FragmentAddFriendBinding? = null
     private val binding: FragmentAddFriendBinding
         get() = _binding!!
@@ -71,11 +70,11 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
                             {
                                 if(!it){
                                     binding.message.visibility = View.VISIBLE
-                                    binding.message.setTextColor(resources.getColor(R.color.black))
+                                    binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
                                     binding.message.text = "Запрос в друзья отправлен!"
                                 } else {
                                     binding.message.visibility = View.VISIBLE
-                                    binding.message.setTextColor(resources.getColor(R.color.danger))
+                                    binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.danger))
                                     binding.message.text = "Пользователя не существует!"
                                 }
                             },
@@ -88,7 +87,7 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
                 //println("СУЩЕСТВУЕТ??????????  " +  addFriendByLinkFragmentViewModel.checkUserLogin(binding.userLoginText.text.toString()))
             } else {
                 binding.message.visibility = View.VISIBLE
-                binding.message.setTextColor(resources.getColor(R.color.black))
+                binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
                 binding.message.text = "Поле должно быть заполнено!"
             }
         }

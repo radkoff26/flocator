@@ -9,10 +9,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import ru.flocator.app.R
-import ru.flocator.app.common.cache.runtime.PhotoState
-import ru.flocator.app.common.views.LoaderImageView
-import ru.flocator.app.common.views.RetryImageButton
+import ru.flocator.core_design.R
+import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_design.views.LoaderImageView
+import ru.flocator.core_design.views.RetryImageButton
 
 class MarkPhotoCarouselAdapter(
     private val size: Int,
@@ -24,9 +24,9 @@ class MarkPhotoCarouselAdapter(
     private var photosState: List<Pair<String, PhotoState>> = uris.map { Pair(it, PhotoState.Loading) }
 
     inner class MarkPhotoCarouselViewHolder(view: View) : ViewHolder(view) {
-        private val retryImageButton: RetryImageButton = view.findViewById(R.id.retry_image_button)
-        val imageView: AppCompatImageView = view.findViewById(R.id.carousel_item_image)
-        val loaderImageView: LoaderImageView = view.findViewById(R.id.loader_image_view)
+        private val retryImageButton: RetryImageButton = view.findViewById(ru.flocator.app.R.id.retry_image_button)
+        val imageView: AppCompatImageView = view.findViewById(ru.flocator.app.R.id.carousel_item_image)
+        val loaderImageView: LoaderImageView = view.findViewById(ru.flocator.app.R.id.loader_image_view)
 
         fun bind(position: Int, uri: String) {
             imageView.setOnClickListener {
@@ -40,7 +40,7 @@ class MarkPhotoCarouselAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MarkPhotoCarouselViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.mark_photo_carousel_item, parent, false)
+            .inflate(ru.flocator.app.R.layout.mark_photo_carousel_item, parent, false)
         return MarkPhotoCarouselViewHolder(view)
     }
 
@@ -52,7 +52,7 @@ class MarkPhotoCarouselAdapter(
         val viewGroup = holder.itemView as ViewGroup
         when (val state = value.second) {
             is PhotoState.Loading -> {
-                showView(R.id.loader_image_view, viewGroup)
+                showView(ru.flocator.app.R.id.loader_image_view, viewGroup)
                 holder.loaderImageView.startAnimation()
                 holder.imageView.setBackgroundColor(
                     ResourcesCompat.getColor(
@@ -64,7 +64,7 @@ class MarkPhotoCarouselAdapter(
                 loadPhotoCallback.invoke(value.first)
             }
             is PhotoState.Loaded -> {
-                showView(R.id.carousel_item_image, viewGroup)
+                showView(ru.flocator.app.R.id.carousel_item_image, viewGroup)
                 holder.loaderImageView.stopAnimation()
                 holder.imageView.setBackgroundColor(
                     ResourcesCompat.getColor(
@@ -76,7 +76,7 @@ class MarkPhotoCarouselAdapter(
                 holder.imageView.setImageBitmap(state.bitmap)
             }
             is PhotoState.Failed -> {
-                showView(R.id.retry_image_button, viewGroup)
+                showView(ru.flocator.app.R.id.retry_image_button, viewGroup)
                 holder.loaderImageView.stopAnimation()
             }
         }
