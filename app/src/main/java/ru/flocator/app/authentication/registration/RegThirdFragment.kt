@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
 import ru.flocator.core_design.R
 import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
 import ru.flocator.core_dto.auth.UserRegistrationDto
@@ -20,12 +22,13 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.authentication.authorization.AuthFragment
 
+@AndroidEntryPoint
 class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
     private val compositeDisposable = CompositeDisposable()
-    private lateinit var registrationViewModel: RegistrationViewModel
+    private val registrationViewModel: RegistrationViewModel by viewModels()
 
     companion object {
         private const val PASSWORD = "Пароль"
@@ -46,6 +49,10 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
 
         binding.submitBtn.setOnClickListener {
             createAccount()
+            ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
+                requireActivity().supportFragmentManager,
+                AuthFragment()
+            )
         }
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
@@ -91,8 +98,6 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
         binding.firstInputField.hint = PASSWORD
         binding.secondInputField.hint = REPEAT_PASSWORD
         binding.submitBtn.text = REGISTER
-        registrationViewModel =
-            ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
     }
 
     override fun onDestroy() {
@@ -121,7 +126,24 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
                 password = password
             )
 
-            compositeDisposable.add(
+            registrationViewModel.registerUser(userRegistrationDto)
+
+            /*val transaction = requireActivity().supportFragmentManager.beginTransaction()
+            transaction.add(ru.flocator.core_utils.R.id.fragment_container, AuthFragment())
+            transaction.addToBackStack(null)
+            transaction.commit()*/
+            /*val fragments = requireActivity().supportFragmentManager.fragments
+            requireActivity().supportFragmentManager.beginTransaction().apply {
+                for (current in fragments) {
+                    remove(current)
+                }
+                add(ru.flocator.core_utils.R.id.fragment_container, AuthFragment())
+                setReorderingAllowed(true)
+                addToBackStack(null)
+                commit()
+            }*/
+
+            /*compositeDisposable.add(
                 authenticationApi.registerUser(userRegistrationDto)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -136,7 +158,7 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
                         showErrorMessage()
                         Log.e(TAG, ERROR_MESSAGE, error)
                     })
-            )
+            )*/
         }
     }
 

@@ -1,12 +1,8 @@
 package ru.flocator.app.di
 
 import ru.flocator.core_config.Constants
-import ru.flocator.core_client.UserApi
 import ru.flocator.app.di.annotations.BaseApi
 import ru.flocator.app.di.annotations.GeocoderApi
-import ru.flocator.core_client.ClientAPI
-import ru.flocator.core_client.GeocoderAPI
-import ru.flocator.core_client.SettingsAPI
 import ru.flocator.core_dto.address.AddressResponse
 import ru.flocator.app.main.domain.address.AddressDeserializer
 import com.google.gson.Gson
@@ -19,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import ru.flocator.core_client.*
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -77,4 +74,8 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideUserAPI(@BaseApi retrofit: Retrofit): UserApi = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideAuthenticationApi(@BaseApi retrofit: Retrofit): AuthenticationApi = retrofit.create()
 }

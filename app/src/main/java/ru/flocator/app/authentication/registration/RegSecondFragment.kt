@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -21,13 +23,13 @@ import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
 import ru.flocator.core_sections.AuthenticationSection
-
+@AndroidEntryPoint
 class RegSecondFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
     private val compositeDisposable = CompositeDisposable()
-    private lateinit var registrationViewModel: RegistrationViewModel
+    private val registrationViewModel: RegistrationViewModel by viewModels()
 
     companion object {
         private const val LOGIN = "Логин"
@@ -135,8 +137,6 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
             )
         )
 
-        registrationViewModel =
-            ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
         registrationViewModel.loginEmailData.value?.let { savedData ->
             binding.firstInputEditField.setText(savedData.first)
             binding.secondInputEditField.setText(savedData.second)

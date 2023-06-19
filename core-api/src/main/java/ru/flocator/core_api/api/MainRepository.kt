@@ -17,10 +17,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import ru.flocator.cache.global.PhotoCacheManager
-import ru.flocator.core_client.ClientAPI
-import ru.flocator.core_client.GeocoderAPI
-import ru.flocator.core_client.SettingsAPI
-import ru.flocator.core_client.UserApi
+import ru.flocator.core_client.*
 import ru.flocator.core_connection.ConnectionWrapper
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.point.UserLocationPoint
@@ -32,6 +29,7 @@ import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dto.address.AddressResponse
+import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.core_dto.location.UserLocationDto
 import ru.flocator.core_dto.mark.AddMarkDto
 import ru.flocator.core_dto.mark.MarkDto
@@ -46,6 +44,7 @@ class MainRepository constructor(
     private val clientAPI: ClientAPI,
     private val geocoderAPI: GeocoderAPI,
     private val userApi: UserApi,
+    private val authenticationApi: AuthenticationApi,
     private val applicationDatabase: ApplicationDatabase,
     private val userLocationDataStore: DataStore<UserLocationPoint>,
     private val userCredentialsStore: DataStore<UserCredentials>,
@@ -254,6 +253,10 @@ class MainRepository constructor(
 
         fun checkLogin(login: String): Single<Boolean>{
             return userApi.isLoginAvailable(login).subscribeOn(Schedulers.io())
+        }
+
+        fun registerUser(userRegistrationDto: UserRegistrationDto): Single<Boolean>{
+            return authenticationApi.registerUser(userRegistrationDto).subscribeOn(Schedulers.io())
         }
 
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {

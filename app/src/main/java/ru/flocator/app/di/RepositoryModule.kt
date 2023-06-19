@@ -8,10 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.flocator.cache.global.PhotoCacheManager
 import ru.flocator.core_api.api.MainRepository
-import ru.flocator.core_client.ClientAPI
-import ru.flocator.core_client.GeocoderAPI
-import ru.flocator.core_client.SettingsAPI
-import ru.flocator.core_client.UserApi
+import ru.flocator.core_client.*
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.point.UserLocationPoint
 import ru.flocator.core_data_store.user.data.UserCredentials
@@ -27,6 +24,7 @@ object RepositoryModule {
         clientAPI: ClientAPI,
         geocoderAPI: GeocoderAPI,
         userApi: UserApi,
+        authenticationApi: AuthenticationApi,
         applicationDatabase: ApplicationDatabase,
         userLocationDataStore: DataStore<UserLocationPoint>,
         userCredentialsStore: DataStore<UserCredentials>,
@@ -39,6 +37,7 @@ object RepositoryModule {
             clientAPI,
             geocoderAPI,
             userApi,
+            authenticationApi,
             applicationDatabase,
             userLocationDataStore,
             userCredentialsStore,

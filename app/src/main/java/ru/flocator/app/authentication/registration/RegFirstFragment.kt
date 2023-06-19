@@ -7,18 +7,20 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
 import ru.flocator.core_design.R
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.app.authentication.authorization.AuthFragment
-
+@AndroidEntryPoint
 class RegFirstFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
-    private lateinit var registrationViewModel: RegistrationViewModel
+    private val registrationViewModel: RegistrationViewModel by viewModels()
 
     companion object {
         private const val LAST_NAME = "Фамилия"
@@ -95,8 +97,6 @@ class RegFirstFragment : Fragment(), AuthenticationSection {
         binding.secondInputField.hint = FIRST_NAME
         binding.submitBtn.text = NEXT
 
-        registrationViewModel =
-            ViewModelProvider(requireActivity())[RegistrationViewModel::class.java]
         registrationViewModel.nameData.value?.let { savedData ->
             binding.firstInputEditField.setText(savedData.first)
             binding.secondInputEditField.setText(savedData.second)
