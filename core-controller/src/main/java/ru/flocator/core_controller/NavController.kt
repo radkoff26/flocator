@@ -1,6 +1,7 @@
 package ru.flocator.core_controller
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 
 interface NavController {
 
@@ -12,7 +13,7 @@ interface NavController {
 
     fun toSettings(): TransactionCommitter
 
-    fun toFragment(bundle: Bundle?): TransactionCommitter
+    fun toFragment(fragment: Fragment): TransactionCommitter
 
     fun back()
 }
