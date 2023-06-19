@@ -1,8 +1,8 @@
 package ru.flocator.core_controller
 
-abstract class TransactionCommitter internal constructor() {
-    protected var clearAll: Boolean = false
-    protected var closeSection: Boolean = false
+abstract class TransactionCommitter {
+    var clearAll: Boolean = false
+    var closeSection: Boolean = false
 
     fun clearAll(): TransactionCommitter {
         clearAll = true
