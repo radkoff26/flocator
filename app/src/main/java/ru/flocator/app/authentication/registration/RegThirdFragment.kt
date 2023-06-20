@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import dagger.hilt.android.AndroidEntryPoint
 import ru.flocator.core_design.R
 import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
@@ -21,6 +21,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.authentication.authorization.AuthFragment
+
 
 @AndroidEntryPoint
 class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection {
@@ -49,10 +50,6 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
 
         binding.submitBtn.setOnClickListener {
             createAccount()
-            ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
-                requireActivity().supportFragmentManager,
-                AuthFragment()
-            )
         }
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
@@ -111,56 +108,41 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
     }
 
     private fun createAccount() {
-        val lastName = registrationViewModel.nameData.value?.first
-        val firstName = registrationViewModel.nameData.value?.second
-        val login = registrationViewModel.loginEmailData.value?.first
-        val email = registrationViewModel.loginEmailData.value?.second
-        val password = binding.firstInputEditField.text.toString()
-
-        if (lastName != null && firstName != null && login != null && email != null) {
-            val userRegistrationDto = UserRegistrationDto(
-                lastName = lastName,
-                firstName = firstName,
-                login = login,
-                email = email,
-                password = password
-            )
-
-            registrationViewModel.registerUser(userRegistrationDto)
-
-            /*val transaction = requireActivity().supportFragmentManager.beginTransaction()
-            transaction.add(ru.flocator.core_utils.R.id.fragment_container, AuthFragment())
-            transaction.addToBackStack(null)
-            transaction.commit()*/
-            /*val fragments = requireActivity().supportFragmentManager.fragments
-            requireActivity().supportFragmentManager.beginTransaction().apply {
-                for (current in fragments) {
-                    remove(current)
-                }
-                add(ru.flocator.core_utils.R.id.fragment_container, AuthFragment())
-                setReorderingAllowed(true)
-                addToBackStack(null)
-                commit()
-            }*/
-
-            /*compositeDisposable.add(
-                authenticationApi.registerUser(userRegistrationDto)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ isSuccess ->
-                        if (isSuccess) {
-                            ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
-                                requireActivity().supportFragmentManager,
-                                AuthFragment()
-                            )
-                        }
-                    }, { error ->
-                        showErrorMessage()
-                        Log.e(TAG, ERROR_MESSAGE, error)
-                    })
-            )*/
-        }
+        registrationViewModel.nameData.observe(viewLifecycleOwner, Observer { nameData ->
+            val lastName = nameData.first
+            val firstName = nameData.second
+            registrationViewModel.loginEmailData.observe(
+                viewLifecycleOwner,
+                Observer { loginEmail ->
+                    val login = loginEmail.first
+                    val email = loginEmail.second
+                    val userRegistrationDto = UserRegistrationDto(
+                        lastName = lastName,
+                        firstName = firstName,
+                        login = login,
+                        email = email,
+                        password = binding.firstInputEditField.text.toString()
+                    )
+                    compositeDisposable.add(
+                        authenticationApi.registerUser(userRegistrationDto)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({ isSuccess ->
+                                if (isSuccess) {
+                                    ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
+                                        requireActivity().supportFragmentManager,
+                                        AuthFragment()
+                                    )
+                                }
+                            }, { error ->
+                                showErrorMessage()
+                                Log.e(TAG, ERROR_MESSAGE, error)
+                            })
+                    )
+                })
+        })
     }
+
 
     private fun showErrorMessage() {
         binding.registrationErrorMessageText.visibility = View.VISIBLE

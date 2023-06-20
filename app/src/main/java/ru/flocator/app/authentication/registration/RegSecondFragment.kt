@@ -23,6 +23,7 @@ import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
 import ru.flocator.core_sections.AuthenticationSection
+
 @AndroidEntryPoint
 class RegSecondFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
@@ -77,7 +78,13 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
                                 showErrorMessage("Email уже занят")
                                 return@subscribe
                             }
-                            registrationViewModel.loginEmailData.value = Pair(lastName, email)
+                            registrationViewModel.updateLoginEmail(
+                                Pair(
+                                    binding.firstInputEditField.text.toString(),
+                                    binding.secondInputEditField.text.toString()
+                                )
+                            )
+                            //registrationViewModel.loginEmailData.value = Pair(lastName, email)
                             ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                 requireActivity().supportFragmentManager,
                                 RegThirdFragment()

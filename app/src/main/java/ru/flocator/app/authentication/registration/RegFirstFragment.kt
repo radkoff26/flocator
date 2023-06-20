@@ -44,11 +44,11 @@ class RegFirstFragment : Fragment(), AuthenticationSection {
             val lastName = binding.secondInputEditField.text.toString()
             if (validateName(firstName, lastName)) {
                 hideErrorMessage()
-                registrationViewModel.nameData.value = Pair(
+                registrationViewModel.updateNameData(Pair(
                     binding.firstInputEditField.text.toString(),
                     binding.secondInputEditField.text.toString()
                 )
-
+                )
                 ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                     requireActivity().supportFragmentManager,
                     RegSecondFragment()

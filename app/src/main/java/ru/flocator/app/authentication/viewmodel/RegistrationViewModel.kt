@@ -1,9 +1,11 @@
 package ru.flocator.app.authentication.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -18,28 +20,25 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     private val repository: MainRepository
 )  : ViewModel() {
-    val nameData = MutableLiveData<Pair<String, String>>() // Фамилия, Имя
-    val loginEmailData = MutableLiveData<Pair<String, String>>() // Login, Email
+    private val _nameData = MutableLiveData<Pair<String, String>>() // Фамилия, Имя
+    private val _loginEmailData = MutableLiveData<Pair<String, String>>() // Login, Email
+    var nameData: LiveData<Pair<String, String>> = _nameData
+    var loginEmailData: LiveData<Pair<String, String>> = _loginEmailData
     private val compositeDisposable = CompositeDisposable()
     override fun onCleared() {
         super.onCleared()
         compositeDisposable.dispose()
     }
 
-    fun registerUser(userRegistrationDto: UserRegistrationDto) {
-        compositeDisposable.add(
-            repository.restApi.registerUser(userRegistrationDto)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        return@subscribe
-                    },
-                    {
-                        Log.e(TAG, "registration ERROR", it)
-                    }
-                )
-        )
+    fun updateNameData(nameData: Pair<String, String>){
+        _nameData.postValue(nameData)
+    }
+    fun updateLoginEmail(loginEmail: Pair<String, String>){
+        _loginEmailData.postValue(loginEmail)
+    }
+
+    fun registerUser(userRegistrationDto: UserRegistrationDto): Single<Boolean> {
+            return repository.restApi.registerUser(userRegistrationDto)
     }
 
     companion object {
