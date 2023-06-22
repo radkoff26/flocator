@@ -47,7 +47,6 @@ dependencies {
     implementation project(":core-client")
     implementation project(":core-config")
     implementation project(":core-connection")
-    implementation project(":core-contractions")
     implementation project(":core-controller")
     implementation project(":core-data-store")
     implementation project(":core-database")
@@ -56,62 +55,72 @@ dependencies {
     implementation project(":core-dto")
     implementation project(":core-exceptions")
     implementation project(":core-extensions")
+    implementation project(":core-map")
+    implementation project(":core-photo-pager")
     implementation project(":core-polling")
     implementation project(":core-receivers")
     implementation project(":core-sections")
     implementation project(":core-utils")
+    implementation project(":feature-main")
+
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:${project.hilt_version}"
-    kapt "com.google.dagger:hilt-compiler:${project.hilt_version}"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     // Location
-    implementation "com.google.android.gms:play-services-location:${project.gms_location_version}"
+    implementation "com.google.android.gms:play-services-location:$gms_location_version"
 
     // Kotlin Serialization
-    implementation "org.jetbrains.kotlin:kotlin-serialization:${project.kotlin_version}"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${project.kotlin_serialization_version}"
+    implementation "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
 
     // Security
-    implementation "androidx.security:security-crypto-ktx:${project.android_security_version}"
-    implementation "androidx.security:security-crypto:${project.android_security_version}"
+    implementation "androidx.security:security-crypto-ktx:$android_security_version"
+    implementation "androidx.security:security-crypto:$android_security_version"
 
     // Core
-    implementation "androidx.core:core-ktx:${project.android_core_kotlin_version}"
+    implementation "androidx.core:core-ktx:$android_core_kotlin_version"
 
     // Android Fragment
-    implementation "androidx.fragment:fragment-ktx:${project.android_core_ktx_version}"
+    implementation "androidx.fragment:fragment-ktx:$android_core_ktx_version"
 
     // View Pager
-    implementation "androidx.viewpager2:viewpager2:${project.view_pager_version}"
+    implementation "androidx.viewpager2:viewpager2:$view_pager_version"
 
     // App Compat
-    implementation "androidx.appcompat:appcompat:${project.app_compat_version}"
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
 
     // Material
-    implementation "com.google.android.material:material:${project.material_version}"
+    implementation "com.google.android.material:material:$material_version"
 
     // Constraint Layout
-    implementation "androidx.constraintlayout:constraintlayout:${project.constraint_layout_version}"
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
 
     // Live Data
-    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:${project.lifecycle_live_data_version}"
+    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
 
     // CircleImageView
-    implementation "de.hdodenhof:circleimageview:${project.circle_image_view_version}"
+    implementation "de.hdodenhof:circleimageview:$circle_image_view_version"
 
     // Maps
-    implementation "com.google.android.gms:play-services-maps:${project.google_maps_version}"
+    implementation "com.google.android.gms:play-services-maps:$google_maps_version"
 
     // Rx
-    implementation "io.reactivex.rxjava2:rxjava:${project.rxjava_version}"
-    implementation "io.reactivex.rxjava2:rxandroid:${project.rxandroid_version}"
+    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
 
     // SkeletonLayout
-    implementation "com.faltenreich:skeletonlayout:${project.skeleton_layout_version}"
+    implementation "com.faltenreich:skeletonlayout:$skeleton_layout_version"
 
     // Swipe-to-Refresh
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:${project.swipe_refresh_layout_version}"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipe_refresh_layout_version"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"

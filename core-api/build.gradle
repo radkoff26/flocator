@@ -40,6 +40,7 @@ dependencies {
     implementation project(":core-database")
     implementation project(":core-dto")
     implementation project(":core-utils")
+    implementation project(":core-dependency")
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"

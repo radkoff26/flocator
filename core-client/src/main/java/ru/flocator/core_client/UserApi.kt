@@ -5,12 +5,13 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
 import ru.flocator.core_database.entities.User
+import ru.flocator.core_dependency.Dependency
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_dto.user.UserExternal
 
-interface UserApi {
+interface UserApi: Dependency {
     @GET("user/{userId}")
-    fun getUserSolo(@Path("userId") userId: Long): Single<ru.flocator.core_database.entities.User>
+    fun getUserSolo(@Path("userId") userId: Long): Single<User>
 
     @GET("user/target/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<TargetUser>

@@ -5,9 +5,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import ru.flocator.app.R
-import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.feature_auth.authorization.AuthFragment
 import ru.flocator.app.community.fragments.ProfileFragment
-import ru.flocator.app.main.ui.MainFragment
+import ru.flocator.feature_main.api.ui.MainFragment
 import ru.flocator.app.settings.ui.SettingsFragment
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.TransactionCommitter
@@ -22,7 +22,7 @@ class NavControllerImpl(private val activity: FragmentActivity) : NavController 
     override fun toAuth(): TransactionCommitter =
         object : TransactionCommitter() {
             override fun commit() {
-                openFragment(AuthFragment(), this)
+                openFragment(ru.flocator.feature_auth.authorization.AuthFragment(), this)
             }
         }
 

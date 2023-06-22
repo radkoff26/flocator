@@ -2,7 +2,6 @@ package ru.flocator.core_client
 
 import io.reactivex.Single
 import retrofit2.http.*
-import ru.flocator.core_database.entities.User
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_dto.auth.UserRegistrationDto
 

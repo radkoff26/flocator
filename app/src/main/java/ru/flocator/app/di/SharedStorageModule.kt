@@ -6,30 +6,28 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import dagger.Module
+import dagger.Provides
+import dagger.multibindings.IntoMap
+import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.core_data_store.point.UserLocationPoint
 import ru.flocator.core_data_store.point.UserLocationPointSerializer
+import ru.flocator.core_data_store.store.DataStorage
 import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_data_store.user.data.UserDataSerializer
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_data_store.user.info.UserInfoSerializer
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@InstallIn(SingletonComponent::class)
 @Module
-object SharedStorageModule {
-    private const val ENCRYPTED_PREFS = "encrypted_prefs"
-    private const val USER_LOCATION_DATA_STORE_FILE = "user_location_ds"
-    private const val USER_DATA_STORE_FILE = "user_data_ds"
-    private const val USER_INFO_STORE_FILE = "user_info_ds"
+@Singleton
+class SharedStorageModule {
 
     @Provides
     @Singleton
-    fun encryptedSharedPreferences(@ApplicationContext context: Context): EncryptedSharedPreferences {
+    @IntoMap
+    @DependencyKey(EncryptedSharedPreferences::class)
+    fun provideEncryptedSharedPreferences(context: Context): EncryptedSharedPreferences {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
@@ -44,25 +42,47 @@ object SharedStorageModule {
 
     @Provides
     @Singleton
-    fun locationDataStore(@ApplicationContext context: Context): DataStore<ru.flocator.core_data_store.point.UserLocationPoint> =
+    fun provideUserLocationDataStore(context: Context): DataStore<UserLocationPoint> =
         DataStoreFactory.create(
-            ru.flocator.core_data_store.point.UserLocationPointSerializer(),
+            UserLocationPointSerializer(),
             produceFile = { context.dataStoreFile(USER_LOCATION_DATA_STORE_FILE) }
         )
 
     @Provides
     @Singleton
-    fun userDataStore(@ApplicationContext context: Context): DataStore<ru.flocator.core_data_store.user.data.UserCredentials> =
+    fun provideUserDataStore(context: Context): DataStore<UserCredentials> =
         DataStoreFactory.create(
-            ru.flocator.core_data_store.user.data.UserDataSerializer(),
+            UserDataSerializer(),
             produceFile = { context.dataStoreFile(USER_DATA_STORE_FILE) }
         )
 
     @Provides
     @Singleton
-    fun userInfoDataStore(@ApplicationContext context: Context): DataStore<ru.flocator.core_data_store.user.info.UserInfo> =
+    fun provideUserInfoDataStore(context: Context): DataStore<UserInfo> =
         DataStoreFactory.create(
-            ru.flocator.core_data_store.user.info.UserInfoSerializer(),
+            UserInfoSerializer(),
             produceFile = { context.dataStoreFile(USER_INFO_STORE_FILE) }
         )
+
+    @Provides
+    @Singleton
+    @IntoMap
+    @DependencyKey(DataStorage::class)
+    fun provideDataStorage(
+        userLocationDataStore: DataStore<UserLocationPoint>,
+        userCredentialsDataStore: DataStore<UserCredentials>,
+        userInfoDataStore: DataStore<UserInfo>
+    ): DataStorage =
+        DataStorage(
+            userLocationDataStore,
+            userCredentialsDataStore,
+            userInfoDataStore
+        )
+
+    companion object {
+        private const val ENCRYPTED_PREFS = "encrypted_prefs"
+        private const val USER_LOCATION_DATA_STORE_FILE = "user_location_ds"
+        private const val USER_DATA_STORE_FILE = "user_data_ds"
+        private const val USER_INFO_STORE_FILE = "user_info_ds"
+    }
 }

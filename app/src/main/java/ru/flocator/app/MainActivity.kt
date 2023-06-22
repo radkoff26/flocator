@@ -5,21 +5,19 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import ru.flocator.app.authentication.client.RetrofitClient
+import ru.flocator.feature_auth.client.RetrofitClient
 import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.app.authentication.getlocation.LocationRequestFragment
+import ru.flocator.feature_auth.getlocation.LocationRequestFragment
 import ru.flocator.core_api.api.MainRepository
-import ru.flocator.app.main.ui.MainFragment
-import dagger.hilt.android.AndroidEntryPoint
+import ru.flocator.feature_main.api.ui.MainFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.feature_auth.authorization.AuthFragment
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
 
@@ -27,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var repository: MainRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        DaggerMainActivityComponent.build().inject(this)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -50,7 +49,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribe(
                     {
                         compositeDisposable.add(
-                            RetrofitClient.authenticationApi.loginUser(
+                            ru.flocator.feature_auth.client.RetrofitClient.authenticationApi.loginUser(
                                 UserCredentialsDto(
                                     it.login,
                                     it.password
@@ -68,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                                         } else {
                                             ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
-                                                LocationRequestFragment()
+                                                ru.flocator.feature_auth.getlocation.LocationRequestFragment()
                                             )
                                         }
                                     },
@@ -91,7 +90,7 @@ class MainActivity : AppCompatActivity() {
                                             )
                                             ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
-                                                AuthFragment()
+                                                ru.flocator.feature_auth.authorization.AuthFragment()
                                             )
                                         }
                                     }
@@ -101,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                     {
                         ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                             supportFragmentManager,
-                            AuthFragment()
+                            ru.flocator.feature_auth.authorization.AuthFragment()
                         )
                         Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }

@@ -9,17 +9,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import ru.flocator.core_design.R
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_api.api.MainRepository
-import ru.flocator.app.add_mark.ui.AddMarkFragment
+import ru.flocator.app.main.internal.add_mark.ui.AddMarkFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.feature_auth.authorization.AuthFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -108,7 +107,7 @@ class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
         dismiss()
         ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
-            AuthFragment()
+            ru.flocator.feature_auth.authorization.AuthFragment()
         )
     }
 

@@ -9,10 +9,11 @@ import ru.flocator.core_database.dao.UserDao
 import ru.flocator.core_database.entities.Mark
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.User
+import ru.flocator.core_dependency.Dependency
 
 @Database(entities = [Mark::class, MarkPhoto::class, User::class], version = 1)
 @TypeConverters(value = [LatLngConverter::class, TimestampConverter::class])
-abstract class ApplicationDatabase : RoomDatabase() {
+abstract class ApplicationDatabase : RoomDatabase(), Dependency {
     abstract fun markDao(): MarkDao
     abstract fun markPhotoDao(): MarkPhotoDao
     abstract fun userDao(): UserDao
