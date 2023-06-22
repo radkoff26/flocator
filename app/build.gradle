@@ -61,6 +61,7 @@ dependencies {
     implementation project(":core-receivers")
     implementation project(":core-sections")
     implementation project(":core-utils")
+    implementation project(":feature-auth")
     implementation project(":feature-main")
 
     // Dagger
