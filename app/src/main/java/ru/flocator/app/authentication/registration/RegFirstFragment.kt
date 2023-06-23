@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
+import ru.flocator.app.MainActivity
 import ru.flocator.core_design.R
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
@@ -20,7 +22,7 @@ class RegFirstFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
-    private val registrationViewModel: RegistrationViewModel by viewModels()
+    private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     companion object {
         private const val LAST_NAME = "Фамилия"

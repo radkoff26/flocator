@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
+import androidx.fragment.app.activityViewModels
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.app.authentication.getlocation.LocationRequestFragment
 import ru.flocator.app.authentication.registration.RegFirstFragment
@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,6 +26,7 @@ class AuthFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection
     private val binding: FragmentAuthBinding
         get() = _binding!!
     private val compositeDisposable = CompositeDisposable()
+    private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     @Inject
     lateinit var repository: MainRepository
@@ -39,7 +41,7 @@ class AuthFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAuthBinding.inflate(inflater, container, false)
-
+        registrationViewModel.clear()
         binding.entranceBtn.setOnClickListener {
             val email = binding.emailLoginFieldEdit.text.toString()
             val password = binding.passwordLoginFieldEdit.text.toString()
@@ -63,7 +65,7 @@ class AuthFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection
     private fun login(login: String, password: String) {
         val userCredentials = UserCredentialsDto(login = login, password = password)
         compositeDisposable.add(
-            authenticationApi.loginUser(userCredentials)
+            repository.restApi.loginUser(userCredentials)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->

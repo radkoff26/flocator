@@ -9,11 +9,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import ru.flocator.core_design.R
-import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
 import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
@@ -29,7 +27,7 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
     private val compositeDisposable = CompositeDisposable()
-    private val registrationViewModel: RegistrationViewModel by viewModels()
+    private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     companion object {
         private const val PASSWORD = "Пароль"
@@ -108,39 +106,33 @@ class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSec
     }
 
     private fun createAccount() {
-        registrationViewModel.nameData.observe(viewLifecycleOwner, Observer { nameData ->
-            val lastName = nameData.first
-            val firstName = nameData.second
-            registrationViewModel.loginEmailData.observe(
-                viewLifecycleOwner,
-                Observer { loginEmail ->
-                    val login = loginEmail.first
-                    val email = loginEmail.second
-                    val userRegistrationDto = UserRegistrationDto(
-                        lastName = lastName,
-                        firstName = firstName,
-                        login = login,
-                        email = email,
-                        password = binding.firstInputEditField.text.toString()
-                    )
-                    compositeDisposable.add(
-                        authenticationApi.registerUser(userRegistrationDto)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe({ isSuccess ->
-                                if (isSuccess) {
-                                    ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
-                                        requireActivity().supportFragmentManager,
-                                        AuthFragment()
-                                    )
-                                }
-                            }, { error ->
-                                showErrorMessage()
-                                Log.e(TAG, ERROR_MESSAGE, error)
-                            })
-                    )
+        val lastName = registrationViewModel.nameData.value!!.first
+        val firstName = registrationViewModel.nameData.value!!.second
+        val login = registrationViewModel.loginEmailData.value!!.first
+        val email = registrationViewModel.loginEmailData.value!!.second
+        val userRegistrationDto = UserRegistrationDto(
+            lastName = lastName,
+            firstName = firstName,
+            login = login,
+            email = email,
+            password = binding.firstInputEditField.text.toString()
+        )
+        compositeDisposable.add(
+            registrationViewModel.registerUser(userRegistrationDto)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ isSuccess ->
+                    if (isSuccess) {
+                        ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
+                            requireActivity().supportFragmentManager,
+                            AuthFragment()
+                        )
+                    }
+                }, { error ->
+                    showErrorMessage()
+                    Log.e(TAG, ERROR_MESSAGE, error)
                 })
-        })
+        )
     }
 
 

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +20,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_design.R
 import ru.flocator.app.authentication.authorization.AuthFragment
-import ru.flocator.app.authentication.client.RetrofitClient.authenticationApi
 import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import ru.flocator.app.databinding.FragmentRegistrationBinding
 import ru.flocator.core_sections.AuthenticationSection
@@ -30,7 +30,7 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
     private val compositeDisposable = CompositeDisposable()
-    private val registrationViewModel: RegistrationViewModel by viewModels()
+    private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     companion object {
         private const val LOGIN = "Логин"
@@ -51,7 +51,7 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
         binding.submitBtn.contentDescription = NEXT
 
         binding.submitBtn.setOnClickListener {
-            val lastName = binding.firstInputEditField.text.toString()
+            val login = binding.firstInputEditField.text.toString()
             val email = binding.secondInputEditField.text.toString()
 
             if (!validateEmail(email)) {
@@ -61,8 +61,8 @@ class RegSecondFragment : Fragment(), AuthenticationSection {
 
             compositeDisposable.add(
                 Single.zip<Boolean, Boolean, Response>(
-                    authenticationApi.isLoginAvailable(lastName),
-                    authenticationApi.isEmailAvailable(email),
+                    registrationViewModel.isLoginAvailable(login),
+                    registrationViewModel.isEmailAvailable(email),
                 ) { loginResult, emailResult ->
                     return@zip Response(loginResult, emailResult)
                 }

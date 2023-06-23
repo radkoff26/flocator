@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.http.Body
 import ru.flocator.cache.global.PhotoCacheManager
 import ru.flocator.core_client.*
 import ru.flocator.core_connection.ConnectionWrapper
@@ -29,6 +30,7 @@ import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dto.address.AddressResponse
+import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.core_dto.location.UserLocationDto
 import ru.flocator.core_dto.mark.AddMarkDto
@@ -257,6 +259,18 @@ class MainRepository constructor(
 
         fun registerUser(userRegistrationDto: UserRegistrationDto): Single<Boolean>{
             return authenticationApi.registerUser(userRegistrationDto).subscribeOn(Schedulers.io())
+        }
+
+        fun isLoginAvailable(login: String): Single<Boolean>{
+            return authenticationApi.isLoginAvailable(login).subscribeOn(Schedulers.io())
+        }
+
+        fun isEmailAvailable(email: String): Single<Boolean>{
+            return authenticationApi.isEmailAvailable(email).subscribeOn(Schedulers.io())
+        }
+
+        fun loginUser(userCredentialsDto: UserCredentialsDto): Single<Long>{
+            return authenticationApi.loginUser(userCredentialsDto).subscribeOn(Schedulers.io())
         }
 
         fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {

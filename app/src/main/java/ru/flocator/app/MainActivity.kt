@@ -3,6 +3,7 @@ package ru.flocator.app
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import ru.flocator.app.authentication.client.RetrofitClient
@@ -15,6 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.app.authentication.viewmodel.RegistrationViewModel
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -22,6 +24,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
+    private val registrationViewModel: RegistrationViewModel by viewModels()
 
     @Inject
     lateinit var repository: MainRepository
