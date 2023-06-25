@@ -19,7 +19,6 @@ import ru.flocator.core_controller.NavController
 import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_utils.LocationUtils
 import ru.flocator.feature_auth.internal.ui.directory.RegFirstFragment
-import ru.flocator.feature_auth.internal.ui.location.LocationRequestFragment
 import javax.inject.Inject
 
 

@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                                         } else {
                                             ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
                                                 supportFragmentManager,
-                                                ru.flocator.feature_auth.getlocation.LocationRequestFragment()
+                                                ru.flocator.feature_auth.api.ui.LocationRequestFragment()
                                             )
                                         }
                                     },

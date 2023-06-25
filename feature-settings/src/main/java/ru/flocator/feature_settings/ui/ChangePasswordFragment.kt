@@ -1,0 +1,139 @@
+package ru.flocator.feature_settings.ui
+
+import android.graphics.Color
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.widget.NestedScrollView
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_sections.SettingsSection
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class ChangePasswordFragment :
+    ResponsiveBottomSheetDialogFragment(
+        BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+        BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+    ),
+    SettingsSection {
+    @Inject
+    lateinit var mainRepository: MainRepository
+
+    private lateinit var fragmentView: View
+    private val compositeDisposable = CompositeDisposable()
+    override fun getCoordinatorLayout(): CoordinatorLayout {
+        return fragmentView.findViewById(ru.flocator.app.R.id.coordinator)
+    }
+
+    override fun getBottomSheetScrollView(): NestedScrollView {
+        return fragmentView.findViewById(ru.flocator.app.R.id.bs)
+    }
+
+    override fun getInnerLayout(): ViewGroup {
+        return fragmentView.findViewById(ru.flocator.app.R.id.content)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inflate the layout for this fragment
+        fragmentView =
+            inflater.inflate(ru.flocator.app.R.layout.fragment_change_password, container, false)
+        val confirmButton =
+            fragmentView.findViewById<MaterialButton>(ru.flocator.app.R.id.change_pass_confirm_button)
+        val closeButton =
+            fragmentView.findViewById<FrameLayout>(ru.flocator.app.R.id.change_password_close_button)
+        val messageField =
+            fragmentView.findViewById<TextView>(ru.flocator.app.R.id.change_pass_message)
+        val oldPass =
+            fragmentView.findViewById<TextInputEditText>(ru.flocator.app.R.id.change_pass_old_pass)
+        val newPass =
+            fragmentView.findViewById<TextInputEditText>(ru.flocator.app.R.id.change_pass_new_pass)
+        val newPassRepeat =
+            fragmentView.findViewById<TextInputEditText>(ru.flocator.app.R.id.change_pass_new_repeat)
+        messageField.visibility = View.GONE
+        confirmButton.setOnClickListener {
+            messageField.visibility = View.GONE
+            messageField.setTextColor(Color.parseColor("#ee0000"))
+            val new = newPass.text.toString()
+            val repeat = newPassRepeat.text.toString()
+            val old = oldPass.text.toString()
+            if (new == "" || repeat == "" || old == "") {
+                messageField.text = getString(ru.flocator.app.R.string.fields_must_not_be_empty)
+                messageField.visibility = View.VISIBLE
+                return@setOnClickListener
+            }
+            if (new != repeat) {
+                messageField.text = getString(ru.flocator.app.R.string.passwords_are_not_similar)
+                messageField.visibility = View.VISIBLE
+                return@setOnClickListener
+            }
+            if (new == old) {
+                messageField.text = getString(ru.flocator.app.R.string.new_password_is_similar)
+                messageField.visibility = View.VISIBLE
+                return@setOnClickListener
+            }
+            compositeDisposable.add(
+                mainRepository.restApi.changeCurrentUserPass(
+                    old,
+                    new
+                )
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        { res ->
+                            if (res) {
+                                messageField.setTextColor(Color.parseColor("#00ee00"))
+                                messageField.text =
+                                    getString(ru.flocator.app.R.string.password_changed_successfully)
+                            } else {
+                                messageField.text = getString(ru.flocator.app.R.string.password_is_incorrect)
+                            }
+                            messageField.visibility = View.VISIBLE
+                            mainRepository.userCredentialsCache.clearUserCredentials()
+                            mainRepository.userInfoCache.clearUserInfo()
+                            ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
+                                requireActivity().supportFragmentManager,
+                                ru.flocator.feature_auth.api.ui.AuthFragment()
+                            )
+                        },
+                        {
+                            Log.e("Changing password", "error", it)
+                            messageField.text = getString(ru.flocator.app.R.string.password_is_incorrect)
+                            messageField.visibility = View.VISIBLE
+                        }
+                    )
+            )
+        }
+        closeButton.setOnClickListener {
+            dismiss()
+        }
+        return fragmentView
+    }
+
+    override fun onDestroyView() {
+        compositeDisposable.dispose()
+        super.onDestroyView()
+    }
+
+    companion object {
+        const val TAG = "Change pass fragment"
+        const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
+        const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
+    }
+
+
+}

@@ -21,19 +21,17 @@
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
+                app:titleTextColor="#1515B9"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:titleTextColor="#1515B9" />
+                />
 
             <com.faltenreich.skeletonlayout.SkeletonLayout
                 android:id="@+id/user_photo_skeleton"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_marginStart="32dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar"
@@ -65,7 +63,7 @@
                 android:id="@+id/viewSurnameAndButtonAddFriend"
                 android:layout_width="182dp"
                 android:layout_height="74dp"
-                android:layout_marginStart="24dp"
+                android:layout_marginStart="12dp"
                 app:layout_constraintBottom_toBottomOf="@+id/user_photo_skeleton"
                 app:layout_constraintStart_toEndOf="@+id/user_photo_skeleton"
                 app:layout_constraintTop_toTopOf="@+id/user_photo_skeleton" />
@@ -76,7 +74,7 @@
                 style="@style/Widget.Material3.Button.OutlinedButton.Icon"
                 android:layout_width="155dp"
                 android:layout_height="40dp"
-                android:layout_marginStart="32dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/tint"
                 android:text="Добавить в друзья"
@@ -111,7 +109,7 @@
                 android:id="@+id/friends"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:text="Друзья"
                 android:textColor="#121212"
