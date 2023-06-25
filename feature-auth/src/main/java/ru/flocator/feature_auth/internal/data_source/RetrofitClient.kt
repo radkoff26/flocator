@@ -1,0 +1,18 @@
+package ru.flocator.feature_auth.internal.data_source
+
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
+import ru.flocator.core_client.AuthenticationApi
+import ru.flocator.core_config.Constants.BASE_URL
+
+internal object RetrofitClient {
+
+    private val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+
+    val authenticationApi: AuthenticationApi = retrofit.create(AuthenticationApi::class.java)
+}

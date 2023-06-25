@@ -36,6 +36,7 @@ dependencies {
     implementation project(":core-config")
     implementation project(":core-database")
     implementation project(":core-data-store")
+    implementation project(":core-dependency")
 
     // Rx
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"

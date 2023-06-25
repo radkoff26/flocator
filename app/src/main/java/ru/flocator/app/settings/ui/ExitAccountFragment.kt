@@ -15,7 +15,7 @@ import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.app.authentication.authorization.AuthFragment
+import ru.flocator.feature_auth.authorization.AuthFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -80,7 +80,7 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
         dismiss()
         ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
             requireActivity().supportFragmentManager,
-            AuthFragment()
+            ru.flocator.feature_auth.authorization.AuthFragment()
         )
     }
 

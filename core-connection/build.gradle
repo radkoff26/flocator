@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation project(":core-exceptions")
+    implementation project(":core-dependency")
 
     // Rx
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"

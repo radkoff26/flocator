@@ -2,14 +2,18 @@ package ru.flocator.app.di
 
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoMap
+import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.core_receivers.NetworkReceiver
+import javax.inject.Singleton
 
-@InstallIn(SingletonComponent::class)
 @Module
-object ReceiverModule {
+@Singleton
+class ReceiverModule {
 
     @Provides
+    @Singleton
+    @IntoMap
+    @DependencyKey(NetworkReceiver::class)
     fun provideNetworkReceiver(): NetworkReceiver = NetworkReceiver()
 }

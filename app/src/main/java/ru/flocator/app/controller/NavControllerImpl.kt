@@ -5,9 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import ru.flocator.app.R
-import ru.flocator.app.authentication.authorization.AuthFragment
 import ru.flocator.app.community.fragments.ProfileFragment
-import ru.flocator.app.main.ui.MainFragment
 import ru.flocator.app.settings.ui.SettingsFragment
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.TransactionCommitter
@@ -15,6 +13,8 @@ import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_auth.api.ui.AuthFragment
+import ru.flocator.feature_main.api.ui.MainFragment
 
 class NavControllerImpl(private val activity: FragmentActivity) : NavController {
     private val fragmentManager: FragmentManager = activity.supportFragmentManager

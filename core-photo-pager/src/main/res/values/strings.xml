@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image">Картинка</string>
+    <string name="download">Загрузить</string>
+    <string name="failed">Ошибка</string>
+    <string name="loading">Загрузка</string>
+</resources>

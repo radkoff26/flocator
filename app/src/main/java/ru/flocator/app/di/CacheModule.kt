@@ -3,16 +3,18 @@ package ru.flocator.app.di
 import android.content.Context
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoMap
+import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.cache.global.PhotoCacheManager
+import javax.inject.Singleton
 
-@InstallIn(SingletonComponent::class)
 @Module
-object CacheModule {
+@Singleton
+class CacheModule {
 
     @Provides
-    fun providePhotoCacheManager(@ApplicationContext context: Context): PhotoCacheManager =
-        PhotoCacheManager(context)
+    @Singleton
+    @IntoMap
+    @DependencyKey(PhotoCacheManager::class)
+    fun providePhotoCacheManager(context: Context): PhotoCacheManager = PhotoCacheManager(context)
 }
