@@ -6,58 +6,51 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.core_design.R
 import ru.flocator.core_api.api.MainRepository
 import ru.flocator.feature_settings.ui.adapters.FriendListAdapter
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
+import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
 import ru.flocator.feature_settings.domain.friend.Friend
 import ru.flocator.feature_settings.domain.friend.FriendListSerializer
 import ru.flocator.feature_settings.utils.FriendViewUtils.getNumOfColumns
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class BlackListFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
+class BlackListFragment : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
     @Inject
     lateinit var mainRepository: MainRepository
     private val compositeDisposable = CompositeDisposable()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val fragmentView =
-            inflater.inflate(ru.flocator.app.R.layout.fragment_black_list, container, false)
-        val recyclerView =
-            fragmentView.findViewById<RecyclerView>(ru.flocator.app.R.id.blacklist_recycler_view)
-        val unselectAllButton =
-            fragmentView.findViewById<FrameLayout>(ru.flocator.app.R.id.blacklist_unselect_all_frame)
-        val toolbar = fragmentView.findViewById<Toolbar>(ru.flocator.app.R.id.toolbar)
-        val message = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.blacklist_msg)
+            inflater.inflate(R.layout.fragment_black_list, container, false)
 
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        val binding = FragmentBlackListBinding.bind(fragmentView)
+
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
-            title = getString(ru.flocator.app.R.string.black_list)
+            title = getString(R.string.black_list)
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
         }
-        toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
+        binding.blacklistRecyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
 
 
         friendListAdapter = FriendListAdapter()
@@ -71,11 +64,11 @@ class BlackListFragment : Fragment(), ru.flocator.core_sections.SettingsSection 
                         { userInfos ->
                             activity?.runOnUiThread {
                                 if (userInfos.isEmpty()) {
-                                    message.text = getString(ru.flocator.app.R.string.blacklist_is_empty)
-                                    message.visibility = View.VISIBLE
+                                    binding.blacklistMsg.text = getString(R.string.blacklist_is_empty)
+                                    binding.blacklistMsg.visibility = View.VISIBLE
                                     return@runOnUiThread
                                 }
-                                message.visibility = View.GONE
+                                binding.blacklistMsg.visibility = View.GONE
                                 friendListAdapter.setFriendList(
                                     userInfos.map {
                                         Friend(
@@ -105,9 +98,9 @@ class BlackListFragment : Fragment(), ru.flocator.core_sections.SettingsSection 
             )
         }
 
-        recyclerView.adapter = friendListAdapter
+        binding.blacklistRecyclerView.adapter = friendListAdapter
 
-        unselectAllButton.setOnClickListener {
+        binding.blacklistUnselectAllFrame.setOnClickListener {
             if (friendListAdapter.all { friend -> !friend.isChecked }) {
                 friendListAdapter.selectAll()
             } else {

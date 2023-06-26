@@ -16,6 +16,7 @@
         android:id="@id/logo_flocator"
         android:layout_width="0dp"
         android:layout_height="0dp"
+
         android:layout_marginTop="60dp"
         android:gravity="center_horizontal"
         android:src="@drawable/logo"
@@ -27,8 +28,7 @@
         app:layout_constraintLeft_toRightOf="@id/guideline_left"
         app:layout_constraintRight_toLeftOf="@id/guideline_right"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_weight="0.2"
-        android:contentDescription="@string/logo" />
+        app:layout_constraintVertical_weight="0.2" />
 
     <LinearLayout
         android:id="@+id/window_registration_name"
@@ -46,7 +46,7 @@
             android:id="@+id/first_input_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="6dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"
@@ -66,7 +66,7 @@
             android:id="@+id/second_input_field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="8dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             app:boxCornerRadiusBottomEnd="9dp"

@@ -20,7 +20,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:id="@+id/friend_avatar"
-        android:src="@drawable/avatar_svgrepo_com"
+        android:src="@drawable/base_avatar_image"
         app:layout_constraintLeft_toLeftOf="@id/friend_back"
         app:layout_constraintRight_toRightOf="@id/friend_back"
         app:layout_constraintTop_toTopOf="@id/friend_back"

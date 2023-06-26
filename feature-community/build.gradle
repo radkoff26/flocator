@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
@@ -43,26 +43,13 @@ android {
 dependencies {
     // Project modules
     implementation project(":core-api")
-    implementation project(":core-cache")
     implementation project(":core-client")
-    implementation project(":core-config")
-    implementation project(":core-connection")
     implementation project(":core-controller")
-    implementation project(":core-data-store")
-    implementation project(":core-database")
     implementation project(":core-dependency")
     implementation project(":core-design")
     implementation project(":core-dto")
-    implementation project(":core-exceptions")
-    implementation project(":core-extensions")
-    implementation project(":core-map")
-    implementation project(":core-photo-pager")
-    implementation project(":core-polling")
-    implementation project(":core-receivers")
     implementation project(":core-sections")
     implementation project(":core-utils")
-    implementation project(":feature-auth")
-    implementation project(":feature-main")
 
     // Dagger
     implementation "com.google.dagger:dagger:$dagger_version"

@@ -1,13 +1,5 @@
 <resources>
-    <string name="app_name">FLocator</string>
-    <string name="community_button">Community</string>
-    <string name="target_button">Target</string>
-    <string name="settings_button">Settings</string>
     <string name="date_with_placeholders">%02d.%02d.%02d</string>
-    <string name="add_mark">Добавить метку</string>
-    <string name="add">Добавить</string>
-    <string name="cancel">Отменить</string>
-    <string name="text">Текст</string>
     <string name="exit_account">Выйти из аккаунта</string>
     <string name="close_window">Закрыть окно</string>
     <string name="sure_exit_account">Вы уверены, что хотите выйти из аккаунта?</string>
@@ -20,50 +12,15 @@
     <string name="uncheck_everyone">Убрать всех</string>
     <string name="settings">Настройки</string>
     <string name="own_profile">Профиль</string>
-    <string name="example_nickname">StrangeNickname</string>
-    <string name="your_nickname">Ваш никнейм</string>
     <string name="current_location">Точно</string>
     <string name="approx_location">Примерно</string>
     <string name="date_of_birth">День рождения</string>
-    <string name="date_of_birth_mock" />
-    <string name="blacklist_cnt_mock"/>
     <string name="privacy">Скрыть местоположение</string>
     <string name="change_pass">Сменить пароль</string>
     <string name="log_out">Выйти из аккаунта</string>
     <string name="delete_account">Удалить аккаунт</string>
-    <string name="fix_location">Фикс</string>
+    <string name="fix_location">Фиксированно</string>
     <string name="unselect_all">Выбрать всех</string>
-    <string name="add_photo">Добавить фото</string>
-    <string name="remove">Удалить</string>
-    <string name="save">Сохранить</string>
-    <string name="add_friend_by_link">Добавить друга</string>
-    <string name="login_friend">Логин пользователя</string>
-    <string name="isPublic">Видно всем?</string>
-    <string name="loading">Загрузка</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="mark">Метка</string>
-    <string name="exit">Закрыть</string>
-    <string name="image">Картинка</string>
-    <string name="photo_count" formatted="true">%d фото</string>
-    <string name="marks_count" formatted="true">%d меток найдено</string>
-    <string name="no_photo_chosen" formatted="true">Вам нужно выбрать как минимум одну картинку!</string>
-    <string name="no_address_available" formatted="true">Проблемы с геолокацией…</string>
-    <string name="no_connection" formatted="true">Нет подключения к сети…</string>
-    <string name="return_to_connection" formatted="true">Соединение установлено!</string>
-    <!-- Auth: -->
-    <string name="location_request_text">Разрешите доступ к вашему местоположению</string>
-    <string name="reason_we_need_access">Нам необходимо знать ваше местоположение, чтобы позволить вашим друзьям видеть, где вы находитесь</string>
-    <string name="allow">Разрешить</string>
-    <string name="logo">FLocator</string>
-    <string name="come_back">Вернуться назад</string>
-    <string name="already_registered">Уже есть аккаунт?</string>
-    <string name="login">Логин</string>
-    <string name="password_hint">Пароль</string>
-    <string name="forgot_password">Забыли пароль?</string>
-    <string name="entry_button_text">Войти</string>
-    <string name="register_button_text">Зарегистрироваться</string>
-    <string name="download">Скачать</string>
     <string name="password_changed_successfully">Пароль успешно изменен!</string>
     <string name="password_is_incorrect">Пароль неверен!</string>
     <string name="fields_must_not_be_empty">Поля не должны быть пустыми!</string>
@@ -71,15 +28,15 @@
     <string name="new_password_is_similar">Новый пароль совпадает со старым!</string>
     <string name="password_cannot_be_empty">Пароль не может быть пустым!</string>
     <string name="incorrect_pass">Неверный пароль!</string>
-    <string name="close_popup">Close popup</string>
-    <string name="your_friend">Your friend</string>
-    <string name="set_a_tick">Set a tick</string>
-    <string name="tick_is_set">Tick is set</string>
+    <string name="close_popup">Закрыть диалог</string>
+    <string name="your_friend">Ваш друг</string>
+    <string name="set_a_tick">Выбрать</string>
+    <string name="tick_is_set">Выбрано</string>
     <string name="change_password_title">Сменить пароль</string>
     <string name="old_password">Старый пароль</string>
     <string name="new_password">Новый пароль</string>
     <string name="new_password_again">Новый пароль повторно</string>
     <string name="blacklist_is_empty">Черный список пуст. Так держать!</string>
     <string name="privacy_no_friends">Вам пока не от кого скрывать свое местоположение. Сначала найдите друзей</string>
-    <string name="user_name_on_map" formatted="true">%s %s</string>
+    <string name="name_and_surname">Имя Фамилия</string>
 </resources>

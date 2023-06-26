@@ -1,194 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="ru.flocator.app.ru.flocator.feature_settings.ui.SettingsFragment"
+    android:background="#fff"
     android:orientation="vertical"
-    android:background="#fff">
+    tools:context="ru.flocator.feature_settings.ui.SettingsFragment">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/privacy_header"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/privacy_rectangle_background"
         android:orientation="vertical"
         android:paddingBottom="12dp"
-        >
-    <FrameLayout
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/privacy_back_button">
-        <ImageView
-            android:layout_width="15dp"
-            android:layout_height="20dp"
-            android:layout_margin="12dp"
-            android:background="@drawable/white_back_arrow"
-            android:contentDescription="@string/go_back"
-            />
-    </FrameLayout>
-
-
-    <FrameLayout
-        android:id="@+id/current_loc_img_frame"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/privacy_back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintRight_toLeftOf="@id/approx_loc_img_frame"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp">
-
-
-        <ImageView
-            android:layout_width="67dp"
-            android:layout_height="51dp"
-            android:src="@drawable/privacy_rectangle_button"
-            android:layout_gravity="center"
-            android:contentDescription="@string/current_location"/>
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/location_gal"
-            android:contentDescription="@string/current_location"/>
-    </FrameLayout>
-    <TextView
-        app:layout_constraintTop_toBottomOf="@id/current_loc_img_frame"
-        app:layout_constraintLeft_toLeftOf="@id/current_loc_img_frame"
-        app:layout_constraintRight_toRightOf="@id/current_loc_img_frame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/current_location"
-        android:textStyle="bold"
-        android:textColor="#FFF"
-        android:layout_gravity="center"
-        />
-
-<!--        <LinearLayout-->
-<!--            android:id="@+id/privacy_approx_location"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="32dp"-->
-<!--            android:layout_marginEnd="32dp"-->
-<!--            android:layout_gravity="center_horizontal"-->
-<!--            android:orientation="vertical">-->
-
-            <FrameLayout
-                android:id="@+id/approx_loc_img_frame"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingVertical="8dp"
-                android:paddingHorizontal="16dp"
-                app:layout_constraintLeft_toRightOf="@id/current_loc_img_frame"
-                app:layout_constraintTop_toBottomOf="@id/privacy_back_button"
-                app:layout_constraintRight_toLeftOf="@id/no_loc_img_frame"
-                >
-
-
-                <ImageView
-                    android:layout_width="67dp"
-                    android:layout_height="51dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/privacy_rectangle_button"
-                    android:contentDescription="@string/approx_location" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@drawable/location_aprx"
-                    android:contentDescription="@string/approx_location"/>
-
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/approx_location"
-                android:textColor="#FFF"
-                android:textStyle="bold"
-                app:layout_constraintTop_toBottomOf="@id/approx_loc_img_frame"
-                app:layout_constraintLeft_toLeftOf="@id/approx_loc_img_frame"
-                app:layout_constraintRight_toRightOf="@id/approx_loc_img_frame"/>
-<!--        </LinearLayout>-->
-
-<!--        <LinearLayout-->
-<!--            android:id="@+id/privacy_fix_location"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:layout_gravity="end"-->
-<!--            android:layout_marginStart="32dp">-->
-            <FrameLayout
-                android:id="@+id/no_loc_img_frame"
-                app:layout_constraintLeft_toRightOf="@id/approx_loc_img_frame"
-                app:layout_constraintTop_toBottomOf="@id/privacy_back_button"
-                app:layout_constraintRight_toRightOf="parent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:layout_marginBottom="8dp">
-
-
-                <ImageView
-                    android:layout_width="67dp"
-                    android:layout_height="51dp"
-                    android:src="@drawable/privacy_rectangle_button"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/fix_location" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/location_fix"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/fix_location" />
-
-            </FrameLayout>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fix_location"
-                android:textStyle="bold"
-                android:textColor="#FFF"
-                android:layout_gravity="center"
-                app:layout_constraintTop_toBottomOf="@id/no_loc_img_frame"
-                app:layout_constraintLeft_toLeftOf="@id/no_loc_img_frame"
-                app:layout_constraintRight_toRightOf="@id/no_loc_img_frame"
-                />
-<!--        </LinearLayout>-->
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/privacy_select_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/unselect_all"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="16dp"
-            android:textStyle="bold"
-            android:textColor="#1515B9"
-            android:alpha="0.7"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/privacy_header"
-            />
-    <androidx.recyclerview.widget.RecyclerView
-        app:layout_constraintHeight="wrap_content_constrained"
-        app:layout_constraintTop_toBottomOf="@id/privacy_select_all"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_gravity="center_horizontal"
-        android:foregroundGravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <FrameLayout
+            android:id="@+id/privacy_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="20dp"
+                android:layout_margin="12dp"
+                android:background="@drawable/white_back_arrow"
+                android:contentDescription="@string/go_back" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/current_loc_img_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/approx_loc_img_frame"
+            app:layout_constraintTop_toBottomOf="@id/privacy_back_button">
+
+
+            <ImageView
+                android:layout_width="67dp"
+                android:layout_height="51dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/current_location"
+                android:src="@drawable/privacy_rectangle_button" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/current_location"
+                android:src="@drawable/location_gal" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/current_location"
+            android:textColor="#FFF"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@id/current_loc_img_frame"
+            app:layout_constraintRight_toRightOf="@id/current_loc_img_frame"
+            app:layout_constraintTop_toBottomOf="@id/current_loc_img_frame" />
+
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/privacy_approx_location"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginStart="32dp"-->
+        <!--            android:layout_marginEnd="32dp"-->
+        <!--            android:layout_gravity="center_horizontal"-->
+        <!--            android:orientation="vertical">-->
+
+        <FrameLayout
+            android:id="@+id/approx_loc_img_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintLeft_toRightOf="@id/current_loc_img_frame"
+            app:layout_constraintRight_toLeftOf="@id/no_loc_img_frame"
+            app:layout_constraintTop_toBottomOf="@id/privacy_back_button">
+
+
+            <ImageView
+                android:layout_width="67dp"
+                android:layout_height="51dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/approx_location"
+                android:src="@drawable/privacy_rectangle_button" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/approx_location"
+                android:src="@drawable/location_aprx" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/approx_location"
+            android:textColor="#FFF"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@id/approx_loc_img_frame"
+            app:layout_constraintRight_toRightOf="@id/approx_loc_img_frame"
+            app:layout_constraintTop_toBottomOf="@id/approx_loc_img_frame" />
+        <!--        </LinearLayout>-->
+
+        <!--        <LinearLayout-->
+        <!--            android:id="@+id/privacy_fix_location"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="vertical"-->
+        <!--            android:layout_gravity="end"-->
+        <!--            android:layout_marginStart="32dp">-->
+        <FrameLayout
+            android:id="@+id/no_loc_img_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintLeft_toRightOf="@id/approx_loc_img_frame"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/privacy_back_button">
+
+
+            <ImageView
+                android:layout_width="67dp"
+                android:layout_height="51dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/fix_location"
+                android:src="@drawable/privacy_rectangle_button" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/fix_location"
+                android:src="@drawable/location_fix" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/fix_location"
+            android:textColor="#FFF"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="@id/no_loc_img_frame"
+            app:layout_constraintRight_toRightOf="@id/no_loc_img_frame"
+            app:layout_constraintTop_toBottomOf="@id/no_loc_img_frame" />
+        <!--        </LinearLayout>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/privacy_select_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.7"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:text="@string/unselect_all"
+        android:textColor="#1515B9"
+        android:textStyle="bold"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/privacy_header" />
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/friend_list"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:foregroundGravity="center_horizontal"
+        app:layout_constraintHeight="wrap_content_constrained"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/privacy_select_all" />
 </androidx.constraintlayout.widget.ConstraintLayout>

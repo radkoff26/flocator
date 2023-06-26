@@ -1,16 +1,13 @@
 package ru.flocator.feature_auth.internal.view_models
 
-
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_dto.auth.UserRegistrationDto
 import javax.inject.Inject
 
-@HiltViewModel
 @Suppress("UNCHECKED_CAST")
 internal class RegistrationViewModel @Inject constructor(
     private val repository: MainRepository

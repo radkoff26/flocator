@@ -25,8 +25,6 @@
     <string name="current_location">Точно</string>
     <string name="approx_location">Примерно</string>
     <string name="date_of_birth">День рождения</string>
-    <string name="date_of_birth_mock" />
-    <string name="blacklist_cnt_mock"/>
     <string name="privacy">Скрыть местоположение</string>
     <string name="change_pass">Сменить пароль</string>
     <string name="log_out">Выйти из аккаунта</string>

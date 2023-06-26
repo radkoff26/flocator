@@ -68,7 +68,7 @@
                     app:layout_constraintTop_toBottomOf="@id/drag_handle"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/settings_delete_account_popup_title"
-                    android:src="@drawable/settings_close_popup"
+                    android:src="@drawable/close_popup_image"
                     android:padding="8dp"
                     android:layout_marginTop="8dp"
                     android:visibility="invisible"
@@ -111,7 +111,7 @@
                         android:hint="@string/pass"
                         android:id="@+id/delete_account_pass_field"
                         android:inputType="textPassword"
-                        android:background="@drawable/settings_popup_textfields"
+                        android:background="@drawable/popup_input_bg_image"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
                 <TextView

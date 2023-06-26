@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context="ru.flocator.app.ru.flocator.feature_community.fragments.AddFriendByLinkFragment">
-
+    android:layout_height="wrap_content">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bs"
@@ -21,6 +18,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="32dp">
+
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
                 android:id="@+id/drag_handle"
                 android:layout_width="match_parent"
@@ -36,7 +34,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="@string/add_friend_by_link"
+                    android:text="@string/add_friend"
                     android:textColor="@color/tint"
                     android:textSize="24sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -59,7 +57,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/close_window"
-                        android:src="@drawable/settings_close_popup" />
+                        android:src="@drawable/close_popup_image" />
                 </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -67,19 +65,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFF"
-                android:hint=" "
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="0dp"
                 android:textColorHint="#CECECE"
                 app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                tools:ignore="HardcodedText">
+                app:boxStrokeWidthFocused="0dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/userLoginText"
                     android:layout_width="match_parent"
                     android:layout_height="36dp"
-                    android:background="@drawable/settings_popup_textfields"
+                    android:background="@drawable/popup_input_bg_image"
                     android:hint="@string/login_friend"
                     android:padding="0dp"
                     android:textSize="16sp" />
@@ -87,12 +83,12 @@
 
             <TextView
                 android:id="@+id/message"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/request_is_sent"
                 android:textColor="@color/danger"
-                android:text="Запрос в друзья отправлен!"
                 android:visibility="gone">
 
             </TextView>
@@ -116,7 +112,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
 

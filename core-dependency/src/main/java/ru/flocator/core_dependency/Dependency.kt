@@ -2,18 +2,20 @@ package ru.flocator.core_dependency
 
 import androidx.fragment.app.Fragment
 
+interface Dependency
+
 typealias DependenciesMap = Map<Class<*>, Any>
 
 interface DependenciesContainer {
     var dependenciesMap: DependenciesMap
 }
 
-inline fun <reified D> Fragment.findDependencies(): D {
+inline fun <reified D: Dependency> Fragment.findDependencies(): D {
     return findDependenciesByClass(D::class.java)
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <D> Fragment.findDependenciesByClass(clazz: Class<D>): D {
+fun <D: Dependency> Fragment.findDependenciesByClass(clazz: Class<D>): D {
     return parents.firstNotNullOfOrNull {
         it.dependenciesMap[clazz] as D?
     } ?: throw IllegalStateException("There is no such dependency!")

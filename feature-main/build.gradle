@@ -42,6 +42,7 @@ dependencies {
     implementation project(":core-controller")
     implementation project(":core-data-store")
     implementation project(":core-database")
+    implementation project(":core-dependency")
     implementation project(":core-design")
     implementation project(":core-dto")
     implementation project(":core-exceptions")

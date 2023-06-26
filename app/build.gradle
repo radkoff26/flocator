@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'com.google.dagger.hilt.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
@@ -62,7 +61,9 @@ dependencies {
     implementation project(":core-sections")
     implementation project(":core-utils")
     implementation project(":feature-auth")
+    implementation project(":feature-community")
     implementation project(":feature-main")
+    implementation project(":feature-settings")
 
     // Dagger
     implementation "com.google.dagger:dagger:$dagger_version"
@@ -70,10 +71,6 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
-
-    // Hilt
-    implementation "com.google.dagger:hilt-android:$hilt_version"
-    kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
     // Location
     implementation "com.google.android.gms:play-services-location:$gms_location_version"

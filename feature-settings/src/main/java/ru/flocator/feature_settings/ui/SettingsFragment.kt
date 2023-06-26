@@ -7,16 +7,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import ru.flocator.core_design.R
 import ru.flocator.core_api.api.MainRepository
-import dagger.hilt.android.AndroidEntryPoint
 import de.hdodenhof.circleimageview.CircleImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -25,81 +19,80 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_utils.FragmentNavigationUtils
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
 import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
+class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding: FragmentSettingsBinding
+        get() = _binding!!
+
     private val compositeDisposable = CompositeDisposable()
 
     private lateinit var fragmentView: View
 
-    @Inject lateinit var mainRepository: MainRepository
+    @Inject
+    lateinit var mainRepository: MainRepository
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val photoChangeLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-            if (result != null) {
-                changeAvatar(result)
-                compositeDisposable.add(
-                    io.reactivex.Completable.create { emitter ->
-                        val stream = context?.contentResolver?.openInputStream(result)!!
-                        compositeDisposable.add(
-                            mainRepository.restApi.changeCurrentUserAva(
-                                MultipartBody.Part.createFormData(
-                                    "photo",
-                                    result.toString(),
-                                    RequestBody.create(
-                                        MediaType.parse("image/*"),
-                                        stream.readBytes()
+        val photoChangeLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
+                if (result != null) {
+                    changeAvatar(result)
+                    compositeDisposable.add(
+                        io.reactivex.Completable.create { emitter ->
+                            val stream = context?.contentResolver?.openInputStream(result)!!
+                            compositeDisposable.add(
+                                mainRepository.restApi.changeCurrentUserAva(
+                                    MultipartBody.Part.createFormData(
+                                        "photo",
+                                        result.toString(),
+                                        RequestBody.create(
+                                            MediaType.parse("image/*"),
+                                            stream.readBytes()
+                                        )
                                     )
                                 )
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                        {},
+                                        { Log.e("Loading image from storage", "error", it) })
                             )
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe({}, {Log.e("Loading image from storage", "error", it)})
-                        )
 
-                        emitter.onComplete()
-                        stream.close()
-                    }
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .doOnError { Log.e("Sending image", "error", it) }
-                        .subscribe()
-                )
+                            emitter.onComplete()
+                            stream.close()
+                        }
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnError { Log.e("Sending image", "error", it) }
+                            .subscribe()
+                    )
+                }
             }
-        }
         // Inflate the layout for this fragment
-        fragmentView = inflater.inflate(ru.flocator.app.R.layout.fragment_settings, container, false)
-        val exitLinearLayout = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.exit_account_line)
-        val birthDateLinearLayout = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.date_of_birth_line)
-        val birthDateField = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.date_of_birth_field)
-        val blacklistLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.blacklist_line)
-        val privacyLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.privacy_line)
-        val changePasswordLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.change_password_line)
-        val deleteAccountLine = fragmentView.findViewById<LinearLayout>(ru.flocator.app.R.id.delete_account_line)
-        val nameField = fragmentView.findViewById<EditText>(ru.flocator.app.R.id.name_field)
-        val avatar = fragmentView.findViewById<CircleImageView>(ru.flocator.app.R.id.avatar)
-        val blacklistCnt = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.blacklist_cnt)
-        val toolbar = fragmentView.findViewById<Toolbar>(ru.flocator.app.R.id.toolbar)
+        val fragmentView =
+            inflater.inflate(R.layout.fragment_settings, container, false)
 
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        _binding = FragmentSettingsBinding.bind(fragmentView)
+
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
         }
-        toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         compositeDisposable.add(
-            io.reactivex.Observable.create {
-                    emitter ->
+            io.reactivex.Observable.create { emitter ->
                 compositeDisposable.add(
                     mainRepository.userInfoCache.getUserInfo()
                         .subscribeOn(Schedulers.io())
@@ -117,7 +110,11 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
                         .subscribe({
                             emitter.onNext(it)
                         }, {
-                            Log.e("Getting UserInfo network data error", it.stackTraceToString(), it)
+                            Log.e(
+                                "Getting UserInfo network data error",
+                                it.stackTraceToString(),
+                                it
+                            )
                         })
                 )
             }
@@ -129,12 +126,12 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
                             return@subscribe
                         }
                         mainRepository.userInfoCache.updateUserInfo(userInfo)
-                        nameField.setText(userInfo.firstName + " " + userInfo.lastName)
+                        binding.nameField.setText(userInfo.firstName + " " + userInfo.lastName)
                         val cal = Calendar.getInstance()
                         if (userInfo.birthDate != null) {
                             cal.timeInMillis = userInfo.birthDate!!.time
-                            birthDateField.text = getString(
-                                ru.flocator.app.R.string.date_with_placeholders,
+                            binding.dateOfBirthField.text = getString(
+                                R.string.date_with_placeholders,
                                 cal.get(Calendar.DAY_OF_MONTH),
                                 cal.get(Calendar.MONTH) + 1,
                                 cal.get(Calendar.YEAR),
@@ -149,7 +146,7 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(
-                                        { avatar.setImageBitmap(it) },
+                                        { binding.avatar.setImageBitmap(it) },
                                         { Log.e("Loading ava", "error", it) })
                             )
                         }
@@ -167,7 +164,7 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
-                        blacklistCnt.text = it.size.toString()
+                        binding.blacklistCnt.text = it.size.toString()
                     },
                     {
                         Log.e("Getting blacklist size error", it.stackTraceToString(), it)
@@ -175,11 +172,11 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
                 )
         )
 
-        avatar.setOnClickListener {
+        binding.avatar.setOnClickListener {
             photoChangeLauncher.launch("image/*")
         }
 
-        birthDateLinearLayout.setOnClickListener {
+        binding.dateOfBirthLine.setOnClickListener {
 
             val c = Calendar.getInstance()
 
@@ -192,20 +189,22 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
                 { _, resYear, resMonth, resDay ->
                     // on below line we are setting
                     // date to our text view.
-                    birthDateField.text = getString(
-                        ru.flocator.app.R.string.date_with_placeholders,
+                    binding.dateOfBirthField.text = getString(
+                        R.string.date_with_placeholders,
                         resDay,
                         resMonth + 1,
-                        resYear)
+                        resYear
+                    )
                     val stamp = Calendar.getInstance()
                     stamp.set(resYear, resMonth, resDay)
                     compositeDisposable.add(
                         mainRepository.restApi.changeCurrentUserBirthdate(
                             Timestamp(stamp.timeInMillis)
                         )
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({}, {Log.e("Sending user birthdate", "error", it)}))
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({}, { Log.e("Sending user birthdate", "error", it) })
+                    )
                 },
                 year,
                 month,
@@ -215,50 +214,42 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
             datePickerDialog.show()
         }
 
-        nameField.setOnFocusChangeListener{_, hasFocus ->
+        binding.nameField.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
-                val words = nameField.text.split(" ")
+                val words = binding.nameField.text.split(" ")
                 val firstName = words[0]
                 var secondName = ""
                 for (word in words.listIterator(1)) {
                     secondName += word
                 }
                 compositeDisposable.add(
-                mainRepository.restApi.changeCurrentUserName(firstName, secondName)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({}, {Log.e("Change name", "error", it)})
+                    mainRepository.restApi.changeCurrentUserName(firstName, secondName)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({}, { Log.e("Change name", "error", it) })
                 )
             }
         }
 
-
-
-        privacyLine.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
-                requireActivity().supportFragmentManager,
-                PrivacySettingsFragment()
-            )
+        binding.privacyLine.setOnClickListener {
+            // TODO: Navigation
         }
 
-        blacklistLine.setOnClickListener {
-            FragmentNavigationUtils.openFragment(
-                requireActivity().supportFragmentManager,
-                BlackListFragment()
-            )
+        binding.blacklistLine.setOnClickListener {
+            // TODO: Navigation
         }
 
-        changePasswordLine.setOnClickListener {
+        binding.changePasswordLine.setOnClickListener {
             val changePasswordFragment = ChangePasswordFragment()
             changePasswordFragment.show(parentFragmentManager, ChangePasswordFragment.TAG)
         }
 
-        exitLinearLayout.setOnClickListener {
+        binding.exitAccountLine.setOnClickListener {
             val exitAccountFragment = ExitAccountFragment()
             exitAccountFragment.show(parentFragmentManager, ExitAccountFragment.TAG)
         }
 
-        deleteAccountLine.setOnClickListener {
+        binding.deleteAccountLine.setOnClickListener {
             val deleteAccountFragment = DeleteAccountFragment()
             deleteAccountFragment.show(parentFragmentManager, DeleteAccountFragment.TAG)
         }
@@ -271,8 +262,7 @@ class SettingsFragment: Fragment(), ru.flocator.core_sections.SettingsSection {
     }
 
     private fun changeAvatar(uri: Uri) {
-        val avatar = fragmentView.findViewById<CircleImageView>(ru.flocator.app.R.id.avatar)
+        val avatar = fragmentView.findViewById<CircleImageView>(R.id.avatar)
         avatar.setImageURI(uri)
     }
-
 }

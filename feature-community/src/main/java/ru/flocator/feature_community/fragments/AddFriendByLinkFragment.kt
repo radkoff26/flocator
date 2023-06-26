@@ -7,22 +7,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_api.api.MainRepository
-import ru.flocator.feature_community.view_models.AddFriendByLinkFragmentViewModel
-import ru.flocator.app.databinding.FragmentAddFriendBinding
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.app.databinding.FragmentAddFriendBinding
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_sections.CommunitySection
+import ru.flocator.feature_community.view_models.AddFriendByLinkFragmentViewModel
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-@AndroidEntryPoint
 class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), ru.flocator.core_sections.CommunitySection {
+), CommunitySection {
     private var _binding: FragmentAddFriendBinding? = null
     private val binding: FragmentAddFriendBinding
         get() = _binding!!
@@ -32,8 +31,8 @@ class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     @Inject
     lateinit var repository: MainRepository
 
-
     private lateinit var addFriendByLinkFragmentViewModel: AddFriendByLinkFragmentViewModel
+    
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
     }

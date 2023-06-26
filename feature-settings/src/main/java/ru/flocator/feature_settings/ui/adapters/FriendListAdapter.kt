@@ -9,10 +9,10 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.app.R
-import ru.flocator.core_utils.LoadUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
+import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.domain.friend.Friend
 
 class FriendListAdapter(
@@ -40,7 +40,7 @@ class FriendListAdapter(
             val avaUri = friend.avaURI
             if (avaUri != null) {
 
-                ru.flocator.core_utils.LoadUtils.loadPictureFromUrl(avaUri, QUALITY_FACTOR)
+                LoadUtils.loadPictureFromUrl(avaUri, QUALITY_FACTOR)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         {
@@ -50,7 +50,7 @@ class FriendListAdapter(
                             icon.setImageDrawable(
                                 ResourcesCompat.getDrawable(
                                     holder.friendElement.resources,
-                                    ru.flocator.core_map.R.drawable.base_avatar_image,
+                                    ru.flocator.core_design.R.drawable.base_avatar_image,
                                     null
                                 )
                             )

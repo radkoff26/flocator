@@ -52,7 +52,7 @@
                     android:layout_gravity="end"
                     android:contentDescription="@string/close_window"
                     android:padding="10dp"
-                    android:src="@drawable/settings_close_popup"
+                    android:src="@drawable/close_popup_image"
                     android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/settings_exit_account_popup_title"

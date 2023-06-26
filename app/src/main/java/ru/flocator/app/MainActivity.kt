@@ -3,23 +3,26 @@ package ru.flocator.app
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.core_api.api.MainRepository
-import ru.flocator.feature_main.api.ui.MainFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_dependency.DependenciesContainer
+import ru.flocator.core_dependency.DependenciesMap
+import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.feature_auth.api.ui.AuthFragment
+import ru.flocator.feature_main.api.ui.MainFragment
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DependenciesContainer {
     private val compositeDisposable = CompositeDisposable()
-    private val registrationViewModel: RegistrationViewModel by viewModels()
+
+    @Inject
+    override lateinit var dependenciesMap: DependenciesMap
 
     @Inject
     lateinit var repository: MainRepository
@@ -49,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribe(
                     {
                         compositeDisposable.add(
-                            ru.flocator.feature_auth.client.RetrofitClient.authenticationApi.loginUser(
+                            repository.restApi.loginUser(
                                 UserCredentialsDto(
                                     it.login,
                                     it.password

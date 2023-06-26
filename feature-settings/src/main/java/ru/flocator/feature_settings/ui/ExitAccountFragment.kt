@@ -5,40 +5,43 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import ru.flocator.app.R
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_api.api.MainRepository
-import com.google.android.material.button.MaterialButton
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.feature_auth.api.ui.AuthFragment
+import ru.flocator.core_controller.NavController
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentExitAccountBinding
 import javax.inject.Inject
 
-@AndroidEntryPoint
 class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
 ), ru.flocator.core_sections.SettingsSection {
+    private var _binding: FragmentExitAccountBinding? = null
+    private val binding: FragmentExitAccountBinding
+        get() = _binding!!
+
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
+    lateinit var controller: NavController
+
+    @Inject
     lateinit var repository: MainRepository
-    private lateinit var fragmentView: View
 
     override fun getCoordinatorLayout(): CoordinatorLayout {
-        return fragmentView.findViewById(R.id.coordinator)
+        return binding.coordinator
     }
 
     override fun getBottomSheetScrollView(): NestedScrollView {
-        return fragmentView.findViewById(R.id.bs)
+        return binding.bs
     }
 
     override fun getInnerLayout(): ViewGroup {
-        return fragmentView.findViewById(R.id.content)
+        return binding.content
     }
 
     override fun onCreateView(
@@ -46,15 +49,15 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        fragmentView = inflater.inflate(R.layout.fragment_exit_account, container, false)
-        val exitButton = fragmentView.findViewById<ImageView>(R.id.exit_account_close_button)
-        val confirmButton = fragmentView.findViewById<MaterialButton>(R.id.exit_account_confirm_button)
+        val fragmentView = inflater.inflate(R.layout.fragment_exit_account, container, false)
 
-        exitButton.setOnClickListener {
+        _binding = FragmentExitAccountBinding.bind(fragmentView)
+
+        binding.exitAccountCloseButton.setOnClickListener {
             dismiss()
         }
 
-        confirmButton.setOnClickListener {
+        binding.exitAccountConfirmButton.setOnClickListener {
             compositeDisposable.add(
                 repository.clearAllCache()
                     .observeOn(AndroidSchedulers.mainThread())
@@ -78,10 +81,9 @@ class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
 
     private fun openAuthFragment() {
         dismiss()
-        ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
-            requireActivity().supportFragmentManager,
-            AuthFragment()
-        )
+        controller.toAuth()
+            .clearAll()
+            .commit()
     }
 
     companion object {

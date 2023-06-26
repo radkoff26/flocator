@@ -1,64 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="ru.flocator.app.ru.flocator.feature_settings.ui.SettingsFragment"
-    android:orientation="vertical"
-    android:background="#fff">
+    android:background="#fff"
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/toolbar"
-        app:titleTextColor="#1515B9"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/white"
-        />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleTextColor="@color/primary" />
 
     <FrameLayout
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintRight_toRightOf="parent"
         android:id="@+id/blacklist_unselect_all_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/uncheck_everyone"
-            android:layout_marginEnd="32dp"
             android:layout_marginTop="0dp"
+            android:layout_marginEnd="32dp"
             android:layout_marginBottom="12dp"
-            android:textStyle="bold"
-            android:textColor="#1515B9"
             android:alpha="0.7"
-            />
+            android:text="@string/uncheck_everyone"
+            android:textStyle="bold"
+            app:titleTextColor="@color/primary" />
     </FrameLayout>
+
     <TextView
-        app:layout_constraintTop_toBottomOf="@id/blacklist_unselect_all_frame"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         android:id="@+id/blacklist_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="8dp"
         android:layout_gravity="center"
         android:gravity="center"
+        android:paddingVertical="8dp"
         android:visibility="gone"
-        />
-    <androidx.recyclerview.widget.RecyclerView
-        app:layout_constraintTop_toBottomOf="@id/blacklist_unselect_all_frame"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_gravity="center_horizontal"
-        android:foregroundGravity="center_horizontal"
+        app:layout_constraintTop_toBottomOf="@id/blacklist_unselect_all_frame" />
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/blacklist_recycler_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:foregroundGravity="center_horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/blacklist_unselect_all_frame" />
 </androidx.constraintlayout.widget.ConstraintLayout>

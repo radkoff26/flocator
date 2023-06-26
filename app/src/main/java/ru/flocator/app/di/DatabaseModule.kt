@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.multibindings.IntoMap
 import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.core_database.ApplicationDatabase
@@ -18,7 +17,7 @@ class DatabaseModule {
     @Singleton
     @IntoMap
     @DependencyKey(ApplicationDatabase::class)
-    fun applicationDatabase(@ApplicationContext context: Context): ApplicationDatabase =
+    fun applicationDatabase(context: Context): ApplicationDatabase =
         Room.databaseBuilder(
             context,
             ApplicationDatabase::class.java,

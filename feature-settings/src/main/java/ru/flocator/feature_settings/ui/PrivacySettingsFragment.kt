@@ -2,61 +2,63 @@ package ru.flocator.feature_settings.ui
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.core_api.api.MainRepository
-import ru.flocator.feature_settings.ui.adapters.FriendListAdapter
-import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.R
+import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
 import ru.flocator.feature_settings.domain.friend.Friend
+import ru.flocator.feature_settings.ui.adapters.FriendListAdapter
 import ru.flocator.feature_settings.utils.FriendViewUtils.getNumOfColumns
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class PrivacySettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
+class PrivacySettingsFragment : Fragment(), SettingsSection {
+    private var _binding: FragmentBlackListBinding? = null
+    private val binding: FragmentBlackListBinding
+        get() = _binding!!
+
     private lateinit var friendListAdapter: FriendListAdapter
+
     @Inject
     lateinit var mainRepository: MainRepository
+
     private val compositeDisposable = CompositeDisposable()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val fragmentView = inflater.inflate(ru.flocator.app.R.layout.fragment_black_list, container, false)
-        val recyclerView = fragmentView.findViewById<RecyclerView>(ru.flocator.app.R.id.blacklist_recycler_view)
-        val selectAllButton = fragmentView.findViewById<FrameLayout>(ru.flocator.app.R.id.blacklist_unselect_all_frame)
-        val toolbar = fragmentView.findViewById<Toolbar>(ru.flocator.app.R.id.toolbar)
-        val message = fragmentView.findViewById<TextView>(ru.flocator.app.R.id.blacklist_msg)
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        val fragmentView =
+            inflater.inflate(R.layout.fragment_black_list, container, false)
+
+        _binding = FragmentBlackListBinding.bind(fragmentView)
+
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
-            title = getString(ru.flocator.app.R.string.privacy)
+            title = getString(R.string.privacy)
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
             setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
         }
-        toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
 
-        recyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
+        binding.blacklistRecyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
 
         friendListAdapter = FriendListAdapter()
-        recyclerView.adapter = friendListAdapter
+        binding.blacklistRecyclerView.adapter = friendListAdapter
 
-        selectAllButton.setOnClickListener {
+        binding.blacklistUnselectAllFrame.setOnClickListener {
             if (friendListAdapter.all { friend -> friend.isChecked }) {
                 friendListAdapter.unselectAll()
             } else {
@@ -71,8 +73,7 @@ class PrivacySettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSe
                 .doOnError {
                     Log.e("Getting friends error", it.stackTraceToString(), it)
                 }
-                .subscribe {
-                        friends ->
+                .subscribe { friends ->
                     compositeDisposable.add(
                         mainRepository.restApi.getCurrentUserPrivacy()
                             .observeOn(Schedulers.io())
@@ -80,15 +81,15 @@ class PrivacySettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSe
                             .doOnError {
                                 Log.e("Getting friends privacy error", it.stackTraceToString(), it)
                             }
-                            .subscribe {
-                                    privData ->
+                            .subscribe { privData ->
                                 activity?.runOnUiThread {
                                     if (friends.isEmpty()) {
-                                        message.text = getString(ru.flocator.app.R.string.privacy_no_friends)
-                                        message.visibility = View.VISIBLE
+                                        binding.blacklistMsg.text =
+                                            getString(R.string.privacy_no_friends)
+                                        binding.blacklistMsg.visibility = View.VISIBLE
                                         return@runOnUiThread
                                     }
-                                    message.visibility = View.GONE
+                                    binding.blacklistMsg.visibility = View.GONE
                                     friendListAdapter.setFriendList(
                                         friends.map {
                                             Friend(

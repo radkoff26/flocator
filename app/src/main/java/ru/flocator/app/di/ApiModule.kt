@@ -12,9 +12,9 @@ import retrofit2.create
 import ru.flocator.app.di.annotations.BaseApi
 import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.app.di.annotations.GeocoderApi
-import ru.flocator.app.main.internal.main.domain.address.AddressDeserializer
 import ru.flocator.core_client.*
 import ru.flocator.core_config.Constants
+import ru.flocator.core_dto.address.AddressDeserializer
 import ru.flocator.core_dto.address.AddressResponse
 import javax.inject.Singleton
 
