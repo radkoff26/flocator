@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#fff"
     android:orientation="vertical"
-    tools:context="ru.flocator.feature_settings.ui.SettingsFragment">
+    tools:context="ru.flocator.feature_settings.api.ui.SettingsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/privacy_header"
