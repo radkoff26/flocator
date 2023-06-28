@@ -17,7 +17,8 @@ import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
 internal class MainFragmentViewModel @Inject constructor(
-    private val repository: MainRepository
+    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
+    private val mainRepository: MainRepository
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<List<User>>(emptyList())
     val friendsLiveData: LiveData<List<User>>
@@ -41,7 +42,7 @@ internal class MainFragmentViewModel @Inject constructor(
     private fun initialFetch() {
         val userId = userInfoLiveData.value!!.userId
         compositeDisposable.addAll(
-            repository.restApi.getAllFriendsOfUser(userId)
+            repository.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -51,7 +52,7 @@ internal class MainFragmentViewModel @Inject constructor(
                         Log.e(TAG, "Initialization: marks loading failed!", it)
                     }
                 ),
-            repository.restApi.getMarksForUser(userId)
+            repository.getMarksForUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -64,11 +65,11 @@ internal class MainFragmentViewModel @Inject constructor(
         )
     }
 
-    fun loadPhoto(uri: String) = repository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+    fun loadPhoto(uri: String) = mainRepository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
 
     private fun retrieveDataFromCache() {
         compositeDisposable.addAll(
-            repository.userInfoCache.getUserInfo()
+            mainRepository.userInfoCache.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -82,7 +83,7 @@ internal class MainFragmentViewModel @Inject constructor(
                         )
                     }
                 ),
-            repository.locationCache.getUserLocationData()
+            mainRepository.locationCache.getUserLocationData()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -101,7 +102,7 @@ internal class MainFragmentViewModel @Inject constructor(
                         )
                     }
                 ),
-            repository.cacheDatabase.retrieveFriendsFromCache()
+            mainRepository.cacheDatabase.retrieveFriendsFromCache()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -111,7 +112,7 @@ internal class MainFragmentViewModel @Inject constructor(
                         Log.e(TAG, "retrieveDataFromCache: error while loading friends cache!", it)
                     }
                 ),
-            repository.cacheDatabase.retrieveMarksFromCache()
+            mainRepository.cacheDatabase.retrieveMarksFromCache()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -127,7 +128,7 @@ internal class MainFragmentViewModel @Inject constructor(
     fun requestInitialLoading() {
         retrieveDataFromCache()
         compositeDisposable.add(
-            repository.restApi.getCurrentUserInfo()
+            repository.getCurrentUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_INITIAL_FETCHING.toLong()) { throwable ->
                     throwable is LostConnectionException
@@ -135,7 +136,7 @@ internal class MainFragmentViewModel @Inject constructor(
                 .subscribe(
                     {
                         _userInfoLiveData.value = it
-                        repository.userInfoCache.updateUserInfo(it)
+                        mainRepository.userInfoCache.updateUserInfo(it)
                         initialFetch()
                     },
                     {
@@ -151,7 +152,7 @@ internal class MainFragmentViewModel @Inject constructor(
 
     fun fetchUserInfo(emitter: PollingEmitter) {
         compositeDisposable.add(
-            repository.restApi.getCurrentUserInfo()
+            repository.getCurrentUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_USER_INFO_FETCHING.toLong()) {
                     it is LostConnectionException
@@ -178,7 +179,7 @@ internal class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.postUserLocation(
+            repository.postUserLocation(
                 _userInfoLiveData.value!!.userId,
                 _userLocationLiveData.value!!
             )
@@ -196,7 +197,7 @@ internal class MainFragmentViewModel @Inject constructor(
 
     fun updateUserLocation(location: LatLng) {
         _userLocationLiveData.value = location
-        repository.locationCache.updateUserLocationData(
+        mainRepository.locationCache.updateUserLocationData(
             ru.flocator.core_data_store.point.UserLocationPoint(
                 location.latitude,
                 location.longitude
@@ -215,7 +216,7 @@ internal class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.getAllFriendsOfUser(userInfoLiveData.value!!.userId)
+            repository.getAllFriendsOfUser(userInfoLiveData.value!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_FRIENDS_FETCHING.toLong()) {
@@ -240,7 +241,7 @@ internal class MainFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.getMarksForUser(userInfoLiveData.value!!.userId)
+            repository.getMarksForUser(userInfoLiveData.value!!.userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retry(TIMES_TO_RETRY_MARKS_FETCHING.toLong()) {
@@ -263,14 +264,14 @@ internal class MainFragmentViewModel @Inject constructor(
         if (userInfoLiveData.value == null) {
             return
         }
-        repository.restApi.goOffline(userInfoLiveData.value!!.userId).subscribe()
+        repository.goOffline(userInfoLiveData.value!!.userId).subscribe()
     }
 
     fun goOnlineAsUser() {
         if (userInfoLiveData.value == null) {
             return
         }
-        repository.restApi.goOnline(userInfoLiveData.value!!.userId).subscribe()
+        repository.goOnline(userInfoLiveData.value!!.userId).subscribe()
     }
 
     private fun updateFriends(users: List<User>) {

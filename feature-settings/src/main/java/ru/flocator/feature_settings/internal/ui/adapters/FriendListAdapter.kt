@@ -11,8 +11,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
-import ru.flocator.app.R
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.internal.domain.friend.Friend
 
 internal class FriendListAdapter(

@@ -12,9 +12,10 @@ import ru.flocator.core_api.api.MainRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentDeleteAccountBinding
 import ru.flocator.core_controller.NavController
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentDeleteAccountBinding
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
 
 internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
@@ -30,6 +31,9 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
 
     @Inject
     lateinit var mainRepository: MainRepository
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -66,7 +70,7 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
                 binding.deleteAccountMessage.visibility = View.VISIBLE
             } else {
                 compositeDisposable.add(
-                    mainRepository.restApi.deleteCurrentAccount(pass.toString())
+                    settingsRepository.deleteCurrentAccount(pass.toString())
                         .observeOn(Schedulers.io())
                         .subscribeOn(AndroidSchedulers.mainThread())
                         .doOnError {

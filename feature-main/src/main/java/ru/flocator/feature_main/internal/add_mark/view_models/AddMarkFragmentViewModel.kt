@@ -18,7 +18,8 @@ import ru.flocator.feature_main.internal.add_mark.domain.fragment.AddMarkFragmen
 import javax.inject.Inject
 
 internal class AddMarkFragmentViewModel @Inject constructor(
-    private val repository: MainRepository
+    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
+    private val mainRepository: MainRepository
 ) : ViewModel() {
     private val _carouselLiveData = MutableLiveData<List<CarouselItemState>>(emptyList())
     private val _fragmentStateLiveData: MutableLiveData<AddMarkFragmentState> = MutableLiveData(
@@ -45,14 +46,14 @@ internal class AddMarkFragmentViewModel @Inject constructor(
     }
 
     private fun getUserId(): Single<Long> {
-        return repository.userCredentialsCache.getUserCredentials()
+        return mainRepository.userCredentialsCache.getUserCredentials()
             .map(UserCredentials::userId)
             .observeOn(AndroidSchedulers.mainThread())
     }
 
     private fun obtainAddress() {
         compositeDisposable.add(
-            repository.restApi.getAddress(_userPoint)
+            repository.getAddress(_userPoint)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -129,7 +130,7 @@ internal class AddMarkFragmentViewModel @Inject constructor(
                 {
                     mark.authorId = it
                     compositeDisposable.add(
-                        repository.restApi.postMark(mark, parts)
+                        repository.postMark(mark, parts)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .doOnSubscribe {

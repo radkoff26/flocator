@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.flocator.core_api.api.MainRepository
-import ru.flocator.core_client.UserApi
+import ru.flocator.feature_community.internal.data_source.UserApi
 import ru.flocator.core_dto.user.FriendRequests
 import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_dto.user.TargetUser
@@ -14,14 +14,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.feature_community.repository.CommunityRepository
 import javax.inject.Inject
 
 typealias UserNewFriendActionListener = (persons: List<TargetUser>) -> Unit
 
-@HiltViewModel
+
 @Suppress("UNCHECKED_CAST")
 internal class ProfileFragmentViewModel @Inject constructor(
-    private val repository: MainRepository
+    private val mainRepository: MainRepository,
+    private val repository: CommunityRepository
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<MutableList<Friends>?>()
     private val _newFriendsLiveData = MutableLiveData<MutableList<FriendRequests>?>()
@@ -29,7 +31,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
     var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<TargetUser> = _currentUserLiveData
-    private val userId = repository.userCredentialsCache.getUserCredentials().blockingGet().userId
+    private val userId = mainRepository.userCredentialsCache.getUserCredentials().blockingGet().userId
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
@@ -46,7 +48,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
 
     fun fetchUser() {
         compositeDisposable.add(
-            userApi.getUser(userId)
+            repository.getUser(userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -67,7 +69,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
 
     fun cancelPerson(user: FriendRequests): Int {
         compositeDisposable.add(
-            repository.restApi.rejectNewFriend(userId, user.userId!!)
+            repository.rejectNewFriend(userId, user.userId!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -93,7 +95,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
 
     fun acceptPerson(user: FriendRequests): Int {
         compositeDisposable.add(
-            repository.restApi.acceptNewFriend(userId, user.userId!!)
+            repository.acceptNewFriend(userId, user.userId!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

@@ -15,6 +15,7 @@ import ru.flocator.feature_main.internal.marks_list.domain.dto.ListMarkDto
 import javax.inject.Inject
 
 internal class MarksListFragmentViewModel @Inject constructor(
+    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
     private val mainRepository: MainRepository
 ) : ViewModel() {
     private val _marksListLiveData: MutableLiveData<List<ListMarkDto>?> = MutableLiveData(null)
@@ -33,7 +34,7 @@ internal class MarksListFragmentViewModel @Inject constructor(
 
     fun requestUsernameLoading(userId: Long) {
         compositeDisposable.add(
-            mainRepository.restApi.getUsername(userId)
+            repository.getUsername(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(this::formatUsername)
                 .subscribe(

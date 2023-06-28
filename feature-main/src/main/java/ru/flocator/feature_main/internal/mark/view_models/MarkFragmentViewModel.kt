@@ -16,8 +16,8 @@ import ru.flocator.feature_main.internal.mark.domain.fragment.MarkFragmentState
 import javax.inject.Inject
 
 internal class MarkFragmentViewModel @Inject constructor(
-    private val repository: MainRepository,
-
+    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
+    private val mainRepository: MainRepository
     ) : ViewModel(), MainSection {
     private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
     private val _userNameLiveData =
@@ -59,7 +59,7 @@ internal class MarkFragmentViewModel @Inject constructor(
             return
         }
         compositeDisposable.add(
-            repository.restApi.getMark(markId!!, userId!!)
+            repository.getMark(markId!!, userId!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -82,7 +82,7 @@ internal class MarkFragmentViewModel @Inject constructor(
     private fun loadAuthorData() {
         _markLiveData.value!!
         compositeDisposable.add(
-            repository.restApi.getUser(_markLiveData.value!!.mark.authorId)
+            repository.getUser(_markLiveData.value!!.mark.authorId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -105,7 +105,7 @@ internal class MarkFragmentViewModel @Inject constructor(
         if (_markLiveData.value!!.mark.hasUserLiked) {
             unlikeMark()
             compositeDisposable.add(
-                repository.restApi.unlikeMark(markId!!, userId!!)
+                repository.unlikeMark(markId!!, userId!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -121,7 +121,7 @@ internal class MarkFragmentViewModel @Inject constructor(
         } else {
             likeMark()
             compositeDisposable.add(
-                repository.restApi.likeMark(markId!!, userId!!)
+                repository.likeMark(markId!!, userId!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(

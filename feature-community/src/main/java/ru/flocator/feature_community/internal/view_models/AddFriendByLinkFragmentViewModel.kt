@@ -7,16 +7,17 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_sections.CommunitySection
+import ru.flocator.feature_community.repository.CommunityRepository
 
 internal class AddFriendByLinkFragmentViewModel constructor(
-    private val repository: MainRepository,
+    private val repository: CommunityRepository,
 ) : ViewModel(), CommunitySection {
 
     private val compositeDisposable = CompositeDisposable()
 
     fun addFriendByLogin(userId: Long, login: String) {
         compositeDisposable.add(
-            repository.restApi.addFriendByLogin(userId, login)
+            repository.addFriendByLogin(userId, login)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

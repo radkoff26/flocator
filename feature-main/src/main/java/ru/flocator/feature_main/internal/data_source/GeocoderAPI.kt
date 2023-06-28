@@ -1,4 +1,4 @@
-package ru.flocator.core_client
+package ru.flocator.feature_main.internal.data_source
 
 import io.reactivex.Single
 import retrofit2.http.GET

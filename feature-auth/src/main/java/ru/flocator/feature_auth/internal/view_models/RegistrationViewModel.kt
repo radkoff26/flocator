@@ -2,15 +2,18 @@ package ru.flocator.feature_auth.internal.view_models
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_dto.auth.UserRegistrationDto
+import ru.flocator.feature_auth.internal.repository.AuthRepository
 import javax.inject.Inject
+
 
 @Suppress("UNCHECKED_CAST")
 internal class RegistrationViewModel @Inject constructor(
-    private val repository: MainRepository
+    private val repository: AuthRepository
     ) : ViewModel() {
     private val _nameData = MutableLiveData<Pair<String, String>?>() // Фамилия, Имя
     private val _loginEmailData = MutableLiveData<Pair<String, String>?>() // Login, Email
@@ -37,15 +40,15 @@ internal class RegistrationViewModel @Inject constructor(
     }
 
     fun registerUser(userRegistrationDto: UserRegistrationDto): Single<Boolean> {
-        return repository.restApi.registerUser(userRegistrationDto)
+        return repository.registerUser(userRegistrationDto)
     }
 
     fun isLoginAvailable(login: String): Single<Boolean>{
-        return repository.restApi.isLoginAvailable(login)
+        return repository.isLoginAvailable(login)
     }
 
     fun isEmailAvailable(email: String): Single<Boolean>{
-        return repository.restApi.isEmailAvailable(email)
+        return repository.isEmailAvailable(email)
     }
 
     companion object {

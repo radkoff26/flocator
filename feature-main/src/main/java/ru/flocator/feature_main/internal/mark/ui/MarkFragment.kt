@@ -41,7 +41,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     private var carouselAdapter: MarkPhotoCarouselAdapter? = null
 
     @Inject
-    lateinit var repository: MainRepository
+    lateinit var repository: ru.flocator.feature_main.internal.repository.MainRepository
 
     private val viewModel: MarkFragmentViewModel by viewModels()
 

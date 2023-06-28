@@ -15,6 +15,7 @@ import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
+import ru.flocator.feature_community.repository.CommunityRepository
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -29,7 +30,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var repository: MainRepository
+    lateinit var repository: CommunityRepository
 
     private lateinit var addFriendByLinkFragmentViewModel: AddFriendByLinkFragmentViewModel
     
@@ -61,7 +62,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         binding.addFriendConfirmButton.setOnClickListener {
             if(binding.userLoginText.text.toString().isNotEmpty()){
                 compositeDisposable.add(
-                    repository.restApi.checkLogin(binding.userLoginText.text.toString())
+                    repository.checkLogin(binding.userLoginText.text.toString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

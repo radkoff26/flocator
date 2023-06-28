@@ -11,9 +11,9 @@ import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_api.api.MainRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentExitAccountBinding
 import ru.flocator.core_controller.NavController
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentExitAccountBinding
 import javax.inject.Inject
 
 internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(

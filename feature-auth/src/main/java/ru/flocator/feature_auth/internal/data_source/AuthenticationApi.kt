@@ -1,11 +1,12 @@
-package ru.flocator.core_client
+package ru.flocator.feature_auth.internal.data_source
 
 import io.reactivex.Single
 import retrofit2.http.*
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_dto.auth.UserRegistrationDto
 
-interface AuthenticationApi {
+
+internal interface AuthenticationApi {
     @POST("user/register")
     fun registerUser(@Body userRegistrationDto: UserRegistrationDto): Single<Boolean>
 

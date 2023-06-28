@@ -14,11 +14,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentBlackListBinding
 import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
 import ru.flocator.feature_settings.internal.domain.friend.Friend
 import ru.flocator.feature_settings.internal.domain.friend.FriendListSerializer
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import ru.flocator.feature_settings.internal.utils.FriendViewUtils.getNumOfColumns
 import javax.inject.Inject
 
@@ -26,7 +27,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var settingsRepository: SettingsRepository
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(
@@ -57,7 +58,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
 
         if (savedInstanceState == null) {
             compositeDisposable.add(
-                mainRepository.restApi.getCurrentUserBlocked()
+                settingsRepository.getCurrentUserBlocked()
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -113,7 +114,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe { friend ->
                     if (friend.isChecked) {
-                        mainRepository.restApi.blockUser(friend.userId)
+                        settingsRepository.blockUser(friend.userId)
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
                             .doOnError {
@@ -125,7 +126,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
                             }
                             .subscribe()
                     } else {
-                        mainRepository.restApi.unblockUser(friend.userId)
+                        settingsRepository.unblockUser(friend.userId)
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
                             .doOnError {

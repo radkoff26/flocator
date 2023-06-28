@@ -16,6 +16,10 @@ import ru.flocator.core_client.*
 import ru.flocator.core_config.Constants
 import ru.flocator.core_dto.address.AddressDeserializer
 import ru.flocator.core_dto.address.AddressResponse
+import ru.flocator.feature_auth.internal.data_source.AuthenticationApi
+import ru.flocator.feature_main.internal.data_source.ClientAPI
+import ru.flocator.feature_main.internal.data_source.GeocoderAPI
+import ru.flocator.feature_settings.internal.data_source.SettingsAPI
 import javax.inject.Singleton
 
 @Module
@@ -81,8 +85,8 @@ class ApiModule {
     @Provides
     @Singleton
     @IntoMap
-    @DependencyKey(UserApi::class)
-    fun provideUserAPI(@BaseApi retrofit: Retrofit): UserApi = retrofit.create()
+    @DependencyKey(ru.flocator.feature_community.internal.data_source.UserApi::class)
+    fun provideUserAPI(@BaseApi retrofit: Retrofit): ru.flocator.feature_community.internal.data_source.UserApi = retrofit.create()
 
     @Provides
     @Singleton

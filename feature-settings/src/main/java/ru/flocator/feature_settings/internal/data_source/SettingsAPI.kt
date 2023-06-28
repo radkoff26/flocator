@@ -1,14 +1,15 @@
-package ru.flocator.core_client
+package ru.flocator.feature_settings.internal.data_source
 
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import retrofit2.http.*
+import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_dependency.Dependency
 import ru.flocator.core_dto.privacy.PrivacyData
 import java.sql.Timestamp
 
-interface SettingsAPI: Dependency {
+internal interface SettingsAPI: Dependency {
     @POST("user/birthdate")
     fun setBirthDate(
         @Query("userId") userId: Long,
@@ -68,4 +69,10 @@ interface SettingsAPI: Dependency {
         @Query("userId") userId: Long,
         @Query("password") password: String
     ): Completable
+
+    @GET("friendship/located")
+    fun getUserFriendsLocated(@Query("userId") userId: Long): Single<List<ru.flocator.core_database.entities.User>>
+
+    @GET("user/{userId}")
+    fun getUser(@Path("userId") userId: Long): Single<UserInfo>
 }

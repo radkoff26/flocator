@@ -11,11 +11,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentBlackListBinding
 import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
 import ru.flocator.feature_settings.internal.domain.friend.Friend
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import ru.flocator.feature_settings.internal.ui.adapters.FriendListAdapter
 import ru.flocator.feature_settings.internal.utils.FriendViewUtils.getNumOfColumns
 import javax.inject.Inject
@@ -29,6 +30,9 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
 
     @Inject
     lateinit var mainRepository: MainRepository
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     private val compositeDisposable = CompositeDisposable()
     override fun onCreateView(
@@ -75,7 +79,7 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
                 }
                 .subscribe { friends ->
                     compositeDisposable.add(
-                        mainRepository.restApi.getCurrentUserPrivacy()
+                        settingsRepository.getCurrentUserPrivacy()
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
                             .doOnError {
@@ -119,7 +123,7 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
                         newStatus = "FIXED"
                     }
                     compositeDisposable.add(
-                        mainRepository.restApi.changePrivacy(it.userId, newStatus)
+                        settingsRepository.changePrivacy(it.userId, newStatus)
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
                             .doOnError {

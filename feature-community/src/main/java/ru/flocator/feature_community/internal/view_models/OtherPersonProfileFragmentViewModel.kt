@@ -4,18 +4,18 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.core_api.api.MainRepository
-import ru.flocator.core_client.UserApi
+import ru.flocator.feature_community.internal.data_source.UserApi
 import ru.flocator.core_dto.user.UserExternal
 import ru.flocator.core_dto.user.UserExternalFriends
 import ru.flocator.feature_community.api.ui.ProfileFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.feature_community.repository.CommunityRepository
 import javax.inject.Inject
 
 internal class OtherPersonProfileFragmentViewModel constructor(
-    private val repository: MainRepository,
+    private val repository: CommunityRepository,
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<MutableList<UserExternalFriends>?>()
     var friendsLiveData: MutableLiveData<MutableList<UserExternalFriends>?> = _friendsLiveData
@@ -43,7 +43,7 @@ internal class OtherPersonProfileFragmentViewModel constructor(
 
     fun addOtherUserToFriend(userId: Long, friendId: Long){
         compositeDisposable.add(
-            repository.restApi.addNewFriendByBtn(userId, friendId)
+            repository.addNewFriendByBtn(userId, friendId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -59,7 +59,7 @@ internal class OtherPersonProfileFragmentViewModel constructor(
 
     fun deleteMyFriend(userId: Long, friendId: Long){
         compositeDisposable.add(
-            repository.restApi.deleteFriendByBtn(userId, friendId)
+            repository.deleteFriendByBtn(userId, friendId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -76,7 +76,7 @@ internal class OtherPersonProfileFragmentViewModel constructor(
 
     fun acceptFriend(userId: Long, friendId: Long) {
         compositeDisposable.add(
-            repository.restApi.acceptNewFriend(userId, friendId)
+            repository.acceptNewFriend(userId, friendId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -92,7 +92,7 @@ internal class OtherPersonProfileFragmentViewModel constructor(
 
     fun block(blockerId: Long, blockedId: Long){
         compositeDisposable.add(
-            repository.restApi.blockUserByBtn(blockerId, blockedId)
+            repository.blockUserByBtn(blockerId, blockedId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -108,7 +108,7 @@ internal class OtherPersonProfileFragmentViewModel constructor(
 
     fun unblock(blockerId: Long, blockedId: Long){
         compositeDisposable.add(
-            repository.restApi.unblockUserByBtn(blockerId, blockedId)
+            repository.unblockUserByBtn(blockerId, blockedId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -124,7 +124,7 @@ internal class OtherPersonProfileFragmentViewModel constructor(
 
     fun cancelFriendRequest(userId: Long, friendId: Long){
         compositeDisposable.add(
-            repository.restApi.rejectNewFriend(userId, friendId)
+            repository.rejectNewFriend(userId, friendId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

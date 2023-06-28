@@ -18,9 +18,10 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentSettingsBinding
 import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import ru.flocator.feature_settings.internal.ui.ChangePasswordFragment
 import ru.flocator.feature_settings.internal.ui.DeleteAccountFragment
 import ru.flocator.feature_settings.internal.ui.ExitAccountFragment
@@ -39,6 +40,9 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
 
     @Inject
     lateinit var mainRepository: MainRepository
+
+    @Inject
+    internal lateinit var settingsRepository: SettingsRepository
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,7 +55,7 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
                         io.reactivex.Completable.create { emitter ->
                             val stream = context?.contentResolver?.openInputStream(result)!!
                             compositeDisposable.add(
-                                mainRepository.restApi.changeCurrentUserAva(
+                                settingsRepository.changeCurrentUserAva(
                                     MultipartBody.Part.createFormData(
                                         "photo",
                                         result.toString(),
@@ -162,7 +166,7 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
         )
 
         compositeDisposable.add(
-            mainRepository.restApi.getCurrentUserBlocked()
+            settingsRepository.getCurrentUserBlocked()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -201,7 +205,7 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
                     val stamp = Calendar.getInstance()
                     stamp.set(resYear, resMonth, resDay)
                     compositeDisposable.add(
-                        mainRepository.restApi.changeCurrentUserBirthdate(
+                        settingsRepository.changeCurrentUserBirthdate(
                             Timestamp(stamp.timeInMillis)
                         )
                             .subscribeOn(Schedulers.io())
@@ -226,7 +230,7 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
                     secondName += word
                 }
                 compositeDisposable.add(
-                    mainRepository.restApi.changeCurrentUserName(firstName, secondName)
+                    settingsRepository.changeCurrentUserName(firstName, secondName)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({}, { Log.e("Change name", "error", it) })

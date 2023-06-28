@@ -1,4 +1,4 @@
-package ru.flocator.core_client
+package ru.flocator.feature_community.internal.data_source
 
 
 import io.reactivex.Completable
@@ -9,9 +9,7 @@ import ru.flocator.core_dependency.Dependency
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_dto.user.UserExternal
 
-interface UserApi: Dependency {
-    @GET("user/{userId}")
-    fun getUserSolo(@Path("userId") userId: Long): Single<User>
+internal interface UserApi : Dependency {
 
     @GET("user/target/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<TargetUser>

@@ -23,6 +23,7 @@ import ru.flocator.feature_community.internal.adapters.ExternalFriendActionListe
 import ru.flocator.feature_community.internal.adapters.ExternalFriendAdapter
 import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_community.internal.view_models.OtherPersonProfileFragmentViewModel
+import ru.flocator.feature_community.repository.CommunityRepository
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -32,7 +33,7 @@ internal class OtherPersonProfileFragment : Fragment() {
         get() = _binding!!
 
     @Inject
-    lateinit var repository: MainRepository
+    lateinit var repository: CommunityRepository
 
     @Inject
     lateinit var controller: NavController

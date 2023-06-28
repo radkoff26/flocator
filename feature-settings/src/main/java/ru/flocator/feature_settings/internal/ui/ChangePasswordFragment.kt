@@ -11,12 +11,13 @@ import androidx.core.widget.NestedScrollView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.R
-import ru.flocator.app.databinding.FragmentChangePasswordBinding
 import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentChangePasswordBinding
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
 
 internal class ChangePasswordFragment :
@@ -27,6 +28,9 @@ internal class ChangePasswordFragment :
     SettingsSection {
     @Inject
     lateinit var mainRepository: MainRepository
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     @Inject
     lateinit var controller: NavController
@@ -82,7 +86,7 @@ internal class ChangePasswordFragment :
                 return@setOnClickListener
             }
             compositeDisposable.add(
-                mainRepository.restApi.changeCurrentUserPass(
+                settingsRepository.changeCurrentUserPass(
                     old,
                     new
                 )
