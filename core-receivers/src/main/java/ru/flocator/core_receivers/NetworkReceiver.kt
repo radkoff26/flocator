@@ -10,11 +10,11 @@ import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_config.Actions
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_connection.live_data.MutableConnectionLiveData
-import ru.flocator.core_dependency.Dependency
+import ru.flocator.core_dependency.Dependencies
 import java.net.InetSocketAddress
 import java.net.Socket
 
-class NetworkReceiver : BroadcastReceiver(), Dependency {
+class NetworkReceiver : BroadcastReceiver(), Dependencies {
     private val _networkState = MutableConnectionLiveData()
     val networkState: ConnectionLiveData = _networkState
 

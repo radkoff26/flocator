@@ -3,20 +3,19 @@ package ru.flocator.app.application
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
-import ru.flocator.app.di.*
+import ru.flocator.app.di.modules.app.ReceiverModule
+import ru.flocator.app.di.modules.external.MainDepsModule
+import ru.flocator.feature_main.api.dependencies.MainDeps
+import javax.inject.Singleton
 
 @Component(
     modules = [
-        ApiModule::class,
-        CacheModule::class,
-        ConnectionModule::class,
-        DatabaseModule::class,
         ReceiverModule::class,
-        RepositoryModule::class,
-        SharedStorageModule::class
+        MainDepsModule::class
     ]
 )
-interface AppComponent {
+@Singleton
+interface AppComponent : MainDeps {
 
     @Component.Factory
     interface Factory {

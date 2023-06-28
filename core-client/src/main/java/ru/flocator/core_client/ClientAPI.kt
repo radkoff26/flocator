@@ -6,9 +6,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
 import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_dependency.Dependency
+import ru.flocator.core_dependency.Dependencies
 
-interface ClientAPI: Dependency {
+interface ClientAPI: Dependencies {
     @GET("friendship/located")
     fun getUserFriendsLocated(@Query("userId") userId: Long): Single<List<ru.flocator.core_database.entities.User>>
 

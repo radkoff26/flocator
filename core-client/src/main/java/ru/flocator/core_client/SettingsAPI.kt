@@ -4,11 +4,11 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import retrofit2.http.*
-import ru.flocator.core_dependency.Dependency
+import ru.flocator.core_dependency.Dependencies
 import ru.flocator.core_dto.privacy.PrivacyData
 import java.sql.Timestamp
 
-interface SettingsAPI: Dependency {
+interface SettingsAPI: Dependencies {
     @POST("user/birthdate")
     fun setBirthDate(
         @Query("userId") userId: Long,

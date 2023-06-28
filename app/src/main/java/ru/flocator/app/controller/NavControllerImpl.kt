@@ -15,8 +15,9 @@ import ru.flocator.core_sections.MainSection
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_main.api.ui.MainFragment
+import javax.inject.Inject
 
-class NavControllerImpl(private val activity: FragmentActivity) : NavController {
+class NavControllerImpl @Inject constructor(private val activity: FragmentActivity) : NavController {
     private val fragmentManager: FragmentManager = activity.supportFragmentManager
 
     override fun toAuth(): TransactionCommitter =

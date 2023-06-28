@@ -1,5 +1,6 @@
 package ru.flocator.feature_main.api.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_dto.location.LatLngDto
 import ru.flocator.core_dto.mark.MarkDto
 import ru.flocator.core_map.ui.FLocatorMapFragment
@@ -66,6 +68,13 @@ class MainFragment : Fragment(), MainSection {
     private val isInitializedCamera = AtomicBoolean(false)
 
     private lateinit var mapFragment: FLocatorMapFragment
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        DaggerMainFragmentComponent.factory()
+            .create(findDependencies())
+            .inject(this)
+    }
 
     // Fragment lifecycle methods
     override fun onCreate(savedInstanceState: Bundle?) {
