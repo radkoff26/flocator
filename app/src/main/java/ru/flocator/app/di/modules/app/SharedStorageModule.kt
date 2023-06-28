@@ -1,4 +1,4 @@
-package ru.flocator.app.di
+package ru.flocator.app.di.modules.app
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -8,8 +8,6 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import dagger.Module
 import dagger.Provides
-import dagger.multibindings.IntoMap
-import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.core_data_store.point.UserLocationPoint
 import ru.flocator.core_data_store.point.UserLocationPointSerializer
 import ru.flocator.core_data_store.store.DataStorage
@@ -20,13 +18,10 @@ import ru.flocator.core_data_store.user.info.UserInfoSerializer
 import javax.inject.Singleton
 
 @Module
-@Singleton
 class SharedStorageModule {
 
     @Provides
     @Singleton
-    @IntoMap
-    @DependencyKey(EncryptedSharedPreferences::class)
     fun provideEncryptedSharedPreferences(context: Context): EncryptedSharedPreferences {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -66,8 +61,6 @@ class SharedStorageModule {
 
     @Provides
     @Singleton
-    @IntoMap
-    @DependencyKey(DataStorage::class)
     fun provideDataStorage(
         userLocationDataStore: DataStore<UserLocationPoint>,
         userCredentialsDataStore: DataStore<UserCredentials>,

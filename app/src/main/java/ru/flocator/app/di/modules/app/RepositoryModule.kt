@@ -1,10 +1,8 @@
-package ru.flocator.app.di
+package ru.flocator.app.di.modules.app
 
 import androidx.datastore.core.DataStore
 import dagger.Module
 import dagger.Provides
-import dagger.multibindings.IntoMap
-import ru.flocator.app.di.annotations.DependencyKey
 import ru.flocator.cache.global.PhotoCacheManager
 import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_client.*
@@ -20,13 +18,10 @@ import ru.flocator.feature_settings.internal.data_source.SettingsAPI
 import javax.inject.Singleton
 
 @Module
-@Singleton
 class RepositoryModule {
 
     @Provides
     @Singleton
-    @IntoMap
-    @DependencyKey(MainRepository::class)
     fun provideMainRepository(
         clientAPI: ClientAPI,
         geocoderAPI: GeocoderAPI,

@@ -37,7 +37,6 @@ android {
 dependencies {
     // Project modules
     implementation project(":core-api")
-    implementation project(":core-client")
     implementation project(":core-config")
     implementation project(":core-controller")
     implementation project(":core-data-store")

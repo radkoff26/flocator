@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import ru.flocator.core_dependency.Dependency
+import ru.flocator.core_dependency.Dependencies
 
-open class ConnectionLiveData : LiveData<Boolean>(), Dependency {
+open class ConnectionLiveData : LiveData<Boolean>(), Dependencies {
     init {
         value = false
     }

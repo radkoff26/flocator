@@ -35,7 +35,6 @@ dependencies {
     // Project Modules
     implementation project(":core-cache")
     implementation project(":core-connection")
-    implementation project(":core-client")
     implementation project(":core-data-store")
     implementation project(":core-database")
     implementation project(":core-dto")

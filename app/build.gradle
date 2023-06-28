@@ -43,7 +43,6 @@ dependencies {
     // Project modules
     implementation project(":core-api")
     implementation project(":core-cache")
-    implementation project(":core-client")
     implementation project(":core-config")
     implementation project(":core-connection")
     implementation project(":core-controller")

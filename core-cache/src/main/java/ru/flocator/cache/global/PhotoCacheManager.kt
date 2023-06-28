@@ -3,12 +3,12 @@ package ru.flocator.cache.global
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import ru.flocator.core_dependency.Dependency
+import ru.flocator.core_dependency.Dependencies
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 
-class PhotoCacheManager constructor(context: Context): Dependency {
+class PhotoCacheManager constructor(context: Context): Dependencies {
     private val directory = File(context.externalCacheDir!!.absolutePath + "/media").apply {
         if (!exists()) {
             this.mkdir()

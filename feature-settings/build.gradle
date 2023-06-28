@@ -61,6 +61,7 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
     implementation project(path: ':core-database')
     implementation project(path: ':core-connection')
+    implementation 'androidx.constraintlayout:constraintlayout-solver:2.0.4'
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 

@@ -16,14 +16,11 @@ class App : Application(), DependenciesContainer {
     @Inject
     override lateinit var dependenciesMap: DependenciesMap
 
+    @Inject
     lateinit var networkReceiver: NetworkReceiver
 
-    lateinit var appComponent: AppComponent
-
     override fun onCreate() {
-        appComponent = DaggerAppComponent.factory().create()
-        appComponent.inject(this)
-        networkReceiver = dependenciesMap[NetworkReceiver::class.java] as NetworkReceiver
+        DaggerAppComponent.factory().create().inject(this)
         super.onCreate()
         RxJavaPlugins.setErrorHandler {
             if (it is UndeliverableException) {

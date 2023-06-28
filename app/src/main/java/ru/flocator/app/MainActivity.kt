@@ -9,8 +9,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_api.api.MainRepository
-import ru.flocator.core_dependency.DependenciesContainer
-import ru.flocator.core_dependency.DependenciesMap
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_main.api.ui.MainFragment
@@ -18,11 +16,8 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), DependenciesContainer {
+class MainActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
-
-    @Inject
-    override lateinit var dependenciesMap: DependenciesMap
 
     @Inject
     lateinit var repository: MainRepository

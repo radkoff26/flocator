@@ -1,14 +1,15 @@
 package ru.flocator.feature_main.internal.data_source
 
+import androidx.constraintlayout.solver.widgets.analyzer.Dependency
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
 import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_dependency.Dependency
 
 internal interface ClientAPI: Dependency {
+
     @GET("friendship/located")
     fun getUserFriendsLocated(@Query("userId") userId: Long): Single<List<ru.flocator.core_database.entities.User>>
 
