@@ -162,10 +162,6 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
         binding.registrationErrorMessageText.text = text
     }
 
-    private fun hideErrorMessage() {
-        binding.registrationErrorMessageText.visibility = View.GONE
-    }
-
     private fun validateEmail(email: String): Boolean {
         val emailRegex = Regex(pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
         return emailRegex.matches(input = email)

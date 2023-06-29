@@ -11,7 +11,7 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_connection.ConnectionWrapper
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.point.UserLocationPoint
@@ -30,7 +30,7 @@ internal class MainRepository constructor(
     private val clientAPI: ClientAPI,
     private val geocoderAPI: GeocoderAPI,
     private val connectionLiveData: ConnectionLiveData,
-    private val mainRepository: MainRepository
+    private val appRepository: AppRepository
 ) {
 
 
@@ -49,7 +49,7 @@ internal class MainRepository constructor(
                         {
                             emitter.onSuccess(it)
                             compositeDisposable.add(
-                                mainRepository.cacheDatabase.updateFriends(it)
+                                appRepository.cacheDatabase.updateFriends(it)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
                                     .doOnError { throwable ->
@@ -95,8 +95,8 @@ internal class MainRepository constructor(
                             val photos = marks.map(MarkWithPhotos::photos).flatten()
                             compositeDisposable.add(
                                 Completable.concatArray(
-                                    mainRepository.cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
-                                    mainRepository.cacheDatabase.updateMarkPhotos(photos)
+                                    appRepository.cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
+                                    appRepository.cacheDatabase.updateMarkPhotos(photos)
                                 )
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
@@ -159,7 +159,7 @@ internal class MainRepository constructor(
             )
                 .subscribeOn(Schedulers.io())
                 .doOnComplete {
-                    mainRepository.locationCache.updateUserLocationData(
+                    appRepository.locationCache.updateUserLocationData(
                         UserLocationPoint(
                             location.latitude,
                             location.longitude
@@ -171,7 +171,7 @@ internal class MainRepository constructor(
     }
 
     fun getCurrentUserInfo(): Single<UserInfo> {
-        return mainRepository.userCredentialsCache.getUserCredentials()
+        return appRepository.userCredentialsCache.getUserCredentials()
             .flatMap {
                 getUser(it.userId)
                     .subscribeOn(Schedulers.io())
@@ -194,7 +194,7 @@ internal class MainRepository constructor(
     }
 
     fun getFriendsOfCurrentUser(): Single<List<User>> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             getAllFriendsOfUser(it.userId)
                 .observeOn(Schedulers.io())
         }

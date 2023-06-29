@@ -2,10 +2,8 @@ package ru.flocator.feature_auth.internal.view_models
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.feature_auth.internal.repository.AuthRepository
 import javax.inject.Inject
@@ -49,9 +47,5 @@ internal class RegistrationViewModel @Inject constructor(
 
     fun isEmailAvailable(email: String): Single<Boolean>{
         return repository.isEmailAvailable(email)
-    }
-
-    companion object {
-        const val TAG = "RegisterFragment"
     }
 }

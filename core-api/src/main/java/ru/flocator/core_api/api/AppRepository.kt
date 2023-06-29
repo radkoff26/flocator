@@ -1,25 +1,15 @@
 package ru.flocator.core_api.api
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import androidx.datastore.core.DataStore
-import com.google.android.gms.maps.model.LatLng
-import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import ru.flocator.cache.global.PhotoCacheManager
-import ru.flocator.core_client.*
-import ru.flocator.core_connection.ConnectionWrapper
-import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.point.UserLocationPoint
 import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_data_store.user.info.UserInfo
@@ -28,22 +18,16 @@ import ru.flocator.core_database.entities.Mark
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
-import ru.flocator.core_dto.address.AddressResponse
-import ru.flocator.core_dto.location.UserLocationDto
-import ru.flocator.core_dto.mark.AddMarkDto
-import ru.flocator.core_dto.mark.MarkDto
-import ru.flocator.core_dto.user_name.UsernameDto
 import ru.flocator.core_utils.LoadUtils
 
 private typealias LoadingImage = Pair<String, Int>
 
-class MainRepository constructor(
+class AppRepository constructor(
     private val applicationDatabase: ApplicationDatabase,
     private val userLocationDataStore: DataStore<UserLocationPoint>,
     private val userCredentialsStore: DataStore<UserCredentials>,
     private val userInfoStore: DataStore<UserInfo>,
-    private val photoCacheManager: PhotoCacheManager,
-    val connectionLiveData: ConnectionLiveData
+    private val photoCacheManager: PhotoCacheManager
 ) {
     val cacheDatabase = CacheDatabase()
     val userCredentialsCache = UserCredentialsCache()

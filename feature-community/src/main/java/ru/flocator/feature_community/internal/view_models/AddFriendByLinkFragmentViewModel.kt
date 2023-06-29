@@ -2,7 +2,6 @@ package ru.flocator.feature_community.internal.view_models
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import ru.flocator.core_api.api.MainRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

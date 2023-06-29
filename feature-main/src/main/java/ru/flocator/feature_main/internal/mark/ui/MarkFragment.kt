@@ -16,7 +16,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import ru.flocator.cache.runtime.PhotoState
-import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment

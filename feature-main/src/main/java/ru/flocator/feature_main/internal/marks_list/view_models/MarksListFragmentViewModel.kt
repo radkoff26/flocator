@@ -9,14 +9,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.cache.runtime.PhotoCacheLiveData
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.feature_main.internal.main.domain.photo.Photo
 import ru.flocator.feature_main.internal.marks_list.domain.dto.ListMarkDto
 import javax.inject.Inject
 
 internal class MarksListFragmentViewModel @Inject constructor(
     private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
-    private val mainRepository: MainRepository
+    private val appRepository: AppRepository
 ) : ViewModel() {
     private val _marksListLiveData: MutableLiveData<List<ListMarkDto>?> = MutableLiveData(null)
     private val _photoToMarkRelation: MutableMap<String, Long> = HashMap()
@@ -74,7 +74,7 @@ internal class MarksListFragmentViewModel @Inject constructor(
     }
 
     fun getUserId(): Single<Long> {
-        return mainRepository.userInfoCache.getUserInfo()
+        return appRepository.userInfoCache.getUserInfo()
             .observeOn(AndroidSchedulers.mainThread())
             .map(ru.flocator.core_data_store.user.info.UserInfo::userId)
     }

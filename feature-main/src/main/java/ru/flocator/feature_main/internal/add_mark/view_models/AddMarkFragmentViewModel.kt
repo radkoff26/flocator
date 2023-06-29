@@ -10,7 +10,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_dto.mark.AddMarkDto
 import ru.flocator.feature_main.internal.add_mark.domain.carousel.CarouselItemState
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 internal class AddMarkFragmentViewModel @Inject constructor(
     private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
-    private val mainRepository: MainRepository
+    private val appRepository: AppRepository
 ) : ViewModel() {
     private val _carouselLiveData = MutableLiveData<List<CarouselItemState>>(emptyList())
     private val _fragmentStateLiveData: MutableLiveData<AddMarkFragmentState> = MutableLiveData(
@@ -46,7 +46,7 @@ internal class AddMarkFragmentViewModel @Inject constructor(
     }
 
     private fun getUserId(): Single<Long> {
-        return mainRepository.userCredentialsCache.getUserCredentials()
+        return appRepository.userCredentialsCache.getUserCredentials()
             .map(UserCredentials::userId)
             .observeOn(AndroidSchedulers.mainThread())
     }

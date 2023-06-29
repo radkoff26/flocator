@@ -6,7 +6,7 @@ import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.MultipartBody
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_connection.ConnectionWrapper
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.user.info.UserInfo
@@ -17,7 +17,7 @@ import java.util.stream.Collectors
 
 internal class SettingsRepository constructor(
     private val settingsAPI: SettingsAPI,
-    private val mainRepository: MainRepository,
+    private val appRepository: AppRepository,
     private val connectionLiveData: ConnectionLiveData
 ) {
 
@@ -36,7 +36,7 @@ internal class SettingsRepository constructor(
                         {
                             emitter.onSuccess(it)
                             compositeDisposable.add(
-                                mainRepository.cacheDatabase.updateFriends(it)
+                                appRepository.cacheDatabase.updateFriends(it)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
                                     .doOnError { throwable ->
@@ -65,7 +65,7 @@ internal class SettingsRepository constructor(
     }
 
     fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.changeAvatar(
                 it.userId,
                 ava
@@ -76,7 +76,7 @@ internal class SettingsRepository constructor(
     }
 
     fun changeCurrentUserBirthdate(date: Timestamp): Single<Boolean> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.setBirthDate(
                 it.userId,
                 date
@@ -87,7 +87,7 @@ internal class SettingsRepository constructor(
     }
 
     fun changeCurrentUserName(firstName: String, lastName: String): Single<Boolean> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.changeName(
                 it.userId,
                 firstName,
@@ -99,7 +99,7 @@ internal class SettingsRepository constructor(
     }
 
     fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.changePassword(
                 it.userId,
                 prevPass,
@@ -111,7 +111,7 @@ internal class SettingsRepository constructor(
     }
 
     fun getCurrentUserBlocked(): Single<List<UserInfo>> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.getBlocked(
                 it.userId
             )
@@ -121,7 +121,7 @@ internal class SettingsRepository constructor(
     }
 
     fun blockUser(userId: Long): Completable {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
             settingsAPI.blockUser(
                 it.userId,
                 userId
@@ -132,7 +132,7 @@ internal class SettingsRepository constructor(
     }
 
     fun unblockUser(userId: Long): Completable {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
             settingsAPI.unblockUser(
                 it.userId,
                 userId
@@ -143,7 +143,7 @@ internal class SettingsRepository constructor(
     }
 
     fun getCurrentUserPrivacy(): Single<Map<Long, String>> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.getPrivacyData(it.userId)
         }. map { privacyData ->
             privacyData.parallelStream().collect(
@@ -161,7 +161,7 @@ internal class SettingsRepository constructor(
 
 
     fun changePrivacy(friendId: Long, status: String): Completable {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
             settingsAPI.changePrivacyData(it.userId, friendId, status)
                 .observeOn(Schedulers.io())
         }
@@ -169,7 +169,7 @@ internal class SettingsRepository constructor(
     }
 
     fun deleteCurrentAccount(pass: String): Completable {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
             settingsAPI.deleteAccount(it.userId, pass)
                 .observeOn(Schedulers.io())
         }
@@ -177,7 +177,7 @@ internal class SettingsRepository constructor(
     }
 
     fun getFriendsOfCurrentUser(): Single<List<User>> {
-        return mainRepository.userCredentialsCache.getUserCredentials().flatMap {
+        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             getAllFriendsOfUser(it.userId)
                 .observeOn(Schedulers.io())
         }
@@ -185,7 +185,7 @@ internal class SettingsRepository constructor(
     }
 
     fun getCurrentUserInfo(): Single<UserInfo> {
-        return mainRepository.userCredentialsCache.getUserCredentials()
+        return appRepository.userCredentialsCache.getUserCredentials()
             .flatMap {
                 getUser(it.userId)
                     .subscribeOn(Schedulers.io())

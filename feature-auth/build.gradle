@@ -44,7 +44,6 @@ dependencies {
     implementation project(":core-dto")
     implementation project(":core-sections")
     implementation project(":core-utils")
-    implementation project(":core-database")
 
     // Android Fragment
     implementation "androidx.fragment:fragment-ktx:$android_core_ktx_version"

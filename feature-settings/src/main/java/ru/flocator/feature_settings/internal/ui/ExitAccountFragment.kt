@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.core_controller.NavController
@@ -30,7 +30,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var controller: NavController
 
     @Inject
-    lateinit var repository: MainRepository
+    lateinit var repository: AppRepository
 
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator

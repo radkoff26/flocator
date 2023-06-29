@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
@@ -29,7 +29,7 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
     private lateinit var friendListAdapter: FriendListAdapter
 
     @Inject
-    lateinit var mainRepository: MainRepository
+    lateinit var appRepository: AppRepository
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
@@ -71,7 +71,7 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
         }
 
         compositeDisposable.add(
-            mainRepository.restApi.getFriendsOfCurrentUser()
+            appRepository.restApi.getFriendsOfCurrentUser()
                 .observeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .doOnError {

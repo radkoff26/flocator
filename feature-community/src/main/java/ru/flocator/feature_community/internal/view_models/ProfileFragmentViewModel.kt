@@ -4,13 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.flocator.core_api.api.MainRepository
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.feature_community.internal.data_source.UserApi
 import ru.flocator.core_dto.user.FriendRequests
 import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.feature_community.api.ui.ProfileFragment
-import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -22,7 +21,7 @@ typealias UserNewFriendActionListener = (persons: List<TargetUser>) -> Unit
 
 @Suppress("UNCHECKED_CAST")
 internal class ProfileFragmentViewModel @Inject constructor(
-    private val mainRepository: MainRepository,
+    private val appRepository: AppRepository,
     private val repository: CommunityRepository
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<MutableList<Friends>?>()
@@ -31,7 +30,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
     var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<TargetUser> = _currentUserLiveData
-    private val userId = mainRepository.userCredentialsCache.getUserCredentials().blockingGet().userId
+    private val userId = appRepository.userCredentialsCache.getUserCredentials().blockingGet().userId
     private val compositeDisposable = CompositeDisposable()
 
     @Inject

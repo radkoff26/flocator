@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.databinding.FragmentPersonProfileBinding
-import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.user.UserExternal

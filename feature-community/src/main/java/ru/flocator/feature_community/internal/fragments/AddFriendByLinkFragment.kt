@@ -11,7 +11,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.databinding.FragmentAddFriendBinding
-import ru.flocator.core_api.api.MainRepository
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel

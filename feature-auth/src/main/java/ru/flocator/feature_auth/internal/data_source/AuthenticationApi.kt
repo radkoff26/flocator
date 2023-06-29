@@ -13,9 +13,6 @@ internal interface AuthenticationApi {
     @POST("user/login")
     fun loginUser(@Body userCredentialsDto: UserCredentialsDto): Single<Long>
 
-    @GET("user/{userId}")
-    fun getUserById(@Path("userId") userId: Long): Single<ru.flocator.core_database.entities.User>
-
     @GET("user/is_login_available")
     fun isLoginAvailable(@Query("login") login: String): Single<Boolean>
 

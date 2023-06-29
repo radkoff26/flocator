@@ -4,8 +4,7 @@ import androidx.datastore.core.DataStore
 import dagger.Module
 import dagger.Provides
 import ru.flocator.cache.global.PhotoCacheManager
-import ru.flocator.core_api.api.MainRepository
-import ru.flocator.core_client.*
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.point.UserLocationPoint
 import ru.flocator.core_data_store.user.data.UserCredentials
@@ -34,8 +33,8 @@ class RepositoryModule {
         photoCacheManager: PhotoCacheManager,
         settingsAPI: SettingsAPI,
         connectionLiveData: ConnectionLiveData
-    ): MainRepository {
-        return MainRepository(
+    ): AppRepository {
+        return AppRepository(
             clientAPI,
             geocoderAPI,
             userApi,

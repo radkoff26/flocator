@@ -11,13 +11,14 @@ import ru.flocator.feature_auth.databinding.FragmentAuthBinding
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import androidx.fragment.app.activityViewModels
 import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.core_api.api.MainRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_utils.LocationUtils
+import ru.flocator.feature_auth.internal.repository.AuthRepository
 import ru.flocator.feature_auth.internal.ui.RegFirstFragment
 import javax.inject.Inject
 
@@ -30,10 +31,13 @@ class AuthFragment : Fragment(), AuthenticationSection {
     private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     @Inject
-    lateinit var repository: MainRepository
+    internal lateinit var authRepository: AuthRepository
 
     @Inject
-    lateinit var controller: NavController
+    internal lateinit var appRepository: AppRepository
+
+    @Inject
+    internal lateinit var controller: NavController
 
     companion object {
         private const val TAG = "Auth fragment"
@@ -68,11 +72,11 @@ class AuthFragment : Fragment(), AuthenticationSection {
     private fun login(login: String, password: String) {
         val userCredentials = UserCredentialsDto(login = login, password = password)
         compositeDisposable.add(
-            repository.restApi.loginUser(userCredentials)
+            authRepository.loginUser(userCredentials)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
-                    repository.userCredentialsCache.updateUserCredentials(
+                    appRepository.userCredentialsCache.updateUserCredentials(
                         UserCredentials(
                             userId!!,
                             login,
