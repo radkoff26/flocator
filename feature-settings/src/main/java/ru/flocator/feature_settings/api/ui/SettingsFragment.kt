@@ -43,6 +43,7 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
 
     @Inject
     internal lateinit var settingsRepository: SettingsRepository
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -111,7 +112,7 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
                         })
                 )
                 compositeDisposable.add(
-                    appRepository.restApi.getCurrentUserInfo()
+                    settingsRepository.getCurrentUserInfo()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
