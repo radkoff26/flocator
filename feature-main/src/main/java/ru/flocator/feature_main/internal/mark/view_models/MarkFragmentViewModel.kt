@@ -8,17 +8,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.cache.runtime.PhotoCacheLiveData
-import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_dto.user_name.UsernameDto
 import ru.flocator.core_sections.MainSection
 import ru.flocator.feature_main.internal.mark.domain.fragment.MarkFragmentState
+import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
 internal class MarkFragmentViewModel @Inject constructor(
-    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
-    private val appRepository: AppRepository
-    ) : ViewModel(), MainSection {
+    private val repository: MainRepository
+) : ViewModel(), MainSection {
     private val _markLiveData = MutableLiveData<MarkWithPhotos?>(null)
     private val _userNameLiveData =
         MutableLiveData<UsernameDto?>(null)

@@ -13,11 +13,12 @@ import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_exceptions.LostConnectionException
 import ru.flocator.core_polling.PollingEmitter
+import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
 internal class MainFragmentViewModel @Inject constructor(
-    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
+    private val repository: MainRepository,
     private val appRepository: AppRepository
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<List<User>>(emptyList())

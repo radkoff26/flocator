@@ -15,10 +15,11 @@ import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_dto.mark.AddMarkDto
 import ru.flocator.feature_main.internal.add_mark.domain.carousel.CarouselItemState
 import ru.flocator.feature_main.internal.add_mark.domain.fragment.AddMarkFragmentState
+import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
 internal class AddMarkFragmentViewModel @Inject constructor(
-    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
+    private val repository: MainRepository,
     private val appRepository: AppRepository
 ) : ViewModel() {
     private val _carouselLiveData = MutableLiveData<List<CarouselItemState>>(emptyList())

@@ -1,8 +1,8 @@
 package ru.flocator.feature_main.internal.add_mark.di
 
 import dagger.Component
-import ru.flocator.app.main.internal.add_mark.ui.AddMarkFragment
 import ru.flocator.core_api.api.AppRepository
+import ru.flocator.feature_main.internal.add_mark.ui.AddMarkFragment
 
 @Component(dependencies = [AppRepository::class])
 internal interface AddMarkFragmentComponent {

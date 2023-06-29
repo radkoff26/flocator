@@ -12,10 +12,11 @@ import ru.flocator.cache.runtime.PhotoCacheLiveData
 import ru.flocator.core_api.api.AppRepository
 import ru.flocator.feature_main.internal.main.domain.photo.Photo
 import ru.flocator.feature_main.internal.marks_list.domain.dto.ListMarkDto
+import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
 internal class MarksListFragmentViewModel @Inject constructor(
-    private val repository: ru.flocator.feature_main.internal.repository.MainRepository,
+    private val repository: MainRepository,
     private val appRepository: AppRepository
 ) : ViewModel() {
     private val _marksListLiveData: MutableLiveData<List<ListMarkDto>?> = MutableLiveData(null)

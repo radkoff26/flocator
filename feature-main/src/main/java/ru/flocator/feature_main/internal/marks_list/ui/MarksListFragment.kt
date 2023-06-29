@@ -100,7 +100,7 @@ internal class MarksListFragment :
             MarksListContractions.MARKS
         ) as ArrayList<MarkDto>
         binding.marksCount.text =
-            resources.getString(ru.flocator.app.R.string.marks_count, marks.size)
+            resources.getString(R.string.marks_count, marks.size)
         // If data has been already loaded into view model,
         // then it's very likely that its data will be more complete
         val listMarkDtoList = if (viewModel.marksListLiveData.value == null) {
