@@ -14,7 +14,7 @@ import ru.flocator.app.databinding.FragmentAddFriendBinding
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
-import ru.flocator.feature_community.repository.CommunityRepository
+import ru.flocator.feature_community.internal.repository.CommunityRepository
 import javax.inject.Inject
 import kotlin.properties.Delegates
 

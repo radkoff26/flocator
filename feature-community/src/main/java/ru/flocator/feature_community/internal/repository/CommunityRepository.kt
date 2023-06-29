@@ -1,4 +1,4 @@
-package ru.flocator.feature_community.repository
+package ru.flocator.feature_community.internal.repository
 
 import io.reactivex.Completable
 import io.reactivex.Single

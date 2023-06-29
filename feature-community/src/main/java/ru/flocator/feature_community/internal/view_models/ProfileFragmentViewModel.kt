@@ -13,11 +13,10 @@ import ru.flocator.feature_community.api.ui.ProfileFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.feature_community.repository.CommunityRepository
+import ru.flocator.feature_community.internal.repository.CommunityRepository
 import javax.inject.Inject
 
-typealias UserNewFriendActionListener = (persons: List<TargetUser>) -> Unit
-
+internal typealias UserNewFriendActionListener = (persons: List<TargetUser>) -> Unit
 
 @Suppress("UNCHECKED_CAST")
 internal class ProfileFragmentViewModel @Inject constructor(

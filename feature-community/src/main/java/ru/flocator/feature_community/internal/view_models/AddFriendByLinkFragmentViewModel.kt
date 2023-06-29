@@ -6,7 +6,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_sections.CommunitySection
-import ru.flocator.feature_community.repository.CommunityRepository
+import ru.flocator.feature_community.internal.repository.CommunityRepository
 
 internal class AddFriendByLinkFragmentViewModel constructor(
     private val repository: CommunityRepository,
