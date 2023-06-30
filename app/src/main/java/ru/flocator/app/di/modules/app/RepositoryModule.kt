@@ -22,7 +22,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideMainRepository(
+    fun provideAppRepository(
         applicationDatabase: ApplicationDatabase,
         userLocationDataStore: DataStore<UserLocationPoint>,
         userCredentialsStore: DataStore<UserCredentials>,

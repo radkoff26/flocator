@@ -32,6 +32,10 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
     override lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        DaggerMainActivityComponent.builder()
+            .context(applicationContext)
+            .build()
+            .inject(this)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

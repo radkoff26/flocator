@@ -1,5 +1,6 @@
 package ru.flocator.feature_main.internal.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,13 +9,15 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_dto.location.LatLngDto
 import ru.flocator.core_dto.mark.MarkDto
@@ -25,9 +28,11 @@ import ru.flocator.feature_main.databinding.FragmentMarksListBinding
 import ru.flocator.feature_main.internal.adapters.marks_list.MarksListRecyclerViewAdapter
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
+import ru.flocator.feature_main.internal.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.domain.dto.ListMarkDto
 import ru.flocator.feature_main.internal.domain.photo.Photo
 import ru.flocator.feature_main.internal.view_models.MarksListFragmentViewModel
+import javax.inject.Inject
 
 internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
     WIDTH_RATION_PORTRAIT,
@@ -39,7 +44,9 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val viewModel: MarksListFragmentViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var marksListFragmentViewModel: MarksListFragmentViewModel
 
     private lateinit var adapter: MarksListRecyclerViewAdapter
 
@@ -48,6 +55,17 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
     override fun getBottomSheetScrollView(): NestedScrollView = binding.bottomSheet
 
     override fun getInnerLayout(): ViewGroup = binding.container
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerMainComponent.builder()
+            .mainDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+
+        marksListFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MarksListFragmentViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +82,7 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.marksListLiveData.observe(viewLifecycleOwner, this::onMarksUpdate)
+        marksListFragmentViewModel.marksListLiveData.observe(viewLifecycleOwner, this::onMarksUpdate)
     }
 
     override fun onDestroyView() {
@@ -106,7 +124,7 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
             resources.getString(R.string.marks_count, marks.size)
         // If data has been already loaded into view model,
         // then it's very likely that its data will be more complete
-        val listMarkDtoList = if (viewModel.marksListLiveData.value == null) {
+        val listMarkDtoList = if (marksListFragmentViewModel.marksListLiveData.value == null) {
             marks.map {
                 val markWithPhotos = it.toMarkWithPhotos()
                 val thumbnail = markWithPhotos.photos[0]
@@ -127,18 +145,18 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
                     markWithPhotos.photos.size
                 )
             }.also {
-                viewModel.submitMarks(it)
+                marksListFragmentViewModel.submitMarks(it)
             }
         } else {
-            viewModel.marksListLiveData.value!!
+            marksListFragmentViewModel.marksListLiveData.value!!
         }
         adapter = MarksListRecyclerViewAdapter(
             listMarkDtoList,
-            viewModel::requestPhotoLoading,
-            viewModel::requestUsernameLoading
+            marksListFragmentViewModel::requestPhotoLoading,
+            marksListFragmentViewModel::requestUsernameLoading
         ) { markId ->
             compositeDisposable.add(
-                viewModel.getUserId()
+                marksListFragmentViewModel.getUserId()
                     .subscribe(
                         { userId ->
                             val markFragment = MarkFragment().apply {

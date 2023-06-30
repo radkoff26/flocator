@@ -4,6 +4,7 @@ import dagger.Component
 import ru.flocator.core_controller.NavController
 import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_auth.api.ui.AuthFragment
+import ru.flocator.feature_auth.api.ui.LocationRequestFragment
 import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
 import ru.flocator.feature_auth.internal.ui.RegFirstFragment
 import ru.flocator.feature_auth.internal.ui.RegSecondFragment
@@ -27,6 +28,7 @@ internal interface AuthComponent {
     }
 
     fun inject(authFragment: AuthFragment)
+    fun inject(locationRequestFragment: LocationRequestFragment)
     fun inject(regFirstFragment: RegFirstFragment)
     fun inject(regSecondFragment: RegSecondFragment)
     fun inject(regThirdFragment: RegThirdFragment)

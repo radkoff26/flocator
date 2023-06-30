@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -14,10 +14,12 @@ import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_dto.location.LatLngDto
 import ru.flocator.core_dto.mark.MarkDto
 import ru.flocator.core_map.ui.FLocatorMapFragment
@@ -28,6 +30,7 @@ import ru.flocator.feature_main.databinding.FragmentMainBinding
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
+import ru.flocator.feature_main.internal.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.ui.AddMarkFragment
 import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.ui.MarksListFragment
@@ -42,7 +45,9 @@ class MainFragment : Fragment(), MainSection {
         get() = _binding!!
 
     // ViewModel
-    private val viewModel: MainFragmentViewModel by viewModels()
+    @Inject
+    internal lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var mainFragmentViewModel: MainFragmentViewModel
 
     // Connection
     @Inject
@@ -70,6 +75,13 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
+        DaggerMainComponent.builder()
+            .mainDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+
+        mainFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MainFragmentViewModel::class.java]
     }
 
     // Fragment lifecycle methods
@@ -88,10 +100,10 @@ class MainFragment : Fragment(), MainSection {
             childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMapFragment
 
         mapFragment.initialize(
-            viewModel::loadPhoto,
+            mainFragmentViewModel::loadPhoto,
             null,
             { id ->
-                if (viewModel.userInfoLiveData.value != null) {
+                if (mainFragmentViewModel.userInfoLiveData.value != null) {
                     val markFragment = MarkFragment().apply {
                         arguments = Bundle().apply {
                             putLong(
@@ -100,7 +112,7 @@ class MainFragment : Fragment(), MainSection {
                             )
                             putLong(
                                 MarkContractions.USER_ID,
-                                viewModel.userInfoLiveData.value!!.userId
+                                mainFragmentViewModel.userInfoLiveData.value!!.userId
                             )
                         }
                     }
@@ -111,7 +123,7 @@ class MainFragment : Fragment(), MainSection {
                 }
             },
             { marks ->
-                if (viewModel.userLocationLiveData.value != null) {
+                if (mainFragmentViewModel.userLocationLiveData.value != null) {
                     val marksListFragment = MarksListFragment().apply {
                         arguments = Bundle().apply {
                             val markDtoList = ArrayList(
@@ -138,7 +150,7 @@ class MainFragment : Fragment(), MainSection {
                                 MarksListContractions.MARKS,
                                 markDtoList
                             )
-                            val userPoint = viewModel.userLocationLiveData.value!!
+                            val userPoint = mainFragmentViewModel.userLocationLiveData.value!!
                             putSerializable(
                                 MarksListContractions.USER_POINT,
                                 LatLngDto(
@@ -159,12 +171,12 @@ class MainFragment : Fragment(), MainSection {
         locateMapToUser()
 
         binding.openAddMarkFragment.setOnClickListener {
-            if (viewModel.userLocationLiveData.value == null) {
+            if (mainFragmentViewModel.userLocationLiveData.value == null) {
                 Snackbar.make(it, "Получение геолокации...", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val point = viewModel.userLocationLiveData.value!!
+            val point = mainFragmentViewModel.userLocationLiveData.value!!
 
             val args = Bundle()
 
@@ -192,8 +204,8 @@ class MainFragment : Fragment(), MainSection {
         }
 
         binding.targetBtn.setOnClickListener {
-            if (viewModel.userInfoLiveData.value != null) {
-                val userId = viewModel.userInfoLiveData.value!!.userId
+            if (mainFragmentViewModel.userInfoLiveData.value != null) {
+                val userId = mainFragmentViewModel.userInfoLiveData.value!!.userId
                 mapFragment.followUser(userId)
             }
         }
@@ -204,19 +216,19 @@ class MainFragment : Fragment(), MainSection {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.userLocationLiveData.observe(
+        mainFragmentViewModel.userLocationLiveData.observe(
             viewLifecycleOwner,
             this::onUserLocationChanged
         )
-        viewModel.friendsLiveData.observe(
+        mainFragmentViewModel.friendsLiveData.observe(
             viewLifecycleOwner,
             this::onFriendsStateChanged
         )
-        viewModel.marksLiveData.observe(
+        mainFragmentViewModel.marksLiveData.observe(
             viewLifecycleOwner,
             this::onMarksStateChanged
         )
-        viewModel.userInfoLiveData.observe(
+        mainFragmentViewModel.userInfoLiveData.observe(
             viewLifecycleOwner,
             this::onUserInfoChanged
         )
@@ -225,7 +237,7 @@ class MainFragment : Fragment(), MainSection {
             this::onConnectionChanged
         )
 
-        viewModel.requestInitialLoading()
+        mainFragmentViewModel.requestInitialLoading()
 
         userLocationTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
@@ -233,13 +245,13 @@ class MainFragment : Fragment(), MainSection {
             { emitter ->
                 LocationUtils.getCurrentLocation(requireContext(), fusedLocationProviderClient) {
                     if (it != null) {
-                        viewModel.updateUserLocation(
+                        mainFragmentViewModel.updateUserLocation(
                             LatLng(
                                 it.latitude,
                                 it.longitude
                             )
                         )
-                        viewModel.postLocation()
+                        mainFragmentViewModel.postLocation()
                     }
                     emitter.emit()
                 }
@@ -249,24 +261,24 @@ class MainFragment : Fragment(), MainSection {
         userInfoTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
             TIMEOUT_TO_FETCH_USER_INFO,
-            viewModel::fetchUserInfo
+            mainFragmentViewModel::fetchUserInfo
         )
 
         friendsFetchingTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
             TIMEOUT_TO_FETCH_FRIENDS,
-            viewModel::fetchFriends
+            mainFragmentViewModel::fetchFriends
         )
 
         marksFetchingTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
             TIMEOUT_TO_FETCH_MARKS,
-            viewModel::fetchMarks
+            mainFragmentViewModel::fetchMarks
         )
     }
 
     private fun locateMapToUser() {
-        val userLocation = viewModel.userLocationLiveData.value
+        val userLocation = mainFragmentViewModel.userLocationLiveData.value
 
         if (userLocation != null) {
             mapFragment.moveCameraTo(userLocation)
@@ -282,7 +294,7 @@ class MainFragment : Fragment(), MainSection {
                 resources.getString(ru.flocator.feature_main.R.string.return_to_connection),
                 Snackbar.LENGTH_LONG
             ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
-            viewModel.goOnlineAsUser()
+            mainFragmentViewModel.goOnlineAsUser()
         } else {
             // No connection
             Snackbar.make(
@@ -295,12 +307,12 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onStart() {
         super.onStart()
-        viewModel.goOnlineAsUser()
+        mainFragmentViewModel.goOnlineAsUser()
     }
 
     override fun onPause() {
         super.onPause()
-        viewModel.goOfflineAsUser()
+        mainFragmentViewModel.goOfflineAsUser()
     }
 
     override fun onDestroyView() {
@@ -311,7 +323,7 @@ class MainFragment : Fragment(), MainSection {
 
     // Observer callbacks
     private fun onUserLocationChanged(latLng: LatLng?) {
-        if (latLng == null || viewModel.userInfoLiveData.value == null) {
+        if (latLng == null || mainFragmentViewModel.userInfoLiveData.value == null) {
             return
         }
         if (!isInitializedCamera.get()) {
@@ -322,7 +334,7 @@ class MainFragment : Fragment(), MainSection {
     }
 
     private fun onUserInfoChanged(value: UserInfo?) {
-        if (viewModel.userLocationLiveData.value == null || value == null) {
+        if (mainFragmentViewModel.userLocationLiveData.value == null || value == null) {
             return
         }
         mapFragment.submitUser(value)

@@ -1,17 +1,38 @@
 package ru.flocator.feature_auth.internal.di
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.multibindings.IntoMap
 import retrofit2.create
+import ru.flocator.core_view_model.ViewModelFactory
+import ru.flocator.core_view_model.ViewModelsMap
+import ru.flocator.core_view_model.annotations.ViewModelKey
 import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_auth.internal.data_source.AuthAPI
 import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
+import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 
 @Module
-internal object AuthModule {
+internal abstract class AuthModule {
 
-    @Provides
+    companion object {
+        @Provides
+        @FragmentScope
+        fun provideAuthAPI(dependencies: AuthDependencies): AuthAPI =
+            dependencies.retrofit.create()
+
+        @Provides
+        @FragmentScope
+        fun provideViewModelFactory(map: ViewModelsMap): ViewModelProvider.Factory =
+            ViewModelFactory(map)
+    }
+
+    @Binds
     @FragmentScope
-    fun provideAuthAPI(dependencies: AuthDependencies): AuthAPI =
-        dependencies.retrofit.create()
+    @IntoMap
+    @ViewModelKey(RegistrationViewModel::class)
+    abstract fun bindRegistrationViewModel(impl: RegistrationViewModel): ViewModel
 }

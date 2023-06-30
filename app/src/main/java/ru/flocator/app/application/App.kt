@@ -20,6 +20,9 @@ class App : Application(), DependenciesContainer {
     lateinit var networkReceiver: NetworkReceiver
 
     override fun onCreate() {
+        DaggerAppComponent.factory()
+            .create(this)
+            .inject(this)
         super.onCreate()
         RxJavaPlugins.setErrorHandler {
             if (it is UndeliverableException) {

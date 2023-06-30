@@ -1,5 +1,6 @@
 package ru.flocator.feature_community.internal.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -35,7 +37,8 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
     lateinit var controller: NavController
 
     @Inject
-    lateinit var otherPersonProfileFragmentViewModel: OtherPersonProfileFragmentViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModel: OtherPersonProfileFragmentViewModel
 
     private lateinit var adapterForFriends: ExternalFriendAdapter
 
@@ -52,6 +55,14 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
         const val CURRENT_USER_ID = "currentUserId"
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        viewModel = ViewModelProvider(
+            this,
+            viewModelFactory
+        )[OtherPersonProfileFragmentViewModel::class.java]
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +72,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
         val args: Bundle? = arguments
         if (args != null) {
             currentUserId = args.getLong(Constants.CURRENT_USER_ID)
-            otherPersonProfileFragmentViewModel.fetchUser(
+            viewModel.fetchUser(
                 currentUserId,
                 args.getLong(Constants.USER_ID)
             )
@@ -74,7 +85,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 openPersonProfile(user)
             }
         })
-        otherPersonProfileFragmentViewModel.friendsLiveData.observe(viewLifecycleOwner) {
+        viewModel.friendsLiveData.observe(viewLifecycleOwner) {
             if (it != null) {
                 adapterForFriends.data = it
             }
@@ -82,7 +93,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
         binding.friendsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.friendsRecyclerView.adapter = adapterForFriends
 
-        otherPersonProfileFragmentViewModel.currentUserLiveData.observe(
+        viewModel.currentUserLiveData.observe(
             viewLifecycleOwner
         ) { user ->
             currentUser = user
@@ -94,7 +105,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 binding.addPersonToFriend.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.deleteMyFriend(
+                    viewModel.deleteMyFriend(
                         currentUserId,
                         thisUserId
                     )
@@ -107,7 +118,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.addPersonToFriend.text = "Принять заявку"
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 binding.addPersonToFriend.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.acceptFriend(currentUserId, thisUserId)
+                    viewModel.acceptFriend(currentUserId, thisUserId)
                     binding.addPersonToFriend.text = "Удалить из друзей"
                     binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                     binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
@@ -117,7 +128,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.addPersonToFriend.text = "Отменить заявку"
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 binding.addPersonToFriend.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.cancelFriendRequest(
+                    viewModel.cancelFriendRequest(
                         thisUserId,
                         currentUserId
                     )
@@ -130,7 +141,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.addPersonToFriend.text = "Добавить в друзья"
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
                 binding.addPersonToFriend.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.addOtherUserToFriend(
+                    viewModel.addOtherUserToFriend(
                         currentUserId,
                         thisUserId
                     )
@@ -158,7 +169,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.friends.setTextColor(resources.getColor(R.color.font))
                 binding.blockPerson.text = "Разблокировать"
                 binding.blockPerson.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.unblock(currentUserId, thisUserId)
+                    viewModel.unblock(currentUserId, thisUserId)
                     showInfo()
                     binding.friends.text = "Друзья"
                     binding.friends.setTextColor(resources.getColor(R.color.dark))
@@ -168,11 +179,11 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
 
             if (!user.isBlockedByUser!! && !user.hasBlockedUser!!) {
                 binding.blockPerson.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.deleteMyFriend(
+                    viewModel.deleteMyFriend(
                         currentUserId,
                         thisUserId
                     )
-                    otherPersonProfileFragmentViewModel.block(currentUserId, thisUserId)
+                    viewModel.block(currentUserId, thisUserId)
                     collapseInfo()
                     binding.friends.text = "Вы заблокировали пользователя"
                     binding.friends.setTextColor(resources.getColor(R.color.font))
@@ -186,7 +197,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.friends.setTextColor(resources.getColor(R.color.font))
                 binding.blockPerson.text = "Заблокировать"
                 binding.blockPerson.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.block(currentUserId, thisUserId)
+                    viewModel.block(currentUserId, thisUserId)
                     binding.friends.text = "Вы заблокировали пользователя"
                     binding.friends.setTextColor(resources.getColor(R.color.font))
                     binding.blockPerson.text = "Разблокировать"
@@ -200,7 +211,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                 binding.friends.setTextColor(resources.getColor(R.color.font))
                 binding.blockPerson.text = "Разблокировать"
                 binding.blockPerson.setOnClickListener {
-                    otherPersonProfileFragmentViewModel.unblock(currentUserId, thisUserId)
+                    viewModel.unblock(currentUserId, thisUserId)
                     binding.friends.text = "Пользователь вас заблокировал"
                     binding.friends.setTextColor(resources.getColor(R.color.font))
                     binding.blockPerson.text = "Заблокировать"
@@ -257,7 +268,10 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
             val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
             profilePersonFragment.arguments = args
             val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(ru.flocator.feature_community.R.id.person_profile, profilePersonFragment)
+            transaction.replace(
+                ru.flocator.feature_community.R.id.person_profile,
+                profilePersonFragment
+            )
             transaction.addToBackStack(null)
             transaction.commit()
         }

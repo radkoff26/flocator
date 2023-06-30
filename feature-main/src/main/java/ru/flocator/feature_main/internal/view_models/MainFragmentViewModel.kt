@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_api.api.AppRepository
+import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_exceptions.LostConnectionException
@@ -29,9 +30,9 @@ internal class MainFragmentViewModel @Inject constructor(
     val userLocationLiveData: LiveData<LatLng?>
         get() = _userLocationLiveData
 
-    private val _userInfoLiveData: MutableLiveData<ru.flocator.core_data_store.user.info.UserInfo?> =
+    private val _userInfoLiveData: MutableLiveData<UserInfo?> =
         MutableLiveData(null)
-    val userInfoLiveData: LiveData<ru.flocator.core_data_store.user.info.UserInfo?>
+    val userInfoLiveData: LiveData<UserInfo?>
         get() = _userInfoLiveData
 
     private val _marksLiveData: MutableLiveData<List<MarkWithPhotos>> = MutableLiveData(emptyList())

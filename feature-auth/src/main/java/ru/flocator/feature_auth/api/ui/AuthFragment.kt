@@ -13,12 +13,15 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.data.UserCredentials
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.core_utils.LocationUtils
 import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_auth.databinding.FragmentAuthBinding
+import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.repository.AuthRepository
 import ru.flocator.feature_auth.internal.ui.RegFirstFragment
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
@@ -42,7 +45,12 @@ class AuthFragment : Fragment(), AuthenticationSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
+        DaggerAuthComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
     }
 
     override fun onCreateView(

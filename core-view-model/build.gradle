@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'ru.flocator.core_photo_pager'
+    namespace 'ru.flocator.core_view_model'
     compileSdk 33
 
     defaultConfig {
@@ -28,26 +28,12 @@ android {
     kotlinOptions {
         jvmTarget = '11'
     }
-    buildFeatures {
-        viewBinding true
-    }
 }
 
 dependencies {
-    // Project modules
-    implementation project(":core-cache")
-    implementation project(":core-design")
-    implementation project(":core-utils")
-
-    // Android Fragment
-    implementation "androidx.fragment:fragment-ktx:${project.android_core_ktx_version}"
-
     // App Compat
-    implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
-    // Material
-    implementation "com.google.android.material:material:$material_version"
-
-    // Rx
-    implementation "io.reactivex.rxjava2:rxjava:${project.rxjava_version}"
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
 }

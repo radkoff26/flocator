@@ -1,5 +1,6 @@
 package ru.flocator.feature_settings.internal.ui
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -13,11 +14,14 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentChangePasswordBinding
+import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
 
@@ -51,6 +55,17 @@ internal class ChangePasswordFragment : ResponsiveBottomSheetDialogFragment(
 
     override fun getInnerLayout(): ViewGroup {
         return binding.content
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerSettingsComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
     }
 
     override fun onCreateView(

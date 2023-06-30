@@ -2,6 +2,7 @@ package ru.flocator.feature_main.internal.ui
 
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,10 +15,13 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_dto.mark.AddMarkDto
 import ru.flocator.core_sections.MainSection
@@ -25,6 +29,7 @@ import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentAddMarkBinding
 import ru.flocator.feature_main.internal.adapters.add_mark.EditablePhotoRecyclerViewAdapter
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
+import ru.flocator.feature_main.internal.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.domain.carousel.CarouselEditableItemState
 import ru.flocator.feature_main.internal.domain.fragment.AddMarkFragmentState
 import ru.flocator.feature_main.internal.view_models.AddMarkFragmentViewModel
@@ -39,10 +44,22 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         get() = _binding!!
 
     @Inject
-    internal lateinit var viewModel: AddMarkFragmentViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var addMarkFragmentViewModel: AddMarkFragmentViewModel
 
     private lateinit var carouselAdapter: EditablePhotoRecyclerViewAdapter
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerMainComponent.builder()
+            .mainDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+
+        addMarkFragmentViewModel = ViewModelProvider(this, viewModelFactory)[AddMarkFragmentViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,7 +72,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
 
         photoAddLauncher =
             registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { result ->
-                viewModel.updatePhotosLiveData(result)
+                addMarkFragmentViewModel.updatePhotosLiveData(result)
             }
 
         return view
@@ -79,7 +96,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         }
 
         binding.removePhotoBtn.setOnClickListener {
-            viewModel.removeItems()
+            addMarkFragmentViewModel.removeItems()
         }
 
         binding.saveMarkBtn.setOnClickListener {
@@ -93,7 +110,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
                 return@setOnClickListener
             }
             try {
-                viewModel.saveMark(
+                addMarkFragmentViewModel.saveMark(
                     prepareAndGetMark(),
                     photos
                 )
@@ -110,7 +127,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             dismiss()
         }
 
-        viewModel.addressLiveData.observe(viewLifecycleOwner, this::onAddressUpdated)
+        addMarkFragmentViewModel.addressLiveData.observe(viewLifecycleOwner, this::onAddressUpdated)
 
         adjustRecyclerView()
 
@@ -134,7 +151,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         val longitude =
             requireArguments().getDouble(AddMarkContractions.LONGITUDE)
 
-        viewModel.updateUserPoint(
+        addMarkFragmentViewModel.updateUserPoint(
             LatLng(
                 latitude,
                 longitude
@@ -149,7 +166,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun adjustRecyclerView() {
         // Assign adapter to RecyclerView
         carouselAdapter =
-            EditablePhotoRecyclerViewAdapter { uri, b -> viewModel.toggleItem(uri, b) }
+            EditablePhotoRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b) }
         binding.photoCarousel.adapter = carouselAdapter
 
         // Add spaces between items of RecyclerView
@@ -163,11 +180,11 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         binding.photoCarousel.addItemDecoration(itemDecoration)
 
         // Set observers to LiveData
-        viewModel.carouselLiveData.observe(
+        addMarkFragmentViewModel.carouselLiveData.observe(
             this,
             this::onCarouselStateChangedCallback
         )
-        viewModel.fragmentStateLiveData.observe(
+        addMarkFragmentViewModel.fragmentStateLiveData.observe(
             this,
             this::onFragmentStateChangedCallback
         )
@@ -184,7 +201,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             if (binding.removePhotoBtn.visibility == GONE) {
                 animateRemovePhotoButtonIn()
             }
-            if (viewModel.isAnyTaken()) {
+            if (addMarkFragmentViewModel.isAnyTaken()) {
                 enableRemovePhotoButton()
             } else {
                 disableRemovePhotoButton()
@@ -224,15 +241,15 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun prepareAndGetMark(): AddMarkDto {
-        if (viewModel.addressLiveData.value == null) {
+        if (addMarkFragmentViewModel.addressLiveData.value == null) {
             throw IllegalStateException()
         }
         return AddMarkDto(
             0,
-            viewModel.userPoint,
+            addMarkFragmentViewModel.userPoint,
             binding.markText.text.toString(),
             binding.isPublicCheckBox.isChecked,
-            viewModel.addressLiveData.value!!
+            addMarkFragmentViewModel.addressLiveData.value!!
         )
     }
 

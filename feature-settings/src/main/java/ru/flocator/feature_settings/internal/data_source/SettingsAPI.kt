@@ -1,6 +1,5 @@
 package ru.flocator.feature_settings.internal.data_source
 
-import androidx.constraintlayout.solver.widgets.analyzer.Dependency
 import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
@@ -9,7 +8,7 @@ import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_dto.privacy.PrivacyData
 import java.sql.Timestamp
 
-internal interface SettingsAPI: Dependency {
+internal interface SettingsAPI {
     @POST("user/birthdate")
     fun setBirthDate(
         @Query("userId") userId: Long,

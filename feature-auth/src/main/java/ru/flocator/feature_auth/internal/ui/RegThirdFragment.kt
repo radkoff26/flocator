@@ -1,5 +1,6 @@
 package ru.flocator.feature_auth.internal.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -13,11 +14,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
+import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
@@ -40,6 +44,16 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
         private const val REGISTER = "Зарегистрироваться"
         private const val TAG = "Third registration fragment"
         private const val ERROR_MESSAGE = "Ошибка регистрации пользователя"
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        DaggerAuthComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
     }
 
     override fun onCreateView(

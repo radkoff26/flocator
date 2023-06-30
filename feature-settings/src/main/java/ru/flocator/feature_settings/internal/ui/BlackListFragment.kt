@@ -1,5 +1,6 @@
 package ru.flocator.feature_settings.internal.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,9 +14,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
+import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.domain.friend.Friend
 import ru.flocator.feature_settings.internal.domain.friend.FriendListSerializer
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
@@ -30,6 +34,17 @@ internal class BlackListFragment : Fragment(), SettingsSection {
     lateinit var settingsRepository: SettingsRepository
 
     private val compositeDisposable = CompositeDisposable()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerSettingsComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +68,6 @@ internal class BlackListFragment : Fragment(), SettingsSection {
         }
 
         binding.blacklistRecyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
-
 
         friendListAdapter = FriendListAdapter()
 

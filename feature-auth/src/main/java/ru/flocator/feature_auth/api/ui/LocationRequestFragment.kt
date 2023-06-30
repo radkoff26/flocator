@@ -17,8 +17,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.feature_auth.databinding.FragmentLocationRequestBinding
+import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import javax.inject.Inject
 
 class LocationRequestFragment : Fragment(), AuthenticationSection {
@@ -28,8 +31,17 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
 
-    @Inject
-    internal lateinit var controller: NavController
+    private lateinit var controller: NavController
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        DaggerAuthComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

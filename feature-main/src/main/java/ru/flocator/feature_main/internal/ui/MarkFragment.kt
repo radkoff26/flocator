@@ -1,6 +1,7 @@
 package ru.flocator.feature_main.internal.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.LruCache
 import android.view.LayoutInflater
@@ -12,12 +13,14 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import ru.flocator.cache.runtime.PhotoState
+import ru.flocator.core_controller.findNavController
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_photo_pager.api.domain.contractions.PhotoPagerContractions
 import ru.flocator.core_photo_pager.api.ui.PhotoPagerFragment
@@ -26,8 +29,10 @@ import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarkBinding
 import ru.flocator.feature_main.internal.adapters.mark.MarkPhotoRecyclerViewAdapter
 import ru.flocator.feature_main.internal.contractions.MarkContractions
+import ru.flocator.feature_main.internal.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.domain.fragment.MarkFragmentState
 import ru.flocator.feature_main.internal.view_models.MarkFragmentViewModel
+import javax.inject.Inject
 
 internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
@@ -39,7 +44,20 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
 
     private var carouselAdapter: MarkPhotoRecyclerViewAdapter? = null
 
-    private val viewModel: MarkFragmentViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var markFragmentViewModel: MarkFragmentViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerMainComponent.builder()
+            .mainDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+
+        markFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MarkFragmentViewModel::class.java]
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +72,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         val userId =
             requireArguments().getLong(MarkContractions.USER_ID)
 
-        viewModel.initialize(markId, userId)
+        markFragmentViewModel.initialize(markId, userId)
 
         return view
     }
@@ -69,7 +87,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         super.onViewCreated(view, savedInstanceState)
 
         binding.likeBtn.setOnClickListener {
-            viewModel.toggleLike()
+            markFragmentViewModel.toggleLike()
         }
 
         binding.closeFragmentBtn.setOnClickListener {
@@ -77,13 +95,13 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         }
 
         binding.retryFragmentButton.setOnRetryCallback {
-            viewModel.loadData()
+            markFragmentViewModel.loadData()
         }
 
-        viewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
-        viewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
-        viewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onPhotosUpdated)
-        viewModel.markFragmentStateLiveData.observe(
+        markFragmentViewModel.userNameLiveData.observe(viewLifecycleOwner, this::onUpdateUserData)
+        markFragmentViewModel.markLiveData.observe(viewLifecycleOwner, this::onUpdateMarkData)
+        markFragmentViewModel.photosStateLiveData.observe(viewLifecycleOwner, this::onPhotosUpdated)
+        markFragmentViewModel.markFragmentStateLiveData.observe(
             viewLifecycleOwner,
             this::onUpdateFragmentState
         )
@@ -107,7 +125,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         )
         bundle.putStringArrayList(
             PhotoPagerContractions.URI_LIST,
-            ArrayList(viewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
+            ArrayList(markFragmentViewModel.markLiveData.value!!.photos.map(MarkPhoto::uri))
         )
         photoPagerFragment.arguments = bundle
         photoPagerFragment.show(requireActivity().supportFragmentManager, TAG)
@@ -146,7 +164,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun loadPhoto(uri: String) {
-        viewModel.loadPhotoByUri(uri)
+        markFragmentViewModel.loadPhotoByUri(uri)
     }
 
     private fun onUpdateMarkData(value: MarkWithPhotos?) {
@@ -173,7 +191,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
                 )!!
             )
             binding.photoCarousel.addItemDecoration(itemDecoration)
-            val photos = viewModel.photosStateLiveData.value
+            val photos = markFragmentViewModel.photosStateLiveData.value
             if (photos != null && photos.size() == value.photos.size) {
                 carouselAdapter!!.updatePhotos(photos.snapshot())
             }

@@ -1,13 +1,12 @@
 package ru.flocator.feature_community.internal.data_source
 
-import androidx.constraintlayout.solver.widgets.analyzer.Dependency
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_dto.user.UserExternal
 
-internal interface UserAPI : Dependency {
+internal interface UserAPI {
 
     @GET("user/target/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<TargetUser>

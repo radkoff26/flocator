@@ -23,11 +23,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     buildFeatures {
         viewBinding true
@@ -38,6 +38,7 @@ dependencies {
     // Project modules
     implementation project(":core-api")
     implementation project(":core-cache")
+    implementation project(":core-config")
     implementation project(":core-connection")
     implementation project(":core-controller")
     implementation project(":core-data-store")
@@ -51,7 +52,7 @@ dependencies {
     implementation project(":core-polling")
     implementation project(":core-sections")
     implementation project(":core-utils")
-    implementation project(":core-config")
+    implementation project(":core-view-model")
 
     // Android Fragment
     implementation "androidx.fragment:fragment-ktx:$android_core_ktx_version"

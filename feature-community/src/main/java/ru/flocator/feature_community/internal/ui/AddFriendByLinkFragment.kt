@@ -1,5 +1,6 @@
 package ru.flocator.feature_community.internal.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,12 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.ViewModelProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.feature_community.databinding.FragmentAddFriendBinding
+import ru.flocator.feature_community.internal.di.DaggerCommunityComponent
 import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -28,8 +33,9 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var addFriendByLinkFragmentViewModel: AddFriendByLinkFragmentViewModel
-    
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModel: AddFriendByLinkFragmentViewModel
+
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
     }
@@ -42,6 +48,19 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         return binding.content
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerCommunityComponent.builder()
+            .communityDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+            .inject(this)
+
+        viewModel =
+            ViewModelProvider(this, viewModelFactory)[AddFriendByLinkFragmentViewModel::class.java]
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,14 +70,14 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         currentUserId = args?.getLong("currentUserId") ?: -1
 
         binding.addFriendConfirmButton.setOnClickListener {
-            if(binding.userLoginText.text.toString().isNotEmpty()){
+            if (binding.userLoginText.text.toString().isNotEmpty()) {
                 compositeDisposable.add(
-                    addFriendByLinkFragmentViewModel.checkLogin(binding.userLoginText.text.toString())
+                    viewModel.checkLogin(binding.userLoginText.text.toString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                             {
-                                if(!it){
+                                if (!it) {
                                     binding.message.visibility = View.VISIBLE
                                     binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
                                     binding.message.text = "Запрос в друзья отправлен!"
@@ -73,7 +92,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
                             }
                         )
                 )
-                addFriendByLinkFragmentViewModel.addFriendByLogin(currentUserId,binding.userLoginText.text.toString())
+                viewModel.addFriendByLogin(currentUserId, binding.userLoginText.text.toString())
                 //println("СУЩЕСТВУЕТ??????????  " +  addFriendByLinkFragmentViewModel.checkUserLogin(binding.userLoginText.text.toString()))
             } else {
                 binding.message.visibility = View.VISIBLE

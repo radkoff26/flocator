@@ -1,5 +1,6 @@
 package ru.flocator.feature_community.api.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,34 +10,56 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.user.FriendRequests
 import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.core_view_model.ViewModelFactory
 import ru.flocator.feature_community.databinding.FragmentCommunityBinding
 import ru.flocator.feature_community.internal.ui.AddFriendByLinkFragment
 import ru.flocator.feature_community.internal.adapters.FriendActionListener
 import ru.flocator.feature_community.internal.adapters.FriendAdapter
 import ru.flocator.feature_community.internal.adapters.PersonAdapter
 import ru.flocator.feature_community.internal.adapters.UserNewFriendActionListener
+import ru.flocator.feature_community.internal.di.DaggerCommunityComponent
 import ru.flocator.feature_community.internal.ui.OtherPersonProfileFragment
 import ru.flocator.feature_community.internal.view_models.ProfileFragmentViewModel
+import javax.inject.Inject
 
 class ProfileFragment : Fragment(), CommunitySection {
     private var _binding: FragmentCommunityBinding? = null
     private val binding: FragmentCommunityBinding
         get() = _binding!!
-    private val profileFragmentViewModel: ProfileFragmentViewModel by viewModels()
     private lateinit var adapterForNewFriends: PersonAdapter
     private lateinit var adapterForYourFriends: FriendAdapter
     private var currentUser: TargetUser? = null
     private val compositeDisposable = CompositeDisposable()
+
+    @Inject
+    internal lateinit var viewModelFactory: ViewModelProvider.Factory
+    internal lateinit var profileFragmentViewModel: ProfileFragmentViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerCommunityComponent.builder()
+            .communityDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+            .inject(this)
+
+        profileFragmentViewModel = ViewModelProvider(this, viewModelFactory)[ProfileFragmentViewModel::class.java]
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

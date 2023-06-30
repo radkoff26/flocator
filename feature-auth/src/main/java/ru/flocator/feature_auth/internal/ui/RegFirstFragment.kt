@@ -1,5 +1,6 @@
 package ru.flocator.feature_auth.internal.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,10 +9,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
 import ru.flocator.core_sections.AuthenticationSection
+import ru.flocator.core_view_model.ViewModelFactory
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
+import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
@@ -21,15 +27,28 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
         get() = _binding!!
 
     @Inject
-    lateinit var registrationViewModel: RegistrationViewModel
+    internal lateinit var controller: NavController
 
     @Inject
-    internal lateinit var controller: NavController
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private lateinit var registrationViewModel: RegistrationViewModel
 
     companion object {
         private const val LAST_NAME = "Фамилия"
         private const val FIRST_NAME = "Имя"
         private const val NEXT = "Далее"
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        DaggerAuthComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
+        registrationViewModel = ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 
     override fun onCreateView(

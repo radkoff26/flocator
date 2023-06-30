@@ -1,6 +1,7 @@
 package ru.flocator.feature_settings.api.ui
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -17,11 +18,14 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
+import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import ru.flocator.feature_settings.internal.ui.ChangePasswordFragment
 import ru.flocator.feature_settings.internal.ui.DeleteAccountFragment
@@ -44,6 +48,17 @@ class SettingsFragment : Fragment(), SettingsSection {
 
     @Inject
     internal lateinit var settingsRepository: SettingsRepository
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerSettingsComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
