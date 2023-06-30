@@ -25,14 +25,15 @@ import ru.flocator.core_map.ui.FLocatorMapFragment
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.LocationUtils
+import ru.flocator.feature_main.api.dependencies.MainDependencies
 import ru.flocator.feature_main.databinding.FragmentMainBinding
-import ru.flocator.feature_main.internal.add_mark.contractions.AddMarkContractions
-import ru.flocator.feature_main.internal.add_mark.ui.AddMarkFragment
-import ru.flocator.feature_main.internal.main.view_models.MainFragmentViewModel
-import ru.flocator.feature_main.internal.mark.contractions.MarkContractions
-import ru.flocator.feature_main.internal.mark.ui.MarkFragment
-import ru.flocator.feature_main.internal.marks_list.contractions.MarksListContractions
-import ru.flocator.feature_main.internal.marks_list.ui.MarksListFragment
+import ru.flocator.feature_main.internal.contractions.AddMarkContractions
+import ru.flocator.feature_main.internal.ui.AddMarkFragment
+import ru.flocator.feature_main.internal.view_models.MainFragmentViewModel
+import ru.flocator.feature_main.internal.contractions.MarkContractions
+import ru.flocator.feature_main.internal.ui.MarkFragment
+import ru.flocator.feature_main.internal.contractions.MarksListContractions
+import ru.flocator.feature_main.internal.ui.MarksListFragment
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -47,7 +48,7 @@ class MainFragment : Fragment(), MainSection {
 
     // Connection
     @Inject
-    internal lateinit var connectionLiveData: ConnectionLiveData
+    internal lateinit var dependencies: MainDependencies
 
     // Controller
     @Inject
@@ -71,9 +72,6 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        DaggerMainFragmentComponent.factory()
-            .create(findDependencies())
-            .inject(this)
     }
 
     // Fragment lifecycle methods
@@ -224,7 +222,7 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onUserInfoChanged
         )
-        connectionLiveData.observe(
+        dependencies.connectionLiveData.observe(
             viewLifecycleOwner,
             this::onConnectionChanged
         )
