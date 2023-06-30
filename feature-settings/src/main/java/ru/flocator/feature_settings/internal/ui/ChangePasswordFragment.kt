@@ -16,6 +16,7 @@ import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentChangePasswordBinding
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
@@ -26,8 +27,9 @@ internal class ChangePasswordFragment :
         BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
     ),
     SettingsSection {
+
     @Inject
-    lateinit var appRepository: AppRepository
+    lateinit var dependencies: SettingsDependencies
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
@@ -103,8 +105,8 @@ internal class ChangePasswordFragment :
                                     getString(R.string.password_is_incorrect)
                             }
                             binding.changePassMessage.visibility = View.VISIBLE
-                            appRepository.userCredentialsCache.clearUserCredentials()
-                            appRepository.userInfoCache.clearUserInfo()
+                            dependencies.appRepository.userCredentialsCache.clearUserCredentials()
+                            dependencies.appRepository.userInfoCache.clearUserInfo()
                             controller.toAuth()
                                 .clearAll()
                                 .commit()

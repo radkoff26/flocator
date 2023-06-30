@@ -20,8 +20,7 @@ internal class SettingsRepository constructor(
     private val appRepository: AppRepository,
     private val connectionLiveData: ConnectionLiveData
 ) {
-
-    fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
+    private fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
         val compositeDisposable = CompositeDisposable()
         return Single.create { emitter ->
             compositeDisposable.add(

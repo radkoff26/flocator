@@ -16,7 +16,7 @@ import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
 import ru.flocator.feature_settings.internal.domain.friend.Friend
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
-import ru.flocator.feature_settings.internal.ui.adapters.FriendListAdapter
+import ru.flocator.feature_settings.internal.adapters.FriendListAdapter
 import ru.flocator.feature_settings.internal.utils.FriendViewUtils.getNumOfColumns
 import javax.inject.Inject
 
@@ -114,13 +114,13 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
                 .doOnError {
                     Log.e("Error getting privacy change info", it.stackTraceToString(), it)
                 }
-                .subscribe {
+                .subscribe { friend ->
                     var newStatus = "PRECISE"
-                    if (it.isChecked) {
+                    if (friend.isChecked) {
                         newStatus = "FIXED"
                     }
                     compositeDisposable.add(
-                        settingsRepository.changePrivacy(it.userId, newStatus)
+                        settingsRepository.changePrivacy(friend.userId, newStatus)
                             .observeOn(Schedulers.io())
                             .subscribeOn(AndroidSchedulers.mainThread())
                             .doOnError {

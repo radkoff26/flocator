@@ -14,6 +14,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_controller.NavController
 import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentDeleteAccountBinding
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
@@ -30,7 +31,7 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var controller: NavController
 
     @Inject
-    lateinit var appRepository: AppRepository
+    lateinit var dependencies: SettingsDependencies
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
@@ -80,7 +81,7 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
                         }
                         .subscribe {
                             compositeDisposable.add(
-                                appRepository.clearAllCache()
+                                dependencies.appRepository.clearAllCache()
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .doOnError {
                                         Log.e(TAG, "onCreateView: failed to clear cache!", it)

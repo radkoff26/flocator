@@ -1,4 +1,4 @@
-package ru.flocator.feature_settings.internal.ui.adapters
+package ru.flocator.feature_settings.internal.adapters
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

@@ -3,7 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
-    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -49,13 +48,6 @@ dependencies {
     implementation project(":core-data-store")
     implementation project(":core-database")
     implementation project(":core-dependency")
-    implementation project(":core-design")
-    implementation project(":core-dto")
-    implementation project(":core-exceptions")
-    implementation project(":core-extensions")
-    implementation project(":core-map")
-    implementation project(":core-photo-pager")
-    implementation project(":core-polling")
     implementation project(":core-receivers")
     implementation project(":core-sections")
     implementation project(":core-utils")
@@ -74,50 +66,18 @@ dependencies {
     // Location
     implementation "com.google.android.gms:play-services-location:$gms_location_version"
 
-    // Kotlin Serialization
-    implementation "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
-
-    // Security
-    implementation "androidx.security:security-crypto-ktx:$android_security_version"
-    implementation "androidx.security:security-crypto:$android_security_version"
-
     // Core
     implementation "androidx.core:core-ktx:$android_core_kotlin_version"
-
-    // Android Fragment
-    implementation "androidx.fragment:fragment-ktx:$android_core_ktx_version"
-
-    // View Pager
-    implementation "androidx.viewpager2:viewpager2:$view_pager_version"
 
     // App Compat
     implementation "androidx.appcompat:appcompat:$app_compat_version"
 
-    // Material
-    implementation "com.google.android.material:material:$material_version"
-
-    // Constraint Layout
-    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
-
     // Live Data
     runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
-
-    // CircleImageView
-    implementation "de.hdodenhof:circleimageview:$circle_image_view_version"
-
-    // Maps
-    implementation "com.google.android.gms:play-services-maps:$google_maps_version"
 
     // Rx
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
-
-    // SkeletonLayout
-    implementation "com.faltenreich:skeletonlayout:$skeleton_layout_version"
-
-    // Swipe-to-Refresh
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipe_refresh_layout_version"
 
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"

@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import ru.flocator.feature_settings.internal.ui.adapters.FriendListAdapter
+import ru.flocator.feature_settings.internal.adapters.FriendListAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -23,10 +23,12 @@ import ru.flocator.feature_settings.internal.utils.FriendViewUtils.getNumOfColum
 import javax.inject.Inject
 
 internal class BlackListFragment : Fragment(), SettingsSection {
+
     private lateinit var friendListAdapter: FriendListAdapter
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
+
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreateView(

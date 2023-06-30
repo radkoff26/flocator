@@ -10,6 +10,7 @@ import ru.flocator.app.di.modules.external.MainDependenciesModule
 import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_community.api.dependencies.CommunityDependencies
 import ru.flocator.feature_main.api.dependencies.MainDependencies
+import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import javax.inject.Singleton
 
 @Component(
@@ -21,7 +22,7 @@ import javax.inject.Singleton
     ]
 )
 @Singleton
-interface AppComponent : MainDependencies, AuthDependencies, CommunityDependencies {
+interface AppComponent : AuthDependencies, CommunityDependencies, MainDependencies, SettingsDependencies {
 
     @Component.Factory
     interface Factory {

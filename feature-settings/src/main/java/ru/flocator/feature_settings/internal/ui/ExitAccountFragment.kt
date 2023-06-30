@@ -13,6 +13,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.core_controller.NavController
 import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentExitAccountBinding
 import javax.inject.Inject
 
@@ -30,7 +31,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var controller: NavController
 
     @Inject
-    lateinit var repository: AppRepository
+    lateinit var dependencies: SettingsDependencies
 
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
@@ -59,7 +60,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
 
         binding.exitAccountConfirmButton.setOnClickListener {
             compositeDisposable.add(
-                repository.clearAllCache()
+                dependencies.appRepository.clearAllCache()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnError {
                         Log.e(TAG, "onCreateView: failed to clear cache!", it)

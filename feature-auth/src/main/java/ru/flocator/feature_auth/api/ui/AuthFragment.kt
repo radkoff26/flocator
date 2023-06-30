@@ -23,7 +23,6 @@ import ru.flocator.feature_auth.internal.ui.RegFirstFragment
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
-
 class AuthFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentAuthBinding? = null
     private val binding: FragmentAuthBinding
