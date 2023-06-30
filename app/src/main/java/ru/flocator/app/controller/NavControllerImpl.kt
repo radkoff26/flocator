@@ -4,9 +4,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import ru.flocator.app.R
-import ru.flocator.app.community.fragments.ProfileFragment
-import ru.flocator.feature_settings.ui.SettingsFragment
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.TransactionCommitter
 import ru.flocator.core_sections.AuthenticationSection
@@ -14,11 +14,27 @@ import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_auth.api.ui.AuthFragment
+import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_main.api.ui.MainFragment
-import javax.inject.Inject
+import ru.flocator.feature_settings.api.ui.SettingsFragment
 
-class NavControllerImpl @Inject constructor(private val activity: FragmentActivity) : NavController {
+class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
+    NavController,
+    DefaultLifecycleObserver {
+
+    private val activity: FragmentActivity
+        get() = _activity!!
+
     private val fragmentManager: FragmentManager = activity.supportFragmentManager
+
+    init {
+        activity.lifecycle.addObserver(this)
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        activity.lifecycle.removeObserver(this)
+        _activity = null
+    }
 
     override fun toAuth(): TransactionCommitter =
         object : TransactionCommitter() {
@@ -44,7 +60,7 @@ class NavControllerImpl @Inject constructor(private val activity: FragmentActivi
     override fun toSettings(): TransactionCommitter =
         object : TransactionCommitter() {
             override fun commit() {
-                openFragment(ru.flocator.feature_settings.ui.SettingsFragment(), this)
+                openFragment(SettingsFragment(), this)
             }
         }
 

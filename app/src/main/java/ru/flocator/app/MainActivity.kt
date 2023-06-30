@@ -8,7 +8,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.app.controller.NavControllerImpl
 import ru.flocator.core_api.api.AppRepository
+import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.NavigationRoot
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_main.api.ui.MainFragment
@@ -16,11 +19,14 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationRoot {
+
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var repository: AppRepository
+
+    override lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         DaggerMainActivityComponent.build().inject(this)
@@ -28,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
+        navController = NavControllerImpl(this)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

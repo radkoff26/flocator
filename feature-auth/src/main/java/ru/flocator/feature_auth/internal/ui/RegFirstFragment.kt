@@ -19,7 +19,9 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
-    private val registrationViewModel: RegistrationViewModel by viewModels()
+
+    @Inject
+    lateinit var registrationViewModel: RegistrationViewModel
 
     @Inject
     internal lateinit var controller: NavController

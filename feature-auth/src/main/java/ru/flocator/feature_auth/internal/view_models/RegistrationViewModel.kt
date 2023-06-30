@@ -5,11 +5,13 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.core_dto.auth.UserRegistrationDto
+import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
 import ru.flocator.feature_auth.internal.repository.AuthRepository
 import javax.inject.Inject
 
 
 @Suppress("UNCHECKED_CAST")
+@FragmentScope
 internal class RegistrationViewModel @Inject constructor(
     private val repository: AuthRepository
     ) : ViewModel() {

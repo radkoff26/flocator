@@ -5,7 +5,8 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import ru.flocator.app.application.AppComponent
 import ru.flocator.app.di.modules.app.ConnectionModule
-import ru.flocator.core_dependency.annotations.DependenciesKey
+import ru.flocator.core_dependency.Dependencies
+import ru.flocator.app.di.annotations.DependenciesKey
 import ru.flocator.feature_main.api.dependencies.MainDeps
 import javax.inject.Singleton
 
@@ -20,5 +21,5 @@ abstract class MainDepsModule {
     @Singleton
     @IntoMap
     @DependenciesKey(MainDeps::class)
-    abstract fun bindsMainDeps(impl: AppComponent): MainDeps
+    abstract fun bindsMainDeps(impl: AppComponent): Dependencies
 }

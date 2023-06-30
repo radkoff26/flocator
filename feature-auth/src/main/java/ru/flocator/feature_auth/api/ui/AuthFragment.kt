@@ -1,25 +1,26 @@
 package ru.flocator.feature_auth.api.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import ru.flocator.core_sections.AuthenticationSection
-import ru.flocator.feature_auth.databinding.FragmentAuthBinding
-import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import androidx.fragment.app.activityViewModels
-import ru.flocator.core_dto.auth.UserCredentialsDto
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_data_store.user.data.UserCredentials
+import ru.flocator.core_dto.auth.UserCredentialsDto
+import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.core_utils.LocationUtils
+import ru.flocator.feature_auth.api.dependencies.AuthDependencies
+import ru.flocator.feature_auth.databinding.FragmentAuthBinding
 import ru.flocator.feature_auth.internal.repository.AuthRepository
 import ru.flocator.feature_auth.internal.ui.RegFirstFragment
+import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
 
@@ -31,16 +32,17 @@ class AuthFragment : Fragment(), AuthenticationSection {
     private val registrationViewModel: RegistrationViewModel by activityViewModels()
 
     @Inject
+    internal lateinit var navController: NavController
+
+    @Inject
     internal lateinit var authRepository: AuthRepository
 
     @Inject
-    internal lateinit var appRepository: AppRepository
+    internal lateinit var dependencies: AuthDependencies
 
-    @Inject
-    internal lateinit var controller: NavController
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
-    companion object {
-        private const val TAG = "Auth fragment"
     }
 
     override fun onCreateView(
@@ -61,7 +63,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
         }
 
         binding.registrationBtn.setOnClickListener {
-            controller
+            navController
                 .toFragment(RegFirstFragment())
                 .commit()
         }
@@ -76,7 +78,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
-                    appRepository.userCredentialsCache.updateUserCredentials(
+                    dependencies.appRepository.userCredentialsCache.updateUserCredentials(
                         UserCredentials(
                             userId!!,
                             login,
@@ -84,12 +86,12 @@ class AuthFragment : Fragment(), AuthenticationSection {
                         )
                     )
                     if (LocationUtils.hasLocationPermission(requireContext())) {
-                        controller
+                        navController
                             .toMain()
                             .clearAll()
                             .commit()
                     } else {
-                        controller
+                        navController
                             .toFragment(LocationRequestFragment())
                             .commit()
                     }
@@ -117,5 +119,9 @@ class AuthFragment : Fragment(), AuthenticationSection {
 
     private fun validateFields(email: String, password: String): Boolean {
         return email.isNotEmpty() && password.isNotEmpty()
+    }
+
+    companion object {
+        private const val TAG = "Auth fragment"
     }
 }
