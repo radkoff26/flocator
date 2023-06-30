@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_api.api.AppRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
+import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentDeleteAccountBinding
@@ -22,7 +22,7 @@ import javax.inject.Inject
 internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
     ChangePasswordFragment.BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     ChangePasswordFragment.BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), ru.flocator.core_sections.SettingsSection {
+), SettingsSection {
     private var _binding: FragmentDeleteAccountBinding? = null
     private val binding: FragmentDeleteAccountBinding
         get() = _binding!!
@@ -101,8 +101,9 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     override fun onDestroyView() {
-        compositeDisposable.dispose()
         super.onDestroyView()
+        compositeDisposable.dispose()
+        _binding = null
     }
 
     private fun openAuthFragment() {

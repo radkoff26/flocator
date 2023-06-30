@@ -9,7 +9,6 @@ import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
 import ru.flocator.feature_auth.internal.repository.AuthRepository
 import javax.inject.Inject
 
-
 @Suppress("UNCHECKED_CAST")
 @FragmentScope
 internal class RegistrationViewModel @Inject constructor(

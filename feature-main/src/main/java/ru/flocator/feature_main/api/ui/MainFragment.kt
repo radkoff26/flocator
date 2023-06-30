@@ -307,8 +307,8 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         compositeDisposable.dispose()
+        _binding = null
     }
 
     // Observer callbacks

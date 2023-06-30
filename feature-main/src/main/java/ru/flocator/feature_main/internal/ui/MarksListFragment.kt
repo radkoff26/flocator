@@ -18,18 +18,21 @@ import ru.flocator.cache.runtime.PhotoState
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_dto.location.LatLngDto
 import ru.flocator.core_dto.mark.MarkDto
+import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.DistanceUtils
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarksListBinding
-import ru.flocator.feature_main.internal.domain.photo.Photo
-import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.adapters.marks_list.MarksListRecyclerViewAdapter
+import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
 import ru.flocator.feature_main.internal.domain.dto.ListMarkDto
+import ru.flocator.feature_main.internal.domain.photo.Photo
 import ru.flocator.feature_main.internal.view_models.MarksListFragmentViewModel
 
-internal class MarksListFragment :
-    ResponsiveBottomSheetDialogFragment(WIDTH_RATION_PORTRAIT, WIDTH_RATION_LANDSCAPE) {
+internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
+    WIDTH_RATION_PORTRAIT,
+    WIDTH_RATION_LANDSCAPE
+), MainSection {
     private var _binding: FragmentMarksListBinding? = null
     private val binding: FragmentMarksListBinding
         get() = _binding!!
@@ -66,6 +69,7 @@ internal class MarksListFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
     }
 

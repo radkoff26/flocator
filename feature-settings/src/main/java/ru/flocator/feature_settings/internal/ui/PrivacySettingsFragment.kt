@@ -31,6 +31,7 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
     lateinit var settingsRepository: SettingsRepository
 
     private val compositeDisposable = CompositeDisposable()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -132,5 +133,11 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
         )
 
         return fragmentView
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.dispose()
+        _binding = null
     }
 }

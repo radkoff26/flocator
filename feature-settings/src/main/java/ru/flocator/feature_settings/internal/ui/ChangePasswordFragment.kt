@@ -11,7 +11,6 @@ import androidx.core.widget.NestedScrollView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.SettingsSection
@@ -21,12 +20,10 @@ import ru.flocator.feature_settings.databinding.FragmentChangePasswordBinding
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
 
-internal class ChangePasswordFragment :
-    ResponsiveBottomSheetDialogFragment(
-        BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
-        BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-    ),
-    SettingsSection {
+internal class ChangePasswordFragment : ResponsiveBottomSheetDialogFragment(
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+), SettingsSection {
 
     @Inject
     lateinit var dependencies: SettingsDependencies
@@ -127,8 +124,9 @@ internal class ChangePasswordFragment :
     }
 
     override fun onDestroyView() {
-        compositeDisposable.dispose()
         super.onDestroyView()
+        compositeDisposable.dispose()
+        _binding = null
     }
 
     companion object {

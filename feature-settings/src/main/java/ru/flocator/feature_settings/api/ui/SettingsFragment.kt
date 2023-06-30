@@ -18,6 +18,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
@@ -29,7 +30,7 @@ import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
 
-class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
+class SettingsFragment : Fragment(), SettingsSection {
     private var _binding: FragmentSettingsBinding? = null
     private val binding: FragmentSettingsBinding
         get() = _binding!!
@@ -265,8 +266,9 @@ class SettingsFragment : Fragment(), ru.flocator.core_sections.SettingsSection {
     }
 
     override fun onDestroyView() {
-        compositeDisposable.dispose()
         super.onDestroyView()
+        compositeDisposable.dispose()
+        _binding = null
     }
 
     private fun changeAvatar(uri: Uri) {

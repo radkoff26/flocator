@@ -150,13 +150,9 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
     }
 

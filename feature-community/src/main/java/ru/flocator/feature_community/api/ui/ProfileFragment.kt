@@ -20,12 +20,12 @@ import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
-import ru.flocator.feature_community.internal.fragments.AddFriendByLinkFragment
+import ru.flocator.feature_community.internal.ui.AddFriendByLinkFragment
 import ru.flocator.feature_community.internal.adapters.FriendActionListener
 import ru.flocator.feature_community.internal.adapters.FriendAdapter
 import ru.flocator.feature_community.internal.adapters.PersonAdapter
 import ru.flocator.feature_community.internal.adapters.UserNewFriendActionListener
-import ru.flocator.feature_community.internal.fragments.OtherPersonProfileFragment
+import ru.flocator.feature_community.internal.ui.OtherPersonProfileFragment
 import ru.flocator.feature_community.internal.view_models.ProfileFragmentViewModel
 
 class ProfileFragment : Fragment(), CommunitySection {
@@ -216,13 +216,9 @@ class ProfileFragment : Fragment(), CommunitySection {
         )
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
     }
 

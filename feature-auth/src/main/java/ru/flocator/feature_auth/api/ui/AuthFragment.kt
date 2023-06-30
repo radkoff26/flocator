@@ -103,12 +103,8 @@ class AuthFragment : Fragment(), AuthenticationSection {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.clear()
     }
 
     private fun showErrorMessage(text: String) {

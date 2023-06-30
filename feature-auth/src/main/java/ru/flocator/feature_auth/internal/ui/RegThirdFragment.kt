@@ -9,19 +9,19 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.auth.UserRegistrationDto
+import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
-internal class RegThirdFragment : Fragment(), ru.flocator.core_sections.AuthenticationSection {
+internal class RegThirdFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -99,13 +99,9 @@ internal class RegThirdFragment : Fragment(), ru.flocator.core_sections.Authenti
         binding.submitBtn.text = REGISTER
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.clear()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
     }
 

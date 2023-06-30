@@ -21,6 +21,7 @@ import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_photo_pager.api.domain.contractions.PhotoPagerContractions
 import ru.flocator.core_photo_pager.api.ui.PhotoPagerFragment
+import ru.flocator.core_sections.MainSection
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarkBinding
 import ru.flocator.feature_main.internal.adapters.mark.MarkPhotoRecyclerViewAdapter
@@ -31,7 +32,7 @@ import ru.flocator.feature_main.internal.view_models.MarkFragmentViewModel
 internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
     BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
-), ru.flocator.core_sections.MainSection {
+), MainSection {
     private var _binding: FragmentMarkBinding? = null
     private val binding
         get() = _binding!!

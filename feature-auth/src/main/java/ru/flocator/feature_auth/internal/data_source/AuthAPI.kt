@@ -5,7 +5,6 @@ import retrofit2.http.*
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_dto.auth.UserRegistrationDto
 
-
 internal interface AuthAPI {
     @POST("user/register")
     fun registerUser(@Body userRegistrationDto: UserRegistrationDto): Single<Boolean>

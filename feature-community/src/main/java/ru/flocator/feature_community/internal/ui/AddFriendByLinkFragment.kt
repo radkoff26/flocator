@@ -1,4 +1,4 @@
-package ru.flocator.feature_community.internal.fragments
+package ru.flocator.feature_community.internal.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -14,7 +14,6 @@ import ru.flocator.app.databinding.FragmentAddFriendBinding
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
-import ru.flocator.feature_community.internal.repository.CommunityRepository
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -92,6 +91,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
 
     override fun onDestroyView() {
         super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
     }
 
@@ -100,9 +100,4 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
     }
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
-    }
-
 }

@@ -1,4 +1,4 @@
-package ru.flocator.feature_community.internal.fragments
+package ru.flocator.feature_community.internal.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -16,17 +16,17 @@ import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.user.UserExternal
 import ru.flocator.core_dto.user.UserExternalFriends
+import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
 import ru.flocator.core_utils.TimePresentationUtils
+import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_community.internal.adapters.ExternalFriendActionListener
 import ru.flocator.feature_community.internal.adapters.ExternalFriendAdapter
-import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_community.internal.view_models.OtherPersonProfileFragmentViewModel
-import ru.flocator.feature_community.internal.repository.CommunityRepository
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-internal class OtherPersonProfileFragment : Fragment() {
+internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
     private var _binding: FragmentPersonProfileBinding? = null
     private val binding: FragmentPersonProfileBinding
         get() = _binding!!

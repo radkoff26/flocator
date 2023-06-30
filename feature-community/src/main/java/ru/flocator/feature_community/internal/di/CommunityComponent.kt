@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment
 import dagger.BindsInstance
 import dagger.Component
 import ru.flocator.feature_community.api.ui.ProfileFragment
-import ru.flocator.feature_community.internal.fragments.AddFriendByLinkFragment
-import ru.flocator.feature_community.internal.fragments.OtherPersonProfileFragment
+import ru.flocator.feature_community.internal.ui.AddFriendByLinkFragment
+import ru.flocator.feature_community.internal.ui.OtherPersonProfileFragment
 
 @Component(
     modules = [

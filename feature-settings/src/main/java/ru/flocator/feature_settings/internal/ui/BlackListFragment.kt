@@ -155,7 +155,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
     }
 
     override fun onDestroyView() {
-        compositeDisposable.dispose()
         super.onDestroyView()
+        compositeDisposable.dispose()
     }
 }
