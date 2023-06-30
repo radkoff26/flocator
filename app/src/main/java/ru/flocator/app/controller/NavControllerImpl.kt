@@ -14,6 +14,7 @@ import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_auth.api.ui.AuthFragment
+import ru.flocator.feature_auth.api.ui.LocationRequestFragment
 import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_main.api.ui.MainFragment
 import ru.flocator.feature_settings.api.ui.SettingsFragment
@@ -40,6 +41,13 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
         object : TransactionCommitter() {
             override fun commit() {
                 openFragment(AuthFragment(), this)
+            }
+        }
+
+    override fun toLocationDialog(): TransactionCommitter =
+        object : TransactionCommitter() {
+            override fun commit() {
+                openFragment(LocationRequestFragment(), this)
             }
         }
 

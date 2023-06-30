@@ -9,12 +9,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.controller.NavControllerImpl
+import ru.flocator.app.data_source.MainAPI
 import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.NavigationRoot
 import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.feature_auth.api.ui.AuthFragment
-import ru.flocator.feature_main.api.ui.MainFragment
+import ru.flocator.core_utils.LocationUtils
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -26,10 +26,12 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
     @Inject
     lateinit var repository: AppRepository
 
+    @Inject
+    lateinit var mainAPI: MainAPI
+
     override lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        DaggerMainActivityComponent.build().inject(this)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                ru.flocator.core_utils.FragmentNavigationUtils.closeLastFragment(supportFragmentManager, this@MainActivity)
+                navController.back()
             }
         })
 
@@ -54,7 +56,7 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                 .subscribe(
                     {
                         compositeDisposable.add(
-                            repository.restApi.loginUser(
+                            mainAPI.loginUser(
                                 UserCredentialsDto(
                                     it.login,
                                     it.password
@@ -64,16 +66,14 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                     {
-                                        if (ru.flocator.core_utils.LocationUtils.hasLocationPermission(this)) {
-                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
-                                                supportFragmentManager,
-                                                MainFragment()
-                                            )
+                                        if (LocationUtils.hasLocationPermission(this)) {
+                                            navController.toMain()
+                                                .clearAll()
+                                                .commit()
                                         } else {
-                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
-                                                supportFragmentManager,
-                                                ru.flocator.feature_auth.api.ui.LocationRequestFragment()
-                                            )
+                                            navController.toLocationDialog()
+                                                .clearAll()
+                                                .commit()
                                         }
                                     },
                                     { throwable ->
@@ -83,30 +83,27 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                                                 "openFirstFragment: no connection, but user authorized previously",
                                                 throwable
                                             )
-                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
-                                                supportFragmentManager,
-                                                MainFragment()
-                                            )
+                                            navController.toMain()
+                                                .clearAll()
+                                                .commit()
                                         } else {
                                             Log.e(
                                                 TAG,
                                                 "openFirstFragment: not authorized!",
                                                 throwable
                                             )
-                                            ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
-                                                supportFragmentManager,
-                                                AuthFragment()
-                                            )
+                                            navController.toAuth()
+                                                .clearAll()
+                                                .commit()
                                         }
                                     }
                                 )
                         )
                     },
                     {
-                        ru.flocator.core_utils.FragmentNavigationUtils.openFragment(
-                            supportFragmentManager,
-                            AuthFragment()
-                        )
+                        navController.toAuth()
+                            .clearAll()
+                            .commit()
                         Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }
                 )

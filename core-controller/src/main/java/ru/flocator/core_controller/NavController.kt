@@ -1,11 +1,12 @@
 package ru.flocator.core_controller
 
-import android.os.Bundle
 import androidx.fragment.app.Fragment
 
 interface NavController {
 
     fun toAuth(): TransactionCommitter
+
+    fun toLocationDialog(): TransactionCommitter
 
     fun toMain(): TransactionCommitter
 
