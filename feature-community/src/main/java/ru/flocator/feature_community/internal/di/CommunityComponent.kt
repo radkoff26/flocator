@@ -1,6 +1,7 @@
 package ru.flocator.feature_community.internal.di
 
 import androidx.fragment.app.Fragment
+import dagger.BindsInstance
 import dagger.Component
 import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_community.internal.fragments.AddFriendByLinkFragment
@@ -18,6 +19,7 @@ internal interface CommunityComponent {
 
     @Component.Builder
     abstract class Builder {
+        @BindsInstance
         abstract fun fragment(fragment: Fragment): Builder
         abstract fun build(): CommunityComponent
     }

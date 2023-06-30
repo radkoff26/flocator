@@ -20,7 +20,8 @@ internal interface MainComponent {
 
     @Component.Builder
     abstract class Builder {
-        abstract fun fragment(@BindsInstance fragment: Fragment): Builder
+        @BindsInstance
+        abstract fun fragment(fragment: Fragment): Builder
         abstract fun build(): MainComponent
     }
 

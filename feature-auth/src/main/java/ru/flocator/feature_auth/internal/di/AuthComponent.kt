@@ -1,6 +1,7 @@
 package ru.flocator.feature_auth.internal.di
 
 import androidx.fragment.app.Fragment
+import dagger.BindsInstance
 import dagger.Component
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
@@ -21,7 +22,7 @@ internal interface AuthComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(fragment: Fragment): AuthComponent
+        fun create(@BindsInstance fragment: Fragment): AuthComponent
     }
 
     fun inject(authFragment: AuthFragment)

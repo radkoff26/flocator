@@ -1,6 +1,7 @@
 package ru.flocator.feature_settings.internal.di
 
 import androidx.fragment.app.Fragment
+import dagger.BindsInstance
 import dagger.Component
 import ru.flocator.feature_settings.api.ui.SettingsFragment
 import ru.flocator.feature_settings.internal.ui.*
@@ -21,7 +22,7 @@ internal interface SettingsComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(fragment: Fragment): SettingsComponent
+        fun create(@BindsInstance fragment: Fragment): SettingsComponent
     }
 
     fun inject(settingsFragment: SettingsFragment)
