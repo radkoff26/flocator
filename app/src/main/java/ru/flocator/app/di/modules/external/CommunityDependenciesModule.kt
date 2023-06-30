@@ -8,7 +8,7 @@ import ru.flocator.app.di.annotations.DependenciesKey
 import ru.flocator.app.di.modules.app.RepositoryModule
 import ru.flocator.app.di.modules.app.RestAPIModule
 import ru.flocator.core_dependency.Dependencies
-import ru.flocator.feature_auth.api.dependencies.AuthDependencies
+import ru.flocator.feature_community.api.dependencies.CommunityDependencies
 import javax.inject.Singleton
 
 @Module(
@@ -17,11 +17,11 @@ import javax.inject.Singleton
         RestAPIModule::class
     ]
 )
-interface AuthDependenciesModule {
+interface CommunityDependenciesModule {
 
     @Binds
     @Singleton
     @IntoMap
-    @DependenciesKey(AuthDependencies::class)
-    fun bindAuthDependencies(impl: AppComponent): Dependencies
+    @DependenciesKey(CommunityDependencies::class)
+    fun bindCommunityDependencies(impl: AppComponent): Dependencies
 }
