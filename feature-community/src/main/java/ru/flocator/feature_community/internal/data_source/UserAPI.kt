@@ -7,7 +7,7 @@ import retrofit2.http.*
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_dto.user.UserExternal
 
-internal interface UserApi : Dependency {
+internal interface UserAPI : Dependency {
 
     @GET("user/target/{userId}")
     fun getUser(@Path("userId") userId: Long): Single<TargetUser>

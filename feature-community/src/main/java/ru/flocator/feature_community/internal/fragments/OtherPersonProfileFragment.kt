@@ -32,12 +32,11 @@ internal class OtherPersonProfileFragment : Fragment() {
         get() = _binding!!
 
     @Inject
-    lateinit var repository: CommunityRepository
-
-    @Inject
     lateinit var controller: NavController
 
-    private lateinit var otherPersonProfileFragmentViewModel: OtherPersonProfileFragmentViewModel
+    @Inject
+    lateinit var otherPersonProfileFragmentViewModel: OtherPersonProfileFragmentViewModel
+
     private lateinit var adapterForFriends: ExternalFriendAdapter
 
     private var currentUserId by Delegates.notNull<Long>()
@@ -59,7 +58,6 @@ internal class OtherPersonProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
-        otherPersonProfileFragmentViewModel = OtherPersonProfileFragmentViewModel(repository)
         val args: Bundle? = arguments
         if (args != null) {
             currentUserId = args.getLong(Constants.CURRENT_USER_ID)

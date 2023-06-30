@@ -4,10 +4,11 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_dto.user.TargetUser
-import ru.flocator.feature_community.internal.data_source.UserApi
+import ru.flocator.feature_community.internal.data_source.UserAPI
+import javax.inject.Inject
 
-internal class CommunityRepository constructor(
-    private val userApi: UserApi
+internal class CommunityRepository @Inject constructor(
+    private val userApi: UserAPI
 ) {
 
     fun getUser(userId: Long): Single<TargetUser>{

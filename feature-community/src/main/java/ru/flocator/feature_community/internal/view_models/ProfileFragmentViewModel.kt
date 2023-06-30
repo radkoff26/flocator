@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.flocator.core_api.api.AppRepository
-import ru.flocator.feature_community.internal.data_source.UserApi
 import ru.flocator.core_dto.user.FriendRequests
 import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_dto.user.TargetUser
@@ -16,11 +15,9 @@ import io.reactivex.schedulers.Schedulers
 import ru.flocator.feature_community.internal.repository.CommunityRepository
 import javax.inject.Inject
 
-internal typealias UserNewFriendActionListener = (persons: List<TargetUser>) -> Unit
-
 @Suppress("UNCHECKED_CAST")
 internal class ProfileFragmentViewModel @Inject constructor(
-    private val appRepository: AppRepository,
+    appRepository: AppRepository,
     private val repository: CommunityRepository
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<MutableList<Friends>?>()
@@ -29,11 +26,9 @@ internal class ProfileFragmentViewModel @Inject constructor(
     var friendsLiveData: MutableLiveData<MutableList<Friends>?> = _friendsLiveData
     var newFriendsLiveData: MutableLiveData<MutableList<FriendRequests>?> = _newFriendsLiveData
     val currentUserLiveData: LiveData<TargetUser> = _currentUserLiveData
+    // TODO: force get rid of blocking operation
     private val userId = appRepository.userCredentialsCache.getUserCredentials().blockingGet().userId
     private val compositeDisposable = CompositeDisposable()
-
-    @Inject
-    lateinit var userApi: UserApi
 
     override fun onCleared() {
         super.onCleared()
@@ -79,7 +74,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
                     }
                 )
         )
-        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId?.toLong() }
+        val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId }
         val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         if (index == -1) {
             return -1
@@ -106,7 +101,7 @@ internal class ProfileFragmentViewModel @Inject constructor(
                 )
         )
 
-        val findingPerson: Friends = Friends(-1, "", "", "")
+        val findingPerson = Friends(-1, "", "", "")
         val index = _newFriendsLiveData.value?.indexOfFirst { it.userId == user.userId }
         val newFriends: MutableList<FriendRequests>? = _newFriendsLiveData.value
         val friends: MutableList<Friends>? = _friendsLiveData.value
@@ -121,10 +116,6 @@ internal class ProfileFragmentViewModel @Inject constructor(
         _newFriendsLiveData.value = newFriends
         _friendsLiveData.value = friends
         return newFriends?.size ?: 0
-    }
-
-    private val listener: UserNewFriendActionListener = {
-        _newFriendsLiveData.value = it as MutableList<FriendRequests>
     }
 
     companion object {

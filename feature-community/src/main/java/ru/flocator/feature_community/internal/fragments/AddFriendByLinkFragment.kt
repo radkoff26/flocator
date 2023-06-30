@@ -29,9 +29,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var repository: CommunityRepository
-
-    private lateinit var addFriendByLinkFragmentViewModel: AddFriendByLinkFragmentViewModel
+    lateinit var addFriendByLinkFragmentViewModel: AddFriendByLinkFragmentViewModel
     
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
@@ -48,20 +46,15 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentAddFriendBinding.inflate(inflater, container, false)
-        addFriendByLinkFragmentViewModel = AddFriendByLinkFragmentViewModel(repository)
         val args: Bundle? = arguments
-        if(args != null){
-            currentUserId = args.getLong("currentUserId")
-        } else{
-            currentUserId = -1
-        }
+        currentUserId = args?.getLong("currentUserId") ?: -1
 
         binding.addFriendConfirmButton.setOnClickListener {
             if(binding.userLoginText.text.toString().isNotEmpty()){
                 compositeDisposable.add(
-                    repository.checkLogin(binding.userLoginText.text.toString())
+                    addFriendByLinkFragmentViewModel.checkLogin(binding.userLoginText.text.toString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

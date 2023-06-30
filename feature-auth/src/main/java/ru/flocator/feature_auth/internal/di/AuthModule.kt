@@ -12,7 +12,7 @@ import ru.flocator.feature_auth.internal.data_source.AuthAPI
 import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
 
 @Module
-internal class AuthModule {
+internal object AuthModule {
 
     @Provides
     @FragmentScope
