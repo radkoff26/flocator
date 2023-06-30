@@ -18,22 +18,20 @@ import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
-import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_dto.location.LatLngDto
 import ru.flocator.core_dto.mark.MarkDto
 import ru.flocator.core_map.ui.FLocatorMapFragment
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.LocationUtils
-import ru.flocator.feature_main.api.dependencies.MainDependencies
 import ru.flocator.feature_main.databinding.FragmentMainBinding
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
-import ru.flocator.feature_main.internal.ui.AddMarkFragment
-import ru.flocator.feature_main.internal.view_models.MainFragmentViewModel
 import ru.flocator.feature_main.internal.contractions.MarkContractions
-import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
+import ru.flocator.feature_main.internal.ui.AddMarkFragment
+import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.ui.MarksListFragment
+import ru.flocator.feature_main.internal.view_models.MainFragmentViewModel
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -48,7 +46,7 @@ class MainFragment : Fragment(), MainSection {
 
     // Connection
     @Inject
-    internal lateinit var dependencies: MainDependencies
+    internal lateinit var connectionLiveData: ConnectionLiveData
 
     // Controller
     @Inject
@@ -222,7 +220,7 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onUserInfoChanged
         )
-        dependencies.connectionLiveData.observe(
+        connectionLiveData.observe(
             viewLifecycleOwner,
             this::onConnectionChanged
         )

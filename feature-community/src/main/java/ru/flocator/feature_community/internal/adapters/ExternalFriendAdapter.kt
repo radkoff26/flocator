@@ -1,16 +1,15 @@
 package ru.flocator.feature_community.internal.adapters
 
-import ru.flocator.core_dto.user.UserExternalFriends
-
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.app.databinding.PersonYourFriendItemBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_dto.user.UserExternalFriends
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_community.databinding.PersonYourFriendItemBinding
 
 internal class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActionListener) :
     RecyclerView.Adapter<ExternalFriendAdapter.ExternalFriendViewHolder>(), View.OnClickListener {

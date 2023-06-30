@@ -39,6 +39,7 @@ dependencies {
     // Project modules
     implementation project(":core-api")
     implementation project(":core-controller")
+    implementation project(":core-data-store")
     implementation project(":core-dependency")
     implementation project(":core-design")
     implementation project(":core-dto")

@@ -84,8 +84,8 @@ internal class PhotoRecyclerViewAdapter(
     }
 
     companion object {
-        const val LOADING_TYPE = R.layout.loading_pager_photo_item
-        const val LOADED_TYPE = R.layout.loaded_pager_photo_item
-        const val FAILED_TYPE = R.layout.failed_pager_photo_item
+        val LOADING_TYPE = R.layout.loading_pager_photo_item
+        val LOADED_TYPE = R.layout.loaded_pager_photo_item
+        val FAILED_TYPE = R.layout.failed_pager_photo_item
     }
 }

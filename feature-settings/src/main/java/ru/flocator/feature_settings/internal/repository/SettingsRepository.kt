@@ -14,8 +14,9 @@ import ru.flocator.core_database.entities.User
 import ru.flocator.feature_settings.internal.data_source.SettingsAPI
 import java.sql.Timestamp
 import java.util.stream.Collectors
+import javax.inject.Inject
 
-internal class SettingsRepository constructor(
+internal class SettingsRepository @Inject constructor(
     private val settingsAPI: SettingsAPI,
     private val appRepository: AppRepository,
     private val connectionLiveData: ConnectionLiveData

@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.app.databinding.PersonYourFriendItemBinding
-import ru.flocator.core_dto.user.Friends
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_community.databinding.PersonYourFriendItemBinding
 
 internal class FriendAdapter(private val friendActionListener: FriendActionListener) :
     RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(), View.OnClickListener {

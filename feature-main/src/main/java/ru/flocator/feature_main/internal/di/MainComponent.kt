@@ -1,9 +1,10 @@
 package ru.flocator.feature_main.internal.di
 
-import androidx.fragment.app.Fragment
-import dagger.BindsInstance
 import dagger.Component
+import ru.flocator.core_controller.NavController
+import ru.flocator.feature_main.api.dependencies.MainDependencies
 import ru.flocator.feature_main.api.ui.MainFragment
+import ru.flocator.feature_main.internal.di.annotations.FragmentScope
 import ru.flocator.feature_main.internal.ui.AddMarkFragment
 import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.ui.MarksListFragment
@@ -13,15 +14,17 @@ import ru.flocator.feature_main.internal.ui.MarksListFragment
         MainModule::class
     ],
     dependencies = [
-        Fragment::class
+        MainDependencies::class,
+        NavController::class
     ]
 )
+@FragmentScope
 internal interface MainComponent {
 
     @Component.Builder
     abstract class Builder {
-        @BindsInstance
-        abstract fun fragment(fragment: Fragment): Builder
+        abstract fun mainDependencies(dependencies: MainDependencies): Builder
+        abstract fun navController(navController: NavController): Builder
         abstract fun build(): MainComponent
     }
 

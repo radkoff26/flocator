@@ -1,28 +1,30 @@
 package ru.flocator.feature_settings.internal.di
 
-import androidx.fragment.app.Fragment
-import dagger.BindsInstance
 import dagger.Component
+import ru.flocator.core_controller.NavController
+import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.api.ui.SettingsFragment
+import ru.flocator.feature_settings.internal.di.annotations.FragmentScope
 import ru.flocator.feature_settings.internal.ui.*
-import ru.flocator.feature_settings.internal.ui.BlackListFragment
-import ru.flocator.feature_settings.internal.ui.ChangePasswordFragment
-import ru.flocator.feature_settings.internal.ui.DeleteAccountFragment
-import ru.flocator.feature_settings.internal.ui.ExitAccountFragment
 
 @Component(
     modules = [
         SettingsModule::class
     ],
     dependencies = [
-        Fragment::class
+        SettingsDependencies::class,
+        NavController::class
     ]
 )
+@FragmentScope
 internal interface SettingsComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance fragment: Fragment): SettingsComponent
+        fun create(
+            dependencies: SettingsDependencies,
+            navController: NavController
+        ): SettingsComponent
     }
 
     fun inject(settingsFragment: SettingsFragment)

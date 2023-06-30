@@ -10,6 +10,7 @@ import androidx.core.widget.NestedScrollView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.SettingsSection
@@ -31,7 +32,7 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var controller: NavController
 
     @Inject
-    lateinit var dependencies: SettingsDependencies
+    lateinit var appRepository: AppRepository
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
@@ -81,7 +82,7 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
                         }
                         .subscribe {
                             compositeDisposable.add(
-                                dependencies.appRepository.clearAllCache()
+                                appRepository.clearAllCache()
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .doOnError {
                                         Log.e(TAG, "onCreateView: failed to clear cache!", it)

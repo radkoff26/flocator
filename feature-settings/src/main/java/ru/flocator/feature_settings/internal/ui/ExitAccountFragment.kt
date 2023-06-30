@@ -32,7 +32,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var controller: NavController
 
     @Inject
-    lateinit var dependencies: SettingsDependencies
+    lateinit var appRepository: AppRepository
 
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
@@ -61,7 +61,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
 
         binding.exitAccountConfirmButton.setOnClickListener {
             compositeDisposable.add(
-                dependencies.appRepository.clearAllCache()
+                appRepository.clearAllCache()
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnError {
                         Log.e(TAG, "onCreateView: failed to clear cache!", it)

@@ -1,8 +1,8 @@
 package ru.flocator.feature_auth.internal.di
 
-import androidx.fragment.app.Fragment
-import dagger.BindsInstance
 import dagger.Component
+import ru.flocator.core_controller.NavController
+import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
 import ru.flocator.feature_auth.internal.ui.RegFirstFragment
@@ -14,7 +14,8 @@ import ru.flocator.feature_auth.internal.ui.RegThirdFragment
         AuthModule::class
     ],
     dependencies = [
-        Fragment::class
+        AuthDependencies::class,
+        NavController::class
     ]
 )
 @FragmentScope
@@ -22,7 +23,7 @@ internal interface AuthComponent {
 
     @Component.Factory
     interface Factory {
-        fun create(@BindsInstance fragment: Fragment): AuthComponent
+        fun create(dependencies: AuthDependencies, controller: NavController): AuthComponent
     }
 
     fun inject(authFragment: AuthFragment)

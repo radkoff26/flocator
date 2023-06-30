@@ -13,13 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.databinding.FragmentCommunityBinding
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.user.FriendRequests
 import ru.flocator.core_dto.user.Friends
 import ru.flocator.core_dto.user.TargetUser
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_community.databinding.FragmentCommunityBinding
 import ru.flocator.feature_community.internal.ui.AddFriendByLinkFragment
 import ru.flocator.feature_community.internal.adapters.FriendActionListener
 import ru.flocator.feature_community.internal.adapters.FriendAdapter
@@ -168,7 +168,7 @@ class ProfileFragment : Fragment(), CommunitySection {
         val profilePersonFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
         val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(ru.flocator.app.R.id.community_fragment, profilePersonFragment)
+        transaction.replace(ru.flocator.feature_community.R.id.community_fragment, profilePersonFragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }
@@ -182,7 +182,7 @@ class ProfileFragment : Fragment(), CommunitySection {
         val profilePersonFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
         val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(ru.flocator.app.R.id.community_fragment, profilePersonFragment)
+        transaction.replace(ru.flocator.feature_community.R.id.community_fragment, profilePersonFragment)
         transaction.addToBackStack(null)
         transaction.commit()
     }

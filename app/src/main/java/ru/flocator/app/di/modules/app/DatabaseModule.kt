@@ -8,7 +8,7 @@ import ru.flocator.core_database.ApplicationDatabase
 import javax.inject.Singleton
 
 @Module
-class DatabaseModule {
+object DatabaseModule {
 
     @Provides
     @Singleton
@@ -19,7 +19,5 @@ class DatabaseModule {
             APPLICATION_DATABASE
         ).build()
 
-    companion object {
-        private const val APPLICATION_DATABASE = "application_database"
-    }
+    private const val APPLICATION_DATABASE = "application_database"
 }

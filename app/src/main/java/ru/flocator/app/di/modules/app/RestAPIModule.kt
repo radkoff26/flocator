@@ -13,7 +13,7 @@ import ru.flocator.core_config.Constants
 import javax.inject.Singleton
 
 @Module
-class RestAPIModule {
+object RestAPIModule {
 
     @Provides
     @Singleton

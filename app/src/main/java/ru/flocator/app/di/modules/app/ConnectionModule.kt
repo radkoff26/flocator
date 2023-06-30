@@ -7,7 +7,7 @@ import ru.flocator.core_receivers.NetworkReceiver
 import javax.inject.Singleton
 
 @Module
-class ConnectionModule {
+object ConnectionModule {
 
     @Provides
     @Singleton

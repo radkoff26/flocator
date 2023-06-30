@@ -6,7 +6,7 @@ import ru.flocator.core_receivers.NetworkReceiver
 import javax.inject.Singleton
 
 @Module
-class ReceiverModule {
+object ReceiverModule {
 
     @Provides
     @Singleton

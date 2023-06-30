@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_dto.auth.UserCredentialsDto
@@ -37,7 +38,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
     internal lateinit var authRepository: AuthRepository
 
     @Inject
-    internal lateinit var dependencies: AuthDependencies
+    internal lateinit var appRepository: AppRepository
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -77,7 +78,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ userId ->
-                    dependencies.appRepository.userCredentialsCache.updateUserCredentials(
+                    appRepository.userCredentialsCache.updateUserCredentials(
                         UserCredentials(
                             userId!!,
                             login,

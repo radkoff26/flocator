@@ -7,7 +7,7 @@ import ru.flocator.cache.global.PhotoCacheManager
 import javax.inject.Singleton
 
 @Module
-class CacheModule {
+object CacheModule {
 
     @Provides
     @Singleton

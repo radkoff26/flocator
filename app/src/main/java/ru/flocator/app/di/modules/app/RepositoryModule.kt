@@ -11,8 +11,14 @@ import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.ApplicationDatabase
 import javax.inject.Singleton
 
-@Module
-class RepositoryModule {
+@Module(
+    includes = [
+        DataStoreModule::class,
+        DatabaseModule::class,
+        CacheModule::class
+    ]
+)
+object RepositoryModule {
 
     @Provides
     @Singleton

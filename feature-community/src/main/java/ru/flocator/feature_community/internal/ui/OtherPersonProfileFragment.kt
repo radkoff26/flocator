@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.app.databinding.FragmentPersonProfileBinding
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_design.R
 import ru.flocator.core_dto.user.UserExternal
@@ -20,6 +19,7 @@ import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
 import ru.flocator.core_utils.TimePresentationUtils
 import ru.flocator.feature_community.api.ui.ProfileFragment
+import ru.flocator.feature_community.databinding.FragmentPersonProfileBinding
 import ru.flocator.feature_community.internal.adapters.ExternalFriendActionListener
 import ru.flocator.feature_community.internal.adapters.ExternalFriendAdapter
 import ru.flocator.feature_community.internal.view_models.OtherPersonProfileFragmentViewModel
@@ -246,7 +246,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
         if ((user.userId ?: 0) == currentUserId) {
             val profileFragment = ProfileFragment()
             val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(ru.flocator.app.R.id.person_profile, profileFragment)
+            transaction.replace(ru.flocator.feature_community.R.id.person_profile, profileFragment)
             transaction.addToBackStack(null)
             transaction.commit()
         } else {
@@ -257,7 +257,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
             val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
             profilePersonFragment.arguments = args
             val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(ru.flocator.app.R.id.person_profile, profilePersonFragment)
+            transaction.replace(ru.flocator.feature_community.R.id.person_profile, profilePersonFragment)
             transaction.addToBackStack(null)
             transaction.commit()
         }
