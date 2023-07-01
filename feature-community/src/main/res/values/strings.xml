@@ -1,0 +1,18 @@
+<resources>
+    <string name="login_friend">Логин пользователя</string>
+    <string name="close_window">Закрыть окно</string>
+    <string name="add">Добавить</string>
+    <string name="request_is_sent">Запрос в друзья отправлен!</string>
+    <string name="add_friend">Добавить друга</string>
+    <string name="name_and_surname">Имя Фамилия</string>
+    <string name="friend_requests">Заявки в друзья</string>
+    <string name="show_all">Показать всех</string>
+    <string name="collapse">Свернуть</string>
+    <string name="your_friends">Ваши друзья</string>
+    <string name="decline">Отклонить</string>
+    <string name="accept">Принять</string>
+    <string name="add_to_friends">Добавить в друзья</string>
+    <string name="block">Заблокировать</string>
+    <string name="friends">Друзья</string>
+    <string name="last_online">Был в сети 5 минут назад</string>
+</resources>

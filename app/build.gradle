@@ -2,9 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'com.google.dagger.hilt.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
-    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -41,70 +39,54 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    // Project modules
+    implementation project(":core-api")
+    implementation project(":core-cache")
+    implementation project(":core-config")
+    implementation project(":core-connection")
+    implementation project(":core-controller")
+    implementation project(":core-data-store")
+    implementation project(":core-database")
+    implementation project(":core-dependency")
+    implementation project(":core-dto")
+    implementation project(":core-receivers")
+    implementation project(":core-sections")
+    implementation project(":core-utils")
+    implementation project(":feature-auth")
+    implementation project(":feature-community")
+    implementation project(":feature-main")
+    implementation project(":feature-settings")
 
-    // Versions
-    def room_version = "2.5.1"
-    def kotlin_version = '1.8.10'
-    def retrofit_version = '2.9.0'
-    def rxjava_version = '2.2.21'
-    def rxandroid_version = '2.1.1'
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
 
-    implementation "com.google.dagger:hilt-android:2.44"
-    kapt "com.google.dagger:hilt-compiler:2.44"
+    // Location
+    implementation "com.google.android.gms:play-services-location:$gms_location_version"
 
-    implementation "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
+    // Core
+    implementation "androidx.core:core-ktx:$android_core_kotlin_version"
 
-    implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha06'
-    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    // App Compat
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
 
-    implementation 'androidx.core:core-ktx:1.10.1'
+    // Live Data
+    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
 
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
-
-    implementation "androidx.viewpager2:viewpager2:1.0.0"
-
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    runtimeOnly 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
-
-    implementation 'de.hdodenhof:circleimageview:3.0.0'
-    implementation 'com.github.javafaker:javafaker:1.0.2'
-
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
-
+    // Rx
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
+
+    // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
 
-    implementation 'com.faltenreich:skeletonlayout:4.0.0'
-
-    //paging3
-    implementation "androidx.paging:paging-runtime:3.2.0-alpha05"
-    //optional dependency for RxJava support
-    implementation "androidx.paging:paging-rxjava2-ktx:3.2.0-alpha05"
-
     // Room
     implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-rxjava2:$room_version"
-
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
-
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-
-    androidTestImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.5.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.fragment:fragment-testing:1.5.7'
-    androidTestImplementation 'androidx.test:core:1.5.0'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
 }
 
 kapt {

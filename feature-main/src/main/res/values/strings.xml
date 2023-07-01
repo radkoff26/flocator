@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_connection" formatted="true">Нет подключения к сети…</string>
+    <string name="return_to_connection" formatted="true">Соединение установлено!</string>
+    <string name="no_photo_chosen" formatted="true">Вам нужно выбрать как минимум одну картинку!</string>
+    <string name="no_address_available" formatted="true">Проблемы с геолокацией…</string>
+    <string name="photo_count" formatted="true">%d фото</string>
+    <string name="marks_count" formatted="true">%d меток найдено</string>
+    <string name="add_mark">Добавить метку</string>
+    <string name="add_photo">Добавить фото</string>
+    <string name="remove">Удалить</string>
+    <string name="text">Текст</string>
+    <string name="isPublic">Видно всем</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отменить</string>
+    <string name="community_button">Профиль</string>
+    <string name="target_button">Вы на карте</string>
+    <string name="settings_button">Настройки</string>
+    <string name="mark">Метка</string>
+    <string name="exit">Закрыть</string>
+</resources>

@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
+}
+
+android {
+    namespace 'ru.flocator.feature_settings'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    // Project modules
+    implementation project(":core-api")
+    implementation project(":core-connection")
+    implementation project(":core-controller")
+    implementation project(":core-data-store")
+    implementation project(":core-database")
+    implementation project(":core-dependency")
+    implementation project(":core-design")
+    implementation project(":core-sections")
+    implementation project(":core-utils")
+
+    // App Compat
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
+
+    // Constraint Layout
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+
+    // Material
+    implementation "com.google.android.material:material:$material_version"
+
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+
+    // Gson
+    implementation "com.google.code.gson:gson:$gson_version"
+
+    // Kotlin Serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
+
+    // Live Data
+    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
+
+    // CircleImageView
+    implementation "de.hdodenhof:circleimageview:$circle_image_view_version"
+
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+
+    // Rx
+    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
+
+    // SkeletonLayout
+    implementation "com.faltenreich:skeletonlayout:$skeleton_layout_version"
+}
+
+kapt {
+    correctErrorTypes true
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login">Логин</string>
+    <string name="password_hint">Пароль</string>
+    <string name="entry_button_text">Войти</string>
+    <string name="register_button_text">Зарегистрироваться</string>
+    <string name="allow_location_use">Разрешите доступ к вашему местоположению</string>
+    <string name="location_use_explanation">Нам необходимо знать ваше местоположение, чтобы позволить вашим друзьям видеть, где вы находитесь</string>
+    <string name="allow">Разрешить</string>
+    <string name="already_registered">Уже есть аккаунт?</string>
+    <string name="logo">Логотип</string>
+</resources>
