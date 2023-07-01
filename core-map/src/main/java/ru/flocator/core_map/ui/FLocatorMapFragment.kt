@@ -101,7 +101,9 @@ class FLocatorMapFragment :
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(CAMERA_POSITION, map.cameraPosition)
+        if (_map != null) {
+            outState.putParcelable(CAMERA_POSITION, map.cameraPosition)
+        }
     }
 
     override fun onDestroyView() {
