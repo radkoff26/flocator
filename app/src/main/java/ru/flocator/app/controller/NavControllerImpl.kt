@@ -26,7 +26,9 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
     private val activity: FragmentActivity
         get() = _activity!!
 
-    private val fragmentManager: FragmentManager = activity.supportFragmentManager
+    private var _fragmentManager: FragmentManager? = activity.supportFragmentManager
+    private val fragmentManager: FragmentManager
+        get() = _fragmentManager!!
 
     init {
         activity.lifecycle.addObserver(this)
@@ -34,6 +36,7 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
 
     override fun onDestroy(owner: LifecycleOwner) {
         activity.lifecycle.removeObserver(this)
+        _fragmentManager = null
         _activity = null
     }
 
@@ -89,10 +92,9 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
 
     private fun openFragment(fragment: Fragment, committer: TransactionCommitter) {
         processTransactionCommitterSettings(committer).apply {
-            replace(R.id.fragment_container, fragment)
+            add(R.id.fragment_container, fragment)
             addToBackStack(null)
-            commitNow()
-            fragmentManager.saveBackStack(BACK_STACK_NAME)
+            commit()
         }
     }
 
@@ -106,47 +108,45 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
         }
 
     private fun clearAllFragments(): FragmentTransaction {
-        fragmentManager.clearBackStack(BACK_STACK_NAME)
-        return fragmentManager.beginTransaction()
-    }
-
-    private fun closeSection(): FragmentTransaction {
-//        val fragments = fragmentManager.fragments.reversed()
-//        val currentSection = fragments[0]
-//        val transaction = fragmentManager.beginTransaction()
-//        fragments.forEach {
-//            if (currentSection::class.java.isInstance(it)) {
-//                transaction.remove(it)
-//            } else {
-//                return@forEach
-//            }
-//        }
-//        return transaction
         val fragments = fragmentManager.fragments
-        val lastFragment = fragments.last()!!
         val transaction = fragmentManager.beginTransaction()
-        val currentSectionClass = getFragmentSection(lastFragment) ?: return transaction
-        while (fragmentManager.fragments.size > 0 && currentSectionClass::class.java.isInstance(
-                fragmentManager.fragments.last()
-            )
-        ) {
-            fragmentManager.popBackStack()
+        fragments.forEach {
+            transaction.remove(it)
         }
         return transaction
     }
 
-    private fun getFragmentSection(fragment: Fragment): Class<*>? =
-        if (MainSection::class.java.isInstance(fragment)) {
-            MainSection::class.java
-        } else if (CommunitySection::class.java.isInstance(fragment)) {
-            CommunitySection::class.java
-        } else if (AuthenticationSection::class.java.isInstance(fragment)) {
-            AuthenticationSection::class.java
-        } else if (SettingsSection::class.java.isInstance(fragment)) {
-            SettingsSection::class.java
-        } else {
-            null
+    private fun closeSection(): FragmentTransaction {
+        val fragments = fragmentManager.fragments.reversed()
+        val currentSection = getFragmentSection(fragments[0])
+        val transaction = fragmentManager.beginTransaction()
+        fragments.forEach {
+            if (getFragmentSection(it) == currentSection) {
+                transaction.remove(it)
+            } else {
+                return@forEach
+            }
         }
+        return transaction
+    }
+
+    private fun getFragmentSection(fragment: Fragment): Class<*>? {
+        return when (fragment) {
+            is SettingsSection -> {
+                SettingsSection::class.java
+            }
+            is MainSection -> {
+                MainSection::class.java
+            }
+            is AuthenticationSection -> {
+                AuthenticationSection::class.java
+            }
+            is CommunitySection -> {
+                CommunitySection::class.java
+            }
+            else -> null
+        }
+    }
 
     companion object {
         private const val BACK_STACK_NAME = "BACK_STACK"

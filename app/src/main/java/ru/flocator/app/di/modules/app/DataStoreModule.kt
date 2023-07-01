@@ -41,7 +41,6 @@ object DataStoreModule {
             produceFile = { context.dataStoreFile(USER_INFO_STORE_FILE) }
         )
 
-    private const val ENCRYPTED_PREFS = "encrypted_prefs"
     private const val USER_LOCATION_DATA_STORE_FILE = "user_location_ds"
     private const val USER_DATA_STORE_FILE = "user_data_ds"
     private const val USER_INFO_STORE_FILE = "user_info_ds"

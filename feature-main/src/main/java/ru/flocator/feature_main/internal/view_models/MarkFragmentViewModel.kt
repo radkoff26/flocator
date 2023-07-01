@@ -9,7 +9,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.cache.runtime.PhotoCacheLiveData
 import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_dto.user_name.UsernameDto
+import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
 import ru.flocator.core_sections.MainSection
 import ru.flocator.feature_main.internal.domain.fragment.MarkFragmentState
 import ru.flocator.feature_main.internal.repository.MainRepository

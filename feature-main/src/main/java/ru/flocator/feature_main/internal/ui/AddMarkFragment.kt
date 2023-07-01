@@ -23,7 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_dto.mark.AddMarkDto
+import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
 import ru.flocator.core_sections.MainSection
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentAddMarkBinding
@@ -57,6 +57,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             .mainDependencies(findDependencies())
             .navController(findNavController())
             .build()
+            .inject(this)
 
         addMarkFragmentViewModel = ViewModelProvider(this, viewModelFactory)[AddMarkFragmentViewModel::class.java]
     }

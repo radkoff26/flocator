@@ -1,8 +1,8 @@
-package ru.flocator.core_dto.mark
+package ru.flocator.feature_main.internal.domain.mark
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
-import ru.flocator.core_dto.location.LatLngDto
+import ru.flocator.feature_main.internal.domain.location.LatLngDto
 import ru.flocator.core_database.entities.Mark
 import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
@@ -40,15 +40,15 @@ data class MarkDto(
     @SerializedName("createdAt")
     val createdAt: Timestamp
 ) : java.io.Serializable {
-    fun toMarkWithPhotos(): ru.flocator.core_database.entities.MarkWithPhotos {
+    fun toMarkWithPhotos(): MarkWithPhotos {
         val markPhotos = photos.map {
-            ru.flocator.core_database.entities.MarkPhoto(
+            MarkPhoto(
                 it,
                 markId
             )
         }
-        return ru.flocator.core_database.entities.MarkWithPhotos(
-            ru.flocator.core_database.entities.Mark(
+        return MarkWithPhotos(
+            Mark(
                 markId,
                 authorId,
                 LatLng(

@@ -18,7 +18,7 @@ inline fun <reified D: Dependencies> Fragment.findDependencies(): D {
 fun <D: Dependencies> Fragment.findDependenciesByClass(clazz: Class<D>): D {
     return parents.firstNotNullOfOrNull {
         it.dependenciesMap[clazz] as D?
-    } ?: throw IllegalStateException("There is no such dependency!")
+    } ?: throw IllegalStateException("There is no such dependency! $clazz")
 }
 
 private val Fragment.parents: Iterable<DependenciesContainer>

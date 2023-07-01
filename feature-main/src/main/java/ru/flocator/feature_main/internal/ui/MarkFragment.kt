@@ -31,6 +31,7 @@ import ru.flocator.feature_main.internal.adapters.mark.MarkPhotoRecyclerViewAdap
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.domain.fragment.MarkFragmentState
+import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
 import ru.flocator.feature_main.internal.view_models.MarkFragmentViewModel
 import javax.inject.Inject
 
@@ -55,6 +56,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
             .mainDependencies(findDependencies())
             .navController(findNavController())
             .build()
+            .inject(this)
 
         markFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MarkFragmentViewModel::class.java]
     }
@@ -219,7 +221,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     @SuppressLint("SetTextI18n")
-    private fun onUpdateUserData(value: ru.flocator.core_dto.user_name.UsernameDto?) {
+    private fun onUpdateUserData(value: UsernameDto?) {
         if (value == null) {
             return
         }

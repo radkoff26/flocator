@@ -31,7 +31,6 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private lateinit var registrationViewModel: RegistrationViewModel
 
     companion object {
@@ -42,12 +41,14 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         DaggerAuthComponent.factory()
             .create(
                 findDependencies(),
                 findNavController()
             )
             .inject(this)
+
         registrationViewModel = ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 

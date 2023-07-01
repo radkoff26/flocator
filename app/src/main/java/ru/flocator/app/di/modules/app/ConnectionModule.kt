@@ -6,7 +6,11 @@ import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_receivers.NetworkReceiver
 import javax.inject.Singleton
 
-@Module
+@Module(
+    includes = [
+        ReceiverModule::class
+    ]
+)
 object ConnectionModule {
 
     @Provides

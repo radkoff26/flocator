@@ -1,4 +1,4 @@
-package ru.flocator.core_dto.location
+package ru.flocator.feature_main.internal.domain.location
 
 data class LatLngDto(
     val latitude: Double,

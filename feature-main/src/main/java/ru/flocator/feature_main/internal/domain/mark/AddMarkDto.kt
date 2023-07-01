@@ -1,4 +1,4 @@
-package ru.flocator.core_dto.mark
+package ru.flocator.feature_main.internal.domain.mark
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName

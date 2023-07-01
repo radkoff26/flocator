@@ -3,13 +3,12 @@ package ru.flocator.feature_settings.internal.ui
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import ru.flocator.feature_settings.internal.adapters.FriendListAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -19,6 +18,7 @@ import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
+import ru.flocator.feature_settings.internal.adapters.FriendListAdapter
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.domain.friend.Friend
 import ru.flocator.feature_settings.internal.domain.friend.FriendListSerializer

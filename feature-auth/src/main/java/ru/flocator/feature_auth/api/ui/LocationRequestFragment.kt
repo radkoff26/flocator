@@ -31,7 +31,8 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var sharedPrefs: SharedPreferences
 
-    private lateinit var controller: NavController
+    @Inject
+    lateinit var controller: NavController
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

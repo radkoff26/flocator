@@ -18,9 +18,9 @@ import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
-import ru.flocator.core_dto.user.FriendRequests
-import ru.flocator.core_dto.user.Friends
-import ru.flocator.core_dto.user.TargetUser
+import ru.flocator.feature_community.internal.domain.user.FriendRequests
+import ru.flocator.feature_community.internal.domain.user.Friends
+import ru.flocator.feature_community.internal.domain.user.TargetUser
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
 import ru.flocator.core_view_model.ViewModelFactory

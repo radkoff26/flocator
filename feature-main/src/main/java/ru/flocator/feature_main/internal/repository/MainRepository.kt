@@ -17,10 +17,10 @@ import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dto.address.AddressResponse
-import ru.flocator.core_dto.location.UserLocationDto
-import ru.flocator.core_dto.mark.AddMarkDto
-import ru.flocator.core_dto.mark.MarkDto
-import ru.flocator.core_dto.user_name.UsernameDto
+import ru.flocator.feature_main.internal.domain.location.UserLocationDto
+import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
+import ru.flocator.feature_main.internal.domain.mark.MarkDto
+import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
 import ru.flocator.feature_main.api.dependencies.MainDependencies
 import ru.flocator.feature_main.internal.data_source.ClientAPI
 import ru.flocator.feature_main.internal.data_source.GeocoderAPI

@@ -3,8 +3,8 @@ package ru.flocator.feature_community.internal.data_source
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.*
-import ru.flocator.core_dto.user.TargetUser
-import ru.flocator.core_dto.user.UserExternal
+import ru.flocator.feature_community.internal.domain.user.TargetUser
+import ru.flocator.feature_community.internal.domain.user.UserExternal
 
 internal interface UserAPI {
 

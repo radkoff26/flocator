@@ -19,7 +19,6 @@ import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
-import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentChangePasswordBinding
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.repository.SettingsRepository

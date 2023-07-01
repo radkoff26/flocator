@@ -5,7 +5,7 @@ import io.reactivex.Single
 import okhttp3.MultipartBody
 import retrofit2.http.*
 import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_dto.privacy.PrivacyData
+import ru.flocator.feature_settings.internal.domain.privacy.PrivacyData
 import java.sql.Timestamp
 
 internal interface SettingsAPI {

@@ -1,4 +1,4 @@
-package ru.flocator.core_dto.user_name
+package ru.flocator.feature_main.internal.domain.user_name
 
 import com.google.gson.annotations.SerializedName
 

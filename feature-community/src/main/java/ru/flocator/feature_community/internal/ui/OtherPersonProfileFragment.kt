@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
-import ru.flocator.core_dto.user.UserExternal
-import ru.flocator.core_dto.user.UserExternalFriends
+import ru.flocator.feature_community.internal.domain.user.UserExternal
+import ru.flocator.feature_community.internal.domain.user.UserExternalFriends
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_utils.LoadUtils
 import ru.flocator.core_utils.TimePresentationUtils
@@ -24,6 +26,7 @@ import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_community.databinding.FragmentPersonProfileBinding
 import ru.flocator.feature_community.internal.adapters.ExternalFriendActionListener
 import ru.flocator.feature_community.internal.adapters.ExternalFriendAdapter
+import ru.flocator.feature_community.internal.di.DaggerCommunityComponent
 import ru.flocator.feature_community.internal.view_models.OtherPersonProfileFragmentViewModel
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -57,6 +60,13 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
+        DaggerCommunityComponent.builder()
+            .communityDependencies(findDependencies())
+            .navController(findNavController())
+            .build()
+            .inject(this)
+
         viewModel = ViewModelProvider(
             this,
             viewModelFactory

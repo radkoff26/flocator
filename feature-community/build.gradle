@@ -42,7 +42,6 @@ dependencies {
     implementation project(":core-data-store")
     implementation project(":core-dependency")
     implementation project(":core-design")
-    implementation project(":core-dto")
     implementation project(":core-sections")
     implementation project(":core-utils")
     implementation project(":core-view-model")

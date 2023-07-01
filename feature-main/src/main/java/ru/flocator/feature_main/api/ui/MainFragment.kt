@@ -20,8 +20,8 @@ import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_dto.location.LatLngDto
-import ru.flocator.core_dto.mark.MarkDto
+import ru.flocator.feature_main.internal.domain.location.LatLngDto
+import ru.flocator.feature_main.internal.domain.mark.MarkDto
 import ru.flocator.core_map.ui.FLocatorMapFragment
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
@@ -80,6 +80,7 @@ class MainFragment : Fragment(), MainSection {
             .mainDependencies(findDependencies())
             .navController(findNavController())
             .build()
+            .inject(this)
 
         mainFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MainFragmentViewModel::class.java]
     }

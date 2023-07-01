@@ -34,8 +34,8 @@ internal class RegistrationViewModel @Inject constructor(
     }
 
     fun clear(){
-        _nameData.postValue(null)
-        _loginEmailData.postValue(null)
+        _nameData.value = null
+        _loginEmailData.value = null
     }
 
     fun registerUser(userRegistrationDto: UserRegistrationDto): Single<Boolean> {

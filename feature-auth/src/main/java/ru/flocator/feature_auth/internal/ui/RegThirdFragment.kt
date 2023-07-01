@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -33,7 +34,8 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var registrationViewModel: RegistrationViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var registrationViewModel: RegistrationViewModel
 
     @Inject
     internal lateinit var controller: NavController
@@ -48,12 +50,15 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         DaggerAuthComponent.factory()
             .create(
                 findDependencies(),
                 findNavController()
             )
             .inject(this)
+
+        registrationViewModel = ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -137,10 +142,9 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ isSuccess ->
                     if (isSuccess) {
-                        ru.flocator.core_utils.FragmentNavigationUtils.clearAllAndOpenFragment(
-                            requireActivity().supportFragmentManager,
-                            AuthFragment()
-                        )
+                        controller.toAuth()
+                            .clearAll()
+                            .commit()
                     }
                 }, { error ->
                     showErrorMessage()

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.app.application.App
 import ru.flocator.app.controller.NavControllerImpl
 import ru.flocator.app.data_source.MainAPI
 import ru.flocator.core_api.api.AppRepository
@@ -32,10 +33,7 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
     override lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        DaggerMainActivityComponent.builder()
-            .context(applicationContext)
-            .build()
-            .inject(this)
+        (application as App).appComponent.inject(this)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -71,13 +69,9 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                                 .subscribe(
                                     {
                                         if (LocationUtils.hasLocationPermission(this)) {
-                                            navController.toMain()
-                                                .clearAll()
-                                                .commit()
+                                            navController.toMain().commit()
                                         } else {
-                                            navController.toLocationDialog()
-                                                .clearAll()
-                                                .commit()
+                                            navController.toLocationDialog().commit()
                                         }
                                     },
                                     { throwable ->
@@ -87,27 +81,21 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                                                 "openFirstFragment: no connection, but user authorized previously",
                                                 throwable
                                             )
-                                            navController.toMain()
-                                                .clearAll()
-                                                .commit()
+                                            navController.toMain().commit()
                                         } else {
                                             Log.e(
                                                 TAG,
                                                 "openFirstFragment: not authorized!",
                                                 throwable
                                             )
-                                            navController.toAuth()
-                                                .clearAll()
-                                                .commit()
+                                            navController.toAuth().commit()
                                         }
                                     }
                                 )
                         )
                     },
                     {
-                        navController.toAuth()
-                            .clearAll()
-                            .commit()
+                        navController.toAuth().commit()
                         Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
                     }
                 )

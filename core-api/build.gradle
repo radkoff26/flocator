@@ -37,7 +37,6 @@ dependencies {
     implementation project(":core-connection")
     implementation project(":core-data-store")
     implementation project(":core-database")
-    implementation project(":core-dto")
     implementation project(":core-utils")
     implementation project(":core-dependency")
 

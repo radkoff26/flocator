@@ -1,4 +1,4 @@
-package ru.flocator.core_dto.user
+package ru.flocator.feature_community.internal.domain.user
 
 import com.google.gson.annotations.SerializedName
 import java.sql.Timestamp

@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -19,7 +19,6 @@ import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.core_utils.LocationUtils
-import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_auth.databinding.FragmentAuthBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.repository.AuthRepository
@@ -32,7 +31,10 @@ class AuthFragment : Fragment(), AuthenticationSection {
     private val binding: FragmentAuthBinding
         get() = _binding!!
     private val compositeDisposable = CompositeDisposable()
-    private val registrationViewModel: RegistrationViewModel by activityViewModels()
+
+    @Inject
+    internal lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var registrationViewModel: RegistrationViewModel
 
     @Inject
     internal lateinit var navController: NavController
@@ -45,12 +47,16 @@ class AuthFragment : Fragment(), AuthenticationSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         DaggerAuthComponent.factory()
             .create(
                 findDependencies(),
                 findNavController()
             )
             .inject(this)
+
+        registrationViewModel =
+            ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -101,6 +107,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
                     } else {
                         navController
                             .toFragment(LocationRequestFragment())
+                            .clearAll()
                             .commit()
                     }
                 }, { error ->

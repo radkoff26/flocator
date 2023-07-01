@@ -12,6 +12,7 @@ import ru.flocator.cache.runtime.PhotoCacheLiveData
 import ru.flocator.core_api.api.AppRepository
 import ru.flocator.feature_main.internal.domain.photo.Photo
 import ru.flocator.feature_main.internal.domain.dto.ListMarkDto
+import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
 import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
@@ -110,7 +111,7 @@ internal class MarksListFragmentViewModel @Inject constructor(
         }
     }
 
-    private fun formatUsername(usernameDto: ru.flocator.core_dto.user_name.UsernameDto): String {
+    private fun formatUsername(usernameDto: UsernameDto): String {
         return "${usernameDto.firstName} ${usernameDto.lastName}"
     }
 

@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -34,7 +35,8 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var registrationViewModel: RegistrationViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var registrationViewModel: RegistrationViewModel
 
     @Inject
     internal lateinit var controller: NavController
@@ -48,12 +50,15 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         DaggerAuthComponent.factory()
             .create(
                 findDependencies(),
                 findNavController()
             )
             .inject(this)
+
+        registrationViewModel = ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 
     override fun onCreateView(

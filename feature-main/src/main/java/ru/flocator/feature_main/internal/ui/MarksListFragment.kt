@@ -19,8 +19,8 @@ import ru.flocator.cache.runtime.PhotoState
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_dto.location.LatLngDto
-import ru.flocator.core_dto.mark.MarkDto
+import ru.flocator.feature_main.internal.domain.location.LatLngDto
+import ru.flocator.feature_main.internal.domain.mark.MarkDto
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.DistanceUtils
 import ru.flocator.feature_main.R
@@ -63,6 +63,7 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
             .mainDependencies(findDependencies())
             .navController(findNavController())
             .build()
+            .inject(this)
 
         marksListFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MarksListFragmentViewModel::class.java]
     }

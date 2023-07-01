@@ -17,10 +17,10 @@ import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
-import ru.flocator.feature_settings.internal.domain.friend.Friend
-import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import ru.flocator.feature_settings.internal.adapters.FriendListAdapter
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
+import ru.flocator.feature_settings.internal.domain.friend.Friend
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import ru.flocator.feature_settings.internal.utils.FriendViewUtils.getNumOfColumns
 import javax.inject.Inject
 

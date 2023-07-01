@@ -5,9 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_dto.user.FriendRequests
-import ru.flocator.core_dto.user.Friends
-import ru.flocator.core_dto.user.TargetUser
+import ru.flocator.feature_community.internal.domain.user.FriendRequests
+import ru.flocator.feature_community.internal.domain.user.Friends
+import ru.flocator.feature_community.internal.domain.user.TargetUser
 import ru.flocator.feature_community.api.ui.ProfileFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

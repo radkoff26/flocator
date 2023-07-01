@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_dto.user.FriendRequests
+import ru.flocator.feature_community.internal.domain.user.FriendRequests
 import ru.flocator.core_utils.LoadUtils
 import ru.flocator.feature_community.databinding.PersonNewFriendItemBinding
 

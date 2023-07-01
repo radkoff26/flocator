@@ -1,4 +1,4 @@
-package ru.flocator.core_dto.privacy;
+package ru.flocator.feature_settings.internal.domain.privacy;
 
 import com.google.gson.annotations.SerializedName
 

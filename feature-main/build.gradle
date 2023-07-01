@@ -59,6 +59,7 @@ dependencies {
 
     // App Compat
     implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation 'androidx.constraintlayout:constraintlayout-solver:2.0.4'
 
     // Dagger
     implementation "com.google.dagger:dagger:$dagger_version"

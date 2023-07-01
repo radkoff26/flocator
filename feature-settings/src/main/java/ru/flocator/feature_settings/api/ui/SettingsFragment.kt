@@ -18,12 +18,12 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
-import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
@@ -44,7 +44,7 @@ class SettingsFragment : Fragment(), SettingsSection {
     private lateinit var fragmentView: View
 
     @Inject
-    lateinit var dependencies: SettingsDependencies
+    lateinit var appRepository: AppRepository
 
     @Inject
     internal lateinit var settingsRepository: SettingsRepository
@@ -118,7 +118,7 @@ class SettingsFragment : Fragment(), SettingsSection {
         compositeDisposable.add(
             io.reactivex.Observable.create { emitter ->
                 compositeDisposable.add(
-                    dependencies.appRepository.userInfoCache.getUserInfo()
+                    appRepository.userInfoCache.getUserInfo()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({
@@ -149,7 +149,7 @@ class SettingsFragment : Fragment(), SettingsSection {
                         if (userInfo == UserInfo.DEFAULT) {
                             return@subscribe
                         }
-                        dependencies.appRepository.userInfoCache.updateUserInfo(userInfo)
+                        appRepository.userInfoCache.updateUserInfo(userInfo)
                         binding.nameField.setText(userInfo.firstName + " " + userInfo.lastName)
                         val cal = Calendar.getInstance()
                         if (userInfo.birthDate != null) {
@@ -166,7 +166,7 @@ class SettingsFragment : Fragment(), SettingsSection {
 
                         if (userInfo.avatarUri != null) {
                             compositeDisposable.add(
-                                dependencies.appRepository.photoLoader.getPhoto(userInfo.avatarUri!!)
+                                appRepository.photoLoader.getPhoto(userInfo.avatarUri!!)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(
