@@ -6,10 +6,10 @@
     android:layout_height="match_parent">
 
     <fragment
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/map_fragment"
-        android:name="ru.flocator.core_map.internal.ui.FLocatorMapFragment"/>
+        android:name="ru.flocator.core_map.internal.ui.FLocatorMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/open_add_mark_fragment"
@@ -27,6 +27,15 @@
         app:layout_constraintStart_toStartOf="@+id/map_fragment"
         app:layout_constraintTop_toTopOf="@+id/map_fragment"
         app:strokeColor="#1F121212" />
+
+    <ru.flocator.core_map.api.configuration.FilterLayout
+        android:id="@+id/filters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintEnd_toEndOf="@+id/map_fragment"
+        app:layout_constraintTop_toTopOf="@+id/map_fragment" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/community_btn"

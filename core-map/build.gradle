@@ -35,6 +35,7 @@ dependencies {
     implementation project(":core-database")
     implementation project(":core-data-store")
     implementation project(":core-design")
+    implementation project(":core-extensions")
     implementation project(":core-utils")
 
     // Android Fragment

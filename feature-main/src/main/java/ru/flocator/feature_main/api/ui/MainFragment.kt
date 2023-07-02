@@ -21,6 +21,7 @@ import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_map.api.FLocatorMap
+import ru.flocator.core_map.api.configuration.MapConfiguration
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.LocationUtils
@@ -96,6 +97,8 @@ class MainFragment : Fragment(), MainSection {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+
+        binding.filters.setActiveConfiguration(MapConfiguration.All)
 
         mapFragment =
             childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMap
