@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary">#1515B9</color>
-    <color name="tint">#B31515B9</color>
+    <color name="tint">#5958CC</color>
     <color name="secondary">#C1E2FF</color>
     <color name="font">#767575</color>
     <color name="danger">#DC0F0F</color>
