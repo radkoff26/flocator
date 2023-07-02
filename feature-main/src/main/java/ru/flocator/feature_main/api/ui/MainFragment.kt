@@ -20,9 +20,7 @@ import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
-import ru.flocator.feature_main.internal.domain.location.LatLngDto
-import ru.flocator.feature_main.internal.domain.mark.MarkDto
-import ru.flocator.core_map.ui.FLocatorMapFragment
+import ru.flocator.core_map.api.FLocatorMap
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.LocationUtils
@@ -31,6 +29,8 @@ import ru.flocator.feature_main.internal.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
 import ru.flocator.feature_main.internal.di.DaggerMainComponent
+import ru.flocator.feature_main.internal.domain.location.LatLngDto
+import ru.flocator.feature_main.internal.domain.mark.MarkDto
 import ru.flocator.feature_main.internal.ui.AddMarkFragment
 import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.ui.MarksListFragment
@@ -71,7 +71,7 @@ class MainFragment : Fragment(), MainSection {
 
     private val isInitializedCamera = AtomicBoolean(false)
 
-    private lateinit var mapFragment: FLocatorMapFragment
+    private lateinit var mapFragment: FLocatorMap
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -98,7 +98,7 @@ class MainFragment : Fragment(), MainSection {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
         mapFragment =
-            childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMapFragment
+            childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMap
 
         mapFragment.initialize(
             mainFragmentViewModel::loadPhoto,
