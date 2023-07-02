@@ -64,7 +64,6 @@ internal class UserView @JvmOverloads constructor(
                     ru.flocator.core_map.R.drawable.user_circle_bg,
                     null
                 )!!
-
         }
 
         setAvatarPlaceHolder()

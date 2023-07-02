@@ -18,6 +18,7 @@ import ru.flocator.core_map.internal.utils.MapComparingUtils
 import ru.flocator.core_map.internal.utils.MapFilterUtils
 import ru.flocator.core_map.internal.utils.MarksGroupingUtils
 import ru.flocator.core_map.internal.utils.VisibilityUtils
+import kotlin.concurrent.thread
 
 internal class FLocatorMapFragmentViewModel : ViewModel() {
     private val _cameraStatusLiveData: MutableLiveData<CameraStatus> =
@@ -126,13 +127,15 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     }
 
     private fun updateVisibleMarks() {
-        CoroutineScope(Dispatchers.Default).launch {
-            val currentVisibleRegion = visibleRegion ?: return@launch
-            val currentMapWidth = mapWidth ?: return@launch
-            val currentMarkWidth = markWidth ?: return@launch
+        thread {
+            val currentVisibleRegion = visibleRegion ?: return@thread
+            val currentMapWidth = mapWidth ?: return@thread
+            val currentMarkWidth = markWidth ?: return@thread
+
             val flattenMarks = allMarks.map(Map.Entry<Long, MarkWithPhotos>::value)
             val marks = MapFilterUtils.filterMarksByMapConfiguration(flattenMarks, mapConfiguration)
             val visibleMarks = VisibilityUtils.emphasizeVisibleMarks(marks, currentVisibleRegion)
+
             val groupedVisibleMarks = MarksGroupingUtils.groupMarks(
                 visibleMarks,
                 currentVisibleRegion,
@@ -141,7 +144,9 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
             )
             val sortedGroupedVisibleMarks =
                 groupedVisibleMarks.sortedWith(MapComparingUtils.MarkGroupComparator)
+
             val currentVisibleMarks = visibleMarksLiveData.value!!
+
             if (sortedGroupedVisibleMarks != currentVisibleMarks) {
                 _visibleMarksLiveData.postValue(sortedGroupedVisibleMarks)
             }
@@ -149,8 +154,8 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     }
 
     private fun updateVisibleUsers() {
-        CoroutineScope(Dispatchers.Default).launch {
-            val currentVisibleRegion = visibleRegion ?: return@launch
+        thread {
+            val currentVisibleRegion = visibleRegion ?: return@thread
             val flattenUsers = _allFriends.map(Map.Entry<Long, User>::value)
             val users = MapFilterUtils.filterUsersByMapConfiguration(flattenUsers, mapConfiguration)
             val visibleUsers =

@@ -13,9 +13,6 @@ import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
@@ -35,6 +32,9 @@ import ru.flocator.core_map.internal.ui.views.UserView
 import ru.flocator.core_map.internal.utils.DisposableMapItemsUtils
 import ru.flocator.core_map.internal.view_models.FLocatorMapFragmentViewModel
 import ru.flocator.core_utils.ViewUtils
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.thread
 import kotlin.math.max
 
 internal class FLocatorMapFragment :
@@ -55,6 +55,21 @@ internal class FLocatorMapFragment :
     private var onMarkGroupViewClickCallback: OnMarkGroupViewClickCallback? = null
 
     private val viewModel: FLocatorMapFragmentViewModel by viewModels()
+
+    private val marksDispatchReadWriteLock: ReadWriteLock = ReentrantReadWriteLock(true)
+    private val usersDispatchReadWriteLock: ReadWriteLock = ReentrantReadWriteLock(true)
+
+    private val marksDispatchWriteLock = marksDispatchReadWriteLock.writeLock()
+    private val usersDispatchWriteLock = usersDispatchReadWriteLock.writeLock()
+
+    private val marksDispatchReadLock = marksDispatchReadWriteLock.readLock()
+    private val usersDispatchReadLock = usersDispatchReadWriteLock.readLock()
+
+    @Volatile
+    private var marksDispatchCount = 0
+
+    @Volatile
+    private var usersDispatchCount = 0
 
     // Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,55 +133,88 @@ internal class FLocatorMapFragment :
             if (it == null || viewModel.userLocationLiveData.value == null) {
                 return@observe
             }
+
             val userLocation = viewModel.userLocationLiveData.value!!
-            val userViewDto = targetUserState ?: UserViewDto(
-                UserView(
-                    requireContext(),
-                    isTargetUser = true
-                ).apply {
-                    setUserName(
-                        resources.getString(ru.flocator.core_map.R.string.user_name_on_map, it.firstName, it.lastName)
-                    )
-                },
-                User(
-                    it.userId,
-                    it.firstName,
-                    it.lastName,
-                    userLocation,
-                    it.avatarUri
-                )
-            )
-            val avatar = it.avatarUri
+            val userViewDto = targetUserState ?: composeUserViewDto(it, userLocation)
+
             val userView = userViewDto.userView
-            if (avatar != null) {
-                userViewDto.avatarRequestDisposable = loadPhotoCallback?.invoke(avatar)
-                    ?.observeOn(AndroidSchedulers.mainThread())
-                    ?.subscribe { bitmap ->
-                        userView.setAvatarBitmap(bitmap, avatar)
-                        updateMapItemOnMap(userViewDto)
-                    }
-            } else {
-                userView.setAvatarPlaceHolder()
-                updateMapItemOnMap(userViewDto)
+            if (userViewDto.getItemMarker() == null) {
+                drawMapItemOnMap(
+                    userViewDto,
+                    userView
+                )
             }
+
+            val avatar = it.avatarUri
+
+            if (userView.avatarUri != avatar) {
+                DisposableMapItemsUtils.disposeItem(userViewDto)
+
+                if (avatar != null) {
+                    userViewDto.avatarRequestDisposable = loadPhotoCallback?.invoke(avatar)
+                        ?.observeOn(AndroidSchedulers.mainThread())
+                        ?.subscribe { bitmap ->
+                            userView.setAvatarBitmap(bitmap, avatar)
+                            updateMapItemOnMap(userViewDto)
+                        }
+                } else {
+                    userView.setAvatarPlaceHolder()
+                    updateMapItemOnMap(userViewDto)
+                }
+            }
+
             targetUserState = userViewDto
-            drawMapItemOnMap(
-                userViewDto,
-                userView
-            )
         }
+    }
+
+    private fun composeUserViewDto(userInfo: UserInfo, userLocation: LatLng): UserViewDto {
+        return UserViewDto(
+            UserView(
+                requireContext(),
+                isTargetUser = true
+            ).apply {
+                setUserName(
+                    resources.getString(
+                        ru.flocator.core_map.R.string.user_name_on_map,
+                        userInfo.firstName,
+                        userInfo.lastName
+                    )
+                )
+            },
+            User(
+                userInfo.userId,
+                userInfo.firstName,
+                userInfo.lastName,
+                userLocation,
+                userInfo.avatarUri
+            )
+        )
     }
 
     private fun subscribeToVisibleUsers() {
         viewModel.visibleUsersLiveData.observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
+            thread {
+                usersDispatchWriteLock.lock()
+                val currentCount = usersDispatchCount + 1
+                usersDispatchCount = currentCount
+                usersDispatchWriteLock.unlock()
+
                 val usersDifference = makeUsersDifference(it)
+
+                usersDispatchReadLock.lock()
+                val newCount = usersDispatchCount
+                usersDispatchReadLock.unlock()
+
+                if (newCount != currentCount) {
+                    return@thread
+                }
                 requireActivity().runOnUiThread {
                     usersDifference.dispatchDifferenceTo(
                         this@FLocatorMapFragment,
                         this@FLocatorMapFragment::setNewUserViewAndProvideIt
                     ) {
-                        usersState.remove(it.user.id)
+                        val id = it.user.id
+                        usersState.remove(id)
                     }
                 }
             }
@@ -175,15 +223,29 @@ internal class FLocatorMapFragment :
 
     private fun subscribeToVisibleMarks() {
         viewModel.visibleMarksLiveData.observe(viewLifecycleOwner) {
-            CoroutineScope(Dispatchers.IO).launch {
+            thread {
+                marksDispatchWriteLock.lock()
+                val currentCount = marksDispatchCount + 1
+                marksDispatchCount = currentCount
+                marksDispatchWriteLock.unlock()
+
                 val singleMarksDifference = makeSingleMarksDifference(it)
                 val groupMarksDifference = makeGroupMarksDifference(it)
+
+                marksDispatchReadLock.lock()
+                val newCount = marksDispatchCount
+                marksDispatchReadLock.unlock()
+
+                if (newCount != currentCount) {
+                    return@thread
+                }
                 requireActivity().runOnUiThread {
                     singleMarksDifference?.dispatchDifferenceTo(
                         this@FLocatorMapFragment,
                         this@FLocatorMapFragment::setNewMarkViewAndProvideIt
                     ) {
-                        marksState.remove(it.mark.mark.markId)
+                        val id = it.mark.mark.markId
+                        marksState.remove(id)
                     }
                     groupMarksDifference.dispatchDifferenceTo(
                         this@FLocatorMapFragment,
@@ -391,7 +453,7 @@ internal class FLocatorMapFragment :
             override fun onGlobalLayout() {
                 viewModel.setWidths(
                     mapView.width.toFloat(),
-                    ViewUtils.dpToPx(56, requireContext()).toFloat()
+                    ViewUtils.dpToPx(MARK_WIDTH_DP, requireContext()).toFloat()
                 )
                 mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
@@ -399,6 +461,7 @@ internal class FLocatorMapFragment :
         mapView.viewTreeObserver.addOnGlobalLayoutListener(listener)
     }
 
+    // Map drawing
     fun drawMapItemOnMap(
         mapItem: MapItem,
         bitmapCreator: BitmapCreator
@@ -428,7 +491,7 @@ internal class FLocatorMapFragment :
         mapItem.getItemMarker()?.position = mapItem.getLocation()
     }
 
-    internal fun <T : MapItem> removeMapItemFromMap(
+    fun <T : MapItem> removeMapItemFromMap(
         mapItem: T,
         onRemoveMapItemCallback: ((obj: T) -> Unit)? = null
     ) {
@@ -436,11 +499,11 @@ internal class FLocatorMapFragment :
             return
         }
         val marker = mapItem.getItemMarker()
+        onRemoveMapItemCallback?.invoke(mapItem)
         if (marker != null) {
             animateFadingOut(marker) {
                 marker.remove()
                 mapItem.setItemMarker(null)
-                onRemoveMapItemCallback?.invoke(mapItem)
             }
         }
     }
@@ -451,7 +514,7 @@ internal class FLocatorMapFragment :
             addUpdateListener {
                 marker.alpha = it.animatedValue as Float
             }
-            duration = 250
+            duration = ANIMATION_FADE_IN_DURATION
         }
         valueAnimator.start()
     }
@@ -461,7 +524,7 @@ internal class FLocatorMapFragment :
             addUpdateListener {
                 marker.alpha = it.animatedValue as Float
             }
-            duration = 250
+            duration = ANIMATION_FADE_OUT_DURATION
             doOnEnd {
                 doOnEndCallback.invoke()
             }
@@ -558,8 +621,12 @@ internal class FLocatorMapFragment :
     }
 
     private fun removeMarkGroup(dto: MarkGroupViewDto) {
+        if (dto.marker != null) {
+            dto.marker!!.remove()
+        }
         markGroupsState.removeIf {
             it.markGroup.center == dto.markGroup.center
+                    && it.markGroup.marks.size == dto.markGroup.marks.size
         }
     }
 
@@ -567,5 +634,8 @@ internal class FLocatorMapFragment :
         const val TAG = "FLocatorMapFragment"
         const val MIN_ZOOM_SCALE = 15f
         const val CAMERA_POSITION = "CAMERA_POSITION"
+        const val MARK_WIDTH_DP = 56
+        const val ANIMATION_FADE_IN_DURATION = 300L
+        const val ANIMATION_FADE_OUT_DURATION = 250L
     }
 }
