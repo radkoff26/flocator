@@ -30,15 +30,13 @@ internal object MapItemsCompareCallbacks {
             item2: MarkGroupViewDto
         ): Boolean {
             return item1.markGroup.center == item2.markGroup.center
+                    && item1.markGroup.marks.size == item2.markGroup.marks.size
         }
 
         override fun areComparedItemsContentsTheSame(
             item1: MarkGroupViewDto,
             item2: MarkGroupViewDto
         ): Boolean {
-            if (item1.markGroup.marks.size != item2.markGroup.marks.size) {
-                return false
-            }
             item1.markGroup.marks.forEachIndexed { index, markWithPhotos ->
                 val mark = item2.markGroup.marks[index]
                 if (mark.mark.markId != markWithPhotos.mark.markId) {

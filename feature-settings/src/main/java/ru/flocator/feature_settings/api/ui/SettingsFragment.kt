@@ -41,8 +41,6 @@ class SettingsFragment : Fragment(), SettingsSection {
 
     private val compositeDisposable = CompositeDisposable()
 
-    private lateinit var fragmentView: View
-
     @Inject
     lateinit var appRepository: AppRepository
 
@@ -287,7 +285,6 @@ class SettingsFragment : Fragment(), SettingsSection {
     }
 
     private fun changeAvatar(uri: Uri) {
-        val avatar = fragmentView.findViewById<CircleImageView>(R.id.avatar)
-        avatar.setImageURI(uri)
+        binding.avatar.setImageURI(uri)
     }
 }

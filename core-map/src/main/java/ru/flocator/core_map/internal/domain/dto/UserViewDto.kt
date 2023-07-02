@@ -15,15 +15,15 @@ internal data class UserViewDto(
     var avatarRequestDisposable: Disposable? = null
 ): DisposableMapItem {
 
+    override fun getBitmapCreator(): BitmapCreator = userView
+
     override fun getDisposables(): List<Disposable?> = listOf(avatarRequestDisposable)
 
     override fun getItemMarker(): Marker? = marker
 
-    override fun getBitmapCreator(): BitmapCreator = userView
-
-    override fun getLocation(): LatLng = user.location
-
     override fun setItemMarker(marker: Marker?) {
         this.marker = marker
     }
+
+    override fun getLocation(): LatLng = user.location
 }
