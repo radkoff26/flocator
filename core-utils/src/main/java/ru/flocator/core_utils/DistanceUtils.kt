@@ -21,7 +21,7 @@ object DistanceUtils {
         }
     }
 
-    private fun calculateDistance(latLng1: LatLng, latLng2: LatLng): Double {
+    fun calculateDistance(latLng1: LatLng, latLng2: LatLng): Double {
         val latitudeDelta = (latLng1.latitude - latLng2.latitude)
         val longitudeDelta = (latLng1.longitude - latLng2.longitude)
         return sqrt(latitudeDelta.pow(2) + longitudeDelta.pow(2))

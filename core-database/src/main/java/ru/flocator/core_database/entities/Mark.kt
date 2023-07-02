@@ -45,7 +45,7 @@ data class Mark(
 
         if (markId != other.markId) return false
         if (authorId != other.authorId) return false
-        if (location.latitude != other.location.latitude || location.longitude != other.location.longitude) return false
+        if (location != other.location) return false
         if (text != other.text) return false
         if (isPublic != other.isPublic) return false
         if (place != other.place) return false
