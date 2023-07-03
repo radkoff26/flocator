@@ -16,6 +16,7 @@ import com.google.android.material.button.MaterialButton
 import ru.flocator.core_extensions.findColor
 import ru.flocator.core_extensions.findDrawable
 import ru.flocator.core_map.R
+import ru.flocator.core_utils.AnimationUtils
 import ru.flocator.core_utils.ViewUtils
 
 class FilterLayout @JvmOverloads constructor(
@@ -25,7 +26,8 @@ class FilterLayout @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
     companion object {
         // Animation settings
-        const val BUTTON_ANIMATION_DURATION = 150L
+        const val BUTTON_TRANSLATE_ANIMATION_DURATION = 150L
+        const val BUTTON_BACKGROUND_ANIMATION_DURATION = 250L
         const val TRANSITION_THRESHOLD = 30
 
         // Dimensions
@@ -71,6 +73,7 @@ class FilterLayout @JvmOverloads constructor(
 
     private val filterToggleButton: MaterialButton = MaterialButton(context)
 
+    // Filter buttons for the layout
     private val filterButtonHolders: List<FilterButtonHolder> = listOf(
         FilterButtonHolder(
             MaterialButton(context),
@@ -92,14 +95,19 @@ class FilterLayout @JvmOverloads constructor(
         )
     )
 
+    // Index of currently active filter button
     private var activeFilter: Int = 0
 
+    // Listener, set by parent Fragment/Activity to listen to Configuration Changes made by user
     private var onMapConfigurationChangeListener: OnMapConfigurationChangeListener? = null
 
+    // Flag which indicates about current state of the layout (whether it's expanded or collapsed)
     private var isExpanded: Boolean = false
 
+    // Current animator which animates children views of the layout
     private var animator: ValueAnimator? = null
 
+    // Flag which indicates whether layout is animated or not
     private var isAnimated: Boolean = false
 
     private data class FilterButtonHolder(
@@ -133,6 +141,7 @@ class FilterLayout @JvmOverloads constructor(
                 // Adding button to the layout
                 addView(this)
 
+                // Init button styles in accordance with current state
                 initFilterButton(index)
             }
         }
@@ -143,23 +152,33 @@ class FilterLayout @JvmOverloads constructor(
             0,
             MeasureSpec.UNSPECIFIED
         )
+        // Measuring toggle button, making it wrap content
         filterToggleButton.measure(
             wrapContentDimension,
             wrapContentDimension
         )
+        // Height variable to accumulate overall height of the layout
         var height = filterToggleButton.measuredHeight
+        // Width variable to calculate overall (i. e. max) width of the layout
         var maxWidth = filterToggleButton.measuredWidth
+        // Iterator through children views of the layout
         val iterator = children.iterator()
+        // Skipping the first child since it's already measured
         iterator.next()
+        // Measuring filter buttons
         while (iterator.hasNext()) {
             val view = iterator.next()
+            // Measuring current view at wrap_content directive
             view.measure(
                 wrapContentDimension,
                 wrapContentDimension
             )
+            // Adding height and margin on top of current view
             height += MARGIN_TOP + view.measuredHeight
+            // Finding out the greatest width
             maxWidth = maxOf(maxWidth, view.measuredWidth)
         }
+        // Measuring the layout by calculated width and height
         setMeasuredDimension(
             MeasureSpec.makeMeasureSpec(
                 maxWidth,
@@ -173,6 +192,7 @@ class FilterLayout @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
+        // All the animations get stopped by the moment when the layout is detached from window
         animator?.cancel()
         animator = null
         isAnimated = false
@@ -187,6 +207,7 @@ class FilterLayout @JvmOverloads constructor(
         setActiveConfiguration(mapConfiguration, false)
     }
 
+    // Method which applies appropriate adjustments to toggle button according to state
     private fun initToggleButton() {
         filterToggleButton.text = resources.getString(textRes)
         filterToggleButton.textSize = BUTTON_TEXT_SIZE
@@ -213,6 +234,7 @@ class FilterLayout @JvmOverloads constructor(
         }
     }
 
+    // Method which applies appropriate adjustments to particular filter button according to state
     private fun initFilterButton(index: Int) {
         val item = filterButtonHolders[index]
         item.button.apply {
@@ -222,19 +244,20 @@ class FilterLayout @JvmOverloads constructor(
             // Applying appropriate styles to button
             resources.apply {
                 text = getString(item.textRes)
-                textSize = BUTTON_TEXT_SIZE
                 icon = findDrawable(item.iconRes)
-                iconSize = buttonIconSize
                 iconTint = ColorStateList.valueOf(
                     findColor(filterButtonTextColor)
                 )
-                iconGravity = MaterialButton.ICON_GRAVITY_END
-                isAllCaps = false
-                letterSpacing = 0.03125F
                 setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyLarge)
                 setTextColor(findColor(filterButtonTextColor))
-                cornerRadius = ViewUtils.dpToPx(BUTTON_CORNER_RADIUS, context)
             }
+
+            textSize = BUTTON_TEXT_SIZE
+            iconSize = buttonIconSize
+            iconGravity = MaterialButton.ICON_GRAVITY_END
+            isAllCaps = false
+            letterSpacing = 0.03125F
+            cornerRadius = ViewUtils.dpToPx(BUTTON_CORNER_RADIUS, context)
 
             // Setting button text to be in the very end of the View
             textAlignment = MaterialButton.TEXT_ALIGNMENT_TEXT_END
@@ -283,33 +306,64 @@ class FilterLayout @JvmOverloads constructor(
 
     private fun adjustToggleButtonOnCollapsed() {
         with(resources) {
+            adjustToggleButtonOnCollapsedWithoutBackground()
+            filterToggleButton.setBackgroundColor(findColor(backgroundColorCollapsed))
+        }
+    }
+
+    private fun adjustToggleButtonOnCollapsedWithoutBackground() {
+        with(resources) {
             filterToggleButton.icon = findDrawable(iconResCollapsed)
             filterToggleButton.iconTint = ColorStateList.valueOf(
                 resources.findColor(textColorCollapsed)
             )
-            filterToggleButton.setBackgroundColor(findColor(backgroundColorCollapsed))
             filterToggleButton.setTextColor(findColor(textColorCollapsed))
         }
     }
 
     private fun adjustToggleButtonOnExpanded() {
         with(resources) {
+            adjustToggleButtonOnExpandedWithoutBackground()
+            filterToggleButton.setBackgroundColor(findColor(backgroundColorExpanded))
+        }
+    }
+
+    private fun adjustToggleButtonOnExpandedWithoutBackground() {
+        with(resources) {
             filterToggleButton.icon = findDrawable(iconResExpanded)
             filterToggleButton.iconTint = ColorStateList.valueOf(
                 resources.findColor(textColorExpanded)
             )
-            filterToggleButton.setBackgroundColor(findColor(backgroundColorExpanded))
             filterToggleButton.setTextColor(findColor(textColorExpanded))
         }
     }
 
     private fun collapse() {
-        adjustToggleButtonOnCollapsed()
-        isAnimated = true
-        collapseButton(filterButtonHolders.lastIndex)
-        isExpanded = false
+        adjustToggleButtonOnCollapsedWithoutBackground()
+        val from: Int
+        val to: Int
+        with(resources) {
+            from = findColor(backgroundColorExpanded)
+            to = findColor(backgroundColorCollapsed)
+        }
+        animator = AnimationUtils.animateColor(
+            from,
+            to,
+            BUTTON_BACKGROUND_ANIMATION_DURATION,
+            {
+                filterToggleButton.setBackgroundColor(it.toArgb())
+            },
+            {
+                isAnimated = true
+                collapseButton(filterButtonHolders.lastIndex)
+                isExpanded = false
+            }
+        )
+
     }
 
+    // Method which recursively goes over each filter button starting from the very end of the list
+    // It sequentially applies animation to each button and finishes process after animating the first one
     private fun collapseButton(index: Int) {
         if (index < 0) {
             isAnimated = false
@@ -317,7 +371,7 @@ class FilterLayout @JvmOverloads constructor(
         }
         val button = filterButtonHolders[index].button
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = BUTTON_ANIMATION_DURATION
+            duration = BUTTON_TRANSLATE_ANIMATION_DURATION
             doOnEnd {
                 button.visibility = GONE
                 collapseButton(index - 1)
@@ -332,12 +386,30 @@ class FilterLayout @JvmOverloads constructor(
     }
 
     private fun expand() {
-        adjustToggleButtonOnExpanded()
-        isAnimated = true
-        expandButton(0)
-        isExpanded = true
+        adjustToggleButtonOnExpandedWithoutBackground()
+        val from: Int
+        val to: Int
+        with(resources) {
+            from = findColor(backgroundColorCollapsed)
+            to = findColor(backgroundColorExpanded)
+        }
+        animator = AnimationUtils.animateColor(
+            from,
+            to,
+            BUTTON_BACKGROUND_ANIMATION_DURATION,
+            {
+                filterToggleButton.setBackgroundColor(it.toArgb())
+            },
+            {
+                isAnimated = true
+                expandButton(0)
+                isExpanded = true
+            }
+        )
     }
 
+    // Method which recursively goes over each filter button starting from the very beginning of the list
+    // It sequentially applies animation to each button and finishes process after animating the last one
     private fun expandButton(index: Int) {
         if (index == filterButtonHolders.size) {
             isAnimated = false
@@ -345,7 +417,7 @@ class FilterLayout @JvmOverloads constructor(
         }
         val button = filterButtonHolders[index].button
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = BUTTON_ANIMATION_DURATION
+            duration = BUTTON_TRANSLATE_ANIMATION_DURATION
             doOnStart {
                 button.translationX = TRANSITION_THRESHOLD.toFloat()
                 button.visibility = VISIBLE
