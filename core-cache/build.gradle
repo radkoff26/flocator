@@ -32,8 +32,9 @@ android {
 
 dependencies {
     // Project modules
-    implementation project(":core-utils")
     implementation project(":core-dependency")
+    implementation project(":core-map")
+    implementation project(":core-utils")
 
     // Rx
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"

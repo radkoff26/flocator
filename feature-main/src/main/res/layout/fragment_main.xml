@@ -13,20 +13,21 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/open_add_mark_fragment"
-        style="@style/Widget.Material3.Button.OutlinedButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:backgroundTint="#FFFFFF"
         android:text="@string/add_mark"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="@color/tint"
         android:textSize="16sp"
         app:cornerRadius="20dp"
         app:icon="@drawable/add_mark_image"
+        app:iconSize="20sp"
+        app:iconTint="@color/tint"
         app:layout_constraintStart_toStartOf="@+id/map_fragment"
-        app:layout_constraintTop_toTopOf="@+id/map_fragment"
-        app:strokeColor="#1F121212" />
+        app:layout_constraintTop_toTopOf="@+id/map_fragment" />
 
     <ru.flocator.core_map.api.configuration.FilterLayout
         android:id="@+id/filters"

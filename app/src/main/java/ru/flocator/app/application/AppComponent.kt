@@ -29,7 +29,10 @@ import javax.inject.Singleton
     ]
 )
 @Singleton
-interface AppComponent : AuthDependencies, CommunityDependencies, MainDependencies,
+interface AppComponent :
+    AuthDependencies,
+    CommunityDependencies,
+    MainDependencies,
     SettingsDependencies {
 
     @Component.Factory

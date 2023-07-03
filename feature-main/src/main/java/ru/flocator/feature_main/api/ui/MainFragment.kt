@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
+import ru.flocator.cache.storage.SettingsStorage
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
@@ -21,7 +22,6 @@ import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_map.api.FLocatorMap
-import ru.flocator.core_map.api.configuration.MapConfiguration
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.LocationUtils
@@ -58,6 +58,10 @@ class MainFragment : Fragment(), MainSection {
     @Inject
     internal lateinit var controller: NavController
 
+    // Settings storage
+    @Inject
+    internal lateinit var settingsStorage: SettingsStorage
+
     // Rx
     private val compositeDisposable = CompositeDisposable()
 
@@ -72,7 +76,7 @@ class MainFragment : Fragment(), MainSection {
 
     private val isInitializedCamera = AtomicBoolean(false)
 
-    private lateinit var mapFragment: FLocatorMap
+    private lateinit var map: FLocatorMap
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -98,12 +102,10 @@ class MainFragment : Fragment(), MainSection {
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
-        binding.filters.setActiveConfiguration(MapConfiguration.All)
-
-        mapFragment =
+        map =
             childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMap
 
-        mapFragment.initialize(
+        map.initialize(
             mainFragmentViewModel::loadPhoto,
             null,
             { id ->
@@ -210,7 +212,7 @@ class MainFragment : Fragment(), MainSection {
         binding.targetBtn.setOnClickListener {
             if (mainFragmentViewModel.userInfoLiveData.value != null) {
                 val userId = mainFragmentViewModel.userInfoLiveData.value!!.userId
-                mapFragment.followUser(userId)
+                map.followUser(userId)
             }
         }
 
@@ -219,6 +221,8 @@ class MainFragment : Fragment(), MainSection {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        initializeMapConfiguration()
 
         mainFragmentViewModel.userLocationLiveData.observe(
             viewLifecycleOwner,
@@ -281,11 +285,23 @@ class MainFragment : Fragment(), MainSection {
         )
     }
 
+    private fun initializeMapConfiguration() {
+        val mapConfiguration = settingsStorage.getMapConfiguration()
+
+        binding.filters.setActiveConfiguration(mapConfiguration)
+        map.changeConfiguration(mapConfiguration)
+
+        binding.filters.setToggleFilterLayoutListener {
+            settingsStorage.setMapConfiguration(it)
+            map.changeConfiguration(it)
+        }
+    }
+
     private fun locateMapToUser() {
         val userLocation = mainFragmentViewModel.userLocationLiveData.value
 
         if (userLocation != null) {
-            mapFragment.moveCameraTo(userLocation)
+            map.moveCameraTo(userLocation)
         }
     }
 
@@ -309,11 +325,13 @@ class MainFragment : Fragment(), MainSection {
         }
     }
 
+    // TODO: move to MainActivity
     override fun onStart() {
         super.onStart()
         mainFragmentViewModel.goOnlineAsUser()
     }
 
+    // TODO: move to MainActivity
     override fun onPause() {
         super.onPause()
         mainFragmentViewModel.goOfflineAsUser()
@@ -331,25 +349,25 @@ class MainFragment : Fragment(), MainSection {
             return
         }
         if (!isInitializedCamera.get()) {
-            mapFragment.moveCameraTo(latLng)
+            map.moveCameraTo(latLng)
             isInitializedCamera.set(true)
         }
-        mapFragment.updateUserLocation(latLng)
+        map.updateUserLocation(latLng)
     }
 
     private fun onUserInfoChanged(value: UserInfo?) {
         if (mainFragmentViewModel.userLocationLiveData.value == null || value == null) {
             return
         }
-        mapFragment.submitUser(value)
+        map.submitUser(value)
     }
 
     private fun onFriendsStateChanged(value: List<User>) {
-        mapFragment.submitFriends(value)
+        map.submitFriends(value)
     }
 
     private fun onMarksStateChanged(value: List<MarkWithPhotos>) {
-        mapFragment.submitMarks(value)
+        map.submitMarks(value)
     }
 
     companion object {
