@@ -1,16 +1,22 @@
 package ru.flocator.feature_auth.internal.ui
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -58,21 +64,98 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
             )
             .inject(this)
 
-        registrationViewModel = ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
+        registrationViewModel =
+            ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
-
+        val color = ContextCompat.getColor(requireContext(), R.color.font)
         binding.firstInputEditField.contentDescription = PASSWORD
         binding.secondInputEditField.contentDescription = REPEAT_PASSWORD
+        binding.firstInputField.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+        binding.secondInputField.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+        binding.firstInputField.setEndIconTintList(ColorStateList.valueOf(color))
+        binding.secondInputField.setEndIconTintList(ColorStateList.valueOf(color))
         binding.submitBtn.contentDescription = REGISTER
 
         binding.submitBtn.setOnClickListener {
-            createAccount()
+            var firstPassword = ""
+            var secondPassword = ""
+            var passwordTransformationMethod = binding.firstInputEditField.transformationMethod
+            firstPassword = if (passwordTransformationMethod is PasswordTransformationMethod) {
+                binding.firstInputEditField.editableText.toString()
+            } else {
+                binding.firstInputEditField.text.toString()
+            }
+            passwordTransformationMethod = binding.secondInputEditField.transformationMethod
+            secondPassword = if (passwordTransformationMethod is PasswordTransformationMethod) {
+                binding.secondInputEditField.editableText.toString()
+            } else {
+                binding.secondInputEditField.text.toString()
+            }
+            if(firstPassword.isNotEmpty() && secondPassword.isNotEmpty() && comparePasswords(firstPassword, secondPassword)){
+                createAccount()
+            } else {
+                if(firstPassword.isEmpty()){
+                    binding.firstInputField.error = "Поле не должно быть пустым"
+                    binding.firstInputField.isErrorEnabled = true
+                }
+                if(secondPassword.isEmpty()){
+                    binding.secondInputField.error = "Поле не должно быть пустым"
+                    binding.secondInputField.isErrorEnabled = true
+                }
+                println("СРАВНЕНИЕ" + comparePasswords(firstPassword, secondPassword) + " " + firstPassword + " " + secondPassword)
+                if(!comparePasswords(firstPassword, secondPassword) && firstPassword.isNotEmpty() && secondPassword.isNotEmpty()){
+                    binding.secondInputField.error = "Пароли не совпадают"
+                    binding.secondInputField.isErrorEnabled = true
+                    binding.firstInputField.error = "Пароли не совпадают"
+                    binding.firstInputField.isErrorEnabled = true
+                }
+            }
         }
+
+        binding.firstInputEditField.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.firstInputField.error = null
+                binding.firstInputField.isErrorEnabled = false
+            }
+        }
+
+        binding.secondInputEditField.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.secondInputField.error = null
+                binding.secondInputField.isErrorEnabled = false
+            }
+        }
+
+        binding.firstInputEditField.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.firstInputField.isErrorEnabled = false
+                binding.firstInputField.error = null
+            }
+        })
+
+        binding.secondInputEditField.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.secondInputField.isErrorEnabled = false
+                binding.secondInputField.error = null
+            }
+        })
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -125,15 +208,18 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
     }
 
     private fun createAccount() {
-        val lastName = registrationViewModel.nameData.value!!.first
-        val firstName = registrationViewModel.nameData.value!!.second
-        val login = registrationViewModel.loginEmailData.value!!.first
-        val email = registrationViewModel.loginEmailData.value!!.second
+        val bundle = arguments
+        val lastName = bundle?.getString("lastname")
+        val firstName = bundle?.getString("firstname")
+        val login = bundle?.getString("login")
+        val email = bundle?.getString("email")
+        println(lastName)
+        println(login)
         val userRegistrationDto = UserRegistrationDto(
-            lastName = lastName,
-            firstName = firstName,
-            login = login,
-            email = email,
+            lastName = lastName!!,
+            firstName = firstName!!,
+            login = login!!,
+            email = email!!,
             password = binding.firstInputEditField.text.toString()
         )
         compositeDisposable.add(
@@ -151,6 +237,10 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
                     Log.e(TAG, ERROR_MESSAGE, error)
                 })
         )
+    }
+
+    private fun comparePasswords(firstPassword: String, secondPassword: String): Boolean {
+        return firstPassword == secondPassword
     }
 
 

@@ -2,6 +2,8 @@ package ru.flocator.feature_auth.api.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -67,14 +69,61 @@ class AuthFragment : Fragment(), AuthenticationSection {
         _binding = FragmentAuthBinding.inflate(inflater, container, false)
         registrationViewModel.clear()
         binding.entranceBtn.setOnClickListener {
-            val email = binding.emailLoginFieldEdit.text.toString()
+            val login = binding.emailLoginFieldEdit.text.toString()
             val password = binding.passwordLoginFieldEdit.text.toString()
-            if (validateFields(email, password)) {
-                login(email, password)
-            } else {
-                showErrorMessage("Поля не должны быть пустыми!")
+
+            if(validateLoginField(login) && validatePasswordField(password)){
+                login(login,password)
+            }
+            if (!validateLoginField(login)){
+                binding.loginField.error = "Поле не должно быть пустым"
+                binding.loginField.isErrorEnabled = true
+            }
+            if (!validatePasswordField(password)){
+                binding.passwordLoginField.error = "Поле не должно быть пустым"
+                binding.passwordLoginField.isErrorEnabled = true
             }
         }
+
+        binding.emailLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.loginField.error = null
+                binding.loginField.isErrorEnabled = false
+            }
+        }
+
+        binding.passwordLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.passwordLoginField.error = null
+                binding.passwordLoginField.isErrorEnabled = false
+            }
+        }
+
+        binding.emailLoginFieldEdit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.loginField.isErrorEnabled = false
+                binding.loginField.error = null
+            }
+        })
+
+        binding.passwordLoginFieldEdit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.passwordLoginField.isErrorEnabled = false
+                binding.passwordLoginField.error = null
+            }
+        })
 
         binding.registrationBtn.setOnClickListener {
             navController
@@ -111,7 +160,25 @@ class AuthFragment : Fragment(), AuthenticationSection {
                             .commit()
                     }
                 }, { error ->
-                    showErrorMessage("Неверный логин или пароль")
+                    compositeDisposable.add(
+                        authRepository.isLoginAvailable(login)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                {
+                                    if (it){
+                                        binding.loginField.error = "Такого логина не существует"
+                                        binding.loginField.isErrorEnabled = true
+                                    } else {
+                                        binding.passwordLoginField.error = "Неверный пароль"
+                                        binding.passwordLoginField.isErrorEnabled = true
+                                    }
+                                },
+                                {
+                                    Log.e(TAG, "Ошибка проверки логина", error)
+                                }
+                            )
+                    )
                     Log.e(TAG, "Ошибка входа", error)
                 })
         )
@@ -123,13 +190,12 @@ class AuthFragment : Fragment(), AuthenticationSection {
         _binding = null
     }
 
-    private fun showErrorMessage(text: String) {
-        binding.loginErrorMessageText.visibility = View.VISIBLE
-        binding.loginErrorMessageText.text = text
+    private fun validateLoginField(login:String): Boolean{
+        return login.isNotEmpty()
     }
 
-    private fun validateFields(email: String, password: String): Boolean {
-        return email.isNotEmpty() && password.isNotEmpty()
+    private fun validatePasswordField(password: String): Boolean{
+        return password.isNotEmpty()
     }
 
     companion object {

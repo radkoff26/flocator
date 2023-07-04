@@ -2,7 +2,9 @@ package ru.flocator.feature_auth.internal.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +28,7 @@ import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
+import kotlin.math.log
 
 internal class RegSecondFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
@@ -76,8 +79,20 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
             val login = binding.firstInputEditField.text.toString()
             val email = binding.secondInputEditField.text.toString()
 
-            if (!validateEmail(email)) {
-                showErrorMessage("Некорректный email")
+            if(login.isEmpty() || email.isEmpty()){
+                if(login.isEmpty()){
+                    binding.firstInputField.error = "Поле не должно быть пустым"
+                    binding.firstInputField.isErrorEnabled = true
+                }
+                if(email.isEmpty()){
+                    binding.secondInputField.error = "Поле не должно быть пустым"
+                    binding.secondInputField.isErrorEnabled = true
+                }
+                return@setOnClickListener
+            }
+            if (!validateEmail(email) && login.isNotEmpty() && email.isNotEmpty()) {
+                binding.secondInputField.error = "Некорректный email"
+                binding.secondInputField.isErrorEnabled = true
                 return@setOnClickListener
             }
 
@@ -93,11 +108,13 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
                     .subscribe(
                         { response ->
                             if (!response.loginResponse) {
-                                showErrorMessage("Логин уже занят")
+                                binding.firstInputField.error = "Логин уже занят"
+                                binding.firstInputField.isErrorEnabled = true
                                 return@subscribe
                             }
                             if (!response.emailResponse) {
-                                showErrorMessage("Email уже занят")
+                                binding.secondInputField.error = "Email уже занят"
+                                binding.secondInputField.isErrorEnabled = true
                                 return@subscribe
                             }
                             registrationViewModel.updateLoginEmail(
@@ -106,8 +123,19 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
                                     binding.secondInputEditField.text.toString()
                                 )
                             )
+                            val bundle = arguments
+                            val lastname = bundle?.getString("lastname")
+                            val firstname = bundle?.getString("firstname")
+                            println(lastname)
+                            val bundleRegSecondFragment = Bundle()
+                            bundleRegSecondFragment.putString("lastname", lastname)
+                            bundleRegSecondFragment.putString("firstname", firstname)
+                            bundleRegSecondFragment.putString("login", binding.firstInputEditField.text.toString())
+                            bundleRegSecondFragment.putString("email", binding.secondInputEditField.text.toString())
+                            val regThirdFragment = RegThirdFragment()
+                            regThirdFragment.arguments = bundleRegSecondFragment
                             controller
-                                .toFragment(RegThirdFragment())
+                                .toFragment(regThirdFragment)
                                 .commit()
                         },
                         { error ->
@@ -125,6 +153,46 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
             setHomeButtonEnabled(true)
             setHomeAsUpIndicator(R.drawable.back)
         }
+
+        binding.firstInputEditField.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.firstInputField.error = null
+                binding.firstInputField.isErrorEnabled = false
+            }
+        }
+
+        binding.secondInputEditField.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                binding.secondInputField.error = null
+                binding.secondInputField.isErrorEnabled = false
+            }
+        }
+
+        binding.firstInputEditField.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.firstInputField.isErrorEnabled = false
+                binding.firstInputField.error = null
+            }
+        })
+
+        binding.secondInputEditField.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.secondInputField.isErrorEnabled = false
+                binding.secondInputField.error = null
+            }
+        })
 
         binding.toolbar.setNavigationOnClickListener {
             controller.back()
