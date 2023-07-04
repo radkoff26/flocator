@@ -2,16 +2,16 @@ package ru.flocator.core_map.internal.utils
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.VisibleRegion
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
+import ru.flocator.core_map.api.entity.Mark
+import ru.flocator.core_map.api.entity.User
 
 internal object VisibilityUtils {
     fun emphasizeVisibleMarks(
-        marks: List<MarkWithPhotos>,
+        marks: List<Mark>,
         visibleRegion: VisibleRegion
-    ): List<MarkWithPhotos> {
+    ): List<Mark> {
         return marks.filter {
-            isInVisibleRegion(visibleRegion, it.mark.location)
+            isInVisibleRegion(visibleRegion, it.location)
         }
     }
 

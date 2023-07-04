@@ -22,6 +22,7 @@ import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_map.api.FLocatorMap
+import ru.flocator.core_map.api.entity.Mark
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
 import ru.flocator.core_utils.LocationUtils
@@ -87,7 +88,8 @@ class MainFragment : Fragment(), MainSection {
             .build()
             .inject(this)
 
-        mainFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MainFragmentViewModel::class.java]
+        mainFragmentViewModel =
+            ViewModelProvider(this, viewModelFactory)[MainFragmentViewModel::class.java]
     }
 
     // Fragment lifecycle methods
@@ -128,13 +130,15 @@ class MainFragment : Fragment(), MainSection {
                     )
                 }
             },
-            { marks ->
+            { markIds ->
                 if (mainFragmentViewModel.userLocationLiveData.value != null) {
                     val marksListFragment = MarksListFragment().apply {
                         arguments = Bundle().apply {
                             val markDtoList = ArrayList(
-                                marks.map {
-                                    val mark = it.mark
+                                markIds.map {
+                                    val allMarks = mainFragmentViewModel.marksLiveData.value!!
+                                    val markWithPhotos = allMarks[it]!!
+                                    val mark = markWithPhotos.mark
                                     MarkDto(
                                         mark.markId,
                                         mark.authorId,
@@ -144,7 +148,7 @@ class MainFragment : Fragment(), MainSection {
                                         ),
                                         mark.text,
                                         mark.isPublic,
-                                        it.photos.map(MarkPhoto::uri),
+                                        markWithPhotos.photos.map(MarkPhoto::uri),
                                         mark.place,
                                         mark.likesCount,
                                         mark.hasUserLiked,
@@ -359,15 +363,71 @@ class MainFragment : Fragment(), MainSection {
         if (mainFragmentViewModel.userLocationLiveData.value == null || value == null) {
             return
         }
-        map.submitUser(value)
+        val location = mainFragmentViewModel.userLocationLiveData.value!!
+        map.submitUser(
+            ru.flocator.core_map.api.entity.User(
+                value.userId,
+                value.firstName,
+                value.lastName,
+                location,
+                value.avatarUri
+            )
+        )
     }
 
-    private fun onFriendsStateChanged(value: List<User>) {
-        map.submitFriends(value)
+    private fun onFriendsStateChanged(value: Map<Long, User>) {
+        map.submitFriends(
+            value.values.map {
+                ru.flocator.core_map.api.entity.User(
+                    it.id,
+                    it.firstName,
+                    it.lastName,
+                    it.location,
+                    it.avatarUri
+                )
+            }
+        )
     }
 
-    private fun onMarksStateChanged(value: List<MarkWithPhotos>) {
-        map.submitMarks(value)
+    private fun onMarksStateChanged(value: Map<Long, MarkWithPhotos>) {
+        map.submitMarks(
+            value.values.map {
+                val mark = it.mark
+                val authorId = mark.authorId
+
+                val thumbnail = if (it.photos.isEmpty()) {
+                    null
+                } else {
+                    it.photos[0].uri
+                }
+
+                val friends = mainFragmentViewModel.friendsLiveData.value!!
+
+                val targetUserId = mainFragmentViewModel.userInfoLiveData.value?.userId
+                val friend = friends[authorId]
+
+                val isAuthorUser = authorId == targetUserId
+                val isAuthorFriend = friend != null
+
+                if (isAuthorUser || isAuthorFriend) {
+                    val avatarUri = if (isAuthorUser) {
+                        mainFragmentViewModel.userInfoLiveData.value!!.avatarUri
+                    } else {
+                        friend!!.avatarUri
+                    }
+
+                    return@map Mark(
+                        mark.markId,
+                        mark.authorId,
+                        mark.location,
+                        thumbnail,
+                        avatarUri
+                    )
+                }
+
+                return@map null
+            }.filterNotNull()
+        )
     }
 
     companion object {
