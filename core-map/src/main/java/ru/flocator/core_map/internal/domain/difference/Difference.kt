@@ -1,35 +1,25 @@
 package ru.flocator.core_map.internal.domain.difference
 
 import ru.flocator.core_map.internal.domain.map_item.MapItem
-import ru.flocator.core_map.internal.ui.BitmapCreator
-import ru.flocator.core_map.internal.ui.FLocatorMapFragment
 
-internal class Difference<T : MapItem> internal constructor(
-    private val addedItems: List<T>,
-    private val updatedItems: List<T>,
-    private val removedItems: List<T>
+internal class Difference<O : MapItem, N> internal constructor(
+    private val addedItems: List<N>,
+    private val updatedItems: List<O>,
+    private val removedItems: List<O>
 ) {
-    fun dispatchDifferenceTo(
-        map: FLocatorMapFragment,
-        bitmapCreatorProvider: (obj: T) -> BitmapCreator,
-        onRemoveMapItemCallback: ((obj: T) -> Unit)? = null
+    inline fun dispatchDifferenceTo(
+        onAddMapItemCallback: (obj: N) -> Unit,
+        onUpdateMapItemCallback: (obj: O) -> Unit,
+        onRemoveMapItemCallback: (obj: O) -> Unit
     ) {
         addedItems.forEach {
-            map.drawMapItemOnMap(
-                it,
-                bitmapCreatorProvider.invoke(it)
-            )
+            onAddMapItemCallback.invoke(it)
         }
-        updatedItems.forEach(map::updateMapItemOnMap)
-        if (onRemoveMapItemCallback != null) {
-            removedItems.forEach {
-                map.removeMapItemFromMap(
-                    it,
-                    onRemoveMapItemCallback
-                )
-            }
-        } else {
-            removedItems.forEach(map::removeMapItemFromMap)
+        updatedItems.forEach {
+            onUpdateMapItemCallback.invoke(it)
+        }
+        removedItems.forEach {
+            onRemoveMapItemCallback.invoke(it)
         }
     }
 }

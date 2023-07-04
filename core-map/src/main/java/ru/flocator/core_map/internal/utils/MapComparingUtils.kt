@@ -1,8 +1,8 @@
 package ru.flocator.core_map.internal.utils
 
 import com.google.android.gms.maps.model.LatLng
-import ru.flocator.core_database.entities.User
-import ru.flocator.core_map.internal.domain.dto.MarkGroup
+import ru.flocator.core_map.api.entity.User
+import ru.flocator.core_map.internal.domain.entity.MarkGroup
 import ru.flocator.core_utils.DistanceUtils
 
 internal object MapComparingUtils {
@@ -37,7 +37,7 @@ internal object MapComparingUtils {
             if (o2 == null) {
                 return 1
             }
-            return o1.id.compareTo(o2.id)
+            return o1.userId.compareTo(o2.userId)
         }
     }
 }

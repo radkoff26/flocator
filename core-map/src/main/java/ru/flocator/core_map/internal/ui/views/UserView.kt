@@ -1,10 +1,10 @@
 package ru.flocator.core_map.internal.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.text.TextUtils
-import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -12,59 +12,45 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.imageview.ShapeableImageView
 import ru.flocator.core_design.R
-import ru.flocator.core_map.internal.ui.BitmapCreator
+import ru.flocator.core_extensions.findDrawable
+import ru.flocator.core_map.internal.domain.bitmap_creator.BitmapCreator
+import ru.flocator.core_map.internal.domain.view.ReusableView
+import ru.flocator.core_map.internal.domain.view.ViewFactory
 import ru.flocator.core_utils.ViewUtils.dpToPx
 
-internal class UserView @JvmOverloads constructor(
+@SuppressLint("ViewConstructor")
+internal class UserView constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
-    val isTargetUser: Boolean = false
-) : FrameLayout(context, attrs, defStyleAttr), BitmapCreator {
+    private val onRecycle: () -> Unit
+) : FrameLayout(context), BitmapCreator, ReusableView {
     // Default values for measurement
-    private val defaultDiameter = dpToPx(48, context)
+    private val diameter: Int = dpToPx(48, context)
     private val textViewHeight = dpToPx(16, context)
     private val textSize = 10f
     private val padding = dpToPx(2, context)
 
     // Calculated objects
-    private val diameter: Int
     private val userAvatarFrameLayout: FrameLayout
     private val userAvatarImageView: ShapeableImageView
     private val userNameTextView: TextView
+
+    @Volatile
+    override var isBusy: Boolean = false
+
+    private var isTargetUser: Boolean = false
 
     private var _avatarUri: String? = null
     val avatarUri: String?
         get() = _avatarUri
 
     init {
-        if (attrs != null) {
-            val typedAttrs =
-                context.obtainStyledAttributes(attrs, R.styleable.UserView, defStyleAttr, 0)
-            diameter =
-                typedAttrs.getDimension(
-                    R.styleable.UserView_diameter,
-                    defaultDiameter.toFloat()
-                )
-                    .toInt()
-            typedAttrs.recycle()
-        } else {
-            diameter = defaultDiameter
-        }
 
         // User Image
         LayoutInflater.from(context).inflate(ru.flocator.core_map.R.layout.round_image_view, this, true)
         userAvatarFrameLayout = findViewById(ru.flocator.core_map.R.id.layout)
         userAvatarImageView = findViewById(ru.flocator.core_map.R.id.image)
 
-        if (isTargetUser) {
-            userAvatarFrameLayout.background =
-                ResourcesCompat.getDrawable(
-                    resources,
-                    ru.flocator.core_map.R.drawable.user_circle_bg,
-                    null
-                )!!
-        }
+        setTargetUser(isTargetUser)
 
         setAvatarPlaceHolder()
 
@@ -117,7 +103,7 @@ internal class UserView @JvmOverloads constructor(
 
     override fun createBitmap(): Bitmap {
         measure(0, 0)
-        layout(0, 0, defaultDiameter, defaultDiameter)
+        layout(0, 0, diameter, diameter)
 
         // Create a bitmap with the dimensions of the custom view
         val bitmap = Bitmap.createBitmap(
@@ -133,6 +119,17 @@ internal class UserView @JvmOverloads constructor(
         draw(canvas)
 
         return bitmap
+    }
+
+    fun setTargetUser(isTargetUser: Boolean) {
+        this.isTargetUser = isTargetUser
+        with(resources) {
+            if (isTargetUser) {
+                userAvatarFrameLayout.background = findDrawable(ru.flocator.core_map.R.drawable.user_circle_bg)
+            } else {
+                userAvatarFrameLayout.background = findDrawable(ru.flocator.core_map.R.drawable.friend_circle_bg)
+            }
+        }
     }
 
     fun setAvatarBitmap(bitmap: Bitmap, uri: String?) {
@@ -158,5 +155,24 @@ internal class UserView @JvmOverloads constructor(
 
     fun setUserName(userName: String) {
         userNameTextView.text = userName
+    }
+
+    override fun recycle() {
+        super.recycle()
+        onRecycle.invoke()
+    }
+
+    class Factory(private var context: Context?): ViewFactory<UserView> {
+
+        override fun create(onRecycle: () -> Unit): UserView {
+            if (context == null) {
+                throw IllegalStateException("Factory is already cleared!")
+            }
+            return UserView(context!!, onRecycle)
+        }
+
+        override fun onClear() {
+            context = null
+        }
     }
 }

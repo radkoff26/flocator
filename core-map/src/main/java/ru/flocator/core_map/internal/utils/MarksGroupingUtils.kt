@@ -2,15 +2,15 @@ package ru.flocator.core_map.internal.utils
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.VisibleRegion
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_map.internal.domain.dto.MarkGroup
+import ru.flocator.core_map.api.entity.Mark
+import ru.flocator.core_map.internal.domain.entity.MarkGroup
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 internal object MarksGroupingUtils {
 
     fun groupMarks(
-        marks: List<MarkWithPhotos>,
+        marks: List<Mark>,
         visibleRegion: VisibleRegion,
         mapWidth: Float,
         markWidth: Float
@@ -20,17 +20,17 @@ internal object MarksGroupingUtils {
             visibleRegion.nearRight
         )
         val boundDistance: Double = markWidth * distanceBetweenEdges / mapWidth
-        val mutablePoints: MutableList<MarkWithPhotos> = ArrayList(marks)
+        val mutablePoints: MutableList<Mark> = ArrayList(marks)
         val markGroups: MutableList<MarkGroup> = ArrayList()
         val current = 0
         while (current < mutablePoints.size) {
             var i = current + 1
-            val currentList: MutableList<MarkWithPhotos> = ArrayList()
-            val latLng: LatLng = mutablePoints[current].mark.location
+            val currentList: MutableList<Mark> = ArrayList()
+            val latLng: LatLng = mutablePoints[current].location
             currentList.add(mutablePoints[current])
             while (i < mutablePoints.size) {
                 val distance: Double =
-                    getDistanceBetweenPoints(latLng, mutablePoints[i].mark.location)
+                    getDistanceBetweenPoints(latLng, mutablePoints[i].location)
                 if (distance < boundDistance) {
                     currentList.add(mutablePoints[i])
                     mutablePoints.removeAt(i)
@@ -44,13 +44,13 @@ internal object MarksGroupingUtils {
         return markGroups
     }
 
-    private fun getCenterOfGroup(group: List<MarkWithPhotos>): LatLng {
+    private fun getCenterOfGroup(group: List<Mark>): LatLng {
         var minLatitude = 85.0
         var minLongitude = 180.0
         var maxLatitude = -85.0
         var maxLongitude = -180.0
         for (mark in group) {
-            val point = mark.mark.location
+            val point = mark.location
             if (point.latitude > maxLatitude) {
                 maxLatitude = point.latitude
             }

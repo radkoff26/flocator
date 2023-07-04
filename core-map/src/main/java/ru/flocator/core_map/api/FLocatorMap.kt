@@ -3,15 +3,14 @@ package ru.flocator.core_map.api
 import android.graphics.Bitmap
 import com.google.android.gms.maps.model.LatLng
 import io.reactivex.Single
-import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
 import ru.flocator.core_map.api.configuration.MapConfiguration
+import ru.flocator.core_map.api.entity.Mark
+import ru.flocator.core_map.api.entity.User
 
 typealias LoadPhotoCallback = (uri: String) -> Single<Bitmap>
 typealias OnFriendViewClickCallback = (id: Long) -> Unit
 typealias OnMarkViewClickCallback = (id: Long) -> Unit
-typealias OnMarkGroupViewClickCallback = (marks: List<MarkWithPhotos>) -> Unit
+typealias OnMarkGroupViewClickCallback = (markIds: List<Long>) -> Unit
 
 interface FLocatorMap {
     fun isMapCreated(): Boolean
@@ -21,9 +20,9 @@ interface FLocatorMap {
         onMarkViewClickCallback: OnMarkViewClickCallback? = null,
         onMarkGroupViewClickCallback: OnMarkGroupViewClickCallback? = null
     )
-    fun submitUser(userInfo: UserInfo)
+    fun submitUser(user: User)
     fun submitFriends(friends: List<User>)
-    fun submitMarks(marks: List<MarkWithPhotos>)
+    fun submitMarks(marks: List<Mark>)
     fun updateUserLocation(location: LatLng)
     fun moveCameraTo(latLng: LatLng)
     fun followUser(userId: Long)

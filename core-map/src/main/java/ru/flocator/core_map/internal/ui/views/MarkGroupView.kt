@@ -1,24 +1,29 @@
 package ru.flocator.core_map.internal.ui.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import ru.flocator.core_design.R
-import ru.flocator.core_map.internal.ui.BitmapCreator
+import ru.flocator.core_map.internal.domain.bitmap_creator.BitmapCreator
+import ru.flocator.core_map.internal.domain.view.ReusableView
+import ru.flocator.core_map.internal.domain.view.ViewFactory
 import ru.flocator.core_utils.ViewUtils.dpToPx
 
-internal class MarkGroupView @JvmOverloads constructor(
+@SuppressLint("ViewConstructor")
+internal class MarkGroupView constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), BitmapCreator {
+    private val onRecycle: () -> Unit
+) : FrameLayout(context), BitmapCreator, ReusableView {
     private val diameter = dpToPx(56, context)
     private val countTextView: TextView
+
+    @Volatile
+    override var isBusy: Boolean = false
 
     init {
         countTextView = TextView(context)
@@ -30,6 +35,8 @@ internal class MarkGroupView @JvmOverloads constructor(
         countTextView.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
 
         countTextView.gravity = Gravity.CENTER
+
+        setCount(0)
 
         addView(countTextView)
 
@@ -78,5 +85,24 @@ internal class MarkGroupView @JvmOverloads constructor(
         draw(canvas)
 
         return bitmap
+    }
+
+    override fun recycle() {
+        super.recycle()
+        onRecycle.invoke()
+    }
+
+    class Factory(private var context: Context?): ViewFactory<MarkGroupView> {
+
+        override fun create(onRecycle: () -> Unit): MarkGroupView {
+            if (context == null) {
+                throw IllegalStateException("Factory is already cleared!")
+            }
+            return MarkGroupView(context!!, onRecycle)
+        }
+
+        override fun onClear() {
+            context = null
+        }
     }
 }
