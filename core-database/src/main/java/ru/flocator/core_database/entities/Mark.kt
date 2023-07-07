@@ -11,28 +11,20 @@ data class Mark(
     @PrimaryKey
     @SerializedName("markId")
     val markId: Long,
-
     @SerializedName("authorId")
     val authorId: Long,
-
     @SerializedName("point")
     val location: LatLng,
-
     @SerializedName("text")
     val text: String,
-
     @SerializedName("isPublic")
     val isPublic: Boolean,
-
     @SerializedName("place")
     val place: String,
-
     @SerializedName("likesCount")
     var likesCount: Int,
-
     @SerializedName("hasUserLiked")
     var hasUserLiked: Boolean,
-
     @SerializedName("createdAt")
     val createdAt: Timestamp
 ) : java.io.Serializable {

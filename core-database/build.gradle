@@ -32,9 +32,6 @@ android {
 }
 
 dependencies {
-    // Project modules
-    implementation project(":core-dependency")
-
     // Rx
     implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
 

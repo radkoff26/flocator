@@ -1,5 +1,7 @@
 package ru.flocator.core_map.internal.domain.marker
 
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
@@ -13,8 +15,38 @@ internal typealias MarkerMap = MutableMap<String, Marker>
  * Class which stores markers in an internal HashMap by marker id.
  * It's also responsible for drawing markers on the map provided by parent.
  * */
-internal class MarkerStore(private val map: GoogleMap) {
+internal class MarkerStore() : DefaultLifecycleObserver {
     private val markerMap: MarkerMap = HashMap()
+
+    @Volatile
+    private var isActive: Boolean = false
+
+    @Volatile
+    private var map: GoogleMap? = null
+
+    override fun onResume(owner: LifecycleOwner) {
+        isActive = true
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        isActive = false
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        markerMap.forEach { (_, marker) ->
+            marker.remove()
+        }
+        markerMap.clear()
+        map = null
+    }
+
+    fun setLifecycleOwner(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(this)
+    }
+
+    fun setMap(map: GoogleMap) {
+        this.map = map
+    }
 
     /**
      * Method that creates a marker and draws this marker on the map.
@@ -28,7 +60,7 @@ internal class MarkerStore(private val map: GoogleMap) {
     ): String? {
         val bitmap = bitmapCreatorHolder.getHolderBitmapCreator().createBitmap()
         val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap)
-        val marker = map.addMarker(
+        val marker = map?.addMarker(
             MarkerOptions()
                 .position(bitmapCreatorHolder.getHolderLocation())
                 .icon(bitmapDescriptor)
@@ -69,4 +101,6 @@ internal class MarkerStore(private val map: GoogleMap) {
         marker.remove()
         markerMap.remove(markerId)
     }
+
+    fun isActive() = isActive && map != null
 }

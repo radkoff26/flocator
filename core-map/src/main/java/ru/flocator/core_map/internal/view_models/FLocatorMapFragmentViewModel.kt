@@ -46,8 +46,10 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     private var markWidth: Float? = null
 
     fun changeMapConfigurationTo(mapConfiguration: MapConfiguration) {
-        this.mapConfiguration = mapConfiguration
-        rearrangeVisibleObjects()
+        if (mapConfiguration != this.mapConfiguration) {
+            this.mapConfiguration = mapConfiguration
+            rearrangeVisibleObjects()
+        }
     }
 
     fun fixCamera() {
@@ -59,15 +61,6 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     fun makeCameraFollowUser(userId: Long, latLng: LatLng) {
         val cameraStatus = _cameraStatusLiveData.value!!
         cameraStatus.setFollowUser(userId, latLng)
-        _cameraStatusLiveData.value = cameraStatus
-    }
-
-    fun updateFollowingCameraLocation(latLng: LatLng) {
-        if (_cameraStatusLiveData.value!!.isCameraFixed) {
-            return
-        }
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.latLng = latLng
         _cameraStatusLiveData.value = cameraStatus
     }
 
@@ -83,6 +76,10 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     fun setFriends(friendsList: List<User>) {
         allFriends = buildMap {
             friendsList.forEach {
+                val cameraStatus = _cameraStatusLiveData.value!!
+                if (!cameraStatus.isCameraFixed && it.userId == cameraStatus.userId) {
+                    updateFollowingCameraLocation(it.location)
+                }
                 put(it.userId, it)
             }
         }
@@ -90,14 +87,19 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     }
 
     fun setUserInfo(user: User) {
-        if (_targetUserLiveData.value != user) {
-            _targetUserLiveData.value = user
+        val cameraStatus = _cameraStatusLiveData.value!!
+        if (!cameraStatus.isCameraFixed && user.userId == cameraStatus.userId) {
+            updateFollowingCameraLocation(user.location)
         }
+        _targetUserLiveData.value = user
+        // Enforcing marks to be redrawn (updated) since user has changed
+        _visibleMarksLiveData.value = _visibleMarksLiveData.value
     }
 
     fun setUserLocation(location: LatLng) {
         val targetUser = _targetUserLiveData.value
         if (targetUser != null && targetUser.location != location) {
+
             _targetUserLiveData.value = targetUser.copy(
                 location = location
             )
@@ -114,6 +116,21 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
             this.visibleRegion = visibleRegion
             rearrangeVisibleObjects()
         }
+    }
+
+    fun hasTargetUser(): Boolean = targetUserLiveData.value != null
+
+    fun hasMarks(): Boolean = visibleMarksLiveData.value != null || visibleMarksLiveData.value!!.isNotEmpty()
+
+    fun hasFriends(): Boolean = visibleUsersLiveData.value != null || visibleUsersLiveData.value!!.isNotEmpty()
+
+    private fun updateFollowingCameraLocation(latLng: LatLng) {
+        if (_cameraStatusLiveData.value!!.isCameraFixed) {
+            return
+        }
+        val cameraStatus = _cameraStatusLiveData.value!!
+        cameraStatus.latLng = latLng
+        _cameraStatusLiveData.value = cameraStatus
     }
 
     private fun rearrangeVisibleObjects() {
