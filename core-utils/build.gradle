@@ -35,6 +35,9 @@ dependencies {
     implementation project(":core-config")
     implementation project(":core-sections")
 
+    // App Compat
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
+
     // Maps
     implementation "com.google.android.gms:play-services-maps:$google_maps_version"
 

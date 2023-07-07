@@ -18,8 +18,7 @@ import java.util.function.BiConsumer
 
 internal class EditablePhotoRecyclerViewAdapter(
     private val onToggleCallback: BiConsumer<Uri, Boolean>
-) :
-    RecyclerView.Adapter<EditablePhotoRecyclerViewAdapter.CarouselViewHolder>() {
+) : RecyclerView.Adapter<EditablePhotoRecyclerViewAdapter.CarouselViewHolder>() {
     private var list: MutableList<CarouselEditableItemState> = ArrayList()
     private var photos: MutableMap<Uri, ByteArray> = LinkedHashMap()
 

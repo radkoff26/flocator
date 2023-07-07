@@ -5,15 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.VisibleRegion
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
 import ru.flocator.core_map.internal.domain.camera.CameraStatus
 import ru.flocator.core_map.api.configuration.MapConfiguration
-import ru.flocator.core_map.internal.domain.dto.MarkGroup
+import ru.flocator.core_map.api.entity.Mark
+import ru.flocator.core_map.api.entity.User
+import ru.flocator.core_map.internal.domain.entity.MarkGroup
 import ru.flocator.core_map.internal.utils.MapComparingUtils
 import ru.flocator.core_map.internal.utils.MapFilterUtils
 import ru.flocator.core_map.internal.utils.MarksGroupingUtils
@@ -36,28 +32,24 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     val visibleUsersLiveData: LiveData<List<User>>
         get() = _visibleUsersLiveData
 
-    private val _userInfoLiveData: MutableLiveData<UserInfo?> = MutableLiveData(null)
-    val userInfoLiveData: LiveData<UserInfo?>
-        get() = _userInfoLiveData
+    private val _targetUserLiveData: MutableLiveData<User?> = MutableLiveData(null)
+    val targetUserLiveData: LiveData<User?>
+        get() = _targetUserLiveData
 
-    private val _userLocationLiveData: MutableLiveData<LatLng?> = MutableLiveData(null)
-    val userLocationLiveData: LiveData<LatLng?>
-        get() = _userLocationLiveData
+    var allFriends: Map<Long, User> = emptyMap()
+        private set
 
-    private var _allFriends: Map<Long, User> = emptyMap()
-    val allFriends: Map<Long, User>
-        get() = _allFriends
-
-    private var allMarks: Map<Long, MarkWithPhotos> = emptyMap()
+    private var allMarks: Map<Long, Mark> = emptyMap()
     private var mapConfiguration: MapConfiguration = MapConfiguration.All
     private var visibleRegion: VisibleRegion? = null
     private var mapWidth: Float? = null
     private var markWidth: Float? = null
 
     fun changeMapConfigurationTo(mapConfiguration: MapConfiguration) {
-        this.mapConfiguration = mapConfiguration
-        updateVisibleMarks()
-        updateVisibleUsers()
+        if (mapConfiguration != this.mapConfiguration) {
+            this.mapConfiguration = mapConfiguration
+            rearrangeVisibleObjects()
+        }
     }
 
     fun fixCamera() {
@@ -72,40 +64,45 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
         _cameraStatusLiveData.value = cameraStatus
     }
 
-    fun updateFollowingCameraLocation(latLng: LatLng) {
-        if (_cameraStatusLiveData.value!!.isCameraFixed) {
-            return
-        }
-        val cameraStatus = _cameraStatusLiveData.value!!
-        cameraStatus.latLng = latLng
-        _cameraStatusLiveData.value = cameraStatus
-    }
-
-    fun setMarks(marksList: List<MarkWithPhotos>) {
+    fun setMarks(marksList: List<Mark>) {
         allMarks = buildMap {
             marksList.forEach {
-                put(it.mark.markId, it)
+                put(it.markId, it)
             }
         }
+        updateVisibleMarks()
     }
 
     fun setFriends(friendsList: List<User>) {
-        _allFriends = buildMap {
+        allFriends = buildMap {
             friendsList.forEach {
-                put(it.id, it)
+                val cameraStatus = _cameraStatusLiveData.value!!
+                if (!cameraStatus.isCameraFixed && it.userId == cameraStatus.userId) {
+                    updateFollowingCameraLocation(it.location)
+                }
+                put(it.userId, it)
             }
         }
+        updateVisibleUsers()
     }
 
-    fun setUserInfo(userInfo: UserInfo) {
-        if (_userInfoLiveData.value != userInfo) {
-            _userInfoLiveData.value = userInfo
+    fun setUserInfo(user: User) {
+        val cameraStatus = _cameraStatusLiveData.value!!
+        if (!cameraStatus.isCameraFixed && user.userId == cameraStatus.userId) {
+            updateFollowingCameraLocation(user.location)
         }
+        _targetUserLiveData.value = user
+        // Enforcing marks to be redrawn (updated) since user has changed
+        _visibleMarksLiveData.value = _visibleMarksLiveData.value
     }
 
-    fun setUserLocation(latLng: LatLng) {
-        if (_userLocationLiveData.value != latLng) {
-            _userLocationLiveData.value = latLng
+    fun setUserLocation(location: LatLng) {
+        val targetUser = _targetUserLiveData.value
+        if (targetUser != null && targetUser.location != location) {
+
+            _targetUserLiveData.value = targetUser.copy(
+                location = location
+            )
         }
     }
 
@@ -121,6 +118,21 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
         }
     }
 
+    fun hasTargetUser(): Boolean = targetUserLiveData.value != null
+
+    fun hasMarks(): Boolean = visibleMarksLiveData.value != null || visibleMarksLiveData.value!!.isNotEmpty()
+
+    fun hasFriends(): Boolean = visibleUsersLiveData.value != null || visibleUsersLiveData.value!!.isNotEmpty()
+
+    private fun updateFollowingCameraLocation(latLng: LatLng) {
+        if (_cameraStatusLiveData.value!!.isCameraFixed) {
+            return
+        }
+        val cameraStatus = _cameraStatusLiveData.value!!
+        cameraStatus.latLng = latLng
+        _cameraStatusLiveData.value = cameraStatus
+    }
+
     private fun rearrangeVisibleObjects() {
         updateVisibleMarks()
         updateVisibleUsers()
@@ -132,7 +144,7 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
             val currentMapWidth = mapWidth ?: return@thread
             val currentMarkWidth = markWidth ?: return@thread
 
-            val flattenMarks = allMarks.map(Map.Entry<Long, MarkWithPhotos>::value)
+            val flattenMarks = allMarks.map(Map.Entry<Long, Mark>::value)
             val marks = MapFilterUtils.filterMarksByMapConfiguration(flattenMarks, mapConfiguration)
             val visibleMarks = VisibilityUtils.emphasizeVisibleMarks(marks, currentVisibleRegion)
 
@@ -156,7 +168,7 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     private fun updateVisibleUsers() {
         thread {
             val currentVisibleRegion = visibleRegion ?: return@thread
-            val flattenUsers = _allFriends.map(Map.Entry<Long, User>::value)
+            val flattenUsers = allFriends.map(Map.Entry<Long, User>::value)
             val users = MapFilterUtils.filterUsersByMapConfiguration(flattenUsers, mapConfiguration)
             val visibleUsers =
                 VisibilityUtils.emphasizeVisibleUsers(users, currentVisibleRegion)

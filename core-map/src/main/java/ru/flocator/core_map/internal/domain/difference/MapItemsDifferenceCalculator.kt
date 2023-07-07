@@ -4,14 +4,14 @@ import ru.flocator.core_map.internal.domain.comparing.CompareCallback
 import ru.flocator.core_map.internal.domain.map_item.MapItem
 
 internal object MapItemsDifferenceCalculator {
-    fun <T: MapItem> calculateDifference(
-        previousList: List<T>,
-        newList: List<T>,
-        compareCallback: CompareCallback<T>
-    ): Difference<T> {
-        val addedItems = ArrayList<T>()
-        val updatedItems = ArrayList<T>()
-        val removedItems = ArrayList<T>()
+    fun <O: MapItem, N> calculateDifference(
+        previousList: List<O>,
+        newList: List<N>,
+        compareCallback: CompareCallback<O, N>
+    ): Difference<O, N> {
+        val addedItems = ArrayList<N>()
+        val updatedItems = ArrayList<O>()
+        val removedItems = ArrayList<O>()
         val checked = BooleanArray(newList.size) { false }
         previousList.forEach {
             val indexOfIt = newList.indexOfFirst { item ->

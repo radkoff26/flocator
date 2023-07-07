@@ -15,6 +15,7 @@ import ru.flocator.core_database.entities.User
 import ru.flocator.core_exceptions.LostConnectionException
 import ru.flocator.core_polling.PollingEmitter
 import ru.flocator.feature_main.internal.repository.MainRepository
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
@@ -22,8 +23,8 @@ internal class MainFragmentViewModel @Inject constructor(
     private val mainRepository: MainRepository,
     private val appRepository: AppRepository
 ) : ViewModel() {
-    private val _friendsLiveData = MutableLiveData<List<User>>(emptyList())
-    val friendsLiveData: LiveData<List<User>>
+    private val _friendsLiveData = MutableLiveData<Map<Long, User>>(emptyMap())
+    val friendsLiveData: LiveData<Map<Long, User>>
         get() = _friendsLiveData
 
     private val _userLocationLiveData = MutableLiveData<LatLng?>(null)
@@ -35,9 +36,12 @@ internal class MainFragmentViewModel @Inject constructor(
     val userInfoLiveData: LiveData<UserInfo?>
         get() = _userInfoLiveData
 
-    private val _marksLiveData: MutableLiveData<List<MarkWithPhotos>> = MutableLiveData(emptyList())
-    val marksLiveData: LiveData<List<MarkWithPhotos>>
+    private val _marksLiveData: MutableLiveData<Map<Long, MarkWithPhotos>> =
+        MutableLiveData(emptyMap())
+    val marksLiveData: LiveData<Map<Long, MarkWithPhotos>>
         get() = _marksLiveData
+
+    val isCameraInitialized: AtomicBoolean = AtomicBoolean()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -277,11 +281,19 @@ internal class MainFragmentViewModel @Inject constructor(
     }
 
     private fun updateFriends(users: List<User>) {
-        _friendsLiveData.value = users
+        _friendsLiveData.value = buildMap {
+            users.forEach {
+                put(it.id, it)
+            }
+        }
     }
 
-    private fun updateMarks(value: List<MarkWithPhotos>) {
-        _marksLiveData.value = value
+    private fun updateMarks(marks: List<MarkWithPhotos>) {
+        _marksLiveData.value = buildMap {
+            marks.forEach {
+                put(it.mark.markId, it)
+            }
+        }
     }
 
     companion object {

@@ -1,21 +1,21 @@
 package ru.flocator.core_map.internal.utils
 
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
 import ru.flocator.core_map.api.configuration.MapConfiguration
 import ru.flocator.core_map.api.configuration.MapFilterType
+import ru.flocator.core_map.api.entity.Mark
+import ru.flocator.core_map.api.entity.User
 
 internal object MapFilterUtils {
     fun filterMarksByMapConfiguration(
-        marks: List<MarkWithPhotos>,
+        marks: List<Mark>,
         mapConfiguration: MapConfiguration
-    ): List<MarkWithPhotos> =
+    ): List<Mark> =
         marks.filter {
             doesMarkMatchConfiguration(it, mapConfiguration)
         }
 
     private fun doesMarkMatchConfiguration(
-        mark: MarkWithPhotos,
+        mark: Mark,
         configuration: MapConfiguration
     ): Boolean =
         when (configuration) {
@@ -27,18 +27,19 @@ internal object MapFilterUtils {
             }
             is MapConfiguration.SpecialFilter -> {
                 configuration.mapFilters.any {
-                    if (it.userId != mark.mark.authorId) {
+                    if (it.userId != mark.authorId) {
                         return@any false
                     }
-                    // TODO: implement more visibility constraints
-                    when (it.type) {
-                        MapFilterType.PUBLIC -> {
-                            return@any mark.mark.isPublic
-                        }
-                        else -> {
-                            return@any true
-                        }
-                    }
+                    return@any true
+//                    // TODO: implement more visibility constraints
+//                    when (it.type) {
+//                        MapFilterType.PUBLIC -> {
+//                            return@any mark.isPublic
+//                        }
+//                        else -> {
+//                            return@any true
+//                        }
+//                    }
                 }
             }
         }
@@ -64,7 +65,7 @@ internal object MapFilterUtils {
             }
             is MapConfiguration.SpecialFilter -> {
                 configuration.mapFilters.any {
-                    if (it.userId != user.id) {
+                    if (it.userId != user.userId) {
                         return@any false
                     }
                     it.type != MapFilterType.PUBLIC
