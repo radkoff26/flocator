@@ -47,6 +47,7 @@ dependencies {
     implementation project(":core-design")
     implementation project(":core-dto")
     implementation project(":core-exceptions")
+    implementation project(":core-location")
     implementation project(":core-map")
     implementation project(":core-photo-pager")
     implementation project(":core-polling")

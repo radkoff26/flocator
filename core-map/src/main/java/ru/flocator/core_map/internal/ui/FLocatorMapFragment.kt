@@ -202,7 +202,8 @@ internal class FLocatorMapFragment :
         Log.d(TAG, "invalidate target user: invoked")
 
         val userViewHolder =
-            targetUserState ?: composeUserHolderAndDrawUserOnMap(value, true)
+            targetUserState?.apply { user = value } ?:
+            composeUserHolderAndDrawUserOnMap(value, true)
 
         targetUserState = updateUserHolder(userViewHolder)
     }
