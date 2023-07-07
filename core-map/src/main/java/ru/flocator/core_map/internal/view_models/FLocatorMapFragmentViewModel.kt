@@ -99,7 +99,6 @@ internal class FLocatorMapFragmentViewModel : ViewModel() {
     fun setUserLocation(location: LatLng) {
         val targetUser = _targetUserLiveData.value
         if (targetUser != null && targetUser.location != location) {
-
             _targetUserLiveData.value = targetUser.copy(
                 location = location
             )
