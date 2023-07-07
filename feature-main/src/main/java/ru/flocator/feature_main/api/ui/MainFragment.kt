@@ -395,8 +395,8 @@ class MainFragment : Fragment(), MainSection {
 
     companion object {
         const val TAG = "Main Fragment"
-        const val TIMEOUT_TO_FETCH_FRIENDS = 5000L
-        const val TIMEOUT_TO_FETCH_MARKS = 10000L
-        const val TIMEOUT_TO_FETCH_USER_INFO = 10000L
+        const val TIMEOUT_TO_FETCH_FRIENDS = 3000L
+        const val TIMEOUT_TO_FETCH_MARKS = 7000L
+        const val TIMEOUT_TO_FETCH_USER_INFO = 8000L
     }
 }

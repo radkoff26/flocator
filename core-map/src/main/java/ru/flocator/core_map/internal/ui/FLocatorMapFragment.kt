@@ -19,6 +19,7 @@ import ru.flocator.core_map.api.*
 import ru.flocator.core_map.api.configuration.MapConfiguration
 import ru.flocator.core_map.api.entity.Mark
 import ru.flocator.core_map.api.entity.User
+import ru.flocator.core_map.internal.domain.camera.CameraStatus
 import ru.flocator.core_map.internal.domain.comparing.MapItemsCompareCallbacks
 import ru.flocator.core_map.internal.domain.difference.Difference
 import ru.flocator.core_map.internal.domain.difference.MapItemsDifferenceCalculator
