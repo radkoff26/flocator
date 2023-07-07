@@ -11,7 +11,6 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import io.reactivex.disposables.CompositeDisposable
 import ru.flocator.cache.storage.SettingsStorage
 import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_controller.NavController
@@ -37,7 +36,6 @@ import ru.flocator.feature_main.internal.ui.AddMarkFragment
 import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.ui.MarksListFragment
 import ru.flocator.feature_main.internal.view_models.MainFragmentViewModel
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 class MainFragment : Fragment(), MainSection {
@@ -63,9 +61,6 @@ class MainFragment : Fragment(), MainSection {
     @Inject
     internal lateinit var settingsStorage: SettingsStorage
 
-    // Rx
-    private val compositeDisposable = CompositeDisposable()
-
     // Handlers
     private lateinit var userLocationTimeoutPoller: TimeoutPoller
     private lateinit var userInfoTimeoutPoller: TimeoutPoller
@@ -74,8 +69,6 @@ class MainFragment : Fragment(), MainSection {
 
     // Locations
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private val isInitializedCamera = AtomicBoolean(false)
 
     private lateinit var map: FLocatorMap
 
@@ -107,7 +100,127 @@ class MainFragment : Fragment(), MainSection {
         map =
             childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMap
 
+        initMap()
+
+        binding.openAddMarkFragment.setOnClickListener {
+            if (mainFragmentViewModel.userLocationLiveData.value == null) {
+                Snackbar.make(it, "Получение геолокации...", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val point = mainFragmentViewModel.userLocationLiveData.value!!
+
+            val args = Bundle()
+
+            args.putDouble(
+                AddMarkContractions.LATITUDE,
+                point.latitude
+            )
+
+            args.putDouble(
+                AddMarkContractions.LONGITUDE,
+                point.longitude
+            )
+
+            val addMarkFragment = AddMarkFragment()
+            addMarkFragment.arguments = args
+            addMarkFragment.show(requireActivity().supportFragmentManager, AddMarkFragment.TAG)
+        }
+
+        binding.communityBtn.setOnClickListener {
+            controller.toProfile().commit()
+        }
+
+        binding.settingsBtn.setOnClickListener {
+            controller.toSettings().commit()
+        }
+
+        binding.targetBtn.setOnClickListener {
+            if (mainFragmentViewModel.userInfoLiveData.value != null) {
+                val userId = mainFragmentViewModel.userInfoLiveData.value!!.userId
+                map.followUser(userId)
+            }
+        }
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        mainFragmentViewModel.userLocationLiveData.observe(
+            viewLifecycleOwner,
+            this::onUserLocationChanged
+        )
+        mainFragmentViewModel.friendsLiveData.observe(
+            viewLifecycleOwner,
+            this::onFriendsStateChanged
+        )
+        mainFragmentViewModel.marksLiveData.observe(
+            viewLifecycleOwner,
+            this::onMarksStateChanged
+        )
+        mainFragmentViewModel.userInfoLiveData.observe(
+            viewLifecycleOwner,
+            this::onUserInfoChanged
+        )
+        connectionLiveData.observe(
+            viewLifecycleOwner,
+            this::onConnectionChanged
+        )
+
+        mainFragmentViewModel.requestInitialLoading()
+
+        userLocationTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_POLL_LOCATION_POST,
+            { emitter ->
+                LocationUtils.getCurrentLocation(requireContext(), fusedLocationProviderClient) {
+                    if (it != null) {
+                        mainFragmentViewModel.updateUserLocation(
+                            LatLng(
+                                it.latitude,
+                                it.longitude
+                            )
+                        )
+                        mainFragmentViewModel.postLocation()
+                    }
+                    emitter.emit()
+                }
+            }
+        )
+
+        userInfoTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_FETCH_USER_INFO,
+            mainFragmentViewModel::fetchUserInfo
+        )
+
+        friendsFetchingTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_FETCH_FRIENDS,
+            mainFragmentViewModel::fetchFriends
+        )
+
+        marksFetchingTimeoutPoller = TimeoutPoller(
+            viewLifecycleOwner,
+            TIMEOUT_TO_FETCH_MARKS,
+            mainFragmentViewModel::fetchMarks
+        )
+    }
+
+    private fun initMap() {
+        val mapConfiguration = settingsStorage.getMapConfiguration()
+
+        binding.filters.setActiveConfiguration(mapConfiguration)
+
+        binding.filters.setToggleFilterLayoutListener {
+            settingsStorage.setMapConfiguration(it)
+            map.changeConfiguration(it)
+        }
+
         map.initialize(
+            mapConfiguration,
             mainFragmentViewModel::loadPhoto,
             null,
             { id ->
@@ -177,136 +290,6 @@ class MainFragment : Fragment(), MainSection {
                 }
             }
         )
-
-        locateMapToUser()
-
-        binding.openAddMarkFragment.setOnClickListener {
-            if (mainFragmentViewModel.userLocationLiveData.value == null) {
-                Snackbar.make(it, "Получение геолокации...", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val point = mainFragmentViewModel.userLocationLiveData.value!!
-
-            val args = Bundle()
-
-            args.putDouble(
-                AddMarkContractions.LATITUDE,
-                point.latitude
-            )
-
-            args.putDouble(
-                AddMarkContractions.LONGITUDE,
-                point.longitude
-            )
-
-            val addMarkFragment = AddMarkFragment()
-            addMarkFragment.arguments = args
-            addMarkFragment.show(requireActivity().supportFragmentManager, AddMarkFragment.TAG)
-        }
-
-        binding.communityBtn.setOnClickListener {
-            controller.toProfile().commit()
-        }
-
-        binding.settingsBtn.setOnClickListener {
-            controller.toSettings().commit()
-        }
-
-        binding.targetBtn.setOnClickListener {
-            if (mainFragmentViewModel.userInfoLiveData.value != null) {
-                val userId = mainFragmentViewModel.userInfoLiveData.value!!.userId
-                map.followUser(userId)
-            }
-        }
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        initializeMapConfiguration()
-
-        mainFragmentViewModel.userLocationLiveData.observe(
-            viewLifecycleOwner,
-            this::onUserLocationChanged
-        )
-        mainFragmentViewModel.friendsLiveData.observe(
-            viewLifecycleOwner,
-            this::onFriendsStateChanged
-        )
-        mainFragmentViewModel.marksLiveData.observe(
-            viewLifecycleOwner,
-            this::onMarksStateChanged
-        )
-        mainFragmentViewModel.userInfoLiveData.observe(
-            viewLifecycleOwner,
-            this::onUserInfoChanged
-        )
-        connectionLiveData.observe(
-            viewLifecycleOwner,
-            this::onConnectionChanged
-        )
-
-        mainFragmentViewModel.requestInitialLoading()
-
-        userLocationTimeoutPoller = TimeoutPoller(
-            viewLifecycleOwner,
-            TIMEOUT_TO_POLL_LOCATION_POST,
-            { emitter ->
-                LocationUtils.getCurrentLocation(requireContext(), fusedLocationProviderClient) {
-                    if (it != null) {
-                        mainFragmentViewModel.updateUserLocation(
-                            LatLng(
-                                it.latitude,
-                                it.longitude
-                            )
-                        )
-                        mainFragmentViewModel.postLocation()
-                    }
-                    emitter.emit()
-                }
-            }
-        )
-
-        userInfoTimeoutPoller = TimeoutPoller(
-            viewLifecycleOwner,
-            TIMEOUT_TO_FETCH_USER_INFO,
-            mainFragmentViewModel::fetchUserInfo
-        )
-
-        friendsFetchingTimeoutPoller = TimeoutPoller(
-            viewLifecycleOwner,
-            TIMEOUT_TO_FETCH_FRIENDS,
-            mainFragmentViewModel::fetchFriends
-        )
-
-        marksFetchingTimeoutPoller = TimeoutPoller(
-            viewLifecycleOwner,
-            TIMEOUT_TO_FETCH_MARKS,
-            mainFragmentViewModel::fetchMarks
-        )
-    }
-
-    private fun initializeMapConfiguration() {
-        val mapConfiguration = settingsStorage.getMapConfiguration()
-
-        binding.filters.setActiveConfiguration(mapConfiguration)
-        map.changeConfiguration(mapConfiguration)
-
-        binding.filters.setToggleFilterLayoutListener {
-            settingsStorage.setMapConfiguration(it)
-            map.changeConfiguration(it)
-        }
-    }
-
-    private fun locateMapToUser() {
-        val userLocation = mainFragmentViewModel.userLocationLiveData.value
-
-        if (userLocation != null) {
-            map.moveCameraTo(userLocation)
-        }
     }
 
     // TODO: move to MainActivity
@@ -336,14 +319,13 @@ class MainFragment : Fragment(), MainSection {
     }
 
     // TODO: move to MainActivity
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         mainFragmentViewModel.goOfflineAsUser()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        compositeDisposable.dispose()
         _binding = null
     }
 
@@ -352,9 +334,9 @@ class MainFragment : Fragment(), MainSection {
         if (latLng == null || mainFragmentViewModel.userInfoLiveData.value == null) {
             return
         }
-        if (!isInitializedCamera.get()) {
+        if (!mainFragmentViewModel.isCameraInitialized.get()) {
             map.moveCameraTo(latLng)
-            isInitializedCamera.set(true)
+            mainFragmentViewModel.isCameraInitialized.set(true)
         }
         map.updateUserLocation(latLng)
     }

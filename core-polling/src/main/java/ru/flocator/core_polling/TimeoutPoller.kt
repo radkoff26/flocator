@@ -43,14 +43,13 @@ class TimeoutPoller(
             Lifecycle.Event.ON_RESUME -> {
                 synchronized(lock) {
                     isRunning = true
-                    compositeDisposable = CompositeDisposable()
                 }
                 poll()
             }
             Lifecycle.Event.ON_PAUSE -> {
                 synchronized(lock) {
                     isRunning = false
-                    compositeDisposable.dispose()
+                    compositeDisposable.clear()
                 }
             }
             else -> {

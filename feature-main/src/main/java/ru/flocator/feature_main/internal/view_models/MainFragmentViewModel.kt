@@ -15,6 +15,7 @@ import ru.flocator.core_database.entities.User
 import ru.flocator.core_exceptions.LostConnectionException
 import ru.flocator.core_polling.PollingEmitter
 import ru.flocator.feature_main.internal.repository.MainRepository
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
@@ -39,6 +40,8 @@ internal class MainFragmentViewModel @Inject constructor(
         MutableLiveData(emptyMap())
     val marksLiveData: LiveData<Map<Long, MarkWithPhotos>>
         get() = _marksLiveData
+
+    val isCameraInitialized: AtomicBoolean = AtomicBoolean()
 
     private val compositeDisposable = CompositeDisposable()
 

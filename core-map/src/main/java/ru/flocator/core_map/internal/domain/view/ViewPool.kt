@@ -22,7 +22,9 @@ internal class ViewPool<T : ReusableView>(
         } else {
             view = factory.create(this::onRecycleView)
             modificationCallback.invoke(view)
-            viewList.add(view)
+            if (viewList.size < MAX_POOL_LENGTH) {
+                viewList.add(view)
+            }
         }
         view.use()
         return view

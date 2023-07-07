@@ -11,25 +11,27 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_connection.ConnectionWrapper
+import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.point.UserLocationPoint
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dto.address.AddressResponse
+import ru.flocator.feature_main.internal.data_source.ClientAPI
+import ru.flocator.feature_main.internal.data_source.GeocoderAPI
 import ru.flocator.feature_main.internal.domain.location.UserLocationDto
 import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
 import ru.flocator.feature_main.internal.domain.mark.MarkDto
 import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
-import ru.flocator.feature_main.api.dependencies.MainDependencies
-import ru.flocator.feature_main.internal.data_source.ClientAPI
-import ru.flocator.feature_main.internal.data_source.GeocoderAPI
 import javax.inject.Inject
 
 internal class MainRepository @Inject constructor(
     private val clientAPI: ClientAPI,
     private val geocoderAPI: GeocoderAPI,
-    private val dependencies: MainDependencies
+    private val connectionLiveData: ConnectionLiveData,
+    private val appRepository: AppRepository
 ) {
     fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
         val compositeDisposable = CompositeDisposable()
@@ -39,14 +41,14 @@ internal class MainRepository @Inject constructor(
                     clientAPI.getUserFriendsLocated(userId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                    dependencies.connectionLiveData
+                    connectionLiveData
                 )
                     .connect()
                     .subscribe(
                         {
                             emitter.onSuccess(it)
                             compositeDisposable.add(
-                                dependencies.appRepository.cacheDatabase.updateFriends(it)
+                                appRepository.cacheDatabase.updateFriends(it)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
                                     .doOnError { throwable ->
@@ -82,7 +84,7 @@ internal class MainRepository @Inject constructor(
                     clientAPI.getUserAndFriendsMarks(userId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.io()),
-                    dependencies.connectionLiveData
+                    connectionLiveData
                 )
                     .connect()
                     .subscribe(
@@ -92,8 +94,8 @@ internal class MainRepository @Inject constructor(
                             val photos = marks.map(MarkWithPhotos::photos).flatten()
                             compositeDisposable.add(
                                 Completable.concatArray(
-                                    dependencies.appRepository.cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
-                                    dependencies.appRepository.cacheDatabase.updateMarkPhotos(photos)
+                                    appRepository.cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
+                                    appRepository.cacheDatabase.updateMarkPhotos(photos)
                                 )
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
@@ -156,19 +158,19 @@ internal class MainRepository @Inject constructor(
             )
                 .subscribeOn(Schedulers.io())
                 .doOnComplete {
-                    dependencies.appRepository.locationCache.updateUserLocationData(
+                    appRepository.locationCache.updateUserLocationData(
                         UserLocationPoint(
                             location.latitude,
                             location.longitude
                         )
                     )
                 },
-            dependencies.connectionLiveData
+            connectionLiveData
         ).connect()
     }
 
     fun getCurrentUserInfo(): Single<UserInfo> {
-        return dependencies.appRepository.userCredentialsCache.getUserCredentials()
+        return appRepository.userCredentialsCache.getUserCredentials()
             .flatMap {
                 getUser(it.userId)
                     .subscribeOn(Schedulers.io())

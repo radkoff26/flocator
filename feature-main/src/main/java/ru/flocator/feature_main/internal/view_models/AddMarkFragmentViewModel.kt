@@ -10,12 +10,11 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_data_store.user.data.UserCredentials
-import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
 import ru.flocator.feature_main.api.dependencies.MainDependencies
 import ru.flocator.feature_main.internal.domain.carousel.CarouselEditableItemState
 import ru.flocator.feature_main.internal.domain.fragment.AddMarkFragmentState
+import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
 import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
@@ -129,8 +128,8 @@ internal class AddMarkFragmentViewModel @Inject constructor(
     fun saveMark(mark: AddMarkDto, parts: Set<Map.Entry<Uri, ByteArray>>) {
         compositeDisposable.add(
             getUserId().subscribe(
-                {
-                    mark.authorId = it
+                { id ->
+                    mark.authorId = id
                     compositeDisposable.add(
                         mainRepository.postMark(mark, parts)
                             .subscribeOn(Schedulers.io())

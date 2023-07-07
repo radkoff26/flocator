@@ -13,8 +13,8 @@ typealias OnMarkViewClickCallback = (id: Long) -> Unit
 typealias OnMarkGroupViewClickCallback = (markIds: List<Long>) -> Unit
 
 interface FLocatorMap {
-    fun isMapCreated(): Boolean
     fun initialize(
+        mapConfiguration: MapConfiguration = MapConfiguration.All,
         loadPhotoCallback: LoadPhotoCallback? = null,
         onFriendViewClickCallback: OnFriendViewClickCallback? = null,
         onMarkViewClickCallback: OnMarkViewClickCallback? = null,
