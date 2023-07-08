@@ -19,6 +19,7 @@ import ru.flocator.core_map.api.*
 import ru.flocator.core_map.api.configuration.MapConfiguration
 import ru.flocator.core_map.api.entity.Mark
 import ru.flocator.core_map.api.entity.User
+import ru.flocator.core_map.internal.domain.camera.CameraStatus
 import ru.flocator.core_map.internal.domain.comparing.MapItemsCompareCallbacks
 import ru.flocator.core_map.internal.domain.difference.Difference
 import ru.flocator.core_map.internal.domain.difference.MapItemsDifferenceCalculator
@@ -202,7 +203,8 @@ internal class FLocatorMapFragment :
         Log.d(TAG, "invalidate target user: invoked")
 
         val userViewHolder =
-            targetUserState ?: composeUserHolderAndDrawUserOnMap(value, true)
+            targetUserState?.apply { user = value } ?:
+            composeUserHolderAndDrawUserOnMap(value, true)
 
         targetUserState = updateUserHolder(userViewHolder)
     }

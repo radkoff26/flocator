@@ -10,7 +10,7 @@ import ru.flocator.core_map.internal.ui.views.UserView
 
 internal data class UserHolder(
     val userViewHolder: LocatedUserViewHolder,
-    val user: User,
+    var user: User,
     val markerId: String,
     var avatarRequestDisposable: Disposable? = null
 ) : DisposableMapItem {

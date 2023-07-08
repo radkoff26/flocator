@@ -7,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import ru.flocator.cache.storage.SettingsStorage
@@ -20,11 +18,11 @@ import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
+import ru.flocator.core_location.LocationLiveData
 import ru.flocator.core_map.api.FLocatorMap
 import ru.flocator.core_map.api.entity.Mark
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
-import ru.flocator.core_utils.LocationUtils
 import ru.flocator.feature_main.databinding.FragmentMainBinding
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.contractions.MarkContractions
@@ -62,13 +60,12 @@ class MainFragment : Fragment(), MainSection {
     internal lateinit var settingsStorage: SettingsStorage
 
     // Handlers
-    private lateinit var userLocationTimeoutPoller: TimeoutPoller
     private lateinit var userInfoTimeoutPoller: TimeoutPoller
     private lateinit var marksFetchingTimeoutPoller: TimeoutPoller
     private lateinit var friendsFetchingTimeoutPoller: TimeoutPoller
 
     // Locations
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var locationLiveData: LocationLiveData
 
     private lateinit var map: FLocatorMap
 
@@ -86,12 +83,6 @@ class MainFragment : Fragment(), MainSection {
     }
 
     // Fragment lifecycle methods
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        fusedLocationProviderClient =
-            LocationServices.getFusedLocationProviderClient(requireActivity())
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -101,6 +92,15 @@ class MainFragment : Fragment(), MainSection {
             childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMap
 
         initMap()
+
+        locationLiveData = LocationLiveData(requireContext())
+
+        locationLiveData.observe(viewLifecycleOwner) {
+            if (it != null) {
+                mainFragmentViewModel.updateUserLocation(it)
+                mainFragmentViewModel.postLocation()
+            }
+        }
 
         binding.openAddMarkFragment.setOnClickListener {
             if (mainFragmentViewModel.userLocationLiveData.value == null) {
@@ -170,25 +170,6 @@ class MainFragment : Fragment(), MainSection {
         )
 
         mainFragmentViewModel.requestInitialLoading()
-
-        userLocationTimeoutPoller = TimeoutPoller(
-            viewLifecycleOwner,
-            TIMEOUT_TO_POLL_LOCATION_POST,
-            { emitter ->
-                LocationUtils.getCurrentLocation(requireContext(), fusedLocationProviderClient) {
-                    if (it != null) {
-                        mainFragmentViewModel.updateUserLocation(
-                            LatLng(
-                                it.latitude,
-                                it.longitude
-                            )
-                        )
-                        mainFragmentViewModel.postLocation()
-                    }
-                    emitter.emit()
-                }
-            }
-        )
 
         userInfoTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
@@ -414,9 +395,8 @@ class MainFragment : Fragment(), MainSection {
 
     companion object {
         const val TAG = "Main Fragment"
-        const val TIMEOUT_TO_POLL_LOCATION_POST = 3000L
-        const val TIMEOUT_TO_FETCH_FRIENDS = 5000L
-        const val TIMEOUT_TO_FETCH_MARKS = 10000L
-        const val TIMEOUT_TO_FETCH_USER_INFO = 10000L
+        const val TIMEOUT_TO_FETCH_FRIENDS = 3000L
+        const val TIMEOUT_TO_FETCH_MARKS = 7000L
+        const val TIMEOUT_TO_FETCH_USER_INFO = 8000L
     }
 }
