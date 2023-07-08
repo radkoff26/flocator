@@ -36,17 +36,17 @@ class AppRepository constructor(
     val photoLoader = PhotoLoader()
 
     inner class CacheDatabase {
-        fun updateMarks(marks: List<Mark>): Completable {
-            return applicationDatabase.markDao().updateTable(marks).subscribeOn(Schedulers.io())
+        fun updateMarksForUser(marks: List<Mark>, markPhotos: List<MarkPhoto>): Completable {
+            return Completable.concatArray(
+                applicationDatabase.markDao().clearAll(),
+                applicationDatabase.markPhotoDao().clearAll(),
+                applicationDatabase.markDao().insertMarks(marks),
+                applicationDatabase.markPhotoDao().insertPhotos(markPhotos)
+            ).subscribeOn(Schedulers.io())
         }
 
         fun retrieveMarksFromCache(): Single<List<MarkWithPhotos>> {
             return applicationDatabase.markDao().getAllMarks().subscribeOn(Schedulers.io())
-        }
-
-        fun updateMarkPhotos(markPhotos: List<MarkPhoto>): Completable {
-            return applicationDatabase.markPhotoDao().updateTable(markPhotos)
-                .subscribeOn(Schedulers.io())
         }
 
         fun updateFriends(friends: List<User>): Completable {

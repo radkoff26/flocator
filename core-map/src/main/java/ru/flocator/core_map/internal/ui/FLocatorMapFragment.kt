@@ -203,8 +203,10 @@ internal class FLocatorMapFragment :
         Log.d(TAG, "invalidate target user: invoked")
 
         val userViewHolder =
-            targetUserState?.apply { user = value } ?:
-            composeUserHolderAndDrawUserOnMap(value, true)
+            targetUserState?.apply { user = value } ?: composeUserHolderAndDrawUserOnMap(
+                value,
+                true
+            )
 
         targetUserState = updateUserHolder(userViewHolder)
     }
@@ -232,14 +234,7 @@ internal class FLocatorMapFragment :
                 usersDifference.dispatchDifferenceTo(
                     onAddMapItemCallback =
                     {
-                        if (viewModel.targetUserLiveData.value == null) {
-                            return@dispatchDifferenceTo
-                        }
-                        val targetUserId = viewModel.targetUserLiveData.value!!.userId
-                        val holder = composeUserHolderAndDrawUserOnMap(
-                            it,
-                            it.userId == targetUserId
-                        )
+                        val holder = composeUserHolderAndDrawUserOnMap(it, false)
                         usersState[it.userId] = holder
                     },
                     onUpdateMapItemCallback =

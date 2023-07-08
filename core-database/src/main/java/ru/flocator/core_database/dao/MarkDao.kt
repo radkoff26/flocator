@@ -12,13 +12,9 @@ interface MarkDao {
     @Transaction
     fun getAllMarks(): Single<List<MarkWithPhotos>>
     @Query("DELETE FROM mark")
+    @Transaction
     fun clearAll(): Completable
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Transaction
     fun insertMarks(marks: List<Mark>): Completable
-    fun updateTable(marks: List<Mark>): Completable {
-        return Completable.concatArray(
-            clearAll(),
-            insertMarks(marks)
-        )
-    }
 }
