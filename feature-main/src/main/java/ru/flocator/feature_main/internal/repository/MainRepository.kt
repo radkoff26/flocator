@@ -6,7 +6,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -34,94 +33,68 @@ internal class MainRepository @Inject constructor(
     private val appRepository: AppRepository
 ) {
     fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
-        val compositeDisposable = CompositeDisposable()
-        return Single.create { emitter ->
-            compositeDisposable.add(
-                ConnectionWrapper.of(
-                    clientAPI.getUserFriendsLocated(userId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                    connectionLiveData
-                )
-                    .connect()
-                    .subscribe(
-                        {
-                            emitter.onSuccess(it)
-                            compositeDisposable.add(
-                                appRepository.cacheDatabase.updateFriends(it)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io())
-                                    .doOnError { throwable ->
-                                        Log.e(
-                                            TAG,
-                                            "getAllFriendsOfUser: error while saving friends to cache!",
-                                            throwable
-                                        )
-                                    }
-                                    .subscribe()
-                            )
-                        },
-                        {
-                            Log.e(
-                                TAG,
-                                "getAllFriendsOfUser: error while fetching data from server!",
-                                it
-                            )
-                            emitter.onError(it)
-                        }
-                    )
-            )
-        }
+        return ConnectionWrapper.of(
+            clientAPI.getUserFriendsLocated(userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io()),
+            connectionLiveData
+        )
+            .connect()
             .subscribeOn(Schedulers.io())
-            .doOnDispose { compositeDisposable.dispose() }
+            .doAfterSuccess {
+                saveNewFriendsToCache(it)
+            }
+    }
+
+    private fun saveNewFriendsToCache(newFriends: List<User>) {
+        appRepository.cacheDatabase.updateFriends(newFriends)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .doOnError { throwable ->
+                Log.e(
+                    TAG,
+                    "getAllFriendsOfUser: error while saving friends to cache!",
+                    throwable
+                )
+            }
+            .subscribe()
     }
 
     fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
-        val compositeDisposable = CompositeDisposable()
-        return Single.create<List<MarkWithPhotos>> { emitter ->
-            compositeDisposable.add(
-                ConnectionWrapper.of(
-                    clientAPI.getUserAndFriendsMarks(userId)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.io()),
-                    connectionLiveData
-                )
-                    .connect()
-                    .subscribe(
-                        {
-                            val marks = it.map(MarkDto::toMarkWithPhotos)
-                            emitter.onSuccess(marks)
-                            val photos = marks.map(MarkWithPhotos::photos).flatten()
-                            compositeDisposable.add(
-                                Completable.concatArray(
-                                    appRepository.cacheDatabase.updateMarks(marks.map(MarkWithPhotos::mark)),
-                                    appRepository.cacheDatabase.updateMarkPhotos(photos)
-                                )
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(Schedulers.io())
-                                    .doOnError { throwable ->
-                                        Log.e(
-                                            TAG,
-                                            "getAllFriendsOfUser: error while saving marks to cache!",
-                                            throwable
-                                        )
-                                    }
-                                    .subscribe()
-                            )
-                        },
-                        {
-                            Log.e(
-                                TAG,
-                                "getMarksForUser: error while fetching marks from server!",
-                                it
-                            )
-                            emitter.onError(it)
-                        }
-                    ),
-            )
-        }
+        return ConnectionWrapper.of(
+            clientAPI.getUserAndFriendsMarks(userId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io()),
+            connectionLiveData
+        )
+            .connect()
             .subscribeOn(Schedulers.io())
-            .doOnDispose { compositeDisposable.dispose() }
+            .doAfterSuccess {
+                saveNewMarksToCache(it)
+            }.map {
+                it.map(MarkDto::toMarkWithPhotos)
+            }
+    }
+
+    private fun saveNewMarksToCache(newMarks: List<MarkDto>) {
+        val marks = newMarks.map(MarkDto::toMarkWithPhotos)
+        val photos = marks.map(MarkWithPhotos::photos).flatten()
+        Completable.concatArray(
+            appRepository.cacheDatabase.updateMarksForUser(
+                marks.map(MarkWithPhotos::mark),
+                photos
+            )
+        )
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .doOnError { throwable ->
+                Log.e(
+                    TAG,
+                    "getAllFriendsOfUser: error while saving marks to cache!",
+                    throwable
+                )
+            }
+            .subscribe()
     }
 
     fun postMark(markDto: AddMarkDto, photos: Set<Map.Entry<Uri, ByteArray>>): Completable {
@@ -170,12 +143,14 @@ internal class MainRepository @Inject constructor(
     }
 
     fun getCurrentUserInfo(): Single<UserInfo> {
-        return appRepository.userCredentialsCache.getUserCredentials()
-            .flatMap {
-                getUser(it.userId)
-                    .subscribeOn(Schedulers.io())
-            }
-            .subscribeOn(Schedulers.io())
+        return ConnectionWrapper.of(
+            appRepository.userCredentialsCache.getUserCredentials()
+                .flatMap {
+                    getUser(it.userId)
+                        .subscribeOn(Schedulers.io())
+                },
+            connectionLiveData
+        ).connect().subscribeOn(Schedulers.io())
     }
 
     fun likeMark(markId: Long, userId: Long): Completable {
