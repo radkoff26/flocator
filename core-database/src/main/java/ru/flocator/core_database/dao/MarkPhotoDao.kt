@@ -7,13 +7,9 @@ import ru.flocator.core_database.entities.MarkPhoto
 @Dao
 interface MarkPhotoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Transaction
     fun insertPhotos(photos: List<MarkPhoto>): Completable
     @Query("DELETE FROM mark_photo")
+    @Transaction
     fun clearAll(): Completable
-    fun updateTable(photos: List<MarkPhoto>): Completable {
-        return Completable.concatArray(
-            clearAll(),
-            insertPhotos(photos)
-        )
-    }
 }

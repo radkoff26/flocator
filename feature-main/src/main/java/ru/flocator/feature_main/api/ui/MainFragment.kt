@@ -2,6 +2,7 @@ package ru.flocator.feature_main.api.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import ru.flocator.cache.storage.SettingsStorage
-import ru.flocator.core_connection.live_data.ConnectionLiveData
+import ru.flocator.core_alert.ErrorDebouncingAlertPoller
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.info.UserInfo
@@ -18,11 +19,13 @@ import ru.flocator.core_database.entities.MarkPhoto
 import ru.flocator.core_database.entities.MarkWithPhotos
 import ru.flocator.core_database.entities.User
 import ru.flocator.core_dependency.findDependencies
+import ru.flocator.core_exceptions.LostConnectionException
 import ru.flocator.core_location.LocationLiveData
 import ru.flocator.core_map.api.FLocatorMap
 import ru.flocator.core_map.api.entity.Mark
 import ru.flocator.core_polling.TimeoutPoller
 import ru.flocator.core_sections.MainSection
+import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMainBinding
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.contractions.MarkContractions
@@ -47,10 +50,6 @@ class MainFragment : Fragment(), MainSection {
     internal lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var mainFragmentViewModel: MainFragmentViewModel
 
-    // Connection
-    @Inject
-    internal lateinit var connectionLiveData: ConnectionLiveData
-
     // Controller
     @Inject
     internal lateinit var controller: NavController
@@ -67,6 +66,10 @@ class MainFragment : Fragment(), MainSection {
     // Locations
     private lateinit var locationLiveData: LocationLiveData
 
+    // Alert
+    private lateinit var alertExecutor: ErrorDebouncingAlertPoller
+
+    // Map
     private lateinit var map: FLocatorMap
 
     override fun onAttach(context: Context) {
@@ -80,6 +83,8 @@ class MainFragment : Fragment(), MainSection {
 
         mainFragmentViewModel =
             ViewModelProvider(this, viewModelFactory)[MainFragmentViewModel::class.java]
+
+        alertExecutor = ErrorDebouncingAlertPoller(requireActivity())
     }
 
     // Fragment lifecycle methods
@@ -89,7 +94,7 @@ class MainFragment : Fragment(), MainSection {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
 
         map =
-            childFragmentManager.findFragmentById(ru.flocator.feature_main.R.id.map_fragment) as FLocatorMap
+            childFragmentManager.findFragmentById(R.id.map_fragment) as FLocatorMap
 
         initMap()
 
@@ -164,9 +169,9 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onUserInfoChanged
         )
-        connectionLiveData.observe(
+        mainFragmentViewModel.errorLiveData.observe(
             viewLifecycleOwner,
-            this::onConnectionChanged
+            this::onErrorOccurred
         )
 
         mainFragmentViewModel.requestInitialLoading()
@@ -274,26 +279,6 @@ class MainFragment : Fragment(), MainSection {
     }
 
     // TODO: move to MainActivity
-    private fun onConnectionChanged(value: Boolean) {
-        if (value) {
-            // Has connection
-            Snackbar.make(
-                binding.root,
-                resources.getString(ru.flocator.feature_main.R.string.return_to_connection),
-                Snackbar.LENGTH_LONG
-            ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
-            mainFragmentViewModel.goOnlineAsUser()
-        } else {
-            // No connection
-            Snackbar.make(
-                binding.root,
-                resources.getString(ru.flocator.feature_main.R.string.no_connection),
-                Snackbar.LENGTH_LONG
-            ).setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE).show()
-        }
-    }
-
-    // TODO: move to MainActivity
     override fun onStart() {
         super.onStart()
         mainFragmentViewModel.goOnlineAsUser()
@@ -303,6 +288,7 @@ class MainFragment : Fragment(), MainSection {
     override fun onStop() {
         super.onStop()
         mainFragmentViewModel.goOfflineAsUser()
+        mainFragmentViewModel.clearError()
     }
 
     override fun onDestroyView() {
@@ -311,6 +297,18 @@ class MainFragment : Fragment(), MainSection {
     }
 
     // Observer callbacks
+    private fun onErrorOccurred(value: Throwable?) {
+        if (value == null) {
+            return
+        }
+        Log.d("TAG123123", "onErrorOccurred: 123123123 ${value.message}")
+        when (value) {
+            is LostConnectionException -> {
+                alertExecutor.postError(binding.root, resources.getString(R.string.no_connection))
+            }
+        }
+    }
+
     private fun onUserLocationChanged(latLng: LatLng?) {
         if (latLng == null || mainFragmentViewModel.userInfoLiveData.value == null) {
             return

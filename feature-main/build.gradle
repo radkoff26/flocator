@@ -36,6 +36,7 @@ android {
 
 dependencies {
     // Project modules
+    implementation project(":core-alert")
     implementation project(":core-api")
     implementation project(":core-cache")
     implementation project(":core-config")
