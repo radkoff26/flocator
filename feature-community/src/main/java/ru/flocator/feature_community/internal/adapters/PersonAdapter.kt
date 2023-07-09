@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.feature_community.internal.domain.user.FriendRequests
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.PersonNewFriendItemBinding
 
 internal class PersonAdapter(private val userNewFriendActionListener: UserNewFriendActionListener) :
@@ -47,7 +48,7 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
         return data.size
     }
 
-    fun getAllCount(): Int{
+    fun getAllCount(): Int {
 
         return data.size
     }
@@ -58,8 +59,9 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
 
 
         with(holder.binding) {
-            newFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            if(person.avatarUri != null){
+            newFriendNameAndSurname.text =
+                root.resources.getString(R.string.name_surname, person.firstName, person.lastName)
+            if (person.avatarUri != null) {
                 setAvatar(person.avatarUri!!, holder)
             }
         }
@@ -69,16 +71,21 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
         holder.binding.buttonCancel.tag = person
 
     }
+
     override fun onClick(view: View?) {
         val user: FriendRequests = view?.tag as FriendRequests
         when (view.id) {
-            ru.flocator.feature_community.R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(user)
-            ru.flocator.feature_community.R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(user)
+            ru.flocator.feature_community.R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(
+                user
+            )
+            ru.flocator.feature_community.R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(
+                user
+            )
             else -> userNewFriendActionListener.onPersonOpenProfile(user)
         }
     }
 
-    private fun setAvatar(uri: String, holder: PersonViewHolder){
+    private fun setAvatar(uri: String, holder: PersonViewHolder) {
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
         LoadUtils.loadPictureFromUrl(uri, 100)

@@ -36,7 +36,7 @@ internal class MarksListRecyclerViewAdapter(
             binding.distanceToMark.text = listMarkDto.stringifiedDistanceToMark
             binding.markAddress.text = listMarkDto.mark.place
             binding.whenCreated.text =
-                TimePresentationUtils.timestampToHumanPresentation(listMarkDto.mark.createdAt)
+                TimePresentationUtils.timestampToHumanPresentation(listMarkDto.mark.createdAt, binding.root.resources)
             binding.photosCount.text =
                 view.resources.getString(R.string.photo_count, listMarkDto.photoCount)
 

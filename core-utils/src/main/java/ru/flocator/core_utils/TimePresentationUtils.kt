@@ -1,33 +1,34 @@
 package ru.flocator.core_utils
 
+import android.content.res.Resources
 import java.sql.Timestamp
 
 object TimePresentationUtils {
-    fun timestampToHumanPresentation(time: Timestamp): String {
+    fun timestampToHumanPresentation(time: Timestamp, resources: Resources): String {
         val timeNow = timeToTimeObject(System.currentTimeMillis() - time.time)
         if (timeNow.years > 0) {
             val delta = timeNow.years
-            return "$delta лет назад"
+            return resources.getString(R.string.years, delta)
         }
         if (timeNow.months > 0) {
             val delta = timeNow.months
-            return "$delta месяцев назад"
+            return resources.getString(R.string.months, delta)
         }
         if (timeNow.days > 0) {
             val delta = timeNow.days
-            return "$delta дней назад"
+            return resources.getString(R.string.days, delta)
         }
         if (timeNow.hours > 0) {
             val delta = timeNow.hours
-            return "$delta часов назад"
+            return resources.getString(R.string.hours, delta)
         }
         if (timeNow.minutes > 0) {
             val delta = timeNow.minutes
-            return "$delta минут назад"
+            return resources.getString(R.string.minutes, delta)
         }
         if (timeNow.seconds > 0) {
             val delta = timeNow.seconds
-            return "$delta секунд назад"
+            return resources.getString(R.string.seconds, delta)
         }
         return ""
     }

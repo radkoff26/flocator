@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Alias for a field with login-->
+    <string name="login">Логин</string>
+    <string name="password_hint">Пароль</string>
+    <!--Action of authentication-->
+    <string name="entry_button_text">Войти</string>
+    <string name="register_button_text">Зарегистрироваться</string>
+    <string name="allow_location_use">Разрешите доступ к вашему местоположению</string>
+    <string name="location_use_explanation">Нам необходимо знать ваше местоположение, чтобы позволить вашим друзьям видеть, где вы находитесь</string>
+    <string name="allow">Разрешить</string>
+    <string name="already_registered">Уже есть аккаунт?</string>
+    <string name="logo">Логотип</string>
+    <string name="field_mustnt_be_empty">Поле не должно быть пустым</string>
+    <string name="login_does_not_exits">Такого логина не существует</string>
+    <string name="wrong_password">Неверный пароль</string>
+    <string name="needs_permission">Необходимо разрешение</string>
+    <string name="provide_permission">Пожалуйста, предоставьте разрешение на доступ к местоположению в настройках приложения</string>
+    <string name="to_settings">Перейти в настройки</string>
+    <string name="cancel">Отменить</string>
+    <string name="first_name">Имя</string>
+    <string name="last_name">Фамилия</string>
+    <string name="next">Далее</string>
+    <string name="email">Email</string>
+    <string name="wrong_email">Некорректный email</string>
+    <string name="login_is_used">Логин уже занят</string>
+    <string name="email_is_used">Email уже зарегистрирован</string>
+    <string name="server_error">Ошибка на сервере</string>
+    <string name="password">Пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="registration_error">Ошибка регистрации пользователя</string>
+    <string name="passwords_dont_match">Пароли не совпадают</string>
+</resources>
