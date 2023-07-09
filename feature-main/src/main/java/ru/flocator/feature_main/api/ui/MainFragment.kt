@@ -2,7 +2,6 @@ package ru.flocator.feature_main.api.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -109,7 +108,7 @@ class MainFragment : Fragment(), MainSection {
 
         binding.openAddMarkFragment.setOnClickListener {
             if (mainFragmentViewModel.userLocationLiveData.value == null) {
-                Snackbar.make(it, "Получение геолокации...", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(it, resources.getString(R.string.location_fetching), Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -301,7 +300,6 @@ class MainFragment : Fragment(), MainSection {
         if (value == null) {
             return
         }
-        Log.d("TAG123123", "onErrorOccurred: 123123123 ${value.message}")
         when (value) {
             is LostConnectionException -> {
                 alertExecutor.postError(binding.root, resources.getString(R.string.no_connection))

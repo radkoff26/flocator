@@ -18,6 +18,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import ru.flocator.core_api.api.AppRepository
+import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_dependency.findDependencies
@@ -26,9 +27,11 @@ import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
+import ru.flocator.feature_settings.internal.ui.*
 import ru.flocator.feature_settings.internal.ui.ChangePasswordFragment
 import ru.flocator.feature_settings.internal.ui.DeleteAccountFragment
 import ru.flocator.feature_settings.internal.ui.ExitAccountFragment
+import ru.flocator.feature_settings.internal.ui.PrivacySettingsFragment
 import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
@@ -42,6 +45,9 @@ class SettingsFragment : Fragment(), SettingsSection {
 
     @Inject
     lateinit var appRepository: AppRepository
+
+    @Inject
+    lateinit var controller: NavController
 
     @Inject
     internal lateinit var settingsRepository: SettingsRepository
@@ -252,11 +258,11 @@ class SettingsFragment : Fragment(), SettingsSection {
         }
 
         binding.privacyLine.setOnClickListener {
-            // TODO: Navigation
+            controller.toFragment(PrivacySettingsFragment()).commit()
         }
 
         binding.blacklistLine.setOnClickListener {
-            // TODO: Navigation
+            controller.toFragment(BlackListFragment()).commit()
         }
 
         binding.changePasswordLine.setOnClickListener {

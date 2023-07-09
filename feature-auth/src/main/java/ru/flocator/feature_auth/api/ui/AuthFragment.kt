@@ -21,6 +21,7 @@ import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.core_utils.LocationUtils
+import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.databinding.FragmentAuthBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.repository.AuthRepository
@@ -76,23 +77,23 @@ class AuthFragment : Fragment(), AuthenticationSection {
                 login(login,password)
             }
             if (!validateLoginField(login)){
-                binding.loginField.error = "Поле не должно быть пустым"
+                binding.loginField.error = resources.getString(R.string.field_mustnt_be_empty)
                 binding.loginField.isErrorEnabled = true
             }
             if (!validatePasswordField(password)){
-                binding.passwordLoginField.error = "Поле не должно быть пустым"
+                binding.passwordLoginField.error = resources.getString(R.string.field_mustnt_be_empty)
                 binding.passwordLoginField.isErrorEnabled = true
             }
         }
 
-        binding.emailLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        binding.emailLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.loginField.error = null
                 binding.loginField.isErrorEnabled = false
             }
         }
 
-        binding.passwordLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        binding.passwordLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.passwordLoginField.error = null
                 binding.passwordLoginField.isErrorEnabled = false
@@ -167,10 +168,10 @@ class AuthFragment : Fragment(), AuthenticationSection {
                             .subscribe(
                                 {
                                     if (it){
-                                        binding.loginField.error = "Такого логина не существует"
+                                        binding.loginField.error = resources.getString(R.string.login_does_not_exits)
                                         binding.loginField.isErrorEnabled = true
                                     } else {
-                                        binding.passwordLoginField.error = "Неверный пароль"
+                                        binding.passwordLoginField.error = resources.getString(R.string.wrong_password)
                                         binding.passwordLoginField.isErrorEnabled = true
                                     }
                                 },
