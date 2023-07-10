@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="date_with_placeholders">%02d.%02d.%02d</string>
     <string name="exit_account">Выйти из аккаунта</string>
     <string name="close_window">Закрыть окно</string>
     <string name="sure_exit_account">Вы уверены, что хотите выйти из аккаунта?</string>
@@ -20,6 +19,7 @@
     <string name="change_pass">Сменить пароль</string>
     <string name="log_out">Выйти из аккаунта</string>
     <string name="delete_account">Удалить аккаунт</string>
+    <string name="change_language">Язык</string>
     <string name="fix_location">Фиксированно</string>
     <string name="unselect_all">Выбрать всех</string>
     <string name="password_changed_successfully">Пароль успешно изменен!</string>

@@ -270,20 +270,8 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
         }
 
         binding.toolbar.setNavigationOnClickListener {
-            if (parentFragmentManager.backStackEntryCount > 0) {
-                parentFragmentManager.popBackStack()
-            }
+            controller.back()
         }
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (parentFragmentManager.backStackEntryCount > 0) {
-                        parentFragmentManager.popBackStack()
-                    }
-                }
-            }
-        )
 
         return binding.root
     }
@@ -296,11 +284,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
     fun openPersonProfile(user: UserExternalFriends) {
         val args = Bundle()
         if ((user.userId ?: 0) == currentUserId) {
-            val profileFragment = ProfileFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(ru.flocator.feature_community.R.id.person_profile, profileFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            controller.toProfile()
         } else {
             args.putLong(Constants.CURRENT_USER_ID, currentUserId)
             user.userId?.let { args.putLong(Constants.USER_ID, it) }
@@ -308,13 +292,7 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
             args.putString(Constants.PERSON_PHOTO, user.avatarUri)
             val profilePersonFragment = OtherPersonProfileFragment()
             profilePersonFragment.arguments = args
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(
-                ru.flocator.feature_community.R.id.person_profile,
-                profilePersonFragment
-            )
-            transaction.addToBackStack(null)
-            transaction.commit()
+            controller.toFragment(profilePersonFragment)
         }
     }
 

@@ -4,17 +4,17 @@ import androidx.fragment.app.Fragment
 
 interface NavController {
 
-    fun toAuth(): TransactionCommitter
+    fun toAuth()
 
-    fun toLocationDialog(): TransactionCommitter
+    fun toLocationDialog()
 
-    fun toMain(): TransactionCommitter
+    fun toMain()
 
-    fun toProfile(): TransactionCommitter
+    fun toProfile()
 
-    fun toSettings(): TransactionCommitter
+    fun toSettings()
 
-    fun toFragment(fragment: Fragment): TransactionCommitter
+    fun toFragment(fragment: Fragment)
 
     fun back()
 }

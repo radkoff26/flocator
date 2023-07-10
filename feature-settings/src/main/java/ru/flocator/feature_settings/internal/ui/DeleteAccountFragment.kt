@@ -124,8 +124,6 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
     private fun openAuthFragment() {
         dismiss()
         controller.toAuth()
-            .clearAll()
-            .commit()
     }
 
     companion object {

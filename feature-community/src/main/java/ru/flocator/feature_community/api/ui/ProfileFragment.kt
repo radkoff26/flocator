@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
@@ -47,6 +48,9 @@ class ProfileFragment : Fragment(), CommunitySection {
     @Inject
     internal lateinit var viewModelFactory: ViewModelProvider.Factory
     internal lateinit var profileFragmentViewModel: ProfileFragmentViewModel
+
+    @Inject
+    internal lateinit var controller: NavController
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -166,7 +170,7 @@ class ProfileFragment : Fragment(), CommunitySection {
             args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
             val addFriendByLinkFragment = AddFriendByLinkFragment()
             addFriendByLinkFragment.arguments = args
-            addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
+            addFriendByLinkFragment.show(requireActivity().supportFragmentManager, AddFriendByLinkFragment.TAG)
         }
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -175,18 +179,8 @@ class ProfileFragment : Fragment(), CommunitySection {
             setHomeAsUpIndicator(R.drawable.back)
         }
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            controller.back()
         }
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (parentFragmentManager.backStackEntryCount > 0) {
-                        parentFragmentManager.popBackStack()
-                    }
-                }
-            }
-        )
 
         return binding.root
     }
@@ -199,13 +193,7 @@ class ProfileFragment : Fragment(), CommunitySection {
         args.putString("personPhoto", user.avatarUri)
         val profilePersonFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(
-            ru.flocator.feature_community.R.id.community_fragment,
-            profilePersonFragment
-        )
-        transaction.addToBackStack(null)
-        transaction.commit()
+        controller.toFragment(profilePersonFragment)
     }
 
     fun openPersonProfile(user: FriendRequests) {
@@ -216,13 +204,7 @@ class ProfileFragment : Fragment(), CommunitySection {
         args.putString("personPhoto", user.avatarUri)
         val profilePersonFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(
-            ru.flocator.feature_community.R.id.community_fragment,
-            profilePersonFragment
-        )
-        transaction.addToBackStack(null)
-        transaction.commit()
+        controller.toFragment(profilePersonFragment)
     }
 
     private fun checkSizeNewFriendsList(size: Int) {

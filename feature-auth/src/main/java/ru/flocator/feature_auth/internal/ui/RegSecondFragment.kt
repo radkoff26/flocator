@@ -129,9 +129,7 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
                             bundleRegSecondFragment.putString("email", binding.secondInputEditField.text.toString())
                             val regThirdFragment = RegThirdFragment()
                             regThirdFragment.arguments = bundleRegSecondFragment
-                            controller
-                                .toFragment(regThirdFragment)
-                                .commit()
+                            controller.toFragment(regThirdFragment)
                         },
                         { error ->
                             showErrorMessage(resources.getString(ru.flocator.feature_auth.R.string.server_error))
@@ -194,9 +192,7 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            controller
-                .toAuth()
-                .commit()
+            controller.toAuth()
         }
 
         binding.secondInputEditField.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS

@@ -1,5 +1,5 @@
 <resources>
-    <string name="date_with_placeholders">%02d.%02d.%02d</string>
+    <string name="date_with_placeholders" translatable="false">%02d.%02d.%02d</string>
     <string name="exit_account">Sign out</string>
     <string name="close_window">Close window</string>
     <string name="sure_exit_account">Are you sure to sign out?</string>
@@ -15,10 +15,11 @@
     <string name="current_location">Precisely</string>
     <string name="approx_location">Approximately</string>
     <string name="date_of_birth">Birthdate</string>
-    <string name="privacy">Hide your location</string>
+    <string name="privacy">Location privacy</string>
     <string name="change_pass">Change password</string>
     <string name="log_out">Sign out</string>
     <string name="delete_account">Delete account</string>
+    <string name="change_language">Language</string>
     <string name="fix_location">Fixed</string>
     <string name="unselect_all">Select all</string>
     <string name="password_changed_successfully">You have successfully changed your password!</string>
@@ -39,4 +40,6 @@
     <string name="blacklist_is_empty">Blacklist is empty. Well done!</string>
     <string name="privacy_no_friends">You have no one to hide your location from - let\'s find friends first!</string>
     <string name="name_and_surname">Name and surname</string>
+    <string name="ru" translatable="false">ru</string>
+    <string name="en" translatable="false">en</string>
 </resources>

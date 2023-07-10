@@ -131,5 +131,5 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
         return fineLocationPermission && coarseLocationPermission
     }
 
-    private fun goToMainSection() = controller.toMain().clearAll().commit()
+    private fun goToMainSection() = controller.toMain()
 }

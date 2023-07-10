@@ -132,11 +132,11 @@ class MainFragment : Fragment(), MainSection {
         }
 
         binding.communityBtn.setOnClickListener {
-            controller.toProfile().commit()
+            controller.toProfile()
         }
 
         binding.settingsBtn.setOnClickListener {
-            controller.toSettings().commit()
+            controller.toSettings()
         }
 
         binding.targetBtn.setOnClickListener {
@@ -172,8 +172,6 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onErrorOccurred
         )
-
-        mainFragmentViewModel.requestInitialLoading()
 
         userInfoTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
@@ -277,16 +275,15 @@ class MainFragment : Fragment(), MainSection {
         )
     }
 
-    // TODO: move to MainActivity
     override fun onStart() {
         super.onStart()
-        mainFragmentViewModel.goOnlineAsUser()
+        mainFragmentViewModel.requestInitialLoading()
+        mainFragmentViewModel.goOnlineAsUser() // TODO: move to MainActivity
     }
 
-    // TODO: move to MainActivity
     override fun onStop() {
         super.onStop()
-        mainFragmentViewModel.goOfflineAsUser()
+        mainFragmentViewModel.goOfflineAsUser() // TODO: move to MainActivity
         mainFragmentViewModel.clearError()
     }
 

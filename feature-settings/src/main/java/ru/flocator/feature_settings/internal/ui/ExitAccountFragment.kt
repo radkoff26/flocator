@@ -99,8 +99,6 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     private fun openAuthFragment() {
         dismiss()
         controller.toAuth()
-            .clearAll()
-            .commit()
     }
 
     companion object {
