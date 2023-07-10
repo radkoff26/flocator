@@ -127,9 +127,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
         })
 
         binding.registrationBtn.setOnClickListener {
-            navController
-                .toFragment(RegFirstFragment())
-                .commit()
+            navController.toFragment(RegFirstFragment())
         }
 
         return binding.root
@@ -150,15 +148,9 @@ class AuthFragment : Fragment(), AuthenticationSection {
                         )
                     )
                     if (LocationUtils.hasLocationPermission(requireContext())) {
-                        navController
-                            .toMain()
-                            .clearAll()
-                            .commit()
+                        navController.toMain()
                     } else {
-                        navController
-                            .toFragment(LocationRequestFragment())
-                            .clearAll()
-                            .commit()
+                        navController.toFragment(LocationRequestFragment())
                     }
                 }, { error ->
                     compositeDisposable.add(

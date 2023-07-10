@@ -20,14 +20,20 @@ import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_api.api.AppRepository
 import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
+import ru.flocator.core_data_store.user.data.UserCredentials
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
+import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_dto.auth.UserRegistrationDto
 import ru.flocator.core_sections.AuthenticationSection
+import ru.flocator.core_utils.LocationUtils
+import ru.flocator.feature_auth.api.ui.LocationRequestFragment
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
+import ru.flocator.feature_auth.internal.repository.AuthRepository
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
@@ -44,6 +50,12 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
 
     @Inject
     internal lateinit var controller: NavController
+
+    @Inject
+    internal lateinit var appRepository: AppRepository
+
+    @Inject
+    internal lateinit var authRepository: AuthRepository
 
     companion object {
         private const val TAG = "Third registration fragment"
@@ -68,9 +80,12 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
     ): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
         val color = ContextCompat.getColor(requireContext(), R.color.font)
-        binding.firstInputEditField.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.password)
-        binding.secondInputEditField.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.repeat_password)
-        binding.submitBtn.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.register)
+        binding.firstInputEditField.contentDescription =
+            resources.getString(ru.flocator.feature_auth.R.string.password)
+        binding.secondInputEditField.contentDescription =
+            resources.getString(ru.flocator.feature_auth.R.string.repeat_password)
+        binding.submitBtn.contentDescription =
+            resources.getString(ru.flocator.feature_auth.R.string.register)
         binding.firstInputField.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
         binding.secondInputField.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
         binding.firstInputField.setEndIconTintList(ColorStateList.valueOf(color))
@@ -91,40 +106,59 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
             } else {
                 binding.secondInputEditField.text.toString()
             }
-            if(firstPassword.isNotEmpty() && secondPassword.isNotEmpty() && comparePasswords(firstPassword, secondPassword)){
+            if (firstPassword.isNotEmpty() && secondPassword.isNotEmpty() && comparePasswords(
+                    firstPassword,
+                    secondPassword
+                )
+            ) {
                 createAccount()
             } else {
-                if(firstPassword.isEmpty()){
-                    binding.firstInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
+                if (firstPassword.isEmpty()) {
+                    binding.firstInputField.error =
+                        resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
                     binding.firstInputField.isErrorEnabled = true
                 }
-                if(secondPassword.isEmpty()){
-                    binding.secondInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
+                if (secondPassword.isEmpty()) {
+                    binding.secondInputField.error =
+                        resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
                     binding.secondInputField.isErrorEnabled = true
                 }
-                println("СРАВНЕНИЕ" + comparePasswords(firstPassword, secondPassword) + " " + firstPassword + " " + secondPassword)
-                if(!comparePasswords(firstPassword, secondPassword) && firstPassword.isNotEmpty() && secondPassword.isNotEmpty()){
-                    binding.secondInputField.error = resources.getString(ru.flocator.feature_auth.R.string.passwords_dont_match)
+                println(
+                    "СРАВНЕНИЕ" + comparePasswords(
+                        firstPassword,
+                        secondPassword
+                    ) + " " + firstPassword + " " + secondPassword
+                )
+                if (!comparePasswords(
+                        firstPassword,
+                        secondPassword
+                    ) && firstPassword.isNotEmpty() && secondPassword.isNotEmpty()
+                ) {
+                    binding.secondInputField.error =
+                        resources.getString(ru.flocator.feature_auth.R.string.passwords_dont_match)
                     binding.secondInputField.isErrorEnabled = true
-                    binding.firstInputField.error = resources.getString(ru.flocator.feature_auth.R.string.passwords_dont_match)
+                    binding.firstInputField.error =
+                        resources.getString(ru.flocator.feature_auth.R.string.passwords_dont_match)
                     binding.firstInputField.isErrorEnabled = true
                 }
             }
         }
 
-        binding.firstInputEditField.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.firstInputField.error = null
-                binding.firstInputField.isErrorEnabled = false
+        binding.firstInputEditField.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.firstInputField.error = null
+                    binding.firstInputField.isErrorEnabled = false
+                }
             }
-        }
 
-        binding.secondInputEditField.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.secondInputField.error = null
-                binding.secondInputField.isErrorEnabled = false
+        binding.secondInputEditField.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.secondInputField.error = null
+                    binding.secondInputField.isErrorEnabled = false
+                }
             }
-        }
 
         binding.firstInputEditField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -165,9 +199,7 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            controller
-                .toAuth()
-                .commit()
+            controller.toAuth()
         }
 
         binding.firstInputEditField.inputType =
@@ -191,8 +223,10 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
         super.onViewCreated(view, savedInstanceState)
         view.id = R.id.third_fragment_root
 
-        binding.firstInputField.hint = resources.getString(ru.flocator.feature_auth.R.string.password)
-        binding.secondInputField.hint = resources.getString(ru.flocator.feature_auth.R.string.repeat_password)
+        binding.firstInputField.hint =
+            resources.getString(ru.flocator.feature_auth.R.string.password)
+        binding.secondInputField.hint =
+            resources.getString(ru.flocator.feature_auth.R.string.repeat_password)
         binding.submitBtn.text = resources.getString(ru.flocator.feature_auth.R.string.register)
     }
 
@@ -208,6 +242,7 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
         val firstName = bundle?.getString("firstname")
         val login = bundle?.getString("login")
         val email = bundle?.getString("email")
+        val password = binding.firstInputEditField.text.toString()
         println(lastName)
         println(login)
         val userRegistrationDto = UserRegistrationDto(
@@ -215,7 +250,7 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
             firstName = firstName!!,
             login = login!!,
             email = email!!,
-            password = binding.firstInputEditField.text.toString()
+            password = password
         )
         compositeDisposable.add(
             registrationViewModel.registerUser(userRegistrationDto)
@@ -223,14 +258,40 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ isSuccess ->
                     if (isSuccess) {
-                        controller.toAuth()
-                            .clearAll()
-                            .commit()
+                        loginAndRedirectToAccount(login, password)
+                    } else {
+                        showErrorMessage()
                     }
                 }, { error ->
                     showErrorMessage()
                     Log.e(TAG, "Error while registration", error)
                 })
+        )
+    }
+
+    private fun loginAndRedirectToAccount(login: String, password: String) {
+        compositeDisposable.add(
+            authRepository.loginUser(UserCredentialsDto(login, password))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { userId ->
+                        appRepository.userCredentialsCache.updateUserCredentials(
+                            UserCredentials(
+                                userId!!,
+                                login,
+                                password
+                            )
+                        )
+                        if (LocationUtils.hasLocationPermission(requireContext())) {
+                            controller.toMain()
+                        } else {
+                            controller.toFragment(LocationRequestFragment())
+                        }
+                    }, {
+                        // TODO: make Snackbar to notify user about the error
+                    }
+                )
         )
     }
 
@@ -241,6 +302,7 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
 
     private fun showErrorMessage() {
         binding.registrationErrorMessageText.visibility = View.VISIBLE
-        binding.registrationErrorMessageText.text = resources.getString(ru.flocator.feature_auth.R.string.registration_error)
+        binding.registrationErrorMessageText.text =
+            resources.getString(ru.flocator.feature_auth.R.string.registration_error)
     }
 }

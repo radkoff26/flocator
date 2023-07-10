@@ -8,7 +8,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import ru.flocator.app.R
 import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.TransactionCommitter
 import ru.flocator.core_sections.AuthenticationSection
 import ru.flocator.core_sections.CommunitySection
 import ru.flocator.core_sections.MainSection
@@ -40,115 +39,58 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
         _activity = null
     }
 
-    override fun toAuth(): TransactionCommitter =
-        object : TransactionCommitter() {
-            override fun commit() {
-                openFragment(AuthFragment(), this)
-            }
-        }
+    override fun toAuth() {
+        openFragment(AuthFragment())
+    }
 
-    override fun toLocationDialog(): TransactionCommitter =
-        object : TransactionCommitter() {
-            override fun commit() {
-                openFragment(LocationRequestFragment(), this)
-            }
-        }
+    override fun toLocationDialog() {
+        openFragment(LocationRequestFragment())
+    }
 
-    override fun toMain(): TransactionCommitter =
-        object : TransactionCommitter() {
-            override fun commit() {
-                openFragment(MainFragment(), this)
-            }
-        }
+    override fun toMain() {
+        openFragment(MainFragment())
+    }
 
-    override fun toProfile(): TransactionCommitter =
-        object : TransactionCommitter() {
-            override fun commit() {
-                openFragment(ProfileFragment(), this)
-            }
-        }
+    override fun toProfile() {
+        openFragment(ProfileFragment())
+    }
 
-    override fun toSettings(): TransactionCommitter =
-        object : TransactionCommitter() {
-            override fun commit() {
-                openFragment(SettingsFragment(), this)
-            }
-        }
+    override fun toSettings() {
+        openFragment(SettingsFragment())
+    }
 
-    override fun toFragment(fragment: Fragment): TransactionCommitter =
-        object : TransactionCommitter() {
-            override fun commit() {
-                openFragment(fragment, this)
-            }
-        }
+    override fun toFragment(fragment: Fragment) {
+        openFragment(fragment)
+    }
 
     override fun back() {
-        if (fragmentManager.fragments.size > 1) {
+        val fragments = fragmentManager.fragments
+        val lastFragment = fragments.last()
+        if (activity.supportFragmentManager.backStackEntryCount > 1
+            && lastFragment !is MainFragment
+            && lastFragment !is LocationRequestFragment) {
             fragmentManager.popBackStack()
         } else {
             activity.finish()
         }
     }
 
-    private fun openFragment(fragment: Fragment, committer: TransactionCommitter) {
-        processTransactionCommitterSettings(committer).apply {
-            add(R.id.fragment_container, fragment)
+    private fun openFragment(fragment: Fragment) {
+        activity.supportFragmentManager.beginTransaction().apply {
+            openOrReplaceFragment(fragment, this)
             addToBackStack(null)
             commit()
         }
     }
 
-    private fun processTransactionCommitterSettings(committer: TransactionCommitter): FragmentTransaction =
-        if (committer.clearAll) {
-            clearAllFragments()
-        } else if (committer.closeSection) {
-            closeSection()
+    private fun openOrReplaceFragment(
+        fragment: Fragment,
+        fragmentTransaction: FragmentTransaction
+    ) {
+        if (activity.supportFragmentManager.fragments.isEmpty()) {
+            fragmentTransaction.add(R.id.fragment_container, fragment)
         } else {
-            fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.fragment_container, fragment)
         }
-
-    private fun clearAllFragments(): FragmentTransaction {
-        val fragments = fragmentManager.fragments
-        val transaction = fragmentManager.beginTransaction()
-        fragments.forEach {
-            transaction.remove(it)
-        }
-        return transaction
-    }
-
-    private fun closeSection(): FragmentTransaction {
-        val fragments = fragmentManager.fragments.reversed()
-        val currentSection = getFragmentSection(fragments[0])
-        val transaction = fragmentManager.beginTransaction()
-        fragments.forEach {
-            if (getFragmentSection(it) == currentSection) {
-                transaction.remove(it)
-            } else {
-                return@forEach
-            }
-        }
-        return transaction
-    }
-
-    private fun getFragmentSection(fragment: Fragment): Class<*>? {
-        return when (fragment) {
-            is SettingsSection -> {
-                SettingsSection::class.java
-            }
-            is MainSection -> {
-                MainSection::class.java
-            }
-            is AuthenticationSection -> {
-                AuthenticationSection::class.java
-            }
-            is CommunitySection -> {
-                CommunitySection::class.java
-            }
-            else -> null
-        }
-    }
-
-    companion object {
-        private const val BACK_STACK_NAME = "BACK_STACK"
     }
 }

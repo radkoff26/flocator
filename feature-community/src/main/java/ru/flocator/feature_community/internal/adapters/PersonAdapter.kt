@@ -55,8 +55,6 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
 
     override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
         val person = data[position]
-        val context = holder.itemView.context
-
 
         with(holder.binding) {
             newFriendNameAndSurname.text =
@@ -75,10 +73,10 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
     override fun onClick(view: View?) {
         val user: FriendRequests = view?.tag as FriendRequests
         when (view.id) {
-            ru.flocator.feature_community.R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(
+            R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(
                 user
             )
-            ru.flocator.feature_community.R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(
+            R.id.buttonAccept -> userNewFriendActionListener.onPersonAccept(
                 user
             )
             else -> userNewFriendActionListener.onPersonOpenProfile(user)

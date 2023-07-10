@@ -73,9 +73,7 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
                 bundle.putString("firstname", binding.secondInputEditField.text.toString())
                 val regSecondFragment = RegSecondFragment()
                 regSecondFragment.arguments = bundle
-                controller
-                    .toFragment(regSecondFragment)
-                    .commit()
+                controller.toFragment(regSecondFragment)
             } else {
                 if(firstName.isEmpty()){
                     binding.firstInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
@@ -129,9 +127,7 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
         })
 
         binding.alreadyRegisteredText.setOnClickListener {
-            controller
-                .toAuth()
-                .commit()
+            controller.toAuth()
         }
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)

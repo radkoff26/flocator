@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.animation.doOnEnd
@@ -19,7 +18,6 @@ import ru.flocator.core_map.api.*
 import ru.flocator.core_map.api.configuration.MapConfiguration
 import ru.flocator.core_map.api.entity.Mark
 import ru.flocator.core_map.api.entity.User
-import ru.flocator.core_map.internal.domain.camera.CameraStatus
 import ru.flocator.core_map.internal.domain.comparing.MapItemsCompareCallbacks
 import ru.flocator.core_map.internal.domain.difference.Difference
 import ru.flocator.core_map.internal.domain.difference.MapItemsDifferenceCalculator
@@ -39,7 +37,6 @@ import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.thread
 import kotlin.math.max
-import kotlin.random.Random
 
 internal class FLocatorMapFragment :
     SupportMapFragment(),
@@ -78,8 +75,26 @@ internal class FLocatorMapFragment :
     private var usersDispatchCount = 0
 
     // Lifecycle
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    @Suppress("DEPRECATION")
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(CAMERA_POSITION)) {
+                val cameraPosition = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    savedInstanceState.getParcelable(CAMERA_POSITION, CameraPosition::class.java)
+                } else {
+                    savedInstanceState.getParcelable(CAMERA_POSITION) as CameraPosition?
+                }!!
+                getMapAsync {
+                    it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+                }
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         getMapAsync {
             markerStore.setMap(it)
             markerStore.setLifecycleOwner(viewLifecycleOwner)
@@ -106,26 +121,6 @@ internal class FLocatorMapFragment :
                 viewModel.updateVisibleRegion(it.projection.visibleRegion)
             }
         }
-    }
-
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(CAMERA_POSITION)) {
-                val cameraPosition = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    savedInstanceState.getParcelable(CAMERA_POSITION, CameraPosition::class.java)
-                } else {
-                    savedInstanceState.getParcelable(CAMERA_POSITION) as CameraPosition?
-                }!!
-                getMapAsync {
-                    it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-                }
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         userViewPool = ViewPool(
             viewLifecycleOwner,
@@ -200,7 +195,6 @@ internal class FLocatorMapFragment :
         if (value == null || !markerStore.isActive()) {
             return
         }
-        Log.d(TAG, "invalidate target user: invoked")
 
         val userViewHolder =
             targetUserState?.apply { user = value } ?: composeUserHolderAndDrawUserOnMap(
@@ -212,8 +206,6 @@ internal class FLocatorMapFragment :
     }
 
     private fun invalidateFriendsOnMap(value: List<User>) {
-        val randomId = Random.nextDouble()
-        Log.d(TAG, "invalidate friends $randomId: invoked")
         thread {
             usersDispatchWriteLock.lock()
             val currentCount = usersDispatchCount + 1
@@ -230,7 +222,6 @@ internal class FLocatorMapFragment :
                 return@thread
             }
             requireActivity().runOnUiThread {
-                Log.d(TAG, "invalidate friends $randomId: dispatched")
                 usersDifference.dispatchDifferenceTo(
                     onAddMapItemCallback =
                     {
@@ -270,8 +261,6 @@ internal class FLocatorMapFragment :
             // find out which mark is target user's
             return
         }
-        val randomId = Random.nextDouble()
-        Log.d(TAG, "invalidate marks $randomId: invoked")
         thread {
             marksDispatchWriteLock.lock()
             val currentCount = marksDispatchCount + 1
@@ -289,7 +278,6 @@ internal class FLocatorMapFragment :
                 return@thread
             }
             requireActivity().runOnUiThread {
-                Log.d(TAG, "invalidate marks $randomId: dispatched")
                 singleMarksDifference.dispatchDifferenceTo(
                     onAddMapItemCallback =
                     {

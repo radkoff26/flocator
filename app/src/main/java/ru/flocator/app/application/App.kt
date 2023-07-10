@@ -5,6 +5,7 @@ import android.content.IntentFilter
 import android.util.Log
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.plugins.RxJavaPlugins
+import ru.flocator.cache.storage.SettingsStorage
 import ru.flocator.core_config.Actions
 import ru.flocator.core_dependency.DependenciesContainer
 import ru.flocator.core_dependency.DependenciesMap
