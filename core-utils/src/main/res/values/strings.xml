@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="years" formatted="true">%d years ago</string>
+    <string name="months" formatted="true">%d months ago</string>
+    <string name="days" formatted="true">%d days ago</string>
+    <string name="hours" formatted="true">%d hours ago</string>
+    <string name="minutes" formatted="true">%d minutes ago</string>
+    <string name="seconds" formatted="true">%d seconds ago</string>
+</resources>

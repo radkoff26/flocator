@@ -1,0 +1,323 @@
+package ru.flocator.feature_settings.api.ui
+
+import android.app.DatePickerDialog
+import android.content.Context
+import android.net.Uri
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import ru.flocator.cache.storage.SettingsStorage
+import ru.flocator.cache.storage.domain.Language
+import ru.flocator.core_api.api.AppRepository
+import ru.flocator.core_controller.NavController
+import ru.flocator.core_controller.findNavController
+import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core_dependency.findDependencies
+import ru.flocator.core_sections.SettingsSection
+import ru.flocator.feature_settings.R
+import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
+import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
+import ru.flocator.feature_settings.internal.ui.*
+import java.sql.Timestamp
+import java.util.*
+import javax.inject.Inject
+
+class SettingsFragment : Fragment(), SettingsSection {
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding: FragmentSettingsBinding
+        get() = _binding!!
+
+    private val compositeDisposable = CompositeDisposable()
+
+    @Inject
+    lateinit var appRepository: AppRepository
+
+    @Inject
+    lateinit var controller: NavController
+
+    @Inject
+    internal lateinit var settingsRepository: SettingsRepository
+
+    @Inject
+    internal lateinit var settingsStorage: SettingsStorage
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        DaggerSettingsComponent.factory()
+            .create(
+                findDependencies(),
+                findNavController()
+            )
+            .inject(this)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val photoChangeLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
+                if (result != null) {
+                    changeAvatar(result)
+                    compositeDisposable.add(
+                        io.reactivex.Completable.create { emitter ->
+                            val stream = context?.contentResolver?.openInputStream(result)!!
+                            compositeDisposable.add(
+                                settingsRepository.changeCurrentUserAva(
+                                    MultipartBody.Part.createFormData(
+                                        "photo",
+                                        result.toString(),
+                                        RequestBody.create(
+                                            MediaType.parse("image/*"),
+                                            stream.readBytes()
+                                        )
+                                    )
+                                )
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                        {},
+                                        { Log.e("Loading image from storage", "error", it) })
+                            )
+
+                            emitter.onComplete()
+                            stream.close()
+                        }
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnError { Log.e("Sending image", "error", it) }
+                            .subscribe()
+                    )
+                }
+            }
+        // Inflate the layout for this fragment
+        val fragmentView =
+            inflater.inflate(R.layout.fragment_settings, container, false)
+
+        _binding = FragmentSettingsBinding.bind(fragmentView)
+
+        selectCurrentLanguage()
+
+        binding.ru.setOnClickListener {
+            setLanguageAndRefreshIfNecessary(Language.RU)
+        }
+
+        binding.en.setOnClickListener {
+            setLanguageAndRefreshIfNecessary(Language.EN)
+        }
+
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setHomeButtonEnabled(true)
+            setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
+        }
+        binding.toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        compositeDisposable.add(
+            io.reactivex.Observable.create { emitter ->
+                compositeDisposable.add(
+                    appRepository.userInfoCache.getUserInfo()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            emitter.onNext(it)
+                        }, {
+                            Log.e("Getting UserInfo cache error", it.stackTraceToString(), it)
+                        })
+                )
+                compositeDisposable.add(
+                    settingsRepository.getCurrentUserInfo()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({
+                            emitter.onNext(it)
+                        }, {
+                            Log.e(
+                                "Getting UserInfo network data error",
+                                it.stackTraceToString(),
+                                it
+                            )
+                        })
+                )
+            }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    { userInfo ->
+                        if (userInfo == UserInfo.DEFAULT) {
+                            return@subscribe
+                        }
+                        appRepository.userInfoCache.updateUserInfo(userInfo)
+                        binding.nameField.setText(userInfo.firstName + " " + userInfo.lastName)
+                        val cal = Calendar.getInstance()
+                        if (userInfo.birthDate != null) {
+                            cal.timeInMillis = userInfo.birthDate!!.time
+                            binding.dateOfBirthField.text = getString(
+                                R.string.date_with_placeholders,
+                                cal.get(Calendar.DAY_OF_MONTH),
+                                cal.get(Calendar.MONTH) + 1,
+                                cal.get(Calendar.YEAR),
+                            )
+                        }
+
+
+
+                        if (userInfo.avatarUri != null) {
+                            compositeDisposable.add(
+                                appRepository.photoLoader.getPhoto(userInfo.avatarUri!!)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                        { binding.avatar.setImageBitmap(it) },
+                                        { Log.e("Loading ava", "error", it) })
+                            )
+                        }
+
+                    },
+                    {
+                        Log.e("Loading user info", it.stackTraceToString(), it)
+                    }
+                )
+        )
+
+        compositeDisposable.add(
+            settingsRepository.getCurrentUserBlocked()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        binding.blacklistCnt.text = it.size.toString()
+                    },
+                    {
+                        Log.e("Getting blacklist size error", it.stackTraceToString(), it)
+                    }
+                )
+        )
+
+        binding.avatar.setOnClickListener {
+            photoChangeLauncher.launch("image/*")
+        }
+
+        binding.dateOfBirthLine.setOnClickListener {
+
+            val c = Calendar.getInstance()
+
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { _, resYear, resMonth, resDay ->
+                    // on below line we are setting
+                    // date to our text view.
+                    binding.dateOfBirthField.text = getString(
+                        R.string.date_with_placeholders,
+                        resDay,
+                        resMonth + 1,
+                        resYear
+                    )
+                    val stamp = Calendar.getInstance()
+                    stamp.set(resYear, resMonth, resDay)
+                    compositeDisposable.add(
+                        settingsRepository.changeCurrentUserBirthdate(
+                            Timestamp(stamp.timeInMillis)
+                        )
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({}, { Log.e("Sending user birthdate", "error", it) })
+                    )
+                },
+                year,
+                month,
+                day
+            )
+            datePickerDialog.show()
+        }
+
+        binding.nameField.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val words = binding.nameField.text.split(" ")
+                val firstName = words[0]
+                var secondName = ""
+                for (word in words.listIterator(1)) {
+                    secondName += word
+                }
+                compositeDisposable.add(
+                    settingsRepository.changeCurrentUserName(firstName, secondName)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({}, { Log.e("Change name", "error", it) })
+                )
+            }
+        }
+
+        binding.privacyLine.setOnClickListener {
+            controller.toFragment(PrivacySettingsFragment())
+        }
+
+        binding.blacklistLine.setOnClickListener {
+            controller.toFragment(BlackListFragment())
+        }
+
+        binding.changePasswordLine.setOnClickListener {
+            val changePasswordFragment = ChangePasswordFragment()
+            changePasswordFragment.show(parentFragmentManager, ChangePasswordFragment.TAG)
+        }
+
+        binding.exitAccountLine.setOnClickListener {
+            val exitAccountFragment = ExitAccountFragment()
+            exitAccountFragment.show(parentFragmentManager, ExitAccountFragment.TAG)
+        }
+
+        binding.deleteAccountLine.setOnClickListener {
+            val deleteAccountFragment = DeleteAccountFragment()
+            deleteAccountFragment.show(parentFragmentManager, DeleteAccountFragment.TAG)
+        }
+        return fragmentView
+    }
+
+    private fun setLanguageAndRefreshIfNecessary(language: Language) {
+        val prevLanguage = settingsStorage.getLanguage()
+        if (prevLanguage == language) {
+            return
+        }
+        settingsStorage.setLanguage(language)
+        requireActivity().recreate()
+    }
+
+    private fun selectCurrentLanguage() {
+        val currentLanguage = settingsStorage.getLanguage()
+        if (currentLanguage == null || currentLanguage == Language.EN) {
+            binding.en.isChecked = true
+        } else {
+            binding.ru.isChecked = true
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.dispose()
+        _binding = null
+    }
+
+    private fun changeAvatar(uri: Uri) {
+        binding.avatar.setImageURI(uri)
+    }
+}

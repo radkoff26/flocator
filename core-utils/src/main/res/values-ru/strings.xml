@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="years" formatted="true">%d лет назад</string>
+    <string name="months" formatted="true">%d месяцев назад</string>
+    <string name="days" formatted="true">%d дней назад</string>
+    <string name="hours" formatted="true">%d часов назад</string>
+    <string name="minutes" formatted="true">%d минут назад</string>
+    <string name="seconds" formatted="true">%d секунд назад</string>
+</resources>

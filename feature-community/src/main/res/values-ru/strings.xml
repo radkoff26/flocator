@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_friend">Логин пользователя</string>
+    <string name="close_window">Закрыть окно</string>
+    <string name="add">Добавить</string>
+    <string name="request_is_sent">Запрос в друзья отправлен!</string>
+    <string name="add_friend">Добавить друга</string>
+    <string name="name_and_surname">Имя Фамилия</string>
+    <string name="friend_requests">Заявки в друзья</string>
+    <string name="show_all">Показать всех</string>
+    <string name="collapse">Свернуть</string>
+    <string name="your_friends">Ваши друзья</string>
+    <string name="decline">Отклонить</string>
+    <string name="accept">Принять</string>
+    <string name="add_to_friends">Добавить в друзья</string>
+    <string name="friends">Друзья</string>
+    <string name="last_online_mock">Был в сети 5 минут назад</string>
+    <string name="no_new_requests">Новых заявок пока нет!</string>
+    <string name="friend_request_sent">Запрос в друзья отправлен!</string>
+    <string name="user_doesnt_exist">Пользователя не существует!</string>
+    <string name="field_must_be_filled">Поле должно быть заполнено!</string>
+    <string name="remove_from_friends">Удалить из друзей</string>
+    <string name="cancel_request">Отменить заявку</string>
+    <string name="online">В сети</string>
+    <string name="was_online" formatted="true">Был в сети %s</string>
+    <string name="was_online_recently">Был в сети недавно</string>
+    <string name="you_blocked_user">Вы заблокировали пользователя</string>
+    <string name="unblock">Разблокировать</string>
+    <string name="block">Заблокировать</string>
+    <string name="user_blocked_you">Пользователь вас заблокировал</string>
+    <string name="your_profile">Ваш профиль</string>
+</resources>
