@@ -180,7 +180,7 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
                         {
                             Snackbar.make(
                                 binding.root,
-                                "Ошибка!",
+                                resources.getString(R.string.error),
                                 Snackbar.LENGTH_SHORT
                             ).setAnimationMode(Snackbar.ANIMATION_MODE_FADE).show()
                             Log.e(TAG, "adjustRecyclerView: error while fetching user id", it)

@@ -27,7 +27,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:title="Ваш профиль"
+                app:title="@string/your_profile"
                 app:titleTextColor="#1515B9" />
 
             <com.faltenreich.skeletonlayout.SkeletonLayout

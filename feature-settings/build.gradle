@@ -38,6 +38,7 @@ android {
 dependencies {
     // Project modules
     implementation project(":core-api")
+    implementation project(":core-cache")
     implementation project(":core-connection")
     implementation project(":core-controller")
     implementation project(":core-data-store")

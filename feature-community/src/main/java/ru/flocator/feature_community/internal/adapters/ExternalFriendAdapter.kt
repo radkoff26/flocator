@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ru.flocator.feature_community.internal.domain.user.UserExternalFriends
 import ru.flocator.core_utils.LoadUtils
+import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.PersonYourFriendItemBinding
 
 internal class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActionListener) :
@@ -34,8 +35,9 @@ internal class ExternalFriendAdapter(private val friendActionListener: ExternalF
     override fun onBindViewHolder(holder: ExternalFriendViewHolder, position: Int) {
         val person = data[position]
         with(holder.binding) {
-            yourFriendNameAndSurname.text = person.firstName + " " + person.lastName
-            if(person.avatarUri != null){
+            yourFriendNameAndSurname.text =
+                root.resources.getString(R.string.name_surname, person.firstName, person.lastName)
+            if (person.avatarUri != null) {
                 setAvatar(person.avatarUri!!, holder)
             }
         }
@@ -47,7 +49,7 @@ internal class ExternalFriendAdapter(private val friendActionListener: ExternalF
         friendActionListener.onPersonOpenProfile(user)
     }
 
-    private fun setAvatar(uri: String, holder: ExternalFriendViewHolder){
+    private fun setAvatar(uri: String, holder: ExternalFriendViewHolder) {
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
         LoadUtils.loadPictureFromUrl(uri, 100)

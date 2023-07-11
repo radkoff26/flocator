@@ -16,6 +16,7 @@ import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.core_sections.CommunitySection
+import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.FragmentAddFriendBinding
 import ru.flocator.feature_community.internal.di.DaggerCommunityComponent
 import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
@@ -80,11 +81,13 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
                                 if (!it) {
                                     binding.message.visibility = View.VISIBLE
                                     binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
-                                    binding.message.text = "Запрос в друзья отправлен!"
+                                    binding.message.text =
+                                        resources.getString(R.string.friend_request_sent)
                                 } else {
                                     binding.message.visibility = View.VISIBLE
                                     binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.danger))
-                                    binding.message.text = "Пользователя не существует!"
+                                    binding.message.text =
+                                        resources.getString(R.string.user_doesnt_exist)
                                 }
                             },
                             {
@@ -93,11 +96,10 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
                         )
                 )
                 viewModel.addFriendByLogin(currentUserId, binding.userLoginText.text.toString())
-                //println("СУЩЕСТВУЕТ??????????  " +  addFriendByLinkFragmentViewModel.checkUserLogin(binding.userLoginText.text.toString()))
             } else {
                 binding.message.visibility = View.VISIBLE
                 binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
-                binding.message.text = "Поле должно быть заполнено!"
+                binding.message.text = resources.getString(R.string.field_must_be_filled)
             }
         }
 

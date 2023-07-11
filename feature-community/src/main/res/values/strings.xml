@@ -1,18 +1,32 @@
 <resources>
-    <string name="login_friend">Логин пользователя</string>
-    <string name="close_window">Закрыть окно</string>
-    <string name="add">Добавить</string>
-    <string name="request_is_sent">Запрос в друзья отправлен!</string>
-    <string name="add_friend">Добавить друга</string>
-    <string name="name_and_surname">Имя Фамилия</string>
-    <string name="friend_requests">Заявки в друзья</string>
-    <string name="show_all">Показать всех</string>
-    <string name="collapse">Свернуть</string>
-    <string name="your_friends">Ваши друзья</string>
-    <string name="decline">Отклонить</string>
-    <string name="accept">Принять</string>
-    <string name="add_to_friends">Добавить в друзья</string>
-    <string name="block">Заблокировать</string>
-    <string name="friends">Друзья</string>
-    <string name="last_online">Был в сети 5 минут назад</string>
+    <string name="login_friend">User login</string>
+    <string name="close_window">Close window</string>
+    <string name="add">Add</string>
+    <string name="request_is_sent">Friend request is sent!</string>
+    <string name="add_friend">Add friend</string>
+    <string name="name_and_surname">Name and surname</string>
+    <string name="friend_requests">Friend requests</string>
+    <string name="show_all">Show all</string>
+    <string name="collapse">Collapse</string>
+    <string name="your_friends">Your friends</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
+    <string name="add_to_friends">Add to friends</string>
+    <string name="friends">Friends</string>
+    <string name="last_online_mock">Was online 5 minutes ago</string>
+    <string name="name_surname" formatted="true" translatable="false">%s %s</string>
+    <string name="no_new_requests">No new requests yet…</string>
+    <string name="friend_request_sent">Friend requests has been sent!</string>
+    <string name="user_doesnt_exist">Such user does not exist!</string>
+    <string name="field_must_be_filled">This field must be filled!</string>
+    <string name="remove_from_friends">Remove from friends</string>
+    <string name="cancel_request">Cancel friend request</string>
+    <string name="online">Online</string>
+    <string name="was_online" formatted="true">Was online %s</string>
+    <string name="was_online_recently">Was online some time ago</string>
+    <string name="you_blocked_user">You have blocked this user</string>
+    <string name="unblock">Unblock</string>
+    <string name="block">Block</string>
+    <string name="user_blocked_you">This user has blocked you</string>
+    <string name="your_profile">Your profile</string>
 </resources>

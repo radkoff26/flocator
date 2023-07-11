@@ -120,8 +120,6 @@ internal class ChangePasswordFragment : ResponsiveBottomSheetDialogFragment(
                             appRepository.userCredentialsCache.clearUserCredentials()
                             appRepository.userInfoCache.clearUserInfo()
                             controller.toAuth()
-                                .clearAll()
-                                .commit()
                         },
                         {
                             Log.e("Changing password", "error", it)

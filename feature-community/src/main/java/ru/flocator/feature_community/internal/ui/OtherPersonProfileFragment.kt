@@ -107,11 +107,16 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
             viewLifecycleOwner
         ) { user ->
             currentUser = user
-            binding.nameAndSurname.text = user.firstName + " " + user.lastName
+            binding.nameAndSurname.text = resources.getString(
+                ru.flocator.feature_community.R.string.name_surname,
+                user.firstName,
+                user.lastName
+            )
             user.avatarUri?.let { it1 -> setAvatar(it1) }
 
             if (user.isFriend!!) {
-                binding.addPersonToFriend.text = "Удалить из друзей"
+                binding.addPersonToFriend.text =
+                    resources.getString(ru.flocator.feature_community.R.string.remove_from_friends)
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 binding.addPersonToFriend.setOnClickListener {
@@ -120,22 +125,26 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                         thisUserId
                     )
                     binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
-                    binding.addPersonToFriend.text = "Добавить в друзья"
+                    binding.addPersonToFriend.text =
+                        resources.getString(ru.flocator.feature_community.R.string.add_to_friends)
                     binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
                 }
             } else if (user.hasUserRequestedFriendship!!) {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
-                binding.addPersonToFriend.text = "Принять заявку"
+                binding.addPersonToFriend.text =
+                    resources.getString(ru.flocator.feature_community.R.string.add_to_friends)
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 binding.addPersonToFriend.setOnClickListener {
                     viewModel.acceptFriend(currentUserId, thisUserId)
-                    binding.addPersonToFriend.text = "Удалить из друзей"
+                    binding.addPersonToFriend.text =
+                        resources.getString(ru.flocator.feature_community.R.string.remove_from_friends)
                     binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
                     binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 }
             } else if (user.hasTargetUserRequestedFriendship!!) {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
-                binding.addPersonToFriend.text = "Отменить заявку"
+                binding.addPersonToFriend.text =
+                    resources.getString(ru.flocator.feature_community.R.string.cancel_request)
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 binding.addPersonToFriend.setOnClickListener {
                     viewModel.cancelFriendRequest(
@@ -143,12 +152,14 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                         currentUserId
                     )
                     binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
-                    binding.addPersonToFriend.text = "Добавить в друзья"
+                    binding.addPersonToFriend.text =
+                        resources.getString(ru.flocator.feature_community.R.string.add_to_friends)
                     binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
                 }
             } else {
                 binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.tint))
-                binding.addPersonToFriend.text = "Добавить в друзья"
+                binding.addPersonToFriend.text =
+                    resources.getString(ru.flocator.feature_community.R.string.add_to_friends)
                 binding.addPersonToFriend.setTextColor(resources.getColor(R.color.white))
                 binding.addPersonToFriend.setOnClickListener {
                     viewModel.addOtherUserToFriend(
@@ -156,34 +167,44 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                         thisUserId
                     )
                     binding.addPersonToFriend.setBackgroundColor(resources.getColor(R.color.button_bg))
-                    binding.addPersonToFriend.text = "Отменить заявку"
+                    binding.addPersonToFriend.text =
+                        resources.getString(ru.flocator.feature_community.R.string.cancel_request)
                     binding.addPersonToFriend.setTextColor(resources.getColor(R.color.black))
                 }
             }
             thisUserId = user.userId!!
             if (user.isOnline == true) {
-                binding.wasOnline.text = "В сети"
+                binding.wasOnline.text =
+                    resources.getString(ru.flocator.feature_community.R.string.online)
             } else {
                 binding.wasOnline.text = if (user.lastOnline != null) {
-                    "Был в сети " + TimePresentationUtils.timestampToHumanPresentation(
-                        user.lastOnline!!
+                    resources.getString(
+                        ru.flocator.feature_community.R.string.was_online,
+                        TimePresentationUtils.timestampToHumanPresentation(
+                            user.lastOnline!!,
+                            resources
+                        )
                     )
                 } else {
-                    "Был в сети недавно"
+                    resources.getString(ru.flocator.feature_community.R.string.was_online_recently)
                 }
             }
             println("БЛОКККК    " + user.isBlockedByUser)
             if (user.isBlockedByUser!! && !user.hasBlockedUser!!) {
                 collapseInfo()
-                binding.friends.text = "Вы заблокировали пользователя"
+                binding.friends.text =
+                    resources.getString(ru.flocator.feature_community.R.string.you_blocked_user)
                 binding.friends.setTextColor(resources.getColor(R.color.font))
-                binding.blockPerson.text = "Разблокировать"
+                binding.blockPerson.text =
+                    resources.getString(ru.flocator.feature_community.R.string.unblock)
                 binding.blockPerson.setOnClickListener {
                     viewModel.unblock(currentUserId, thisUserId)
                     showInfo()
-                    binding.friends.text = "Друзья"
+                    binding.friends.text =
+                        resources.getString(ru.flocator.feature_community.R.string.friends)
                     binding.friends.setTextColor(resources.getColor(R.color.dark))
-                    binding.blockPerson.text = "Заблокировать"
+                    binding.blockPerson.text =
+                        resources.getString(ru.flocator.feature_community.R.string.block)
                 }
             }
 
@@ -195,36 +216,46 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
                     )
                     viewModel.block(currentUserId, thisUserId)
                     collapseInfo()
-                    binding.friends.text = "Вы заблокировали пользователя"
+                    binding.friends.text =
+                        resources.getString(ru.flocator.feature_community.R.string.you_blocked_user)
                     binding.friends.setTextColor(resources.getColor(R.color.font))
-                    binding.blockPerson.text = "Разблокировать"
+                    binding.blockPerson.text =
+                        resources.getString(ru.flocator.feature_community.R.string.unblock)
                 }
             }
 
             if (user.hasBlockedUser!! && !user.isBlockedByUser!!) {
                 collapseInfo()
-                binding.friends.text = "Пользователь вас заблокировал"
+                binding.friends.text =
+                    resources.getString(ru.flocator.feature_community.R.string.user_blocked_you)
                 binding.friends.setTextColor(resources.getColor(R.color.font))
-                binding.blockPerson.text = "Заблокировать"
+                binding.blockPerson.text =
+                    resources.getString(ru.flocator.feature_community.R.string.block)
                 binding.blockPerson.setOnClickListener {
                     viewModel.block(currentUserId, thisUserId)
-                    binding.friends.text = "Вы заблокировали пользователя"
+                    binding.friends.text =
+                        resources.getString(ru.flocator.feature_community.R.string.you_blocked_user)
                     binding.friends.setTextColor(resources.getColor(R.color.font))
-                    binding.blockPerson.text = "Разблокировать"
+                    binding.blockPerson.text =
+                        resources.getString(ru.flocator.feature_community.R.string.unblock)
                 }
 
             }
 
             if (user.hasBlockedUser!! && user.isBlockedByUser!!) {
                 collapseInfo()
-                binding.friends.text = "Вы заблокировали пользователя"
+                binding.friends.text =
+                    resources.getString(ru.flocator.feature_community.R.string.user_blocked_you)
                 binding.friends.setTextColor(resources.getColor(R.color.font))
-                binding.blockPerson.text = "Разблокировать"
+                binding.blockPerson.text =
+                    resources.getString(ru.flocator.feature_community.R.string.unblock)
                 binding.blockPerson.setOnClickListener {
                     viewModel.unblock(currentUserId, thisUserId)
-                    binding.friends.text = "Пользователь вас заблокировал"
+                    binding.friends.text =
+                        resources.getString(ru.flocator.feature_community.R.string.user_blocked_you)
                     binding.friends.setTextColor(resources.getColor(R.color.font))
-                    binding.blockPerson.text = "Заблокировать"
+                    binding.blockPerson.text =
+                        resources.getString(ru.flocator.feature_community.R.string.block)
                 }
             }
 
@@ -239,20 +270,8 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
         }
 
         binding.toolbar.setNavigationOnClickListener {
-            if (parentFragmentManager.backStackEntryCount > 0) {
-                parentFragmentManager.popBackStack()
-            }
+            controller.back()
         }
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (parentFragmentManager.backStackEntryCount > 0) {
-                        parentFragmentManager.popBackStack()
-                    }
-                }
-            }
-        )
 
         return binding.root
     }
@@ -265,25 +284,15 @@ internal class OtherPersonProfileFragment : Fragment(), CommunitySection {
     fun openPersonProfile(user: UserExternalFriends) {
         val args = Bundle()
         if ((user.userId ?: 0) == currentUserId) {
-            val profileFragment = ProfileFragment()
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(ru.flocator.feature_community.R.id.person_profile, profileFragment)
-            transaction.addToBackStack(null)
-            transaction.commit()
+            controller.toProfile()
         } else {
             args.putLong(Constants.CURRENT_USER_ID, currentUserId)
             user.userId?.let { args.putLong(Constants.USER_ID, it) }
             args.putString(Constants.NAME_AND_SURNAME, user.firstName + " " + user.lastName)
             args.putString(Constants.PERSON_PHOTO, user.avatarUri)
-            val profilePersonFragment: OtherPersonProfileFragment = OtherPersonProfileFragment()
+            val profilePersonFragment = OtherPersonProfileFragment()
             profilePersonFragment.arguments = args
-            val transaction = childFragmentManager.beginTransaction()
-            transaction.replace(
-                ru.flocator.feature_community.R.id.person_profile,
-                profilePersonFragment
-            )
-            transaction.addToBackStack(null)
-            transaction.commit()
+            controller.toFragment(profilePersonFragment)
         }
     }
 

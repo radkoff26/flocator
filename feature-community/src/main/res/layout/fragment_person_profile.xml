@@ -117,7 +117,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:text="@string/last_online"
+            android:text="@string/last_online_mock"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="@+id/viewSurnameAndButtonAddFriend"
             app:layout_constraintEnd_toEndOf="@+id/viewSurnameAndButtonAddFriend"

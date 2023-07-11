@@ -2,7 +2,6 @@ package ru.flocator.feature_main.api.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -109,7 +108,7 @@ class MainFragment : Fragment(), MainSection {
 
         binding.openAddMarkFragment.setOnClickListener {
             if (mainFragmentViewModel.userLocationLiveData.value == null) {
-                Snackbar.make(it, "Получение геолокации...", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(it, resources.getString(R.string.location_fetching), Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -133,11 +132,11 @@ class MainFragment : Fragment(), MainSection {
         }
 
         binding.communityBtn.setOnClickListener {
-            controller.toProfile().commit()
+            controller.toProfile()
         }
 
         binding.settingsBtn.setOnClickListener {
-            controller.toSettings().commit()
+            controller.toSettings()
         }
 
         binding.targetBtn.setOnClickListener {
@@ -173,8 +172,6 @@ class MainFragment : Fragment(), MainSection {
             viewLifecycleOwner,
             this::onErrorOccurred
         )
-
-        mainFragmentViewModel.requestInitialLoading()
 
         userInfoTimeoutPoller = TimeoutPoller(
             viewLifecycleOwner,
@@ -278,16 +275,15 @@ class MainFragment : Fragment(), MainSection {
         )
     }
 
-    // TODO: move to MainActivity
     override fun onStart() {
         super.onStart()
-        mainFragmentViewModel.goOnlineAsUser()
+        mainFragmentViewModel.requestInitialLoading()
+        mainFragmentViewModel.goOnlineAsUser() // TODO: move to MainActivity
     }
 
-    // TODO: move to MainActivity
     override fun onStop() {
         super.onStop()
-        mainFragmentViewModel.goOfflineAsUser()
+        mainFragmentViewModel.goOfflineAsUser() // TODO: move to MainActivity
         mainFragmentViewModel.clearError()
     }
 
@@ -301,7 +297,6 @@ class MainFragment : Fragment(), MainSection {
         if (value == null) {
             return
         }
-        Log.d("TAG123123", "onErrorOccurred: 123123123 ${value.message}")
         when (value) {
             is LostConnectionException -> {
                 alertExecutor.postError(binding.root, resources.getString(R.string.no_connection))

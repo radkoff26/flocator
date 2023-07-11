@@ -17,7 +17,10 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import ru.flocator.cache.storage.SettingsStorage
+import ru.flocator.cache.storage.domain.Language
 import ru.flocator.core_api.api.AppRepository
+import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_dependency.findDependencies
@@ -26,9 +29,7 @@ import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
-import ru.flocator.feature_settings.internal.ui.ChangePasswordFragment
-import ru.flocator.feature_settings.internal.ui.DeleteAccountFragment
-import ru.flocator.feature_settings.internal.ui.ExitAccountFragment
+import ru.flocator.feature_settings.internal.ui.*
 import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
@@ -44,7 +45,13 @@ class SettingsFragment : Fragment(), SettingsSection {
     lateinit var appRepository: AppRepository
 
     @Inject
+    lateinit var controller: NavController
+
+    @Inject
     internal lateinit var settingsRepository: SettingsRepository
+
+    @Inject
+    internal lateinit var settingsStorage: SettingsStorage
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -101,6 +108,16 @@ class SettingsFragment : Fragment(), SettingsSection {
             inflater.inflate(R.layout.fragment_settings, container, false)
 
         _binding = FragmentSettingsBinding.bind(fragmentView)
+
+        selectCurrentLanguage()
+
+        binding.ru.setOnClickListener {
+            setLanguageAndRefreshIfNecessary(Language.RU)
+        }
+
+        binding.en.setOnClickListener {
+            setLanguageAndRefreshIfNecessary(Language.EN)
+        }
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -252,11 +269,11 @@ class SettingsFragment : Fragment(), SettingsSection {
         }
 
         binding.privacyLine.setOnClickListener {
-            // TODO: Navigation
+            controller.toFragment(PrivacySettingsFragment())
         }
 
         binding.blacklistLine.setOnClickListener {
-            // TODO: Navigation
+            controller.toFragment(BlackListFragment())
         }
 
         binding.changePasswordLine.setOnClickListener {
@@ -274,6 +291,24 @@ class SettingsFragment : Fragment(), SettingsSection {
             deleteAccountFragment.show(parentFragmentManager, DeleteAccountFragment.TAG)
         }
         return fragmentView
+    }
+
+    private fun setLanguageAndRefreshIfNecessary(language: Language) {
+        val prevLanguage = settingsStorage.getLanguage()
+        if (prevLanguage == language) {
+            return
+        }
+        settingsStorage.setLanguage(language)
+        requireActivity().recreate()
+    }
+
+    private fun selectCurrentLanguage() {
+        val currentLanguage = settingsStorage.getLanguage()
+        if (currentLanguage == null || currentLanguage == Language.EN) {
+            binding.en.isChecked = true
+        } else {
+            binding.ru.isChecked = true
+        }
     }
 
     override fun onDestroyView() {

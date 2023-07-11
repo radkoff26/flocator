@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,7 +27,6 @@ import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
-import kotlin.math.log
 
 internal class RegSecondFragment : Fragment(), AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
@@ -45,9 +43,6 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
     internal lateinit var controller: NavController
 
     companion object {
-        private const val LOGIN = "Логин"
-        private const val EMAIL = "Email"
-        private const val NEXT = "Далее"
         private const val TAG = "Second registration fragment"
     }
 
@@ -71,9 +66,9 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
     ): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
-        binding.firstInputEditField.contentDescription = LOGIN
-        binding.secondInputEditField.contentDescription = EMAIL
-        binding.submitBtn.contentDescription = NEXT
+        binding.firstInputEditField.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.login)
+        binding.secondInputEditField.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.email)
+        binding.submitBtn.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.next)
 
         binding.submitBtn.setOnClickListener {
             val login = binding.firstInputEditField.text.toString()
@@ -81,17 +76,17 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
 
             if(login.isEmpty() || email.isEmpty()){
                 if(login.isEmpty()){
-                    binding.firstInputField.error = "Поле не должно быть пустым"
+                    binding.firstInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
                     binding.firstInputField.isErrorEnabled = true
                 }
                 if(email.isEmpty()){
-                    binding.secondInputField.error = "Поле не должно быть пустым"
+                    binding.secondInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
                     binding.secondInputField.isErrorEnabled = true
                 }
                 return@setOnClickListener
             }
             if (!validateEmail(email) && login.isNotEmpty() && email.isNotEmpty()) {
-                binding.secondInputField.error = "Некорректный email"
+                binding.secondInputField.error = resources.getString(ru.flocator.feature_auth.R.string.wrong_password)
                 binding.secondInputField.isErrorEnabled = true
                 return@setOnClickListener
             }
@@ -108,12 +103,12 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
                     .subscribe(
                         { response ->
                             if (!response.loginResponse) {
-                                binding.firstInputField.error = "Логин уже занят"
+                                binding.firstInputField.error = resources.getString(ru.flocator.feature_auth.R.string.login_is_used)
                                 binding.firstInputField.isErrorEnabled = true
                                 return@subscribe
                             }
                             if (!response.emailResponse) {
-                                binding.secondInputField.error = "Email уже занят"
+                                binding.secondInputField.error = resources.getString(ru.flocator.feature_auth.R.string.email_is_used)
                                 binding.secondInputField.isErrorEnabled = true
                                 return@subscribe
                             }
@@ -134,12 +129,10 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
                             bundleRegSecondFragment.putString("email", binding.secondInputEditField.text.toString())
                             val regThirdFragment = RegThirdFragment()
                             regThirdFragment.arguments = bundleRegSecondFragment
-                            controller
-                                .toFragment(regThirdFragment)
-                                .commit()
+                            controller.toFragment(regThirdFragment)
                         },
                         { error ->
-                            showErrorMessage("Ошибка на сервере")
+                            showErrorMessage(resources.getString(ru.flocator.feature_auth.R.string.server_error))
                             Log.e(TAG, "Ошибка проверки доступности логина и email", error)
                         }
                     )
@@ -154,14 +147,14 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
             setHomeAsUpIndicator(R.drawable.back)
         }
 
-        binding.firstInputEditField.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        binding.firstInputEditField.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.firstInputField.error = null
                 binding.firstInputField.isErrorEnabled = false
             }
         }
 
-        binding.secondInputEditField.onFocusChangeListener = View.OnFocusChangeListener { view, hasFocus ->
+        binding.secondInputEditField.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.secondInputField.error = null
                 binding.secondInputField.isErrorEnabled = false
@@ -199,9 +192,7 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
         }
 
         binding.alreadyRegisteredText.setOnClickListener {
-            controller
-                .toAuth()
-                .commit()
+            controller.toAuth()
         }
 
         binding.secondInputEditField.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
@@ -221,9 +212,9 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
         super.onViewCreated(view, savedInstanceState)
         view.id = R.id.second_fragment_root
 
-        binding.firstInputField.hint = LOGIN
-        binding.secondInputField.hint = EMAIL
-        binding.submitBtn.text = NEXT
+        binding.firstInputField.hint = resources.getString(ru.flocator.feature_auth.R.string.login)
+        binding.secondInputField.hint = resources.getString(ru.flocator.feature_auth.R.string.email)
+        binding.submitBtn.text = resources.getString(ru.flocator.feature_auth.R.string.next)
         binding.submitBtn.setTextColor(
             ContextCompat.getColor(
                 requireContext(),
@@ -249,7 +240,7 @@ internal class RegSecondFragment : Fragment(), AuthenticationSection {
     }
 
     private fun validateEmail(email: String): Boolean {
-        val emailRegex = Regex(pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
+        val emailRegex = Regex(pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z\\d.-]+\\.[A-Za-z]{2,}\$")
         return emailRegex.matches(input = email)
     }
 

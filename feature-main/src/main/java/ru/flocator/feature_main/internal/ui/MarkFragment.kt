@@ -220,12 +220,11 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         binding.markText.text = value.mark.text
     }
 
-    @SuppressLint("SetTextI18n")
     private fun onUpdateUserData(value: UsernameDto?) {
         if (value == null) {
             return
         }
-        binding.userName.text = "${value.firstName} ${value.lastName}"
+        binding.userName.text = resources.getString(R.string.name_surname, value.firstName, value.lastName)
     }
 
     companion object {

@@ -1,164 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/white"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            app:title="@string/settings"
-            app:titleTextColor="#1515B9"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
-            />
-        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+            app:title="@string/settings"
+            app:titleTextColor="#1515B9" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:context="ru.flocator.app.ru.flocator.feature_settings.ui.SettingsFragment"
-            android:paddingHorizontal="20dp"
-            android:paddingTop="8dp"
+            android:background="@color/white"
             android:orientation="vertical"
-            android:background="@color/white">
+            android:paddingHorizontal="20dp"
+            android:paddingTop="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="12dp"
                 android:layout_marginBottom="20dp"
-                android:background="@drawable/settings_rectangle">
+                android:background="@drawable/settings_rectangle"
+                android:padding="12dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/avatar"
-                    android:background="#0000"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:src="@drawable/settings_circle"
-                    android:contentDescription="@string/own_profile"/>
+                    android:background="#0000"
+                    android:contentDescription="@string/own_profile"
+                    android:src="@drawable/settings_circle" />
 
                 <EditText
-                    android:focusableInTouchMode="true"
                     android:id="@+id/name_field"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:autofillHints="name"
-                    android:textSize="24sp"
                     android:layout_gravity="center"
                     android:layout_marginStart="12dp"
                     android:layout_marginEnd="16dp"
-                    android:textColor="#000000"
-                    android:maxLines="1"
-                    android:inputType="text"
+                    android:layout_weight="1"
+                    android:autofillHints="name"
                     android:background="@null"
+                    android:focusableInTouchMode="true"
                     android:hint="@string/name_and_surname"
-                    />
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="#000000"
+                    android:textSize="24sp" />
             </LinearLayout>
+
             <LinearLayout
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:id="@+id/date_of_birth_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/date_of_birth_line"
-                >
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/date_of_birth"
-                    android:textStyle="bold"
                     android:textColor="#000"
-                    />
+                    android:textStyle="bold" />
+
                 <TextView
                     android:id="@+id/date_of_birth_field"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="end"
-                    android:textColor="#5c5c5c"
-                    />
+                    android:textColor="#5c5c5c" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/change_language_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/change_language"
+                    android:textColor="#000"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/language_switch"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    android:gravity="end">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/en"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/en"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/gb_flag_icon"
+                        app:iconTintMode="add" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/ru"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ru"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/ru_flag_icon"
+                        app:iconTintMode="add" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/blacklist_line"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/black_list"
-                    android:textStyle="bold"
                     android:textColor="#000"
-                    />
+                    android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/blacklist_cnt"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:textColor="#5c5c5c"
-            />
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/blacklist_cnt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:textColor="#5c5c5c" />
+            </LinearLayout>
+
             <LinearLayout
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:id="@+id/privacy_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/privacy_line">
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/privacy"
-                    android:textStyle="bold"
                     android:textColor="#000"
-                    />
+                    android:textStyle="bold" />
             </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/change_password_line"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/change_pass"
-                    android:textStyle="bold"
                     android:textColor="#000"
-                    />
+                    android:textStyle="bold" />
             </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/exit_account_line"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/log_out"
-                    android:textStyle="bold"
                     android:textColor="#000"
-                    />
+                    android:textStyle="bold" />
             </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/delete_account_line"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/delete_account"
-                    android:textStyle="bold"
                     android:textColor="#F00"
-                    />
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

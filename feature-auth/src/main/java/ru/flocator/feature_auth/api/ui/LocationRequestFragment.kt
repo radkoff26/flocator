@@ -20,6 +20,7 @@ import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_sections.AuthenticationSection
+import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.databinding.FragmentLocationRequestBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import javax.inject.Inject
@@ -106,15 +107,15 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
 
     private fun showPermissionRationaleDialog() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Необходимо разрешение")
-        builder.setMessage("Пожалуйста, предоставьте разрешение на доступ к местоположению в настройках приложения.")
-        builder.setPositiveButton("Перейти в настройки") { _, _ ->
+        builder.setTitle(resources.getString(R.string.needs_permission))
+        builder.setMessage(resources.getString(R.string.provide_permission))
+        builder.setPositiveButton(R.string.to_settings) { _, _ ->
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri = Uri.fromParts("package", requireActivity().packageName, null)
             intent.data = uri
             startActivity(intent)
         }
-        builder.setNegativeButton("Отмена", null)
+        builder.setNegativeButton(resources.getString(R.string.cancel), null)
         builder.show()
     }
 
@@ -130,5 +131,5 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
         return fineLocationPermission && coarseLocationPermission
     }
 
-    private fun goToMainSection() = controller.toMain().clearAll().commit()
+    private fun goToMainSection() = controller.toMain()
 }

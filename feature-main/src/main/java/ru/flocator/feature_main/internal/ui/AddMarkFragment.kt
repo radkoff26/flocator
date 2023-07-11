@@ -221,6 +221,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun setFailed(throwable: Throwable) {
+        // TODO: remake to use customized Snackbar and display error differently
         Toast.makeText(
             requireContext(),
             "Ошибка во время сохранения: ${throwable.message}",

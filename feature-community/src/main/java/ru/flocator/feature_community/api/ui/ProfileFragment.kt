@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
 import ru.flocator.core_design.R
@@ -48,6 +49,9 @@ class ProfileFragment : Fragment(), CommunitySection {
     internal lateinit var viewModelFactory: ViewModelProvider.Factory
     internal lateinit var profileFragmentViewModel: ProfileFragmentViewModel
 
+    @Inject
+    internal lateinit var controller: NavController
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -57,7 +61,8 @@ class ProfileFragment : Fragment(), CommunitySection {
             .build()
             .inject(this)
 
-        profileFragmentViewModel = ViewModelProvider(this, viewModelFactory)[ProfileFragmentViewModel::class.java]
+        profileFragmentViewModel =
+            ViewModelProvider(this, viewModelFactory)[ProfileFragmentViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -92,19 +97,22 @@ class ProfileFragment : Fragment(), CommunitySection {
                 adapterForNewFriends.data = it
                 val size = adapterForNewFriends.data.size
                 if (size != 0) {
-                    binding.friendRequests.text = "Заявки в друзья"
+                    binding.friendRequests.text =
+                        resources.getString(ru.flocator.feature_community.R.string.friend_requests)
                     binding.friendRequests.setTextColor(resources.getColor(R.color.black))
                 }
                 if (size <= 2) {
                     binding.buttonViewAll.visibility = View.GONE
                     binding.buttonNotViewAll.visibility = View.GONE
                     if (size == 0) {
-                        binding.friendRequests.text = "Новых заявок пока нет!"
+                        binding.friendRequests.text =
+                            resources.getString(ru.flocator.feature_community.R.string.no_new_requests)
                         binding.friendRequests.setTextColor(resources.getColor(R.color.font))
                     }
                 }
                 if (size > 2) {
-                    binding.friendRequests.text = "Заявки в друзья"
+                    binding.friendRequests.text =
+                        resources.getString(ru.flocator.feature_community.R.string.friend_requests)
                     binding.friendRequests.setTextColor(resources.getColor(R.color.black))
                     binding.buttonViewAll.visibility = View.VISIBLE
                     binding.buttonNotViewAll.visibility = View.GONE
@@ -119,9 +127,13 @@ class ProfileFragment : Fragment(), CommunitySection {
         }
 
         profileFragmentViewModel.currentUserLiveData.observe(viewLifecycleOwner) {
-            binding.nameAndSurname.text = it.firstName + " " + it.lastName
+            binding.nameAndSurname.text = resources.getString(
+                ru.flocator.feature_community.R.string.name_surname,
+                it.firstName,
+                it.lastName
+            )
             if (it.avatarUri != null) {
-                setAvatar(it.avatarUri!!)
+                setAvatar(it.avatarUri)
             }
             currentUser = it
         }
@@ -136,7 +148,8 @@ class ProfileFragment : Fragment(), CommunitySection {
             binding.buttonViewAll.visibility = View.GONE
             binding.buttonNotViewAll.visibility = View.GONE
             if (adapterForNewFriends.getAllCount() == 0) {
-                binding.friendRequests.text = "Новых заявок пока нет!"
+                binding.friendRequests.text =
+                    resources.getString(ru.flocator.feature_community.R.string.no_new_requests)
                 binding.friendRequests.setTextColor(resources.getColor(R.color.font))
             }
         }
@@ -157,7 +170,7 @@ class ProfileFragment : Fragment(), CommunitySection {
             args.putLong("currentUserId", profileFragmentViewModel.getCurrentUserId())
             val addFriendByLinkFragment = AddFriendByLinkFragment()
             addFriendByLinkFragment.arguments = args
-            addFriendByLinkFragment.show(parentFragmentManager, AddFriendByLinkFragment.TAG)
+            addFriendByLinkFragment.show(requireActivity().supportFragmentManager, AddFriendByLinkFragment.TAG)
         }
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -166,18 +179,8 @@ class ProfileFragment : Fragment(), CommunitySection {
             setHomeAsUpIndicator(R.drawable.back)
         }
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            controller.back()
         }
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (parentFragmentManager.backStackEntryCount > 0) {
-                        parentFragmentManager.popBackStack()
-                    }
-                }
-            }
-        )
 
         return binding.root
     }
@@ -190,10 +193,7 @@ class ProfileFragment : Fragment(), CommunitySection {
         args.putString("personPhoto", user.avatarUri)
         val profilePersonFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(ru.flocator.feature_community.R.id.community_fragment, profilePersonFragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
+        controller.toFragment(profilePersonFragment)
     }
 
     fun openPersonProfile(user: FriendRequests) {
@@ -204,10 +204,7 @@ class ProfileFragment : Fragment(), CommunitySection {
         args.putString("personPhoto", user.avatarUri)
         val profilePersonFragment = OtherPersonProfileFragment()
         profilePersonFragment.arguments = args
-        val transaction = childFragmentManager.beginTransaction()
-        transaction.replace(ru.flocator.feature_community.R.id.community_fragment, profilePersonFragment)
-        transaction.addToBackStack(null)
-        transaction.commit()
+        controller.toFragment(profilePersonFragment)
     }
 
     private fun checkSizeNewFriendsList(size: Int) {
@@ -215,7 +212,8 @@ class ProfileFragment : Fragment(), CommunitySection {
             binding.buttonViewAll.visibility = View.GONE
             binding.buttonNotViewAll.visibility = View.GONE
             if (size == 0) {
-                binding.friendRequests.text = "Новых заявок пока нет!"
+                binding.friendRequests.text =
+                    resources.getString(ru.flocator.feature_community.R.string.no_new_requests)
                 binding.friendRequests.setTextColor(resources.getColor(R.color.font))
             }
         }
