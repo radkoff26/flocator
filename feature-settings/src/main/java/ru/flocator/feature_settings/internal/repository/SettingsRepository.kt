@@ -64,11 +64,11 @@ internal class SettingsRepository @Inject constructor(
             .doOnDispose { compositeDisposable.dispose() }
     }
 
-    fun changeCurrentUserAva(ava: MultipartBody.Part): Single<Boolean> {
+    fun changeCurrentUserAvatar(avatar: MultipartBody.Part): Single<Boolean> {
         return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.changeAvatar(
                 it.userId,
-                ava
+                avatar
             )
                 .subscribeOn(Schedulers.io())
         }
@@ -145,7 +145,7 @@ internal class SettingsRepository @Inject constructor(
     fun getCurrentUserPrivacy(): Single<Map<Long, String>> {
         return appRepository.userCredentialsCache.getUserCredentials().flatMap {
             settingsAPI.getPrivacyData(it.userId)
-        }. map { privacyData ->
+        }.map { privacyData ->
             privacyData.parallelStream().collect(
                 Collectors.toMap(
                     {
@@ -185,12 +185,13 @@ internal class SettingsRepository @Inject constructor(
     }
 
     fun getCurrentUserInfo(): Single<UserInfo> {
-        return appRepository.userCredentialsCache.getUserCredentials()
-            .flatMap {
-                getUser(it.userId)
-                    .subscribeOn(Schedulers.io())
-            }
-            .subscribeOn(Schedulers.io())
+        return ConnectionWrapper.of(
+            appRepository.userCredentialsCache.getUserCredentials()
+                .flatMap {
+                    getUser(it.userId)
+                },
+            connectionLiveData
+        ).connect().subscribeOn(Schedulers.io())
     }
 
     fun getUser(userId: Long): Single<UserInfo> {
