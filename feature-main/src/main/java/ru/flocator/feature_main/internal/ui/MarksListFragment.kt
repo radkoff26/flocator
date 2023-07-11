@@ -99,7 +99,7 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
         adapter.updateMarks(value)
     }
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "DEPRECATION")
     private fun adjustRecyclerView() {
         if (
             arguments == null

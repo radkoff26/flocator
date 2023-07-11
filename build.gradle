@@ -13,6 +13,9 @@ buildscript {
         // ConstraintLayout
         constraint_layout_version = '2.1.4'
 
+        // Coroutines
+        coroutines_version = '1.7.2'
+
         // Data Store
         data_store_preferences_version = '1.0.0'
 
