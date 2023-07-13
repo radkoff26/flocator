@@ -13,7 +13,6 @@ import io.reactivex.schedulers.Schedulers
 import ru.flocator.app.application.App
 import ru.flocator.app.controller.NavControllerImpl
 import ru.flocator.app.data_source.MainAPI
-import ru.flocator.cache.storage.SettingsStorage
 import ru.flocator.cache.storage.SettingsStorageImpl
 import ru.flocator.cache.storage.domain.Language
 import ru.flocator.core_api.api.AppRepository
@@ -22,6 +21,7 @@ import ru.flocator.core_controller.NavigationRoot
 import ru.flocator.core_dto.auth.UserCredentialsDto
 import ru.flocator.core_utils.LocationUtils
 import java.net.ConnectException
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
 import javax.inject.Inject
@@ -98,8 +98,7 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                                     it.login,
                                     it.password
                                 )
-                            )
-                                .subscribeOn(Schedulers.io())
+                            ).subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                     {
@@ -110,7 +109,11 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
                                         }
                                     },
                                     { throwable ->
-                                        if (throwable is UnknownHostException || throwable is ConnectException) {
+                                        if (
+                                            throwable is UnknownHostException
+                                            || throwable is ConnectException
+                                            || throwable is SocketTimeoutException
+                                        ) {
                                             Log.i(
                                                 TAG,
                                                 "openFirstFragment: no connection, but user authorized previously",

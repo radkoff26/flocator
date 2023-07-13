@@ -21,7 +21,7 @@ class RetryImageButton @JvmOverloads constructor(
             gravity = Gravity.CENTER
         }
 
-        imageButton.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.restart_image, null))
+        imageButton.setImageDrawable(ResourcesCompat.getDrawable(context.resources, R.drawable.reload_image, null))
         imageButton.backgroundTintList = ResourcesCompat.getColorStateList(context.resources, R.color.transparent, null)
         imageButton.imageTintList = ResourcesCompat.getColorStateList(context.resources, R.color.tint, null)
         imageButton.scaleType = ImageView.ScaleType.FIT_CENTER

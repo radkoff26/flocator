@@ -305,7 +305,7 @@ class MainFragment : Fragment(), MainSection {
     }
 
     private fun onUserLocationChanged(latLng: LatLng?) {
-        if (latLng == null || mainFragmentViewModel.userInfoLiveData.value == null) {
+        if (latLng == null) {
             return
         }
         if (!mainFragmentViewModel.isCameraInitialized.get()) {

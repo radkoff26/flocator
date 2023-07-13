@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -16,7 +15,6 @@ import ru.flocator.core_database.entities.User
 import ru.flocator.core_exceptions.LostConnectionException
 import ru.flocator.core_polling.PollingEmitter
 import ru.flocator.feature_main.internal.repository.MainRepository
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -54,12 +52,6 @@ internal class MainFragmentViewModel @Inject constructor(
     private fun initialFetch() {
         val userId = userInfoLiveData.value!!.userId
         compositeDisposable.addAll(
-            Single.error<Int>(LostConnectionException())
-                .delay(5, TimeUnit.SECONDS)
-                .doOnError {
-                    _errorLiveData.postValue(it)
-                }
-                .subscribe(),
             mainRepository.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -87,7 +79,7 @@ internal class MainFragmentViewModel @Inject constructor(
 
     fun loadPhoto(uri: String) = appRepository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
 
-    private fun retrieveDataFromCache() {
+    private fun retrieveMapDataFromCache() {
         compositeDisposable.addAll(
             appRepository.userInfoCache.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -152,6 +144,7 @@ internal class MainFragmentViewModel @Inject constructor(
     }
 
     fun requestInitialLoading() {
+        retrieveMapDataFromCache()
         compositeDisposable.add(
             mainRepository.getCurrentUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -161,7 +154,6 @@ internal class MainFragmentViewModel @Inject constructor(
                 .subscribe(
                     {
                         _userInfoLiveData.value = it
-                        retrieveDataFromCache()
                         appRepository.userInfoCache.updateUserInfo(it)
                         initialFetch()
                     },

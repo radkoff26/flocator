@@ -38,7 +38,8 @@
                 <com.faltenreich.skeletonlayout.SkeletonLayout
                     android:id="@+id/avatar_skeleton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:maskCornerRadius="30dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/avatar"
