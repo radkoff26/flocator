@@ -13,6 +13,8 @@ import ru.flocator.core_view_model.annotations.ViewModelKey
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.internal.data_source.SettingsAPI
 import ru.flocator.feature_settings.internal.di.annotations.FragmentScope
+import ru.flocator.feature_settings.internal.view_models.BlackListFragmentViewModel
+import ru.flocator.feature_settings.internal.view_models.PrivacyFragmentViewModel
 import ru.flocator.feature_settings.internal.view_models.SettingsFragmentViewModel
 
 @Module
@@ -35,4 +37,16 @@ internal abstract class SettingsModule {
     @IntoMap
     @ViewModelKey(SettingsFragmentViewModel::class)
     abstract fun bindSettingsViewModel(impl: SettingsFragmentViewModel): ViewModel
+
+    @Binds
+    @FragmentScope
+    @IntoMap
+    @ViewModelKey(BlackListFragmentViewModel::class)
+    abstract fun bindBlackListViewModel(impl: BlackListFragmentViewModel): ViewModel
+
+    @Binds
+    @FragmentScope
+    @IntoMap
+    @ViewModelKey(PrivacyFragmentViewModel::class)
+    abstract fun bindPrivacyViewModel(impl: PrivacyFragmentViewModel): ViewModel
 }

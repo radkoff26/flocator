@@ -12,6 +12,8 @@ import ru.flocator.core_connection.live_data.ConnectionLiveData
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.core_database.entities.User
 import ru.flocator.feature_settings.internal.data_source.SettingsAPI
+import ru.flocator.feature_settings.internal.domain.privacy.PrivacyData
+import ru.flocator.feature_settings.internal.domain.privacy.PrivacyType
 import java.sql.Timestamp
 import java.util.stream.Collectors
 import javax.inject.Inject
@@ -93,9 +95,9 @@ internal class SettingsRepository @Inject constructor(
                 firstName,
                 lastName
             )
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
         }
-            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
     }
 
     fun changeCurrentUserPass(prevPass: String, pass: String): Single<Boolean> {
@@ -105,83 +107,72 @@ internal class SettingsRepository @Inject constructor(
                 prevPass,
                 pass
             )
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
         }
-            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
     }
 
     fun getCurrentUserBlocked(): Single<List<UserInfo>> {
-        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
-            settingsAPI.getBlocked(
-                it.userId
-            )
-                .observeOn(Schedulers.io())
-        }
-            .observeOn(Schedulers.io())
-    }
-
-    fun blockUser(userId: Long): Completable {
-        return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
-            settingsAPI.blockUser(
-                it.userId,
-                userId
-            )
-                .observeOn(Schedulers.io())
-        }
-            .observeOn(Schedulers.io())
+        return ConnectionWrapper.of(
+            appRepository.userCredentialsCache.getUserCredentials().flatMap {
+                settingsAPI.getBlocked(
+                    it.userId
+                )
+            },
+            connectionLiveData
+        ).connect().subscribeOn(Schedulers.io())
     }
 
     fun unblockUser(userId: Long): Completable {
-        return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
-            settingsAPI.unblockUser(
-                it.userId,
-                userId
-            )
-                .observeOn(Schedulers.io())
-        }
-            .observeOn(Schedulers.io())
+        return ConnectionWrapper.of(
+            appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
+                settingsAPI.unblockUser(
+                    it.userId,
+                    userId
+                ).subscribeOn(Schedulers.io())
+            },
+            connectionLiveData
+        ).connect().subscribeOn(Schedulers.io())
     }
 
-    fun getCurrentUserPrivacy(): Single<Map<Long, String>> {
+    fun getCurrentUserPrivacy(): Single<Map<Long, PrivacyType>> {
         return appRepository.userCredentialsCache.getUserCredentials().flatMap {
-            settingsAPI.getPrivacyData(it.userId)
+            ConnectionWrapper.of(
+                settingsAPI.getPrivacyData(it.userId),
+                connectionLiveData
+            ).connect().subscribeOn(Schedulers.io())
         }.map { privacyData ->
             privacyData.parallelStream().collect(
-                Collectors.toMap(
-                    {
-                        it.id
-                    },
-                    {
-                        it.status
-                    }
-                )
+                Collectors.toMap(PrivacyData::id, PrivacyData::status)
             )
         }
     }
 
 
-    fun changePrivacy(friendId: Long, status: String): Completable {
+    fun changePrivacy(friendId: Long, privacyType: PrivacyType): Completable {
         return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
-            settingsAPI.changePrivacyData(it.userId, friendId, status)
-                .observeOn(Schedulers.io())
-        }
-            .observeOn(Schedulers.io())
+            ConnectionWrapper.of(
+                settingsAPI.changePrivacyData(it.userId, friendId, privacyType),
+                connectionLiveData
+            ).connect().subscribeOn(Schedulers.io())
+        }.subscribeOn(Schedulers.io())
     }
 
     fun deleteCurrentAccount(pass: String): Completable {
         return appRepository.userCredentialsCache.getUserCredentials().flatMapCompletable {
             settingsAPI.deleteAccount(it.userId, pass)
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.io())
         }
-            .observeOn(Schedulers.io())
+            .subscribeOn(Schedulers.io())
     }
 
     fun getFriendsOfCurrentUser(): Single<List<User>> {
-        return appRepository.userCredentialsCache.getUserCredentials().flatMap {
-            getAllFriendsOfUser(it.userId)
-                .observeOn(Schedulers.io())
-        }
-            .observeOn(Schedulers.io())
+        return ConnectionWrapper.of(
+            appRepository.userCredentialsCache.getUserCredentials().flatMap {
+                getAllFriendsOfUser(it.userId).subscribeOn(Schedulers.io())
+            },
+            connectionLiveData
+        ).connect().subscribeOn(Schedulers.io())
     }
 
     fun getCurrentUserInfo(): Single<UserInfo> {

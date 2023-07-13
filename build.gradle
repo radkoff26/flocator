@@ -38,6 +38,9 @@ buildscript {
         // Material
         material_version = '1.9.0'
 
+        // Paging
+        paging_version = '3.1.1'
+
         // Retrofit
         retrofit_version = '2.9.0'
         gson_version = '2.9.0'

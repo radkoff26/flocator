@@ -35,6 +35,11 @@ internal class SettingsFragmentViewModel @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
+    override fun onCleared() {
+        super.onCleared()
+        compositeDisposable.dispose()
+    }
+
     fun loadUserAvatar(avatarUri: String) {
         compositeDisposable.add(
             appRepository.photoLoader.getPhoto(avatarUri, AVATAR_QUALITY_FACTOR)

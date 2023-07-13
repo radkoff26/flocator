@@ -2,38 +2,46 @@ package ru.flocator.feature_settings.internal.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import io.reactivex.android.schedulers.AndroidSchedulers
+import androidx.lifecycle.ViewModelProvider
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.serialization.json.Json
+import ru.flocator.core_alert.ErrorDebouncingAlertPoller
+import ru.flocator.core_controller.NavController
 import ru.flocator.core_controller.findNavController
 import ru.flocator.core_dependency.findDependencies
+import ru.flocator.core_exceptions.LostConnectionException
 import ru.flocator.core_sections.SettingsSection
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
-import ru.flocator.feature_settings.internal.adapters.FriendListAdapter
+import ru.flocator.feature_settings.internal.adapters.blacklist.BlackListListAdapter
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
-import ru.flocator.feature_settings.internal.domain.friend.Friend
-import ru.flocator.feature_settings.internal.domain.friend.FriendListSerializer
-import ru.flocator.feature_settings.internal.repository.SettingsRepository
-import ru.flocator.feature_settings.internal.utils.FriendViewUtils.getNumOfColumns
+import ru.flocator.feature_settings.internal.domain.friend.BlackListUser
+import ru.flocator.feature_settings.internal.domain.state.FragmentState
+import ru.flocator.feature_settings.internal.exceptions.FailedActionException
+import ru.flocator.feature_settings.internal.view_models.BlackListFragmentViewModel
 import javax.inject.Inject
 
 internal class BlackListFragment : Fragment(), SettingsSection {
+    private var _binding: FragmentBlackListBinding? = null
+    private val binding: FragmentBlackListBinding
+        get() = _binding!!
 
-    private lateinit var friendListAdapter: FriendListAdapter
+    private lateinit var blackListListAdapter: BlackListListAdapter
 
     @Inject
-    lateinit var settingsRepository: SettingsRepository
+    internal lateinit var controller: NavController
 
     private val compositeDisposable = CompositeDisposable()
+
+    private lateinit var alertPoller: ErrorDebouncingAlertPoller
+
+    @Inject
+    internal lateinit var factory: ViewModelProvider.Factory
+    private lateinit var blackListViewModel: BlackListFragmentViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -44,6 +52,11 @@ internal class BlackListFragment : Fragment(), SettingsSection {
                 findNavController()
             )
             .inject(this)
+
+        blackListViewModel =
+            ViewModelProvider(this, factory)[BlackListFragmentViewModel::class.java]
+
+        alertPoller = ErrorDebouncingAlertPoller(requireActivity())
     }
 
     override fun onCreateView(
@@ -54,7 +67,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
         val fragmentView =
             inflater.inflate(R.layout.fragment_black_list, container, false)
 
-        val binding = FragmentBlackListBinding.bind(fragmentView)
+        _binding = FragmentBlackListBinding.bind(fragmentView)
 
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -64,112 +77,104 @@ internal class BlackListFragment : Fragment(), SettingsSection {
             setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
         }
         binding.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            controller.back()
         }
 
-        binding.blacklistRecyclerView.layoutManager = GridLayoutManager(context, getNumOfColumns(context, 120.0f))
-
-        friendListAdapter = FriendListAdapter()
-
-        if (savedInstanceState == null) {
-            compositeDisposable.add(
-                settingsRepository.getCurrentUserBlocked()
-                    .observeOn(Schedulers.io())
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { userInfos ->
-                            activity?.runOnUiThread {
-                                if (userInfos.isEmpty()) {
-                                    binding.blacklistMsg.text = getString(R.string.blacklist_is_empty)
-                                    binding.blacklistMsg.visibility = View.VISIBLE
-                                    return@runOnUiThread
-                                }
-                                binding.blacklistMsg.visibility = View.GONE
-                                friendListAdapter.setFriendList(
-                                    userInfos.map {
-                                        Friend(
-                                            it.userId,
-                                            it.avatarUri,
-                                            it.firstName + " " + it.lastName,
-                                            true
-                                        )
-                                    }
-                                )
-                            }
-                        },
-                        {
-                            Log.e("Getting blacklist error", it.stackTraceToString(), it)
-                        }
-                    )
-            )
-        } else {
-            friendListAdapter.setFriendList(
-                Json.decodeFromString(
-                    FriendListSerializer,
-                    savedInstanceState.getString(
-                        "friends",
-                        "[]"
-                    )
-                )
-            )
+        binding.loadingLayout.setOnRetryCallback {
+            blackListViewModel.requestBlackListLoading()
         }
 
-        binding.blacklistRecyclerView.adapter = friendListAdapter
+        blackListViewModel.requestBlackListLoading()
 
-        binding.blacklistUnselectAllFrame.setOnClickListener {
-            if (friendListAdapter.all { friend -> !friend.isChecked }) {
-                friendListAdapter.selectAll()
-            } else {
-                friendListAdapter.unselectAll()
-            }
-        }
-        compositeDisposable.add(
-            friendListAdapter.publisher
-                .observeOn(Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe { friend ->
-                    if (friend.isChecked) {
-                        settingsRepository.blockUser(friend.userId)
-                            .observeOn(Schedulers.io())
-                            .subscribeOn(AndroidSchedulers.mainThread())
-                            .doOnError {
-                                Log.e(
-                                    "Error adding to blacklist",
-                                    it.stackTraceToString(),
-                                    it
-                                )
-                            }
-                            .subscribe()
-                    } else {
-                        settingsRepository.unblockUser(friend.userId)
-                            .observeOn(Schedulers.io())
-                            .subscribeOn(AndroidSchedulers.mainThread())
-                            .doOnError {
-                                Log.e(
-                                    "Error removing from blacklist",
-                                    it.stackTraceToString(),
-                                    it
-                                )
-                            }
-                            .subscribe()
-                    }
-                }
+        blackListListAdapter = BlackListListAdapter(
+            blackListViewModel::unblockUser,
+            blackListViewModel::loadPhoto
         )
-        return fragmentView
-    }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        if (this::friendListAdapter.isInitialized) {
-            outState.putString(
-                "friends",
-                Json.encodeToString(FriendListSerializer, friendListAdapter.getItems())
-            )
-        }
-        super.onSaveInstanceState(outState)
+        blackListViewModel.blockedUsersListLiveData.observe(
+            viewLifecycleOwner,
+            this::processUserInfoList
+        )
+        blackListViewModel.fragmentStateLiveData.observe(
+            viewLifecycleOwner,
+            this::onFragmentStateChange
+        )
+        blackListViewModel.errorLiveData.observe(
+            viewLifecycleOwner,
+            this::onErrorOccur
+        )
+
+        blackListListAdapter = BlackListListAdapter(
+            blackListViewModel::unblockUser,
+            blackListViewModel::loadPhoto
+        )
+
+        binding.blacklistRecyclerView.adapter = blackListListAdapter
+
+        return fragmentView
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         compositeDisposable.dispose()
+        _binding = null
+    }
+
+    private fun onErrorOccur(throwable: Throwable?) {
+        when (throwable) {
+            is FailedActionException -> {
+                alertPoller.postError(
+                    binding.root,
+                    resources.getString(R.string.failed_to_take_action)
+                )
+            }
+            is LostConnectionException -> {
+                alertPoller.postError(
+                    binding.root,
+                    resources.getString(R.string.connection_error)
+                )
+            }
+        }
+    }
+
+    private fun onFragmentStateChange(state: FragmentState) {
+        when (state) {
+            FragmentState.LOADING -> {
+                binding.blacklistRecyclerView.visibility = View.GONE
+                binding.blacklistMsg.visibility = View.GONE
+                binding.loadingLayout.load()
+            }
+            FragmentState.LOADED -> {
+                if (blackListViewModel.blockedUsersListLiveData.value!!.isEmpty()) {
+                    binding.blacklistRecyclerView.visibility = View.GONE
+                    binding.blacklistMsg.visibility = View.VISIBLE
+                } else {
+                    binding.blacklistRecyclerView.visibility = View.VISIBLE
+                    binding.blacklistMsg.visibility = View.GONE
+                }
+                binding.loadingLayout.hide()
+            }
+            FragmentState.FAILED -> {
+                binding.blacklistRecyclerView.visibility = View.GONE
+                binding.blacklistMsg.visibility = View.GONE
+                binding.loadingLayout.fail()
+            }
+        }
+    }
+
+    private fun processUserInfoList(userInfoList: List<BlackListUser>?) {
+        if (userInfoList == null) {
+            return
+        }
+        if (userInfoList.isEmpty()) {
+            binding.blacklistMsg.text =
+                getString(R.string.blacklist_is_empty)
+        } else {
+            blackListListAdapter.setFriendList(
+                userInfoList.map {
+                    it.copy()
+                }
+            )
+        }
     }
 }
