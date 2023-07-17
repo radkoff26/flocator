@@ -13,10 +13,10 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:background="@color/white"
             app:title="@string/settings"
-            app:titleTextColor="#1515B9" />
+            app:titleTextColor="@color/primary" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,32 +31,65 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/settings_rectangle"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
                 android:padding="12dp">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/avatar"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#0000"
-                    android:contentDescription="@string/own_profile"
-                    android:src="@drawable/settings_circle" />
+                <com.faltenreich.skeletonlayout.SkeletonLayout
+                    android:id="@+id/avatar_skeleton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:maskCornerRadius="30dp">
 
-                <EditText
-                    android:id="@+id/name_field"
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/avatar"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:contentDescription="@string/own_profile" />
+
+                </com.faltenreich.skeletonlayout.SkeletonLayout>
+
+                <com.faltenreich.skeletonlayout.SkeletonLayout
+                    android:id="@+id/full_name_layout_skeleton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginStart="12dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_weight="1"
-                    android:autofillHints="name"
-                    android:background="@null"
-                    android:focusableInTouchMode="true"
-                    android:hint="@string/name_and_surname"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:textColor="#000000"
-                    android:textSize="24sp" />
+                    android:layout_weight="1">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/full_name_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/full_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:paddingEnd="28dp"
+                            android:text="@string/name_and_surname"
+                            android:textColor="@color/font"
+                            android:textSize="24sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/pencil_image"
+                            app:layout_constraintEnd_toEndOf="@+id/full_name"
+                            app:layout_constraintHorizontal_bias="1.0"
+                            app:layout_constraintStart_toStartOf="@+id/full_name"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:tint="@color/font" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.faltenreich.skeletonlayout.SkeletonLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -67,19 +100,27 @@
                 android:paddingBottom="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="@string/date_of_birth"
                     android:textColor="#000"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/date_of_birth_field"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:textColor="#5c5c5c" />
+                <com.faltenreich.skeletonlayout.SkeletonLayout
+                    android:id="@+id/date_of_birth_field_skeleton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/date_of_birth_field"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:minWidth="60dp"
+                        android:textColor="#5c5c5c" />
+
+                </com.faltenreich.skeletonlayout.SkeletonLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -103,9 +144,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:singleSelection="true"
+                    android:gravity="end"
                     app:selectionRequired="true"
-                    android:gravity="end">
+                    app:singleSelection="true">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/en"
@@ -137,19 +178,27 @@
                 android:paddingBottom="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="@string/black_list"
                     android:textColor="#000"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/blacklist_cnt"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:textColor="#5c5c5c" />
+                <com.faltenreich.skeletonlayout.SkeletonLayout
+                    android:id="@+id/blacklist_cnt_skeleton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/blacklist_cnt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:minWidth="30dp"
+                        android:textColor="#5c5c5c" />
+
+                </com.faltenreich.skeletonlayout.SkeletonLayout>
             </LinearLayout>
 
             <LinearLayout

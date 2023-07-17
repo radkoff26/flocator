@@ -6,6 +6,7 @@ import okhttp3.MultipartBody
 import retrofit2.http.*
 import ru.flocator.core_data_store.user.info.UserInfo
 import ru.flocator.feature_settings.internal.domain.privacy.PrivacyData
+import ru.flocator.feature_settings.internal.domain.privacy.PrivacyType
 import java.sql.Timestamp
 
 internal interface SettingsAPI {
@@ -24,7 +25,7 @@ internal interface SettingsAPI {
 
     @Multipart
     @POST("user/avatar")
-    fun changeAvatar (
+    fun changeAvatar(
         @Part("userId") userId: Long,
         @Part photo: MultipartBody.Part
     ): Single<Boolean>
@@ -60,7 +61,7 @@ internal interface SettingsAPI {
     fun changePrivacyData(
         @Query("userId") userId: Long,
         @Query("friendId") friendId: Long,
-        @Query("status") status: String
+        @Query("status") privacyType: PrivacyType
     ): Completable
 
     @DELETE("user")

@@ -20,10 +20,13 @@ class ErrorDebouncingAlertPoller(
     private val queue: Queue<AlertTask> = LinkedList()
     private var isActive = true
 
+    @Volatile
+    private var lastPostTime: Long = 0L
+
     init {
         activity!!.lifecycle.addObserver(this)
 
-        TimeoutPoller(activity!!, DEBOUNCING_TIME, {
+        TimeoutPoller(activity!!, DEBOUNCING_TIME / 4, {
             if (queue.isNotEmpty()) {
                 queue.poll()!!.invoke(it)
             } else {
@@ -43,22 +46,26 @@ class ErrorDebouncingAlertPoller(
 
     private fun createCallbackToPost(view: View, errorText: String): AlertTask {
         return { emitter ->
-            activity?.also {
-                it.runOnUiThread {
-                    SnackbarComposer.composeDesignedSnackbar(
-                        view,
-                        errorText,
-                        Snackbar.LENGTH_LONG
-                    ).addCallback(
-                        object : BaseCallback<Snackbar>() {
-                            override fun onDismissed(
-                                transientBottomBar: Snackbar?,
-                                event: Int
-                            ) {
-                                emitter.emit()
+            val elapsed = System.currentTimeMillis()
+            if (elapsed - lastPostTime >= DEBOUNCING_TIME) {
+                lastPostTime = System.currentTimeMillis()
+                activity?.also {
+                    it.runOnUiThread {
+                        SnackbarComposer.composeDesignedSnackbar(
+                            view,
+                            errorText,
+                            Snackbar.LENGTH_SHORT
+                        ).addCallback(
+                            object : BaseCallback<Snackbar>() {
+                                override fun onDismissed(
+                                    transientBottomBar: Snackbar?,
+                                    event: Int
+                                ) {
+                                    emitter.emit()
+                                }
                             }
-                        }
-                    ).show()
+                        ).show()
+                    }
                 }
             }
         }

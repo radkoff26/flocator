@@ -40,6 +40,10 @@
     <string name="blacklist_is_empty">Blacklist is empty. Well done!</string>
     <string name="privacy_no_friends">You have no one to hide your location from - let\'s find friends first!</string>
     <string name="name_and_surname">Name and surname</string>
+    <string name="connection_error">Lost connection…</string>
+    <string name="failed_to_take_action">Could not perform such action…</string>
+    <string name="pick_user_to_change_privacy">Choose those users who you would not like to allow to see your location</string>
+    <string name="name_surname" translatable="false">%s %s</string>
     <string name="ru" translatable="false">ru</string>
     <string name="en" translatable="false">en</string>
 </resources>

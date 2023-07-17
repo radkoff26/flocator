@@ -8,6 +8,8 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 import ru.flocator.cache.global.PhotoCacheManager
 import ru.flocator.core_data_store.point.UserLocationPoint
@@ -67,16 +69,19 @@ class AppRepository constructor(
     }
 
     inner class UserCredentialsCache {
+        @OptIn(InternalCoroutinesApi::class)
         fun getUserCredentials(): Single<UserCredentials> {
             return Single.create { emitter ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    userCredentialsStore.data.collect {
-                        if (it == UserCredentials.DEFAULT) {
-                            emitter.onError(NoSuchElementException("Data is not yet assigned!"))
-                        } else {
-                            emitter.onSuccess(it)
+                    userCredentialsStore.data.collect(
+                        FlowCollector {
+                            if (it == UserCredentials.DEFAULT) {
+                                emitter.onError(NoSuchElementException("Data is not yet assigned!"))
+                            } else {
+                                emitter.onSuccess(it)
+                            }
                         }
-                    }
+                    )
                 }
             }.subscribeOn(Schedulers.io())
         }
@@ -93,16 +98,19 @@ class AppRepository constructor(
     }
 
     inner class UserInfoCache {
+        @OptIn(InternalCoroutinesApi::class)
         fun getUserInfo(): Single<UserInfo> {
             return Single.create { emitter ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    userInfoStore.data.collect {
-                        if (it == UserInfo.DEFAULT) {
-                            emitter.onError(NoSuchElementException("Data is not yet assigned!"))
-                        } else {
-                            emitter.onSuccess(it)
+                    userInfoStore.data.collect(
+                        FlowCollector { value ->
+                            if (value == UserInfo.DEFAULT) {
+                                emitter.onError(NoSuchElementException("Data is not yet assigned!"))
+                            } else {
+                                emitter.onSuccess(value)
+                            }
                         }
-                    }
+                    )
                 }
             }.subscribeOn(Schedulers.io())
         }
@@ -119,16 +127,19 @@ class AppRepository constructor(
     }
 
     inner class LocationCache {
+        @OptIn(InternalCoroutinesApi::class)
         fun getUserLocationData(): Single<UserLocationPoint> {
             return Single.create { emitter ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    userLocationDataStore.data.collect {
-                        if (it == UserLocationPoint.DEFAULT) {
-                            emitter.onError(NoSuchElementException("Data is not yet assigned!"))
-                        } else {
-                            emitter.onSuccess(it)
+                    userLocationDataStore.data.collect(
+                        FlowCollector {
+                            if (it == UserLocationPoint.DEFAULT) {
+                                emitter.onError(NoSuchElementException("Data is not yet assigned!"))
+                            } else {
+                                emitter.onSuccess(it)
+                            }
                         }
-                    }
+                    )
                 }
             }.subscribeOn(Schedulers.io())
         }

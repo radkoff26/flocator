@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/friend_element"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="24dp"
+    android:paddingVertical="12dp">
+
+    <ImageView
+        android:id="@+id/friend_back"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:contentDescription="@string/your_friend"
+        android:src="@drawable/privacy_friend_circle"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.faltenreich.skeletonlayout.SkeletonLayout
+        android:id="@+id/friend_avatar_skeleton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/friend_back"
+        app:layout_constraintLeft_toLeftOf="@id/friend_back"
+        app:layout_constraintRight_toRightOf="@id/friend_back"
+        app:layout_constraintTop_toTopOf="@id/friend_back"
+        app:maskCornerRadius="32dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/friend_avatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/base_avatar_image" />
+
+    </com.faltenreich.skeletonlayout.SkeletonLayout>
+
+    <ImageView
+        android:id="@+id/friend_tick_field"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:contentDescription="@string/set_a_tick"
+        android:src="@drawable/privacy_friend_tick_field"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/friend_tick"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:contentDescription="@string/tick_is_set"
+        android:src="@drawable/privacy_friend_tick"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/friend_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@id/friend_back"
+        app:layout_constraintRight_toRightOf="@id/friend_back"
+        app:layout_constraintTop_toBottomOf="@id/friend_back" />
+</androidx.constraintlayout.widget.ConstraintLayout>

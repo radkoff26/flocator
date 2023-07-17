@@ -68,6 +68,7 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) :
         val lastFragment = fragments.last()
         if (activity.supportFragmentManager.backStackEntryCount > 1
             && lastFragment !is MainFragment
+            && lastFragment !is AuthFragment
             && lastFragment !is LocationRequestFragment) {
             fragmentManager.popBackStack()
         } else {

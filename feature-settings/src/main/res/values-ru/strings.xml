@@ -40,4 +40,7 @@
     <string name="blacklist_is_empty">Черный список пуст. Так держать!</string>
     <string name="privacy_no_friends">Вам пока не от кого скрывать свое местоположение - сначала найдите друзей</string>
     <string name="name_and_surname">Имя Фамилия</string>
+    <string name="connection_error">Нет подключения к сети…</string>
+    <string name="failed_to_take_action">Не получилось выполнить данное действие…</string>
+    <string name="pick_user_to_change_privacy">Выберите тех пользователей, кому вы хотите ограничить доступ к своему местоположению</string>
 </resources>
