@@ -8,10 +8,9 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import ru.flocator.cache.runtime.PhotoCacheLiveData
-import ru.flocator.feature_settings.internal.domain.friend.BlackListUser
-import ru.flocator.feature_settings.internal.domain.state.FragmentState
+import ru.flocator.core.cache.runtime.PhotoCacheLiveData
+import ru.flocator.feature_settings.internal.data.friend.BlackListUser
+import ru.flocator.feature_settings.internal.data.state.FragmentState
 import ru.flocator.feature_settings.internal.exceptions.FailedActionException
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject

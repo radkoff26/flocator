@@ -15,22 +15,22 @@ import androidx.recyclerview.widget.RecyclerView.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.cache.runtime.PhotoState
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.feature_main.internal.domain.location.LatLngDto
-import ru.flocator.feature_main.internal.domain.mark.MarkDto
-import ru.flocator.core_sections.MainSection
-import ru.flocator.core_utils.DistanceUtils
+import ru.flocator.core.cache.runtime.data.PhotoState
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.MainSection
+import ru.flocator.core.utils.DistanceUtils
+import ru.flocator.data.models.location.Coordinates
+import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarksListBinding
 import ru.flocator.feature_main.internal.adapters.marks_list.MarksListRecyclerViewAdapter
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
 import ru.flocator.feature_main.internal.di.DaggerMainComponent
-import ru.flocator.feature_main.internal.domain.dto.ListMarkDto
-import ru.flocator.feature_main.internal.domain.photo.Photo
+import ru.flocator.feature_main.internal.data.dto.ListMarkDto
+import ru.flocator.feature_main.internal.data.mark.MarkDto
+import ru.flocator.feature_main.internal.data.photo.Photo
 import ru.flocator.feature_main.internal.view_models.MarksListFragmentViewModel
 import javax.inject.Inject
 
@@ -65,7 +65,8 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
             .build()
             .inject(this)
 
-        marksListFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MarksListFragmentViewModel::class.java]
+        marksListFragmentViewModel =
+            ViewModelProvider(this, viewModelFactory)[MarksListFragmentViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -83,7 +84,10 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        marksListFragmentViewModel.marksListLiveData.observe(viewLifecycleOwner, this::onMarksUpdate)
+        marksListFragmentViewModel.marksListLiveData.observe(
+            viewLifecycleOwner,
+            this::onMarksUpdate
+        )
     }
 
     override fun onDestroyView() {
@@ -117,7 +121,7 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
         }
         val userPoint = requireArguments().getSerializable(
             MarksListContractions.USER_POINT
-        ) as LatLngDto
+        ) as Coordinates
         val marks = requireArguments().getSerializable(
             MarksListContractions.MARKS
         ) as ArrayList<MarkDto>
@@ -141,7 +145,10 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
                             userPoint.latitude,
                             userPoint.longitude
                         ),
-                        markWithPhotos.mark.location
+                        LatLng(
+                            markWithPhotos.mark.location.latitude,
+                            markWithPhotos.mark.location.longitude
+                        )
                     ),
                     markWithPhotos.photos.size
                 )

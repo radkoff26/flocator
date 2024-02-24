@@ -9,10 +9,10 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import ru.flocator.core.cache.runtime.data.PhotoState
+import ru.flocator.design.views.LoaderImageView
+import ru.flocator.design.views.RetryImageButton
 import ru.flocator.feature_main.R
-import ru.flocator.cache.runtime.PhotoState
-import ru.flocator.core_design.views.LoaderImageView
-import ru.flocator.core_design.views.RetryImageButton
 
 internal class MarkPhotoRecyclerViewAdapter(
     private val size: Int,
@@ -21,7 +21,8 @@ internal class MarkPhotoRecyclerViewAdapter(
     private val openPhotoPagerCallback: (position: Int) -> Unit
 ) :
     RecyclerView.Adapter<MarkPhotoRecyclerViewAdapter.MarkPhotoCarouselViewHolder>() {
-    private var photosState: List<Pair<String, PhotoState>> = uris.map { Pair(it, PhotoState.Loading) }
+    private var photosState: List<Pair<String, PhotoState>> =
+        uris.map { Pair(it, PhotoState.Loading) }
 
     inner class MarkPhotoCarouselViewHolder(view: View) : ViewHolder(view) {
         private val retryImageButton: RetryImageButton = view.findViewById(R.id.retry_image_button)
@@ -57,7 +58,7 @@ internal class MarkPhotoRecyclerViewAdapter(
                 holder.imageView.setBackgroundColor(
                     ResourcesCompat.getColor(
                         holder.imageView.resources,
-                        ru.flocator.core_design.R.color.tint,
+                        ru.flocator.design.R.color.tint,
                         null
                     )
                 )
@@ -69,7 +70,7 @@ internal class MarkPhotoRecyclerViewAdapter(
                 holder.imageView.setBackgroundColor(
                     ResourcesCompat.getColor(
                         holder.imageView.resources,
-                        ru.flocator.core_design.R.color.transparent,
+                        ru.flocator.design.R.color.transparent,
                         null
                     )
                 )

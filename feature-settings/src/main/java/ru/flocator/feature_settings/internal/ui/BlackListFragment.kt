@@ -8,19 +8,22 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.core_alert.ErrorDebouncingAlertPoller
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_exceptions.LostConnectionException
-import ru.flocator.core_sections.SettingsSection
+import ru.flocator.core.alert.ErrorDebouncingAlertPoller
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.exceptions.LostConnectionException
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.SettingsSection
+import ru.flocator.design.SnackbarComposer
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentBlackListBinding
 import ru.flocator.feature_settings.internal.adapters.blacklist.BlackListListAdapter
+import ru.flocator.feature_settings.internal.data.friend.BlackListUser
+import ru.flocator.feature_settings.internal.data.state.FragmentState
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
-import ru.flocator.feature_settings.internal.domain.friend.BlackListUser
-import ru.flocator.feature_settings.internal.domain.state.FragmentState
 import ru.flocator.feature_settings.internal.exceptions.FailedActionException
 import ru.flocator.feature_settings.internal.view_models.BlackListFragmentViewModel
 import javax.inject.Inject
@@ -56,7 +59,12 @@ internal class BlackListFragment : Fragment(), SettingsSection {
         blackListViewModel =
             ViewModelProvider(this, factory)[BlackListFragmentViewModel::class.java]
 
-        alertPoller = ErrorDebouncingAlertPoller(requireActivity())
+        alertPoller =
+            ErrorDebouncingAlertPoller(
+                requireActivity()
+            ) { view, errorText, callback ->
+                SnackbarComposer.composeDesignedSnackbar(view, errorText, callback)
+            }
     }
 
     override fun onCreateView(
@@ -74,7 +82,7 @@ internal class BlackListFragment : Fragment(), SettingsSection {
             title = getString(R.string.black_list)
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.design.R.drawable.back)
         }
         binding.toolbar.setNavigationOnClickListener {
             controller.back()

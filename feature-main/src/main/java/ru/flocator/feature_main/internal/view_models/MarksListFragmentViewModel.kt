@@ -8,22 +8,22 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.cache.runtime.PhotoCacheLiveData
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.feature_main.internal.domain.photo.Photo
-import ru.flocator.feature_main.internal.domain.dto.ListMarkDto
-import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
+import ru.flocator.core.cache.runtime.PhotoCacheLiveData
+import ru.flocator.data.data_store.info.UserInfo
+import ru.flocator.data.data_store.info.UserInfoDataStoreManager
+import ru.flocator.feature_main.internal.data.dto.ListMarkDto
+import ru.flocator.feature_main.internal.data.photo.Photo
+import ru.flocator.feature_main.internal.data.user_name.UsernameDto
 import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
 internal class MarksListFragmentViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val appRepository: AppRepository
+    private val infoDataStoreManager: UserInfoDataStoreManager
 ) : ViewModel() {
     private val _marksListLiveData: MutableLiveData<List<ListMarkDto>?> = MutableLiveData(null)
     private val _photoToMarkRelation: MutableMap<String, Long> = HashMap()
-    private val photoCacheLiveData: PhotoCacheLiveData =
-        PhotoCacheLiveData()
+    private val photoCacheLiveData: PhotoCacheLiveData = PhotoCacheLiveData()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -76,9 +76,9 @@ internal class MarksListFragmentViewModel @Inject constructor(
     }
 
     fun getUserId(): Single<Long> {
-        return appRepository.userInfoCache.getUserInfo()
+        return infoDataStoreManager.getUserInfo()
             .observeOn(AndroidSchedulers.mainThread())
-            .map(ru.flocator.core_data_store.user.info.UserInfo::userId)
+            .map(UserInfo::userId)
     }
 
     private fun updatePhoto(uri: String) {

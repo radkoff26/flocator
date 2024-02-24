@@ -4,8 +4,8 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import ru.flocator.app.MainActivity
+import ru.flocator.app.di.modules.app.DataStoreModule
 import ru.flocator.app.di.modules.app.ReceiverModule
-import ru.flocator.app.di.modules.app.RepositoryModule
 import ru.flocator.app.di.modules.app.RestAPIModule
 import ru.flocator.app.di.modules.external.AuthDependenciesModule
 import ru.flocator.app.di.modules.external.CommunityDependenciesModule
@@ -19,7 +19,7 @@ import javax.inject.Singleton
 
 @Component(
     modules = [
-        RepositoryModule::class,
+        DataStoreModule::class,
         RestAPIModule::class,
         ReceiverModule::class,
         MainDependenciesModule::class,

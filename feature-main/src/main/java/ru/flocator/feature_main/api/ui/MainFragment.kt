@@ -7,35 +7,36 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import ru.flocator.cache.storage.SettingsStorage
-import ru.flocator.core_alert.ErrorDebouncingAlertPoller
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_database.entities.MarkPhoto
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_exceptions.LostConnectionException
-import ru.flocator.core_location.LocationLiveData
-import ru.flocator.core_map.api.FLocatorMap
-import ru.flocator.core_map.api.entity.Mark
-import ru.flocator.core_polling.TimeoutPoller
-import ru.flocator.core_sections.MainSection
+import ru.flocator.core.alert.ErrorDebouncingAlertPoller
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.exceptions.LostConnectionException
+import ru.flocator.core.location.LocationLiveData
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.polling.TimeoutPoller
+import ru.flocator.core.section.MainSection
+import ru.flocator.data.data_store.info.UserInfo
+import ru.flocator.data.database.entities.MarkPhoto
+import ru.flocator.data.database.entities.MarkWithPhotos
+import ru.flocator.data.database.entities.User
+import ru.flocator.data.models.location.Coordinates
+import ru.flocator.design.SnackbarComposer
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMainBinding
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.contractions.MarksListContractions
 import ru.flocator.feature_main.internal.di.DaggerMainComponent
-import ru.flocator.feature_main.internal.domain.location.LatLngDto
-import ru.flocator.feature_main.internal.domain.mark.MarkDto
+import ru.flocator.feature_main.internal.data.mark.MarkDto
 import ru.flocator.feature_main.internal.ui.AddMarkFragment
 import ru.flocator.feature_main.internal.ui.MarkFragment
 import ru.flocator.feature_main.internal.ui.MarksListFragment
 import ru.flocator.feature_main.internal.view_models.MainFragmentViewModel
+import ru.flocator.map.api.FLocatorMap
+import ru.flocator.map.api.MapPreferences
+import ru.flocator.map.api.entity.MapMark
 import javax.inject.Inject
 
 class MainFragment : Fragment(), MainSection {
@@ -54,8 +55,9 @@ class MainFragment : Fragment(), MainSection {
     internal lateinit var controller: NavController
 
     // Settings storage
+    // TODO: move to VM
     @Inject
-    internal lateinit var settingsStorage: SettingsStorage
+    internal lateinit var mapPreferences: MapPreferences
 
     // Handlers
     private lateinit var userInfoTimeoutPoller: TimeoutPoller
@@ -83,7 +85,9 @@ class MainFragment : Fragment(), MainSection {
         mainFragmentViewModel =
             ViewModelProvider(this, viewModelFactory)[MainFragmentViewModel::class.java]
 
-        alertExecutor = ErrorDebouncingAlertPoller(requireActivity())
+        alertExecutor = ErrorDebouncingAlertPoller(requireActivity()) { view, errorText, callback ->
+            SnackbarComposer.composeDesignedSnackbar(view, errorText, callback)
+        }
     }
 
     // Fragment lifecycle methods
@@ -97,7 +101,8 @@ class MainFragment : Fragment(), MainSection {
 
         initMap()
 
-        locationLiveData = LocationLiveData(requireContext())
+        locationLiveData =
+            LocationLiveData(requireContext())
 
         locationLiveData.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -108,7 +113,11 @@ class MainFragment : Fragment(), MainSection {
 
         binding.openAddMarkFragment.setOnClickListener {
             if (mainFragmentViewModel.userLocationLiveData.value == null) {
-                Snackbar.make(it, resources.getString(R.string.location_fetching), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    it,
+                    resources.getString(R.string.location_fetching),
+                    Snackbar.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
@@ -193,12 +202,12 @@ class MainFragment : Fragment(), MainSection {
     }
 
     private fun initMap() {
-        val mapConfiguration = settingsStorage.getMapConfiguration()
+        val mapConfiguration = mapPreferences.getMapConfiguration()
 
         binding.filters.setActiveConfiguration(mapConfiguration)
 
         binding.filters.setToggleFilterLayoutListener {
-            settingsStorage.setMapConfiguration(it)
+            mapPreferences.setMapConfiguration(it)
             map.changeConfiguration(it)
         }
 
@@ -238,7 +247,7 @@ class MainFragment : Fragment(), MainSection {
                                     MarkDto(
                                         mark.markId,
                                         mark.authorId,
-                                        LatLngDto(
+                                        Coordinates(
                                             mark.location.latitude,
                                             mark.location.longitude
                                         ),
@@ -259,7 +268,7 @@ class MainFragment : Fragment(), MainSection {
                             val userPoint = mainFragmentViewModel.userLocationLiveData.value!!
                             putSerializable(
                                 MarksListContractions.USER_POINT,
-                                LatLngDto(
+                                Coordinates(
                                     userPoint.latitude,
                                     userPoint.longitude
                                 )
@@ -304,15 +313,15 @@ class MainFragment : Fragment(), MainSection {
         }
     }
 
-    private fun onUserLocationChanged(latLng: LatLng?) {
-        if (latLng == null) {
+    private fun onUserLocationChanged(coordinates: Coordinates?) {
+        if (coordinates == null) {
             return
         }
         if (!mainFragmentViewModel.isCameraInitialized.get()) {
-            map.moveCameraTo(latLng)
+            map.moveCameraTo(coordinates)
             mainFragmentViewModel.isCameraInitialized.set(true)
         }
-        map.updateUserLocation(latLng)
+        map.updateUserLocation(coordinates)
     }
 
     private fun onUserInfoChanged(value: UserInfo?) {
@@ -321,7 +330,7 @@ class MainFragment : Fragment(), MainSection {
         }
         val location = mainFragmentViewModel.userLocationLiveData.value!!
         map.submitUser(
-            ru.flocator.core_map.api.entity.User(
+            User(
                 value.userId,
                 value.firstName,
                 value.lastName,
@@ -334,8 +343,8 @@ class MainFragment : Fragment(), MainSection {
     private fun onFriendsStateChanged(value: Map<Long, User>) {
         map.submitFriends(
             value.values.map {
-                ru.flocator.core_map.api.entity.User(
-                    it.id,
+                User(
+                    it.userId,
                     it.firstName,
                     it.lastName,
                     it.location,
@@ -372,7 +381,7 @@ class MainFragment : Fragment(), MainSection {
                         friend!!.avatarUri
                     }
 
-                    return@map Mark(
+                    return@map MapMark(
                         mark.markId,
                         mark.authorId,
                         mark.location,

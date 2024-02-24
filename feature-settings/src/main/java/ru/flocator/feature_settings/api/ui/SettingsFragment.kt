@@ -18,15 +18,14 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import ru.flocator.cache.storage.SettingsStorage
-import ru.flocator.cache.storage.domain.Language
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_extensions.findDrawable
-import ru.flocator.core_sections.SettingsSection
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.extensions.findDrawable
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.SettingsSection
+import ru.flocator.data.data_store.info.UserInfo
+import ru.flocator.data.models.language.Language
+import ru.flocator.data.preferences.LanguagePreferences
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
@@ -45,16 +44,13 @@ class SettingsFragment : Fragment(), SettingsSection {
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
-    lateinit var appRepository: AppRepository
-
-    @Inject
     lateinit var controller: NavController
 
     @Inject
     internal lateinit var settingsRepository: SettingsRepository
 
     @Inject
-    internal lateinit var settingsStorage: SettingsStorage
+    internal lateinit var languagePreferences: LanguagePreferences
 
     @Inject
     internal lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -132,7 +128,7 @@ class SettingsFragment : Fragment(), SettingsSection {
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(ru.flocator.core_design.R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.design.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -265,7 +261,7 @@ class SettingsFragment : Fragment(), SettingsSection {
                 settingsViewModel.loadUserAvatar(avatarUri)
             } else {
                 binding.avatar.setImageDrawable(
-                    resources.findDrawable(ru.flocator.core_design.R.drawable.base_avatar_image)
+                    resources.findDrawable(ru.flocator.design.R.drawable.base_avatar_image)
                 )
                 binding.avatarSkeleton.showOriginal()
             }
@@ -309,16 +305,16 @@ class SettingsFragment : Fragment(), SettingsSection {
     }
 
     private fun setLanguageAndRefreshIfNecessary(language: Language) {
-        val prevLanguage = settingsStorage.getLanguage()
+        val prevLanguage = languagePreferences.getLanguage()
         if (prevLanguage == language) {
             return
         }
-        settingsStorage.setLanguage(language)
+        languagePreferences.setLanguage(language)
         requireActivity().recreate()
     }
 
     private fun selectCurrentLanguage() {
-        val currentLanguage = settingsStorage.getLanguage()
+        val currentLanguage = languagePreferences.getLanguage()
         if (currentLanguage == null || currentLanguage == Language.EN) {
             binding.en.isChecked = true
         } else {

@@ -8,12 +8,17 @@ import com.google.android.gms.maps.model.LatLng
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
-import ru.flocator.core_exceptions.LostConnectionException
-import ru.flocator.core_polling.PollingEmitter
+import ru.flocator.core.cache.global.PhotoLoader
+import ru.flocator.core.exceptions.LostConnectionException
+import ru.flocator.core.polling.PollingEmitter
+import ru.flocator.data.data_store.info.UserInfo
+import ru.flocator.data.data_store.info.UserInfoDataStoreManager
+import ru.flocator.data.data_store.point.UserLocationDataStoreManager
+import ru.flocator.data.data_store.point.UserLocationPoint
+import ru.flocator.data.database.ApplicationDatabase
+import ru.flocator.data.database.entities.MarkWithPhotos
+import ru.flocator.data.database.entities.User
+import ru.flocator.data.models.location.Coordinates
 import ru.flocator.feature_main.internal.repository.MainRepository
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -21,14 +26,17 @@ import javax.inject.Inject
 @Suppress("UNCHECKED_CAST")
 internal class MainFragmentViewModel @Inject constructor(
     private val mainRepository: MainRepository,
-    private val appRepository: AppRepository
+    private val locationDataStoreManager: UserLocationDataStoreManager,
+    private val infoDataStoreManager: UserInfoDataStoreManager,
+    private val photoLoader: PhotoLoader,
+    private val database: ApplicationDatabase
 ) : ViewModel() {
     private val _friendsLiveData = MutableLiveData<Map<Long, User>>(emptyMap())
     val friendsLiveData: LiveData<Map<Long, User>>
         get() = _friendsLiveData
 
-    private val _userLocationLiveData = MutableLiveData<LatLng?>(null)
-    val userLocationLiveData: LiveData<LatLng?>
+    private val _userLocationLiveData = MutableLiveData<Coordinates?>(null)
+    val userLocationLiveData: LiveData<Coordinates?>
         get() = _userLocationLiveData
 
     private val _userInfoLiveData: MutableLiveData<UserInfo?> =
@@ -55,8 +63,18 @@ internal class MainFragmentViewModel @Inject constructor(
             mainRepository.getAllFriendsOfUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    {
-                        updateFriends(it)
+                    { users ->
+                        updateFriends(
+                            users.map { // TODO: here and everywhere - eliminate this mapping overhead
+                                User(
+                                    it.userId,
+                                    it.firstName,
+                                    it.lastName,
+                                    it.location,
+                                    it.avatarUri
+                                )
+                            }
+                        )
                     },
                     {
                         _errorLiveData.value = it
@@ -77,11 +95,11 @@ internal class MainFragmentViewModel @Inject constructor(
         )
     }
 
-    fun loadPhoto(uri: String) = appRepository.photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
+    fun loadPhoto(uri: String) = photoLoader.getPhoto(uri, COMPRESSION_FACTOR)
 
     private fun retrieveMapDataFromCache() {
         compositeDisposable.addAll(
-            appRepository.userInfoCache.getUserInfo()
+            infoDataStoreManager.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -97,12 +115,12 @@ internal class MainFragmentViewModel @Inject constructor(
                         )
                     }
                 ),
-            appRepository.locationCache.getUserLocationData()
+            locationDataStoreManager.getUserLocation()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
                         if (_userLocationLiveData.value == null) {
-                            _userLocationLiveData.value = LatLng(
+                            _userLocationLiveData.value = Coordinates(
                                 it.latitude,
                                 it.longitude
                             )
@@ -116,19 +134,29 @@ internal class MainFragmentViewModel @Inject constructor(
                         )
                     }
                 ),
-            appRepository.cacheDatabase.retrieveFriendsFromCache()
+            database.userDao().getAllFriends()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    {
+                    { users ->
                         if (_friendsLiveData.value!!.isEmpty()) {
-                            updateFriends(it)
+                            updateFriends(
+                                users.map {
+                                    User(
+                                        it.userId,
+                                        it.firstName,
+                                        it.lastName,
+                                        it.location,
+                                        it.avatarUri
+                                    )
+                                }
+                            )
                         }
                     },
                     {
                         Log.e(TAG, "retrieveDataFromCache: error while loading friends cache!", it)
                     }
                 ),
-            appRepository.cacheDatabase.retrieveMarksFromCache()
+            database.markDao().getAllMarks()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -154,7 +182,7 @@ internal class MainFragmentViewModel @Inject constructor(
                 .subscribe(
                     {
                         _userInfoLiveData.value = it
-                        appRepository.userInfoCache.updateUserInfo(it)
+                        infoDataStoreManager.setUserInfo(it)
                         initialFetch()
                     },
                     {
@@ -214,9 +242,12 @@ internal class MainFragmentViewModel @Inject constructor(
     }
 
     fun updateUserLocation(location: LatLng) {
-        _userLocationLiveData.value = location
-        appRepository.locationCache.updateUserLocationData(
-            ru.flocator.core_data_store.point.UserLocationPoint(
+        _userLocationLiveData.value = Coordinates(
+            location.latitude,
+            location.longitude
+        )
+        locationDataStoreManager.setUserLocation(
+            UserLocationPoint(
                 location.latitude,
                 location.longitude
             )
@@ -242,8 +273,18 @@ internal class MainFragmentViewModel @Inject constructor(
                     it is LostConnectionException
                 }
                 .subscribe(
-                    {
-                        updateFriends(it)
+                    { users ->
+                        updateFriends(
+                            users.map {
+                                User(
+                                    it.userId,
+                                    it.firstName,
+                                    it.lastName,
+                                    it.location,
+                                    it.avatarUri
+                                )
+                            }
+                        )
                         emitter.emit()
                     },
                     {
@@ -302,7 +343,7 @@ internal class MainFragmentViewModel @Inject constructor(
     private fun updateFriends(users: List<User>) {
         _friendsLiveData.value = buildMap {
             users.forEach {
-                put(it.id, it)
+                put(it.userId, it)
             }
         }
     }

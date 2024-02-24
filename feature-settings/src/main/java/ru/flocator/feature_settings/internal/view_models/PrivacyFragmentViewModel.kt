@@ -9,10 +9,10 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.cache.runtime.PhotoCacheLiveData
-import ru.flocator.feature_settings.internal.domain.privacy.PrivacyType
-import ru.flocator.feature_settings.internal.domain.privacy.PrivacyUser
-import ru.flocator.feature_settings.internal.domain.state.FragmentState
+import ru.flocator.core.cache.runtime.PhotoCacheLiveData
+import ru.flocator.feature_settings.internal.data.privacy.PrivacyType
+import ru.flocator.feature_settings.internal.data.privacy.PrivacyUser
+import ru.flocator.feature_settings.internal.data.state.FragmentState
 import ru.flocator.feature_settings.internal.exceptions.FailedActionException
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
@@ -64,11 +64,11 @@ internal class PrivacyFragmentViewModel @Inject constructor(
                                             privacyDataMap
                                         _privacyListLiveData.value = friends.map {
                                             PrivacyUser(
-                                                it.id,
+                                                it.userId,
                                                 it.avatarUri,
                                                 it.firstName,
                                                 it.lastName,
-                                                privacyDataMap[it.id]!! == PrivacyType.FIXED
+                                                privacyDataMap[it.userId]!! == PrivacyType.FIXED
                                             )
                                         }
                                         _fragmentStateLiveData.value = FragmentState.LOADED

@@ -11,17 +11,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.R
-import ru.flocator.core_sections.AuthenticationSection
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.AuthenticationSection
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
-internal class RegFirstFragment : Fragment(), AuthenticationSection {
+internal class RegFirstFragment : Fragment(),
+    AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -43,7 +43,8 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
             )
             .inject(this)
 
-        registrationViewModel = ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
+        registrationViewModel =
+            ViewModelProvider(this, viewModelFactory)[RegistrationViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -53,9 +54,12 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
     ): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
 
-        binding.firstInputEditField.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.first_name)
-        binding.secondInputEditField.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.last_name)
-        binding.submitBtn.contentDescription = resources.getString(ru.flocator.feature_auth.R.string.next)
+        binding.firstInputEditField.contentDescription =
+            resources.getString(ru.flocator.feature_auth.R.string.first_name)
+        binding.secondInputEditField.contentDescription =
+            resources.getString(ru.flocator.feature_auth.R.string.last_name)
+        binding.submitBtn.contentDescription =
+            resources.getString(ru.flocator.feature_auth.R.string.next)
 
         binding.submitBtn.setOnClickListener {
             val firstName = binding.firstInputEditField.text.toString()
@@ -75,30 +79,34 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
                 regSecondFragment.arguments = bundle
                 controller.toFragment(regSecondFragment)
             } else {
-                if(firstName.isEmpty()){
-                    binding.firstInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
+                if (firstName.isEmpty()) {
+                    binding.firstInputField.error =
+                        resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
                     binding.firstInputField.isErrorEnabled = true
                 }
-                if(lastName.isEmpty()){
-                    binding.secondInputField.error = resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
+                if (lastName.isEmpty()) {
+                    binding.secondInputField.error =
+                        resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
                     binding.secondInputField.isErrorEnabled = true
                 }
             }
         }
 
-        binding.firstInputEditField.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.firstInputField.error = null
-                binding.firstInputField.isErrorEnabled = false
+        binding.firstInputEditField.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.firstInputField.error = null
+                    binding.firstInputField.isErrorEnabled = false
+                }
             }
-        }
 
-        binding.secondInputEditField.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.secondInputField.error = null
-                binding.secondInputField.isErrorEnabled = false
+        binding.secondInputEditField.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.secondInputField.error = null
+                    binding.secondInputField.isErrorEnabled = false
+                }
             }
-        }
 
         binding.firstInputEditField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -135,7 +143,7 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
             title = ""
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.design.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -156,10 +164,11 @@ internal class RegFirstFragment : Fragment(), AuthenticationSection {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.id = R.id.first_fragment_root
 
-        binding.firstInputField.hint = resources.getString(ru.flocator.feature_auth.R.string.first_name)
-        binding.secondInputField.hint = resources.getString(ru.flocator.feature_auth.R.string.last_name)
+        binding.firstInputField.hint =
+            resources.getString(ru.flocator.feature_auth.R.string.first_name)
+        binding.secondInputField.hint =
+            resources.getString(ru.flocator.feature_auth.R.string.last_name)
         binding.submitBtn.text = resources.getString(ru.flocator.feature_auth.R.string.next)
 
         registrationViewModel.nameData.value?.let { savedData ->

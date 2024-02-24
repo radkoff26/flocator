@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.core_extensions.findDrawable
+import ru.flocator.core.extensions.findDrawable
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.ItemPrivacyBinding
-import ru.flocator.feature_settings.internal.domain.privacy.PrivacyUser
+import ru.flocator.feature_settings.internal.data.privacy.PrivacyUser
 
 internal class PrivacyListAdapter(
     private val toggleUserPrivacyTypeCallback: (userId: Long) -> Unit,
@@ -52,7 +52,7 @@ internal class PrivacyListAdapter(
                             {
                                 binding.friendAvatar.setImageDrawable(
                                     itemView.resources.findDrawable(
-                                        ru.flocator.core_design.R.drawable.base_avatar_image
+                                        ru.flocator.design.R.drawable.base_avatar_image
                                     )
                                 )
                                 binding.friendAvatarSkeleton.showOriginal()

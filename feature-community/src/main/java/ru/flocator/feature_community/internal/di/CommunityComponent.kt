@@ -1,12 +1,12 @@
 package ru.flocator.feature_community.internal.di
 
 import dagger.Component
-import ru.flocator.core_controller.NavController
+import ru.flocator.core.navigation.NavController
 import ru.flocator.feature_community.api.dependencies.CommunityDependencies
 import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_community.internal.di.annotations.FragmentScope
 import ru.flocator.feature_community.internal.ui.AddFriendByLinkFragment
-import ru.flocator.feature_community.internal.ui.OtherPersonProfileFragment
+import ru.flocator.feature_community.internal.ui.ExternalProfileFragment
 
 @Component(
     modules = [
@@ -29,5 +29,5 @@ internal interface CommunityComponent {
 
     fun inject(profileFragment: ProfileFragment)
     fun inject(addFriendByLinkFragment: AddFriendByLinkFragment)
-    fun inject(otherPersonProfileFragment: OtherPersonProfileFragment)
+    fun inject(externalProfileFragment: ExternalProfileFragment)
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="friends_only">Друзья</string>
+    <string name="marks_only">Метки</string>
+    <string name="all">Всё</string>
+    <string name="filter">Фильтр</string>
+</resources>

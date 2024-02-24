@@ -20,18 +20,18 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
-import ru.flocator.core_sections.MainSection
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.MainSection
+import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentAddMarkBinding
 import ru.flocator.feature_main.internal.adapters.add_mark.EditablePhotoRecyclerViewAdapter
 import ru.flocator.feature_main.internal.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.di.DaggerMainComponent
-import ru.flocator.feature_main.internal.domain.carousel.CarouselEditableItemState
-import ru.flocator.feature_main.internal.domain.fragment.AddMarkFragmentState
+import ru.flocator.feature_main.internal.data.carousel.CarouselEditableItemState
+import ru.flocator.feature_main.internal.data.fragment.AddMarkFragmentState
+import ru.flocator.feature_main.internal.data.mark.AddMarkDto
 import ru.flocator.feature_main.internal.view_models.AddMarkFragmentViewModel
 import javax.inject.Inject
 
@@ -59,7 +59,8 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             .build()
             .inject(this)
 
-        addMarkFragmentViewModel = ViewModelProvider(this, viewModelFactory)[AddMarkFragmentViewModel::class.java]
+        addMarkFragmentViewModel =
+            ViewModelProvider(this, viewModelFactory)[AddMarkFragmentViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -167,7 +168,12 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun adjustRecyclerView() {
         // Assign adapter to RecyclerView
         carouselAdapter =
-            EditablePhotoRecyclerViewAdapter { uri, b -> addMarkFragmentViewModel.toggleItem(uri, b) }
+            EditablePhotoRecyclerViewAdapter { uri, b ->
+                addMarkFragmentViewModel.toggleItem(
+                    uri,
+                    b
+                )
+            }
         binding.photoCarousel.adapter = carouselAdapter
 
         // Add spaces between items of RecyclerView
@@ -282,7 +288,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
             binding.addPhotoBtn.requestLayout()
         }
         val marginStartAnimator = ValueAnimator.ofInt(
-            requireContext().resources.getDimensionPixelSize(ru.flocator.core_design.R.dimen.margin_between_btns),
+            requireContext().resources.getDimensionPixelSize(ru.flocator.design.R.dimen.margin_between_btns),
             0
         )
         marginStartAnimator.addUpdateListener {
@@ -309,7 +315,7 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         }
         val marginStartAnimator = ValueAnimator.ofInt(
             0,
-            requireContext().resources.getDimensionPixelSize(ru.flocator.core_design.R.dimen.margin_between_btns)
+            requireContext().resources.getDimensionPixelSize(ru.flocator.design.R.dimen.margin_between_btns)
         )
         marginStartAnimator.addUpdateListener {
             val layoutParams = binding.removePhotoBtn.layoutParams as LinearLayout.LayoutParams
@@ -326,16 +332,16 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     private fun enableRemovePhotoButton() {
         binding.removePhotoBtn.isEnabled = true
         binding.removePhotoBtn.iconTint =
-            ContextCompat.getColorStateList(requireContext(), ru.flocator.core_design.R.color.white)
+            ContextCompat.getColorStateList(requireContext(), ru.flocator.design.R.color.white)
         binding.removePhotoBtn.backgroundTintList =
             ContextCompat.getColorStateList(
                 requireContext(),
-                ru.flocator.core_design.R.color.danger
+                ru.flocator.design.R.color.danger
             )
         binding.removePhotoBtn.setTextColor(
             ContextCompat.getColorStateList(
                 requireContext(),
-                ru.flocator.core_design.R.color.white
+                ru.flocator.design.R.color.white
             )
         )
     }
@@ -345,14 +351,14 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         binding.removePhotoBtn.iconTint =
             ContextCompat.getColorStateList(
                 requireContext(),
-                ru.flocator.core_design.R.color.danger
+                ru.flocator.design.R.color.danger
             )
         binding.removePhotoBtn.backgroundTintList =
-            ContextCompat.getColorStateList(requireContext(), ru.flocator.core_design.R.color.white)
+            ContextCompat.getColorStateList(requireContext(), ru.flocator.design.R.color.white)
         binding.removePhotoBtn.setTextColor(
             ContextCompat.getColorStateList(
                 requireContext(),
-                ru.flocator.core_design.R.color.danger
+                ru.flocator.design.R.color.danger
             )
         )
     }

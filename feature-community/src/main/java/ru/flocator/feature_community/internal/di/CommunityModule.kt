@@ -7,16 +7,15 @@ import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoMap
 import retrofit2.create
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_view_model.ViewModelFactory
-import ru.flocator.core_view_model.ViewModelsMap
-import ru.flocator.core_view_model.annotations.ViewModelKey
+import ru.flocator.core.view_model.ViewModelFactory
+import ru.flocator.core.view_model.ViewModelsMap
+import ru.flocator.core.view_model.annotations.ViewModelKey
 import ru.flocator.feature_community.api.dependencies.CommunityDependencies
-import ru.flocator.feature_community.internal.data_source.UserAPI
+import ru.flocator.feature_community.internal.data_source.UserDataSource
 import ru.flocator.feature_community.internal.di.annotations.FragmentScope
-import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
-import ru.flocator.feature_community.internal.view_models.OtherPersonProfileFragmentViewModel
-import ru.flocator.feature_community.internal.view_models.ProfileFragmentViewModel
+import ru.flocator.feature_community.internal.view_models.AddFriendByLinkViewModel
+import ru.flocator.feature_community.internal.view_models.ExternalProfileViewModel
+import ru.flocator.feature_community.internal.view_models.ProfileViewModel
 
 @Module
 internal abstract class CommunityModule {
@@ -24,7 +23,7 @@ internal abstract class CommunityModule {
     companion object {
         @Provides
         @FragmentScope
-        fun provideUserAPI(dependencies: CommunityDependencies): UserAPI =
+        fun provideUserDataSource(dependencies: CommunityDependencies): UserDataSource =
             dependencies.retrofit.create()
 
         @Provides
@@ -36,18 +35,18 @@ internal abstract class CommunityModule {
     @Binds
     @FragmentScope
     @IntoMap
-    @ViewModelKey(AddFriendByLinkFragmentViewModel::class)
-    abstract fun bindAddFriendByLinkFragmentViewModel(impl: AddFriendByLinkFragmentViewModel): ViewModel
+    @ViewModelKey(AddFriendByLinkViewModel::class)
+    abstract fun bindAddFriendByLinkFragmentViewModel(impl: AddFriendByLinkViewModel): ViewModel
 
     @Binds
     @FragmentScope
     @IntoMap
-    @ViewModelKey(OtherPersonProfileFragmentViewModel::class)
-    abstract fun bindOtherPersonProfileFragmentViewModel(impl: OtherPersonProfileFragmentViewModel): ViewModel
+    @ViewModelKey(ExternalProfileViewModel::class)
+    abstract fun bindOtherPersonProfileFragmentViewModel(impl: ExternalProfileViewModel): ViewModel
 
     @Binds
     @FragmentScope
     @IntoMap
-    @ViewModelKey(ProfileFragmentViewModel::class)
-    abstract fun bindProfileFragmentViewModel(impl: ProfileFragmentViewModel): ViewModel
+    @ViewModelKey(ProfileViewModel::class)
+    abstract fun bindProfileFragmentViewModel(impl: ProfileViewModel): ViewModel
 }

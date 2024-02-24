@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.feature_community.internal.domain.user.UserExternalFriends
-import ru.flocator.core_utils.LoadUtils
+import ru.flocator.core.photo.PhotoLoadingTool
 import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.PersonYourFriendItemBinding
+import ru.flocator.feature_community.internal.data.UserItem
 
 internal class ExternalFriendAdapter(private val friendActionListener: ExternalFriendActionListener) :
     RecyclerView.Adapter<ExternalFriendAdapter.ExternalFriendViewHolder>(), View.OnClickListener {
-    var data: MutableList<UserExternalFriends> = mutableListOf()
+    var data: MutableList<UserItem> = mutableListOf()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -45,14 +45,14 @@ internal class ExternalFriendAdapter(private val friendActionListener: ExternalF
     }
 
     override fun onClick(view: View?) {
-        val user: UserExternalFriends = view?.tag as UserExternalFriends
+        val user: UserItem = view?.tag as UserItem
         friendActionListener.onPersonOpenProfile(user)
     }
 
     private fun setAvatar(uri: String, holder: ExternalFriendViewHolder) {
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
+        PhotoLoadingTool.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

@@ -2,23 +2,21 @@ package ru.flocator.feature_settings.internal.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_sections.SettingsSection
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.SettingsSection
+import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentExitAccountBinding
 import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
+import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
 
 internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
@@ -35,7 +33,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var controller: NavController
 
     @Inject
-    lateinit var appRepository: AppRepository
+    lateinit var settingsRepository: SettingsRepository
 
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
@@ -74,26 +72,17 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
         }
 
         binding.exitAccountConfirmButton.setOnClickListener {
-            compositeDisposable.add(
-                appRepository.clearAllCache()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnError {
-                        Log.e(TAG, "onCreateView: failed to clear cache!", it)
-                        openAuthFragment()
-                    }
-                    .subscribe {
-                        openAuthFragment()
-                    }
-            )
+            settingsRepository.clearCache()
+            openAuthFragment()
         }
 
         return fragmentView
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         compositeDisposable.dispose()
         _binding = null
+        super.onDestroyView()
     }
 
     private fun openAuthFragment() {

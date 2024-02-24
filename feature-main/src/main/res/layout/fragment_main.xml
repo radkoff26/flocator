@@ -11,7 +11,7 @@
 
         <fragment
             android:id="@+id/map_fragment"
-            android:name="ru.flocator.core_map.internal.ui.FLocatorMapFragment"
+            android:name="ru.flocator.map.internal.ui.FLocatorMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -33,7 +33,7 @@
             app:layout_constraintStart_toStartOf="@+id/map_fragment"
             app:layout_constraintTop_toTopOf="@+id/map_fragment" />
 
-        <ru.flocator.core_map.api.configuration.FilterLayout
+        <ru.flocator.map.api.configuration.FilterLayout
             android:id="@+id/filters"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

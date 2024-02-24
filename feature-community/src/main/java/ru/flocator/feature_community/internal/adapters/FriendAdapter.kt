@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.feature_community.internal.domain.user.Friends
-import ru.flocator.core_utils.LoadUtils
+import ru.flocator.core.photo.PhotoLoadingTool
 import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.PersonYourFriendItemBinding
+import ru.flocator.feature_community.internal.data.UserItem
 
 internal class FriendAdapter(private val friendActionListener: FriendActionListener) :
     RecyclerView.Adapter<FriendAdapter.FriendViewHolder>(), View.OnClickListener {
-    var data: MutableList<Friends> = mutableListOf()
+    var data: MutableList<UserItem> = mutableListOf()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -34,7 +34,6 @@ internal class FriendAdapter(private val friendActionListener: FriendActionListe
 
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val person = data[position]
-        val context = holder.itemView.context
         with(holder.binding) {
             yourFriendNameAndSurname.text =
                 root.resources.getString(R.string.name_surname, person.firstName, person.lastName)
@@ -47,14 +46,14 @@ internal class FriendAdapter(private val friendActionListener: FriendActionListe
     }
 
     override fun onClick(view: View?) {
-        val user: Friends = view?.tag as Friends
+        val user: UserItem = view?.tag as UserItem
         friendActionListener.onPersonOpenProfile(user)
     }
 
     private fun setAvatar(uri: String, holder: FriendViewHolder) {
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
+        PhotoLoadingTool.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

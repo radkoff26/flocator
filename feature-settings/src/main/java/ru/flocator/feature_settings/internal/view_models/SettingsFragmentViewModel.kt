@@ -8,14 +8,16 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_data_store.user.info.UserInfo
+import ru.flocator.core.cache.global.PhotoLoader
+import ru.flocator.data.data_store.info.UserInfo
+import ru.flocator.data.data_store.info.UserInfoMediator
 import ru.flocator.feature_settings.internal.repository.SettingsRepository
 import javax.inject.Inject
 
 internal class SettingsFragmentViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val appRepository: AppRepository
+    private val photoLoader: PhotoLoader,
+    private val userInfoMediator: UserInfoMediator
 ) : ViewModel() {
     private val _userInfoLiveData: MutableLiveData<UserInfo?> = MutableLiveData(null)
     val userInfoLiveData: LiveData<UserInfo?>
@@ -36,13 +38,13 @@ internal class SettingsFragmentViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCleared() {
-        super.onCleared()
         compositeDisposable.dispose()
+        super.onCleared()
     }
 
     fun loadUserAvatar(avatarUri: String) {
         compositeDisposable.add(
-            appRepository.photoLoader.getPhoto(avatarUri, AVATAR_QUALITY_FACTOR)
+            photoLoader.getPhoto(avatarUri, AVATAR_QUALITY_FACTOR)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                     {
@@ -92,7 +94,7 @@ internal class SettingsFragmentViewModel @Inject constructor(
 
     private fun requestUserInfoFromCache() {
         compositeDisposable.add(
-            appRepository.userInfoCache.getUserInfo()
+            userInfoMediator.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     if (_userInfoLiveData.value == null) {

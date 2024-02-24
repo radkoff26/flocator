@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.feature_community.internal.domain.user.FriendRequests
-import ru.flocator.core_utils.LoadUtils
+import ru.flocator.core.photo.PhotoLoadingTool
 import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.PersonNewFriendItemBinding
+import ru.flocator.feature_community.internal.data.UserItem
 
 internal class PersonAdapter(private val userNewFriendActionListener: UserNewFriendActionListener) :
     RecyclerView.Adapter<PersonAdapter.PersonViewHolder>(), View.OnClickListener {
-    var data: List<FriendRequests> = emptyList()
+    var data: List<UserItem> = emptyList()
         set(newValue) {
             field = newValue
             notifyDataSetChanged()
@@ -71,7 +71,7 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
     }
 
     override fun onClick(view: View?) {
-        val user: FriendRequests = view?.tag as FriendRequests
+        val user: UserItem = view?.tag as UserItem
         when (view.id) {
             R.id.buttonCancel -> userNewFriendActionListener.onPersonCancel(
                 user
@@ -86,7 +86,7 @@ internal class PersonAdapter(private val userNewFriendActionListener: UserNewFri
     private fun setAvatar(uri: String, holder: PersonViewHolder) {
         holder.binding.userPhotoSkeleton.showSkeleton()
         holder.binding.userNameSkeleton.showSkeleton()
-        LoadUtils.loadPictureFromUrl(uri, 100)
+        PhotoLoadingTool.loadPictureFromUrl(uri, 100)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

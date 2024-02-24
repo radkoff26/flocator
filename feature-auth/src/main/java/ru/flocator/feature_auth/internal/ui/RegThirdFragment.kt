@@ -20,24 +20,24 @@ import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_data_store.user.data.UserCredentials
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.R
-import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.core_dto.auth.UserRegistrationDto
-import ru.flocator.core_sections.AuthenticationSection
-import ru.flocator.core_utils.LocationUtils
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.AuthenticationSection
+import ru.flocator.core.utils.LocationUtils
+import ru.flocator.data.models.auth.UserCredentialsDto
+import ru.flocator.data.models.auth.UserRegistrationDto
+import ru.flocator.design.SnackbarComposer
+import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.api.ui.LocationRequestFragment
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
-import ru.flocator.feature_auth.internal.repository.AuthRepository
+import ru.flocator.feature_auth.internal.usecases.LoginUserAndSaveTokensUseCase
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 import javax.inject.Inject
 
-internal class RegThirdFragment : Fragment(), AuthenticationSection {
+internal class RegThirdFragment : Fragment(),
+    AuthenticationSection {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding: FragmentRegistrationBinding
         get() = _binding!!
@@ -52,10 +52,7 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
     internal lateinit var controller: NavController
 
     @Inject
-    internal lateinit var appRepository: AppRepository
-
-    @Inject
-    internal lateinit var authRepository: AuthRepository
+    internal lateinit var loginUserAndSaveTokens: LoginUserAndSaveTokensUseCase
 
     companion object {
         private const val TAG = "Third registration fragment"
@@ -79,13 +76,13 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
-        val color = ContextCompat.getColor(requireContext(), R.color.font)
+        val color = ContextCompat.getColor(requireContext(), ru.flocator.design.R.color.font)
         binding.firstInputEditField.contentDescription =
-            resources.getString(ru.flocator.feature_auth.R.string.password)
+            resources.getString(R.string.password)
         binding.secondInputEditField.contentDescription =
-            resources.getString(ru.flocator.feature_auth.R.string.repeat_password)
+            resources.getString(R.string.repeat_password)
         binding.submitBtn.contentDescription =
-            resources.getString(ru.flocator.feature_auth.R.string.register)
+            resources.getString(R.string.register)
         binding.firstInputField.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
         binding.secondInputField.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
         binding.firstInputField.setEndIconTintList(ColorStateList.valueOf(color))
@@ -115,12 +112,12 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
             } else {
                 if (firstPassword.isEmpty()) {
                     binding.firstInputField.error =
-                        resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
+                        resources.getString(R.string.field_mustnt_be_empty)
                     binding.firstInputField.isErrorEnabled = true
                 }
                 if (secondPassword.isEmpty()) {
                     binding.secondInputField.error =
-                        resources.getString(ru.flocator.feature_auth.R.string.field_mustnt_be_empty)
+                        resources.getString(R.string.field_mustnt_be_empty)
                     binding.secondInputField.isErrorEnabled = true
                 }
                 println(
@@ -135,10 +132,10 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
                     ) && firstPassword.isNotEmpty() && secondPassword.isNotEmpty()
                 ) {
                     binding.secondInputField.error =
-                        resources.getString(ru.flocator.feature_auth.R.string.passwords_dont_match)
+                        resources.getString(R.string.passwords_dont_match)
                     binding.secondInputField.isErrorEnabled = true
                     binding.firstInputField.error =
-                        resources.getString(ru.flocator.feature_auth.R.string.passwords_dont_match)
+                        resources.getString(R.string.passwords_dont_match)
                     binding.firstInputField.isErrorEnabled = true
                 }
             }
@@ -191,7 +188,7 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
             title = ""
             setDisplayHomeAsUpEnabled(true)
             setHomeButtonEnabled(true)
-            setHomeAsUpIndicator(R.drawable.back)
+            setHomeAsUpIndicator(ru.flocator.design.R.drawable.back)
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -221,13 +218,11 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.id = R.id.third_fragment_root
-
         binding.firstInputField.hint =
-            resources.getString(ru.flocator.feature_auth.R.string.password)
+            resources.getString(R.string.password)
         binding.secondInputField.hint =
-            resources.getString(ru.flocator.feature_auth.R.string.repeat_password)
-        binding.submitBtn.text = resources.getString(ru.flocator.feature_auth.R.string.register)
+            resources.getString(R.string.repeat_password)
+        binding.submitBtn.text = resources.getString(R.string.register)
     }
 
     override fun onDestroyView() {
@@ -256,12 +251,8 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
             registrationViewModel.registerUser(userRegistrationDto)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ isSuccess ->
-                    if (isSuccess) {
-                        loginAndRedirectToAccount(login, password)
-                    } else {
-                        showErrorMessage()
-                    }
+                .subscribe({
+                    loginAndRedirectToAccount(login, password)
                 }, { error ->
                     showErrorMessage()
                     Log.e(TAG, "Error while registration", error)
@@ -271,25 +262,24 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
 
     private fun loginAndRedirectToAccount(login: String, password: String) {
         compositeDisposable.add(
-            authRepository.loginUser(UserCredentialsDto(login, password))
-                .subscribeOn(Schedulers.io())
+            loginUserAndSaveTokens(
+                UserCredentialsDto(
+                    login,
+                    password
+                )
+            ).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    { userId ->
-                        appRepository.userCredentialsCache.updateUserCredentials(
-                            UserCredentials(
-                                userId!!,
-                                login,
-                                password
-                            )
-                        )
+                    {
                         if (LocationUtils.hasLocationPermission(requireContext())) {
                             controller.toMain()
                         } else {
                             controller.toFragment(LocationRequestFragment())
                         }
                     }, {
-                        // TODO: make Snackbar to notify user about the error
+                        view?.let {
+                            SnackbarComposer.composeDesignedSnackbar(it, "Error!")
+                        }
                     }
                 )
         )
@@ -303,6 +293,6 @@ internal class RegThirdFragment : Fragment(), AuthenticationSection {
     private fun showErrorMessage() {
         binding.registrationErrorMessageText.visibility = View.VISIBLE
         binding.registrationErrorMessageText.text =
-            resources.getString(ru.flocator.feature_auth.R.string.registration_error)
+            resources.getString(R.string.registration_error)
     }
 }

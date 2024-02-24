@@ -36,63 +36,38 @@ android {
 }
 
 dependencies {
-    // Project modules
-    implementation project(":core-alert")
-    implementation project(":core-api")
-    implementation project(":core-cache")
-    implementation project(":core-connection")
-    implementation project(":core-controller")
-    implementation project(":core-data-store")
-    implementation project(":core-database")
-    implementation project(":core-dependency")
-    implementation project(":core-design")
-    implementation project(":core-exceptions")
-    implementation project(":core-extensions")
-    implementation project(":core-sections")
-    implementation project(":core-utils")
-    implementation project(":core-view-model")
+    implementation project(':core')
+    implementation project(':data')
+    implementation project(':design')
 
-    // App Compat
-    implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
 
-    // Constraint Layout
-    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation libs.google.ui.material
 
-    // Material
-    implementation "com.google.android.material:material:$material_version"
+    implementation libs.google.di.dagger.core
+    implementation libs.google.di.dagger.android
+    implementation libs.google.di.dagger.androidsupport
+    kapt libs.google.di.dagger.compiler
+    kapt libs.google.di.dagger.androidprocessor
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    implementation libs.google.gson
 
-    // Gson
-    implementation "com.google.code.gson:gson:$gson_version"
+    implementation libs.kotlin.serialization.json
 
-    // Kotlin Serialization
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
+    runtimeOnly libs.androidx.lifecycle.livedata
 
-    // Live Data
-    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
+    implementation libs.ui.circleimageview
 
-    // CircleImageView
-    implementation "de.hdodenhof:circleimageview:$circle_image_view_version"
+    implementation libs.androidx.paging.runtime
+    implementation libs.androidx.paging.rxjava2
 
-    // Paging
-    implementation "androidx.paging:paging-runtime:$paging_version"
-    implementation "androidx.paging:paging-rxjava2:$paging_version"
+    implementation libs.squareup.retrofit.core
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation libs.reactive.rxjava
+    implementation libs.reactive.rxandroid
 
-    // Rx
-    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
-
-    // SkeletonLayout
-    implementation "com.faltenreich:skeletonlayout:$skeleton_layout_version"
+    implementation libs.ui.skeletonlayout
 }
 
 kapt {

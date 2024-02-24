@@ -1,40 +1,56 @@
 package ru.flocator.app
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import androidx.fragment.app.FragmentContainerView
 import ru.flocator.app.application.App
 import ru.flocator.app.controller.NavControllerImpl
-import ru.flocator.app.data_source.MainAPI
-import ru.flocator.cache.storage.SettingsStorageImpl
-import ru.flocator.cache.storage.domain.Language
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.NavigationRoot
-import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.core_utils.LocationUtils
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import ru.flocator.core.alert.ErrorDebouncingAlertPoller
+import ru.flocator.core.alert.OnDismissedCallback
+import ru.flocator.core.alert.OnErrorCallback
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.NavigationRoot
+import ru.flocator.core.utils.LocationUtils
+import ru.flocator.data.models.language.Language
+import ru.flocator.data.preferences.LanguagePreferences
+import ru.flocator.design.SnackbarComposer
 import java.util.*
-import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavigationRoot {
+    private val alertPoller by lazy {
+        ErrorDebouncingAlertPoller(this, object : OnErrorCallback {
+            override fun invoke(view: View, errorText: String, callback: OnDismissedCallback) {
+                SnackbarComposer.composeDesignedSnackbar(view, errorText, callback)
+            }
+        })
+    }
 
-    private val compositeDisposable = CompositeDisposable()
+    private var fragmentContainer: FragmentContainerView? = null
 
-    @Inject
-    lateinit var repository: AppRepository
-
-    @Inject
-    lateinit var mainAPI: MainAPI
+    private val networkBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent ?: return
+            intent.action ?: return
+            when (intent.action) {
+                Broadcasts.CONNECTION_FAILED -> {
+                    fragmentContainer?.let {
+                        alertPoller.postError(it, getString(R.string.connection_lost))
+                    }
+                }
+                Broadcasts.AUTHORIZATION_FAILED -> {
+                    navController.toAuthWithBackStackCleared()
+                }
+            }
+        }
+    }
 
     override lateinit var navController: NavController
 
@@ -42,7 +58,7 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
         // If context is not null
         if (newBase != null) {
             // Then it's possible to check if some language preference is saved
-            val language = SettingsStorageImpl(newBase).getLanguage()
+            val language = LanguagePreferences(newBase).getLanguage()
             // If language is set
             if (language != null) {
                 // Then it's set to context
@@ -65,6 +81,8 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
 
+        fragmentContainer = findViewById(R.id.fragment_container)
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 navController.back()
@@ -74,6 +92,19 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
         if (supportFragmentManager.fragments.isEmpty()) {
             openFirstFragment()
         }
+
+        registerReceiver(
+            networkBroadcastReceiver,
+            IntentFilter().apply {
+                addAction(Broadcasts.CONNECTION_FAILED)
+                addAction(Broadcasts.AUTHORIZATION_FAILED)
+            }
+        )
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(networkBroadcastReceiver)
+        super.onDestroy()
     }
 
     private fun createContextWithLanguage(context: Context, language: Language): Context {
@@ -87,65 +118,10 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
     }
 
     private fun openFirstFragment() {
-        compositeDisposable.add(
-            repository.userCredentialsCache.getUserCredentials()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {
-                        compositeDisposable.add(
-                            mainAPI.loginUser(
-                                UserCredentialsDto(
-                                    it.login,
-                                    it.password
-                                )
-                            ).subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                    {
-                                        if (LocationUtils.hasLocationPermission(this)) {
-                                            navController.toMain()
-                                        } else {
-                                            navController.toLocationDialog()
-                                        }
-                                    },
-                                    { throwable ->
-                                        if (
-                                            throwable is UnknownHostException
-                                            || throwable is ConnectException
-                                            || throwable is SocketTimeoutException
-                                        ) {
-                                            Log.i(
-                                                TAG,
-                                                "openFirstFragment: no connection, but user authorized previously",
-                                                throwable
-                                            )
-                                            navController.toMain()
-                                        } else {
-                                            Log.e(
-                                                TAG,
-                                                "openFirstFragment: not authorized!",
-                                                throwable
-                                            )
-                                            navController.toAuth()
-                                        }
-                                    }
-                                )
-                        )
-                    },
-                    {
-                        navController.toAuth()
-                        Log.e(TAG, "openFirstFragment: error while fetching cached user id!", it)
-                    }
-                )
-        )
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        compositeDisposable.dispose()
-    }
-
-    companion object {
-        private const val TAG = "Main Activity Class"
+        if (LocationUtils.hasLocationPermission(this)) {
+            navController.toMain()
+        } else {
+            navController.toLocationDialog()
+        }
     }
 }

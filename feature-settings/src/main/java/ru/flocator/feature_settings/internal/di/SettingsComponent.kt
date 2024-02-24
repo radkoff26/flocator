@@ -1,7 +1,7 @@
 package ru.flocator.feature_settings.internal.di
 
 import dagger.Component
-import ru.flocator.core_controller.NavController
+import ru.flocator.core.navigation.NavController
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
 import ru.flocator.feature_settings.api.ui.SettingsFragment
 import ru.flocator.feature_settings.internal.di.annotations.FragmentScope

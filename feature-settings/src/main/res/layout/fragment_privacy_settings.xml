@@ -72,7 +72,7 @@
         android:textSize="20sp"
         android:visibility="gone" />
 
-    <ru.flocator.core_design.views.LoadingLayout
+    <ru.flocator.design.views.LoadingLayout
         android:id="@+id/loading_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

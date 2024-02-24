@@ -10,11 +10,11 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_data_store.user.data.UserCredentials
+import ru.flocator.data.data_store.credentials.UserCredentials
 import ru.flocator.feature_main.api.dependencies.MainDependencies
-import ru.flocator.feature_main.internal.domain.carousel.CarouselEditableItemState
-import ru.flocator.feature_main.internal.domain.fragment.AddMarkFragmentState
-import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
+import ru.flocator.feature_main.internal.data.carousel.CarouselEditableItemState
+import ru.flocator.feature_main.internal.data.fragment.AddMarkFragmentState
+import ru.flocator.feature_main.internal.data.mark.AddMarkDto
 import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 

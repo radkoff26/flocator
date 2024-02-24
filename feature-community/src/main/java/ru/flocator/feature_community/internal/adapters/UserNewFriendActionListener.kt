@@ -1,9 +1,9 @@
 package ru.flocator.feature_community.internal.adapters
 
-import ru.flocator.feature_community.internal.domain.user.FriendRequests
+import ru.flocator.feature_community.internal.data.UserItem
 
 internal interface UserNewFriendActionListener {
-    fun onPersonOpenProfile(user: FriendRequests)
-    fun onPersonAccept(user: FriendRequests)
-    fun onPersonCancel(user: FriendRequests)
+    fun onPersonOpenProfile(user: UserItem)
+    fun onPersonAccept(user: UserItem)
+    fun onPersonCancel(user: UserItem)
 }

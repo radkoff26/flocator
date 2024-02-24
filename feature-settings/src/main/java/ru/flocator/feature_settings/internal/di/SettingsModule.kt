@@ -7,11 +7,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoMap
 import retrofit2.create
-import ru.flocator.core_view_model.ViewModelFactory
-import ru.flocator.core_view_model.ViewModelsMap
-import ru.flocator.core_view_model.annotations.ViewModelKey
+import ru.flocator.core.view_model.ViewModelFactory
+import ru.flocator.core.view_model.ViewModelsMap
+import ru.flocator.core.view_model.annotations.ViewModelKey
 import ru.flocator.feature_settings.api.dependencies.SettingsDependencies
-import ru.flocator.feature_settings.internal.data_source.SettingsAPI
+import ru.flocator.feature_settings.internal.data_source.SettingsDataSource
 import ru.flocator.feature_settings.internal.di.annotations.FragmentScope
 import ru.flocator.feature_settings.internal.view_models.BlackListFragmentViewModel
 import ru.flocator.feature_settings.internal.view_models.PrivacyFragmentViewModel
@@ -23,7 +23,7 @@ internal abstract class SettingsModule {
     companion object {
         @Provides
         @FragmentScope
-        fun provideSettingsAPI(dependencies: SettingsDependencies): SettingsAPI =
+        fun provideSettingsDataSource(dependencies: SettingsDependencies): SettingsDataSource =
             dependencies.retrofit.create()
 
         @Provides

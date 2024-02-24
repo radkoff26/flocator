@@ -1,7 +1,7 @@
 package ru.flocator.feature_settings.internal.adapters.blacklist
 
 import androidx.recyclerview.widget.DiffUtil
-import ru.flocator.feature_settings.internal.domain.friend.BlackListUser
+import ru.flocator.feature_settings.internal.data.friend.BlackListUser
 
 internal class BlackListDiffUtilCallback(
     private val oldList: List<BlackListUser>,

@@ -1,7 +1,7 @@
 package ru.flocator.feature_auth.internal.di
 
 import dagger.Component
-import ru.flocator.core_controller.NavController
+import ru.flocator.core.navigation.NavController
 import ru.flocator.feature_auth.api.dependencies.AuthDependencies
 import ru.flocator.feature_auth.api.ui.AuthFragment
 import ru.flocator.feature_auth.api.ui.LocationRequestFragment

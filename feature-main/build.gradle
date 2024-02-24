@@ -35,62 +35,36 @@ android {
 }
 
 dependencies {
-    // Project modules
-    implementation project(":core-alert")
-    implementation project(":core-api")
-    implementation project(":core-cache")
-    implementation project(":core-config")
-    implementation project(":core-connection")
-    implementation project(":core-controller")
-    implementation project(":core-data-store")
-    implementation project(":core-database")
-    implementation project(":core-dependency")
-    implementation project(":core-design")
-    implementation project(":core-dto")
-    implementation project(":core-exceptions")
-    implementation project(":core-location")
-    implementation project(":core-map")
-    implementation project(":core-photo-pager")
-    implementation project(":core-polling")
-    implementation project(":core-sections")
-    implementation project(":core-utils")
-    implementation project(":core-view-model")
+    implementation project(':core')
+    implementation project(':data')
+    implementation project(':design')
+    implementation project(':map')
+    implementation project(':pager')
 
-    // Android Fragment
-    implementation "androidx.fragment:fragment-ktx:$android_core_ktx_version"
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayoutsolver
 
-    // App Compat
-    implementation "androidx.appcompat:appcompat:$app_compat_version"
-    implementation 'androidx.constraintlayout:constraintlayout-solver:2.0.4'
+    implementation libs.google.di.dagger.core
+    implementation libs.google.di.dagger.android
+    implementation libs.google.di.dagger.androidsupport
+    kapt libs.google.di.dagger.compiler
+    kapt libs.google.di.dagger.androidprocessor
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    implementation libs.google.gson
 
-    // Gson
-    implementation "com.google.code.gson:gson:$gson_version"
+    implementation libs.squareup.retrofit.core
+    implementation libs.squareup.retrofit.gson
+    implementation libs.squareup.retrofit.rxjava2
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+    implementation libs.androidx.fragment.ktx
 
-    // Location
-    implementation "com.google.android.gms:play-services-location:$gms_location_version"
+    implementation libs.google.play.location
+    implementation libs.google.play.maps
 
-    // Material
-    implementation "com.google.android.material:material:$material_version"
+    implementation libs.google.ui.material
 
-    // Maps
-    implementation "com.google.android.gms:play-services-maps:$google_maps_version"
+    implementation libs.reactive.rxjava
+    implementation libs.reactive.rxandroid
 
-    // Rx
-    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
-
-    // SkeletonLayout
-    implementation "com.faltenreich:skeletonlayout:$skeleton_layout_version"
+    implementation libs.ui.skeletonlayout
 }

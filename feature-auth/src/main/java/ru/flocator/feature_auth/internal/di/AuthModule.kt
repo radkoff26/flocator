@@ -7,11 +7,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoMap
 import retrofit2.create
-import ru.flocator.core_view_model.ViewModelFactory
-import ru.flocator.core_view_model.ViewModelsMap
-import ru.flocator.core_view_model.annotations.ViewModelKey
+import ru.flocator.core.view_model.ViewModelFactory
+import ru.flocator.core.view_model.ViewModelsMap
+import ru.flocator.core.view_model.annotations.ViewModelKey
 import ru.flocator.feature_auth.api.dependencies.AuthDependencies
-import ru.flocator.feature_auth.internal.data_source.AuthAPI
+import ru.flocator.feature_auth.internal.data_source.AuthDataSource
 import ru.flocator.feature_auth.internal.di.annotations.FragmentScope
 import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
 
@@ -21,7 +21,7 @@ internal abstract class AuthModule {
     companion object {
         @Provides
         @FragmentScope
-        fun provideAuthAPI(dependencies: AuthDependencies): AuthAPI =
+        fun provideAuthDataStore(dependencies: AuthDependencies): AuthDataSource =
             dependencies.retrofit.create()
 
         @Provides

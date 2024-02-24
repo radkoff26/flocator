@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="image">Image</string>
+    <string name="download">Download</string>
+    <string name="failed">Error</string>
+    <string name="loading">Loading</string>
+</resources>

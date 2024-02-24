@@ -1,7 +1,7 @@
 package ru.flocator.feature_settings.internal.adapters.privacy
 
 import androidx.recyclerview.widget.DiffUtil
-import ru.flocator.feature_settings.internal.domain.privacy.PrivacyUser
+import ru.flocator.feature_settings.internal.data.privacy.PrivacyUser
 
 internal class PrivacyDiffUtilCallback(
     private val oldList: List<PrivacyUser>,

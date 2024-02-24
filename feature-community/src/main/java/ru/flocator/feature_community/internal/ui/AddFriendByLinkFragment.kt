@@ -12,16 +12,15 @@ import androidx.lifecycle.ViewModelProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_sections.CommunitySection
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.CommunitySection
+import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.FragmentAddFriendBinding
 import ru.flocator.feature_community.internal.di.DaggerCommunityComponent
-import ru.flocator.feature_community.internal.view_models.AddFriendByLinkFragmentViewModel
+import ru.flocator.feature_community.internal.view_models.AddFriendByLinkViewModel
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
@@ -30,12 +29,11 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     private var _binding: FragmentAddFriendBinding? = null
     private val binding: FragmentAddFriendBinding
         get() = _binding!!
-    private var currentUserId by Delegates.notNull<Long>()
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    lateinit var viewModel: AddFriendByLinkFragmentViewModel
+    lateinit var viewModel: AddFriendByLinkViewModel
 
     override fun getCoordinatorLayout(): CoordinatorLayout {
         return binding.coordinator
@@ -59,7 +57,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
             .inject(this)
 
         viewModel =
-            ViewModelProvider(this, viewModelFactory)[AddFriendByLinkFragmentViewModel::class.java]
+            ViewModelProvider(this, viewModelFactory)[AddFriendByLinkViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -68,7 +66,6 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
     ): View {
         _binding = FragmentAddFriendBinding.inflate(inflater, container, false)
         val args: Bundle? = arguments
-        currentUserId = args?.getLong("currentUserId") ?: -1
 
         binding.addFriendConfirmButton.setOnClickListener {
             if (binding.userLoginText.text.toString().isNotEmpty()) {
@@ -80,25 +77,25 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
                             {
                                 if (!it) {
                                     binding.message.visibility = View.VISIBLE
-                                    binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
+                                    binding.message.setTextColor(resources.getColor(ru.flocator.design.R.color.black))
                                     binding.message.text =
                                         resources.getString(R.string.friend_request_sent)
                                 } else {
                                     binding.message.visibility = View.VISIBLE
-                                    binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.danger))
+                                    binding.message.setTextColor(resources.getColor(ru.flocator.design.R.color.danger))
                                     binding.message.text =
                                         resources.getString(R.string.user_doesnt_exist)
                                 }
                             },
                             {
-                                Log.e(AddFriendByLinkFragmentViewModel.TAG, "checkLogin ERROR", it)
+                                Log.e(AddFriendByLinkViewModel.TAG, "checkLogin ERROR", it)
                             }
                         )
                 )
-                viewModel.addFriendByLogin(currentUserId, binding.userLoginText.text.toString())
+                viewModel.addFriendByLogin(binding.userLoginText.text.toString())
             } else {
                 binding.message.visibility = View.VISIBLE
-                binding.message.setTextColor(resources.getColor(ru.flocator.core_design.R.color.black))
+                binding.message.setTextColor(resources.getColor(ru.flocator.design.R.color.black))
                 binding.message.text = resources.getString(R.string.field_must_be_filled)
             }
         }

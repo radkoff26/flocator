@@ -10,31 +10,36 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_connection.ConnectionWrapper
-import ru.flocator.core_connection.live_data.ConnectionLiveData
-import ru.flocator.core_data_store.point.UserLocationPoint
-import ru.flocator.core_data_store.user.info.UserInfo
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_database.entities.User
-import ru.flocator.core_dto.address.AddressResponse
-import ru.flocator.feature_main.internal.data_source.ClientAPI
-import ru.flocator.feature_main.internal.data_source.GeocoderAPI
-import ru.flocator.feature_main.internal.domain.location.UserLocationDto
-import ru.flocator.feature_main.internal.domain.mark.AddMarkDto
-import ru.flocator.feature_main.internal.domain.mark.MarkDto
-import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
+import ru.flocator.core.connection.ConnectionWrapper
+import ru.flocator.core.connection.live_data.ConnectionLiveData
+import ru.flocator.data.data_store.credentials.UserCredentialsDataStoreManager
+import ru.flocator.data.data_store.info.UserInfo
+import ru.flocator.data.data_store.point.UserLocationDataStoreManager
+import ru.flocator.data.data_store.point.UserLocationPoint
+import ru.flocator.data.database.ApplicationDatabase
+import ru.flocator.data.database.entities.MarkWithPhotos
+import ru.flocator.data.database.entities.User
+import ru.flocator.data.models.address.AddressResponse
+import ru.flocator.data.models.location.Coordinates
+import ru.flocator.feature_main.internal.data.location.UserLocationDto
+import ru.flocator.feature_main.internal.data.mark.AddMarkDto
+import ru.flocator.feature_main.internal.data.mark.MarkDto
+import ru.flocator.feature_main.internal.data.user_name.UsernameDto
+import ru.flocator.feature_main.internal.data_source.GeocoderDataSource
+import ru.flocator.feature_main.internal.data_source.MainDataSource
 import javax.inject.Inject
 
 internal class MainRepository @Inject constructor(
-    private val clientAPI: ClientAPI,
-    private val geocoderAPI: GeocoderAPI,
+    private val mainDataSource: MainDataSource,
+    private val geocoderDataSource: GeocoderDataSource,
     private val connectionLiveData: ConnectionLiveData,
-    private val appRepository: AppRepository
+    private val database: ApplicationDatabase,
+    private val locationDataStoreManager: UserLocationDataStoreManager,
+    private val credentialsDataStoreManager: UserCredentialsDataStoreManager
 ) {
     fun getAllFriendsOfUser(userId: Long): Single<List<User>> {
         return ConnectionWrapper.of(
-            clientAPI.getUserFriendsLocated(userId)
+            mainDataSource.getUserFriendsLocated(userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
             connectionLiveData
@@ -47,7 +52,7 @@ internal class MainRepository @Inject constructor(
     }
 
     private fun saveNewFriendsToCache(newFriends: List<User>) {
-        appRepository.cacheDatabase.updateFriends(newFriends)
+        database.userDao().updateTable(newFriends)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .doOnError { throwable ->
@@ -62,7 +67,7 @@ internal class MainRepository @Inject constructor(
 
     fun getMarksForUser(userId: Long): Single<List<MarkWithPhotos>> {
         return ConnectionWrapper.of(
-            clientAPI.getUserAndFriendsMarks(userId)
+            mainDataSource.getUserAndFriendsMarks(userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io()),
             connectionLiveData
@@ -80,7 +85,7 @@ internal class MainRepository @Inject constructor(
         val marks = newMarks.map(MarkDto::toMarkWithPhotos)
         val photos = marks.map(MarkWithPhotos::photos).flatten()
         Completable.concatArray(
-            appRepository.cacheDatabase.updateMarksForUser(
+            database.updateMarks(
                 marks.map(MarkWithPhotos::mark),
                 photos
             )
@@ -106,24 +111,24 @@ internal class MainRepository @Inject constructor(
             val requestBody = RequestBody.create(MediaType.parse("image/*"), it.value)
             MultipartBody.Part.createFormData("photos", it.key.toString(), requestBody)
         }
-        return clientAPI.postMark(addMarkDtoToPost, photosToPost).subscribeOn(Schedulers.io())
+        return mainDataSource.postMark(addMarkDtoToPost, photosToPost).subscribeOn(Schedulers.io())
     }
 
     fun getMark(markId: Long, userId: Long): Single<MarkDto> {
-        return clientAPI.getMark(markId, userId).subscribeOn(Schedulers.io())
+        return mainDataSource.getMark(markId, userId).subscribeOn(Schedulers.io())
     }
 
     fun getUser(userId: Long): Single<UserInfo> {
-        return clientAPI.getUser(userId).subscribeOn(Schedulers.io())
+        return mainDataSource.getUser(userId).subscribeOn(Schedulers.io())
     }
 
     fun getUsername(userId: Long): Single<UsernameDto> {
-        return clientAPI.getUsername(userId).subscribeOn(Schedulers.io())
+        return mainDataSource.getUsername(userId).subscribeOn(Schedulers.io())
     }
 
-    fun postUserLocation(userId: Long, location: LatLng): Completable {
+    fun postUserLocation(userId: Long, location: Coordinates): Completable {
         return ConnectionWrapper.of(
-            clientAPI.updateLocation(
+            mainDataSource.updateLocation(
                 UserLocationDto(
                     userId,
                     location
@@ -131,7 +136,7 @@ internal class MainRepository @Inject constructor(
             )
                 .subscribeOn(Schedulers.io())
                 .doOnComplete {
-                    appRepository.locationCache.updateUserLocationData(
+                    locationDataStoreManager.setUserLocation(
                         UserLocationPoint(
                             location.latitude,
                             location.longitude
@@ -144,7 +149,7 @@ internal class MainRepository @Inject constructor(
 
     fun getCurrentUserInfo(): Single<UserInfo> {
         return ConnectionWrapper.of(
-            appRepository.userCredentialsCache.getUserCredentials()
+            credentialsDataStoreManager.getUserCredentials()
                 .flatMap {
                     getUser(it.userId)
                         .subscribeOn(Schedulers.io())
@@ -154,25 +159,25 @@ internal class MainRepository @Inject constructor(
     }
 
     fun likeMark(markId: Long, userId: Long): Completable {
-        return clientAPI.likeMark(markId, userId).subscribeOn(Schedulers.io())
+        return mainDataSource.likeMark(markId, userId).subscribeOn(Schedulers.io())
     }
 
     fun unlikeMark(markId: Long, userId: Long): Completable {
-        return clientAPI.unlikeMark(markId, userId).subscribeOn(Schedulers.io())
+        return mainDataSource.unlikeMark(markId, userId).subscribeOn(Schedulers.io())
     }
 
     fun getAddress(latLng: LatLng): Single<String> {
-        return geocoderAPI.getAddress("${latLng.latitude}, ${latLng.longitude}")
+        return geocoderDataSource.getAddress("${latLng.latitude}, ${latLng.longitude}")
             .map(AddressResponse::address)
             .subscribeOn(Schedulers.io())
     }
 
     fun goOnline(userId: Long): Completable {
-        return clientAPI.goOnline(userId).subscribeOn(Schedulers.io())
+        return mainDataSource.goOnline(userId).subscribeOn(Schedulers.io())
     }
 
     fun goOffline(userId: Long): Completable {
-        return clientAPI.goOffline(userId).subscribeOn(Schedulers.io())
+        return mainDataSource.goOffline(userId).subscribeOn(Schedulers.io())
     }
 
 

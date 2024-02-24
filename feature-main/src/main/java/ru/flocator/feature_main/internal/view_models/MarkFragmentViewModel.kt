@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.cache.runtime.PhotoCacheLiveData
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
-import ru.flocator.core_sections.MainSection
-import ru.flocator.feature_main.internal.domain.fragment.MarkFragmentState
+import ru.flocator.core.cache.runtime.PhotoCacheLiveData
+import ru.flocator.core.section.MainSection
+import ru.flocator.data.database.entities.MarkWithPhotos
+import ru.flocator.feature_main.internal.data.fragment.MarkFragmentState
+import ru.flocator.feature_main.internal.data.user_name.UsernameDto
 import ru.flocator.feature_main.internal.repository.MainRepository
 import javax.inject.Inject
 
@@ -27,8 +27,7 @@ internal class MarkFragmentViewModel @Inject constructor(
 
     val markLiveData: LiveData<MarkWithPhotos?> = _markLiveData
     val userNameLiveData: LiveData<UsernameDto?> = _userNameLiveData
-    val photosStateLiveData: PhotoCacheLiveData =
-        PhotoCacheLiveData(QUALITY_FACTOR)
+    val photosStateLiveData: PhotoCacheLiveData = PhotoCacheLiveData(QUALITY_FACTOR)
     val markFragmentStateLiveData: LiveData<MarkFragmentState> = _fragmentStateLiveData
 
     private val compositeDisposable = CompositeDisposable()

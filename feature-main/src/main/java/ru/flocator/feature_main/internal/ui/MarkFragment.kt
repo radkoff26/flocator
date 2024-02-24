@@ -1,6 +1,5 @@
 package ru.flocator.feature_main.internal.ui
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.LruCache
@@ -16,23 +15,23 @@ import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
-import ru.flocator.cache.runtime.PhotoState
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_database.entities.MarkPhoto
-import ru.flocator.core_database.entities.MarkWithPhotos
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_design.fragments.ResponsiveBottomSheetDialogFragment
-import ru.flocator.core_photo_pager.api.domain.contractions.PhotoPagerContractions
-import ru.flocator.core_photo_pager.api.ui.PhotoPagerFragment
-import ru.flocator.core_sections.MainSection
+import ru.flocator.core.cache.runtime.data.PhotoState
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.MainSection
+import ru.flocator.data.database.entities.MarkPhoto
+import ru.flocator.data.database.entities.MarkWithPhotos
+import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarkBinding
 import ru.flocator.feature_main.internal.adapters.mark.MarkPhotoRecyclerViewAdapter
 import ru.flocator.feature_main.internal.contractions.MarkContractions
 import ru.flocator.feature_main.internal.di.DaggerMainComponent
-import ru.flocator.feature_main.internal.domain.fragment.MarkFragmentState
-import ru.flocator.feature_main.internal.domain.user_name.UsernameDto
+import ru.flocator.feature_main.internal.data.fragment.MarkFragmentState
+import ru.flocator.feature_main.internal.data.user_name.UsernameDto
 import ru.flocator.feature_main.internal.view_models.MarkFragmentViewModel
+import ru.flocator.pager.PhotoPagerContractions
+import ru.flocator.pager.ui.PhotoPagerFragment
 import javax.inject.Inject
 
 internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
@@ -58,7 +57,8 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
             .build()
             .inject(this)
 
-        markFragmentViewModel = ViewModelProvider(this, viewModelFactory)[MarkFragmentViewModel::class.java]
+        markFragmentViewModel =
+            ViewModelProvider(this, viewModelFactory)[MarkFragmentViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -119,7 +119,8 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun openPhotoPager(position: Int) {
-        val photoPagerFragment = PhotoPagerFragment()
+        val photoPagerFragment =
+            PhotoPagerFragment()
         val bundle = Bundle()
         bundle.putInt(
             PhotoPagerContractions.POSITION,
@@ -224,7 +225,8 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         if (value == null) {
             return
         }
-        binding.userName.text = resources.getString(R.string.name_surname, value.firstName, value.lastName)
+        binding.userName.text =
+            resources.getString(R.string.name_surname, value.firstName, value.lastName)
     }
 
     companion object {

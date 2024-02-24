@@ -1,7 +1,7 @@
 package ru.flocator.feature_main.internal.adapters.marks_list
 
 import androidx.recyclerview.widget.DiffUtil
-import ru.flocator.feature_main.internal.domain.dto.ListMarkDto
+import ru.flocator.feature_main.internal.data.dto.ListMarkDto
 
 internal class MarksListDiffCallback(
     private val oldMarks: List<ListMarkDto>,

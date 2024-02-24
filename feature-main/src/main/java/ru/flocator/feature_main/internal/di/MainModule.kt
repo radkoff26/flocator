@@ -12,16 +12,15 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_config.Constants
-import ru.flocator.core_dto.address.AddressDeserializer
-import ru.flocator.core_dto.address.AddressResponse
-import ru.flocator.core_view_model.ViewModelFactory
-import ru.flocator.core_view_model.ViewModelsMap
-import ru.flocator.core_view_model.annotations.ViewModelKey
+import ru.flocator.core.config.Constants
+import ru.flocator.core.view_model.ViewModelFactory
+import ru.flocator.core.view_model.ViewModelsMap
+import ru.flocator.core.view_model.annotations.ViewModelKey
+import ru.flocator.data.models.address.AddressDeserializer
+import ru.flocator.data.models.address.AddressResponse
 import ru.flocator.feature_main.api.dependencies.MainDependencies
-import ru.flocator.feature_main.internal.data_source.ClientAPI
-import ru.flocator.feature_main.internal.data_source.GeocoderAPI
+import ru.flocator.feature_main.internal.data_source.MainDataSource
+import ru.flocator.feature_main.internal.data_source.GeocoderDataSource
 import ru.flocator.feature_main.internal.di.annotations.FragmentScope
 import ru.flocator.feature_main.internal.di.annotations.Geocoder
 import ru.flocator.feature_main.internal.view_models.AddMarkFragmentViewModel
@@ -35,14 +34,17 @@ internal abstract class MainModule {
     companion object {
         @Provides
         @FragmentScope
-        fun provideClientAPI(dependencies: MainDependencies): ClientAPI =
+        fun provideMainDataSource(dependencies: MainDependencies): MainDataSource =
             dependencies.retrofit.create()
 
         @Provides
         @FragmentScope
         fun provideGeocoderGson(): Gson =
             GsonBuilder()
-                .registerTypeAdapter(AddressResponse::class.java, AddressDeserializer())
+                .registerTypeAdapter(
+                    AddressResponse::class.java,
+                    AddressDeserializer()
+                )
                 .setLenient()
                 .create()
 
@@ -58,7 +60,7 @@ internal abstract class MainModule {
 
         @Provides
         @FragmentScope
-        fun provideGeocoderAPI(@Geocoder retrofit: Retrofit): GeocoderAPI =
+        fun provideGeocoderDataSource(@Geocoder retrofit: Retrofit): GeocoderDataSource =
             retrofit.create()
 
         @Provides

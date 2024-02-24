@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import ru.flocator.core_extensions.findDrawable
+import ru.flocator.core.extensions.findDrawable
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.ItemBlackListBinding
-import ru.flocator.feature_settings.internal.domain.friend.BlackListUser
+import ru.flocator.feature_settings.internal.data.friend.BlackListUser
 
 internal class BlackListListAdapter(
     private val unblockUserCallback: (userId: Long) -> Unit,
@@ -48,7 +48,7 @@ internal class BlackListListAdapter(
                             {
                                 binding.friendAvatar.setImageDrawable(
                                     itemView.resources.findDrawable(
-                                        ru.flocator.core_design.R.drawable.base_avatar_image
+                                        ru.flocator.design.R.drawable.base_avatar_image
                                     )
                                 )
                                 binding.friendAvatarSkeleton.showOriginal()
