@@ -26,7 +26,6 @@ import ru.flocator.design.SnackbarComposer
 import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentAddMarkBinding
-import ru.flocator.feature_main.internal.core.contractions.AddMarkContractions
 import ru.flocator.feature_main.internal.data.model.carousel.CarouselEditableItemState
 import ru.flocator.feature_main.internal.data.model.fragment.AddMarkFragmentState
 import ru.flocator.feature_main.internal.data.model.mark.AddMarkDto
@@ -49,6 +48,14 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
 
     private lateinit var carouselAdapter: EditablePhotoRecyclerViewAdapter
     private lateinit var photoAddLauncher: ActivityResultLauncher<String>
+
+    private val latitude by lazy {
+        requireArguments().getDouble(Contraction.LATITUDE)
+    }
+
+    private val longitude by lazy {
+        requireArguments().getDouble(Contraction.LONGITUDE)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -148,11 +155,6 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
     }
 
     private fun extractCurrentLocation() {
-        val latitude =
-            requireArguments().getDouble(AddMarkContractions.LATITUDE)
-        val longitude =
-            requireArguments().getDouble(AddMarkContractions.LONGITUDE)
-
         addMarkFragmentViewModel.updateUserPoint(
             Coordinates(
                 latitude,
@@ -370,9 +372,22 @@ internal class AddMarkFragment : ResponsiveBottomSheetDialogFragment(
         }
     }
 
+    private object Contraction {
+        const val LATITUDE = "LATITUDE"
+        const val LONGITUDE = "LONGITUDE"
+    }
+
     companion object {
         const val TAG = "Add Mark Fragment"
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
+
+        fun newInstance(latitude: Double, longitude: Double): AddMarkFragment =
+            AddMarkFragment().apply {
+                arguments = Bundle().apply {
+                    putDouble(Contraction.LATITUDE, latitude)
+                    putDouble(Contraction.LONGITUDE, longitude)
+                }
+            }
     }
 }

@@ -29,7 +29,6 @@ import ru.flocator.data.models.auth.UserCredentialsDto
 import ru.flocator.data.models.auth.UserRegistrationDto
 import ru.flocator.design.SnackbarComposer
 import ru.flocator.feature_auth.R
-import ru.flocator.feature_auth.api.ui.LocationRequestFragment
 import ru.flocator.feature_auth.databinding.FragmentRegistrationBinding
 import ru.flocator.feature_auth.internal.core.di.DaggerAuthComponent
 import ru.flocator.feature_auth.internal.domain.LoginUserAndSaveTokensUseCase
@@ -54,8 +53,20 @@ internal class RegThirdFragment : Fragment(),
     @Inject
     internal lateinit var loginUserAndSaveTokens: LoginUserAndSaveTokensUseCase
 
-    companion object {
-        private const val TAG = "Third registration fragment"
+    private val lastName by lazy {
+        requireArguments().getString(Contraction.LAST_NAME)!!
+    }
+
+    private val firstName by lazy {
+        requireArguments().getString(Contraction.FIRST_NAME)!!
+    }
+
+    private val login by lazy {
+        requireArguments().getString(Contraction.LOGIN)!!
+    }
+
+    private val email by lazy {
+        requireArguments().getString(Contraction.EMAIL)!!
     }
 
     override fun onAttach(context: Context) {
@@ -232,19 +243,12 @@ internal class RegThirdFragment : Fragment(),
     }
 
     private fun createAccount() {
-        val bundle = arguments
-        val lastName = bundle?.getString("lastname")
-        val firstName = bundle?.getString("firstname")
-        val login = bundle?.getString("login")
-        val email = bundle?.getString("email")
         val password = binding.firstInputEditField.text.toString()
-        println(lastName)
-        println(login)
         val userRegistrationDto = UserRegistrationDto(
-            lastName = lastName!!,
-            firstName = firstName!!,
-            login = login!!,
-            email = email!!,
+            lastName = lastName,
+            firstName = firstName,
+            login = login,
+            email = email,
             password = password
         )
         compositeDisposable.add(
@@ -274,7 +278,7 @@ internal class RegThirdFragment : Fragment(),
                         if (LocationUtils.hasLocationPermission(requireContext())) {
                             controller.toMain()
                         } else {
-                            controller.toFragment(LocationRequestFragment())
+                            controller.toLocationDialog()
                         }
                     }, {
                         view?.let {
@@ -294,5 +298,31 @@ internal class RegThirdFragment : Fragment(),
         binding.registrationErrorMessageText.visibility = View.VISIBLE
         binding.registrationErrorMessageText.text =
             resources.getString(R.string.registration_error)
+    }
+
+    private object Contraction {
+        const val LAST_NAME = "lastname"
+        const val FIRST_NAME = "firstname"
+        const val LOGIN = "login"
+        const val EMAIL = "email"
+    }
+
+    companion object {
+        const val TAG = "RegThirdFragment_TAG"
+
+        fun newInstance(
+            lastName: String,
+            firstName: String,
+            login: String,
+            email: String
+        ): RegThirdFragment =
+            RegThirdFragment().apply {
+                arguments = Bundle().apply {
+                    putString(Contraction.LAST_NAME, lastName)
+                    putString(Contraction.FIRST_NAME, firstName)
+                    putString(Contraction.LOGIN, login)
+                    putString(Contraction.EMAIL, email)
+                }
+            }
     }
 }

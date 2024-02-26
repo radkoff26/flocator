@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
 import ru.flocator.core.base.view_model.UiState
@@ -25,11 +26,11 @@ import ru.flocator.core.photo.PhotoLoadingTool
 import ru.flocator.core.section.CommunitySection
 import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.FragmentPersonProfileBinding
-import ru.flocator.feature_community.internal.ui.adapters.ExternalFriendActionListener
-import ru.flocator.feature_community.internal.ui.adapters.ExternalFriendAdapter
+import ru.flocator.feature_community.internal.core.di.DaggerCommunityComponent
 import ru.flocator.feature_community.internal.data.model.UserItem
 import ru.flocator.feature_community.internal.data.model.UserProfile
-import ru.flocator.feature_community.internal.core.di.DaggerCommunityComponent
+import ru.flocator.feature_community.internal.ui.adapters.ExternalFriendActionListener
+import ru.flocator.feature_community.internal.ui.adapters.ExternalFriendAdapter
 import ru.flocator.feature_community.internal.ui.view_models.ExternalProfileViewModel
 import javax.inject.Inject
 
@@ -47,8 +48,12 @@ internal class ExternalProfileFragment : Fragment(), CommunitySection {
 
     private lateinit var adapterForFriends: ExternalFriendAdapter
 
-    object Constants {
-        const val USER_ID = "userId"
+    private val compositeDisposable = CompositeDisposable()
+
+    private val currentUserId: Long by lazy {
+        requireArguments().getLong(Contraction.USER_ID, -1).also {
+            require(it != -1L) { "Argument has not been provided!" }
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -72,16 +77,9 @@ internal class ExternalProfileFragment : Fragment(), CommunitySection {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonProfileBinding.inflate(inflater, container, false)
-        val args: Bundle? = arguments
-        if (args != null) {
-            viewModel.setExternalUserId(
-                args.getLong(Constants.USER_ID)
-            )
-            viewModel.loadData()
-        } else {
-            controller.back()
-            return binding.root
-        }
+
+        viewModel.setExternalUserId(currentUserId)
+        viewModel.loadData()
 
         observeUiStateChange()
 
@@ -110,8 +108,9 @@ internal class ExternalProfileFragment : Fragment(), CommunitySection {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        compositeDisposable.dispose()
         _binding = null
+        super.onDestroyView()
     }
 
     private fun observeUiStateChange() {
@@ -132,14 +131,11 @@ internal class ExternalProfileFragment : Fragment(), CommunitySection {
 
     private fun openPersonProfile(user: UserItem) {
         lifecycleScope.launch {
-            val args = Bundle()
             val currentUserId = viewModel.getCurrentUserId()
             if (user.userId == currentUserId) {
                 controller.toProfile()
             } else {
-                args.putLong(Constants.USER_ID, user.userId)
-                val profilePersonFragment = ExternalProfileFragment()
-                profilePersonFragment.arguments = args
+                val profilePersonFragment = newInstance(user.userId)
                 controller.toFragment(profilePersonFragment)
             }
         }
@@ -183,18 +179,33 @@ internal class ExternalProfileFragment : Fragment(), CommunitySection {
 
     private fun setAvatar(uri: String) {
         binding.userPhotoSkeleton.showSkeleton()
-        PhotoLoadingTool.loadPictureFromUrl(uri, 100)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                {
-                    binding.profileImage.setImageBitmap(it)
-                    binding.userPhotoSkeleton.showOriginal()
-                },
-                {
-                    Log.d("TestLog", "no")
-                }
-            )
+        compositeDisposable.add(
+            PhotoLoadingTool.loadPictureFromUrl(uri, 100)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        binding.profileImage.setImageBitmap(it)
+                        binding.userPhotoSkeleton.showOriginal()
+                    },
+                    {
+                        Log.d("TestLog", "no")
+                    }
+                )
+        )
     }
 
+    private object Contraction {
+        const val USER_ID = "userId"
+    }
+
+    companion object {
+
+        fun newInstance(userId: Long): ExternalProfileFragment =
+            ExternalProfileFragment().apply {
+                arguments = Bundle().apply {
+                    putLong(Contraction.USER_ID, userId)
+                }
+            }
+    }
 }

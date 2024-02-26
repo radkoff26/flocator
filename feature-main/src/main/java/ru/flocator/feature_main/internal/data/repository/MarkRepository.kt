@@ -22,12 +22,11 @@ internal class MarkRepository @Inject constructor(
     private val markDao: MarkDao
 ) {
 
-    fun getMarksFromCache(): Single<List<MarkWithPhotos>> = markDao.getAllMarks()
+    fun getMarksFromCache(): Single<List<MarkWithPhotos>> =
+        markDao.getAllMarks().subscribeOn(Schedulers.io())
 
     fun getMarksForUser(): Single<List<MarkWithPhotos>> =
         mainDataSource.getUserAndFriendsMarks()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
             .subscribeOn(Schedulers.io())
             .doAfterSuccess {
                 saveNewMarksToCache(it)
@@ -44,7 +43,6 @@ internal class MarkRepository @Inject constructor(
             photos
         )
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
             .doOnError { throwable ->
                 Log.e(
                     TAG,

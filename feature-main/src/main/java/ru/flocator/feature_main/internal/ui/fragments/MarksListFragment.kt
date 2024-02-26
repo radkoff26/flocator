@@ -2,7 +2,6 @@ package ru.flocator.feature_main.internal.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,10 +22,10 @@ import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarksListBinding
 import ru.flocator.feature_main.internal.core.contractions.MarksListContractions
+import ru.flocator.feature_main.internal.core.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.data.model.dto.ListMarkDto
 import ru.flocator.feature_main.internal.data.model.mark.MarkDto
 import ru.flocator.feature_main.internal.data.model.photo.Photo
-import ru.flocator.feature_main.internal.core.di.DaggerMainComponent
 import ru.flocator.feature_main.internal.ui.adapters.marks_list.MarksListRecyclerViewAdapter
 import ru.flocator.feature_main.internal.ui.view_models.MarksListFragmentViewModel
 import javax.inject.Inject
@@ -44,6 +43,20 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
     private lateinit var marksListFragmentViewModel: MarksListFragmentViewModel
 
     private lateinit var adapter: MarksListRecyclerViewAdapter
+
+    private val marks: List<MarkDto> by lazy {
+        @Suppress("DEPRECATION", "UNCHECKED_CAST")
+        requireArguments().getSerializable(
+            MarksListContractions.MARKS
+        ) as ArrayList<MarkDto>
+    }
+
+    private val userPoint: Coordinates by lazy {
+        @Suppress("DEPRECATION")
+        requireArguments().getSerializable(
+            MarksListContractions.USER_POINT
+        ) as Coordinates
+    }
 
     override fun getCoordinatorLayout(): CoordinatorLayout = binding.coordinator
 
@@ -99,26 +112,6 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
 
     @Suppress("UNCHECKED_CAST", "DEPRECATION")
     private fun adjustRecyclerView() {
-        if (
-            arguments == null
-            ||
-            !requireArguments().containsKey(
-                MarksListContractions.USER_POINT
-            )
-            ||
-            !requireArguments().containsKey(
-                MarksListContractions.MARKS
-            )
-        ) {
-            closeDown()
-            return
-        }
-        val userPoint = requireArguments().getSerializable(
-            MarksListContractions.USER_POINT
-        ) as Coordinates
-        val marks = requireArguments().getSerializable(
-            MarksListContractions.MARKS
-        ) as ArrayList<MarkDto>
         binding.marksCount.text =
             resources.getString(R.string.marks_count, marks.size)
         // If data has been already loaded into view model,
@@ -178,14 +171,23 @@ internal class MarksListFragment : ResponsiveBottomSheetDialogFragment(
         binding.marksRecyclerView.adapter = adapter
     }
 
-    private fun closeDown() {
-        Log.e(TAG, "closeDown: arguments don't satisfy requirements!")
-        dismiss()
+    private object Contraction {
+        const val USER_POINT = "USER_POINT"
+        const val MARKS = "MARKS"
     }
 
     companion object {
         const val TAG = "Marks List Fragment"
         const val WIDTH_RATION_PORTRAIT = 1.0
         const val WIDTH_RATION_LANDSCAPE = 0.9
+
+        // TODO: decrease memory usage in the transaction by reducing transferring data (markList)
+        fun newInstance(userPoint: Coordinates, markList: ArrayList<MarkDto>): MarksListFragment =
+            MarksListFragment().apply {
+                arguments = Bundle().apply {
+                    putSerializable(Contraction.USER_POINT, userPoint)
+                    putSerializable(Contraction.MARKS, markList)
+                }
+            }
     }
 }

@@ -273,7 +273,7 @@ object ApiPaths {
      *
      * Response: object of mark
      * */
-    const val MARK_GET = "api/mark/like"
+    const val MARK_GET = "api/mark"
 
     /**
      * GET

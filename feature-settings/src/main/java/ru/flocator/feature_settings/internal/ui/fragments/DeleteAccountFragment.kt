@@ -23,8 +23,8 @@ import ru.flocator.feature_settings.internal.ui.view_models.DeleteAccountViewMod
 import javax.inject.Inject
 
 internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
-    ChangePasswordFragment.BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
-    ChangePasswordFragment.BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
+    BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO,
+    BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO
 ), SettingsSection {
     private var _binding: FragmentDeleteAccountBinding? = null
     private val binding: FragmentDeleteAccountBinding
@@ -127,5 +127,9 @@ internal class DeleteAccountFragment : ResponsiveBottomSheetDialogFragment(
 
     companion object {
         const val TAG = "Delete account fragment"
+        const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
+        const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
+
+        fun newInstance(): DeleteAccountFragment = DeleteAccountFragment()
     }
 }

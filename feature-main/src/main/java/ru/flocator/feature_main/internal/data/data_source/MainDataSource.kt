@@ -19,21 +19,20 @@ internal interface MainDataSource {
     @GET(ApiPaths.MARK_FRIENDS)
     fun getUserAndFriendsMarks(): Single<List<MarkDto>>
 
-    @Multipart
     @POST(ApiPaths.MARK_POST)
     fun postMark(
-        @Part("mark") markDto: RequestBody
+        @Body markDto: RequestBody
     ): Completable
 
     @Multipart
     @POST(ApiPaths.PHOTO_POST)
     fun postPhotos(
-        @Part("photos") photos: List<MultipartBody.Part>
+        @Part photos: List<MultipartBody.Part>
     ): Single<List<String>>
 
     @GET(ApiPaths.MARK_GET)
     fun getMark(
-        @Path("markId") markId: Long
+        @Query("markId") markId: Long
     ): Single<MarkDto>
 
     @POST(ApiPaths.USER_LOCATION)
@@ -46,7 +45,7 @@ internal interface MainDataSource {
     fun unlikeMark(@Query("markId") markId: Long): Completable
 
     @GET(ApiPaths.USER_GET_USERNAME)
-    fun getUsername(@Path("userId") userId: Long): Single<UsernameDto>
+    fun getUsername(@Query("userId") userId: Long): Single<UsernameDto>
 
     @POST(ApiPaths.USER_ONLINE)
     fun goOnline(): Completable

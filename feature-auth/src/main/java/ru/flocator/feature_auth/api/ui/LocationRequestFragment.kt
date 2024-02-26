@@ -133,4 +133,9 @@ class LocationRequestFragment : Fragment(),
     }
 
     private fun goToMainSection() = controller.toMain()
+
+    companion object {
+
+        fun newInstance(): LocationRequestFragment = LocationRequestFragment()
+    }
 }

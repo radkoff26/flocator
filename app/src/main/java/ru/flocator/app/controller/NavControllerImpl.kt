@@ -15,7 +15,9 @@ import ru.flocator.feature_community.api.ui.ProfileFragment
 import ru.flocator.feature_main.api.ui.MainFragment
 import ru.flocator.feature_settings.api.ui.SettingsFragment
 
-class NavControllerImpl constructor(private var _activity: FragmentActivity?) : NavController, DefaultLifecycleObserver {
+class NavControllerImpl constructor(
+    private var _activity: FragmentActivity?
+) : NavController, DefaultLifecycleObserver {
     @IdRes
     private val fragmentContainerId = R.id.fragment_container
 
@@ -42,30 +44,30 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) : 
             fragmentManager.fragments.forEach {
                 remove(it)
             }
-            add(fragmentContainerId, AuthFragment())
+            add(fragmentContainerId, AuthFragment.newInstance())
             addToBackStack(BACK_STACK_NAME)
             commit()
         }
     }
 
     override fun toAuth() {
-        openFragment(AuthFragment())
+        openFragment(AuthFragment.newInstance())
     }
 
     override fun toLocationDialog() {
-        openFragment(LocationRequestFragment())
+        openFragment(LocationRequestFragment.newInstance())
     }
 
     override fun toMain() {
-        openFragment(MainFragment())
+        openFragment(MainFragment.newInstance())
     }
 
     override fun toProfile() {
-        openFragment(ProfileFragment())
+        openFragment(ProfileFragment.newInstance())
     }
 
     override fun toSettings() {
-        openFragment(SettingsFragment())
+        openFragment(SettingsFragment.newInstance())
     }
 
     override fun toFragment(fragment: Fragment) {
@@ -78,7 +80,8 @@ class NavControllerImpl constructor(private var _activity: FragmentActivity?) : 
         if (activity.supportFragmentManager.backStackEntryCount > 1
             && lastFragment !is MainFragment
             && lastFragment !is AuthFragment
-            && lastFragment !is LocationRequestFragment) {
+            && lastFragment !is LocationRequestFragment
+        ) {
             fragmentManager.popBackStack()
         } else {
             activity.finish()

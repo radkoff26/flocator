@@ -24,10 +24,8 @@ import ru.flocator.data.models.location.Coordinates
 import ru.flocator.design.SnackbarComposer
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMainBinding
-import ru.flocator.feature_main.internal.core.contractions.AddMarkContractions
-import ru.flocator.feature_main.internal.core.contractions.MarksListContractions
-import ru.flocator.feature_main.internal.data.model.mark.MarkDto
 import ru.flocator.feature_main.internal.core.di.DaggerMainComponent
+import ru.flocator.feature_main.internal.data.model.mark.MarkDto
 import ru.flocator.feature_main.internal.ui.fragments.AddMarkFragment
 import ru.flocator.feature_main.internal.ui.fragments.MarkFragment
 import ru.flocator.feature_main.internal.ui.fragments.MarksListFragment
@@ -117,20 +115,7 @@ class MainFragment : Fragment(), MainSection {
 
             val point = viewModel.userLocationLiveData.value!!
 
-            val args = Bundle()
-
-            args.putDouble(
-                AddMarkContractions.LATITUDE,
-                point.latitude
-            )
-
-            args.putDouble(
-                AddMarkContractions.LONGITUDE,
-                point.longitude
-            )
-
-            val addMarkFragment = AddMarkFragment()
-            addMarkFragment.arguments = args
+            val addMarkFragment = AddMarkFragment.newInstance(point.latitude, point.longitude)
             addMarkFragment.show(requireActivity().supportFragmentManager, AddMarkFragment.TAG)
         }
 
@@ -220,44 +205,30 @@ class MainFragment : Fragment(), MainSection {
             },
             onMarkGroupViewClickCallback = { markIds ->
                 if (viewModel.userLocationLiveData.value != null) {
-                    val marksListFragment = MarksListFragment().apply {
-                        arguments = Bundle().apply {
-                            val markDtoList = ArrayList(
-                                markIds.map {
-                                    val allMarks = viewModel.marksLiveData.value!!
-                                    val markWithPhotos = allMarks[it]!!
-                                    val mark = markWithPhotos.mark
-                                    MarkDto(
-                                        mark.markId,
-                                        mark.authorId,
-                                        Coordinates(
-                                            mark.location.latitude,
-                                            mark.location.longitude
-                                        ),
-                                        mark.text,
-                                        mark.isPublic,
-                                        markWithPhotos.photos.map(MarkPhoto::uri),
-                                        mark.place,
-                                        mark.likesCount,
-                                        mark.hasUserLiked,
-                                        mark.createdAt
-                                    )
-                                }
-                            )
-                            putSerializable(
-                                MarksListContractions.MARKS,
-                                markDtoList
-                            )
-                            val userPoint = viewModel.userLocationLiveData.value!!
-                            putSerializable(
-                                MarksListContractions.USER_POINT,
+                    val markDtoList = ArrayList(
+                        markIds.map {
+                            val allMarks = viewModel.marksLiveData.value!!
+                            val markWithPhotos = allMarks[it]!!
+                            val mark = markWithPhotos.mark
+                            MarkDto(
+                                mark.markId,
+                                mark.authorId,
                                 Coordinates(
-                                    userPoint.latitude,
-                                    userPoint.longitude
-                                )
+                                    mark.location.latitude,
+                                    mark.location.longitude
+                                ),
+                                mark.text,
+                                mark.isPublic,
+                                markWithPhotos.photos.map(MarkPhoto::uri),
+                                mark.place,
+                                mark.likesCount,
+                                mark.hasUserLiked,
+                                mark.createdAt
                             )
                         }
-                    }
+                    )
+                    val userPoint = viewModel.userLocationLiveData.value!!
+                    val marksListFragment = MarksListFragment.newInstance(userPoint, markDtoList)
                     marksListFragment.show(
                         requireActivity().supportFragmentManager,
                         MarksListFragment.TAG
@@ -384,5 +355,7 @@ class MainFragment : Fragment(), MainSection {
         const val TIMEOUT_TO_FETCH_FRIENDS = 3000L
         const val TIMEOUT_TO_FETCH_MARKS = 7000L
         const val TIMEOUT_TO_FETCH_USER_INFO = 8000L
+
+        fun newInstance(): MainFragment = MainFragment()
     }
 }

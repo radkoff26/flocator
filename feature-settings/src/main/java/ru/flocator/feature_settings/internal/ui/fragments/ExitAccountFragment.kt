@@ -94,5 +94,7 @@ internal class ExitAccountFragment : ResponsiveBottomSheetDialogFragment(
         const val TAG = "Exit account fragment"
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.95
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.9
+
+        fun newInstance(): ExitAccountFragment = ExitAccountFragment()
     }
 }

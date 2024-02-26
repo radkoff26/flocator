@@ -172,4 +172,9 @@ internal class BlackListFragment : BaseFragment(), SettingsSection {
             )
         }
     }
+
+    companion object {
+
+        fun newInstance(): BlackListFragment = BlackListFragment()
+    }
 }

@@ -20,12 +20,12 @@ internal class UserRepository @Inject constructor(
     private val locationDataStoreManager: UserLocationDataStoreManager
 ) {
 
-    fun getAllFriendsFromCache(): Single<List<User>> = userDao.getAllFriends()
+    fun getAllFriendsFromCache(): Single<List<User>> =
+        userDao.getAllFriends().subscribeOn(Schedulers.io())
 
     fun getAllFriendsOfUser(): Single<List<User>> =
         mainDataSource.getUserFriendsLocated()
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
             .doAfterSuccess {
                 saveNewFriendsToCache(it)
             }
@@ -35,7 +35,6 @@ internal class UserRepository @Inject constructor(
         compositeDisposable.add(
             userDao.updateTable(newFriends)
                 .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
                 .doOnError { throwable ->
                     Log.e(
                         TAG,

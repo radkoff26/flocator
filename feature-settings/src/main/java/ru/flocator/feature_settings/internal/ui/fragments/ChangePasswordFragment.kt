@@ -132,5 +132,7 @@ internal class ChangePasswordFragment : ResponsiveBottomSheetDialogFragment(
         const val TAG = "Change pass fragment"
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
+
+        fun newInstance(): ChangePasswordFragment = ChangePasswordFragment()
     }
 }

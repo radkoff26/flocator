@@ -151,9 +151,7 @@ class ProfileFragment : BaseFragment(), CommunitySection {
 
         binding.addFriend.setOnClickListener {
             lifecycleScope.launch {
-                val args = Bundle()
-                val addFriendByLinkFragment = AddFriendByLinkFragment()
-                addFriendByLinkFragment.arguments = args
+                val addFriendByLinkFragment = AddFriendByLinkFragment.newInstance()
                 addFriendByLinkFragment.show(
                     requireActivity().supportFragmentManager,
                     AddFriendByLinkFragment.TAG
@@ -208,10 +206,7 @@ class ProfileFragment : BaseFragment(), CommunitySection {
     }
 
     private fun openPersonProfile(user: UserItem) {
-        val args = Bundle()
-        user.userId.let { args.putLong("userId", it) }
-        val profilePersonFragment = ExternalProfileFragment()
-        profilePersonFragment.arguments = args
+        val profilePersonFragment = ExternalProfileFragment.newInstance(user.userId)
         controller.toFragment(profilePersonFragment)
     }
 
@@ -247,5 +242,7 @@ class ProfileFragment : BaseFragment(), CommunitySection {
 
     companion object {
         const val TAG = "Profile Fragment"
+
+        fun newInstance(): ProfileFragment = ProfileFragment()
     }
 }

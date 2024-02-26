@@ -72,11 +72,7 @@ internal class RegFirstFragment : Fragment(),
                         binding.secondInputEditField.text.toString()
                     )
                 )
-                val bundle = Bundle()
-                bundle.putString("lastname", binding.firstInputEditField.text.toString())
-                bundle.putString("firstname", binding.secondInputEditField.text.toString())
-                val regSecondFragment = RegSecondFragment()
-                regSecondFragment.arguments = bundle
+                val regSecondFragment = RegSecondFragment.newInstance(firstName, lastName)
                 controller.toFragment(regSecondFragment)
             } else {
                 if (firstName.isEmpty()) {
@@ -182,4 +178,8 @@ internal class RegFirstFragment : Fragment(),
         _binding = null
     }
 
+    companion object {
+
+        fun newInstance(): RegFirstFragment = RegFirstFragment()
+    }
 }

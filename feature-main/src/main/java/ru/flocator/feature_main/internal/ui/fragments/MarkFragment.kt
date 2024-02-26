@@ -24,7 +24,6 @@ import ru.flocator.data.database.entities.MarkWithPhotos
 import ru.flocator.design.fragments.ResponsiveBottomSheetDialogFragment
 import ru.flocator.feature_main.R
 import ru.flocator.feature_main.databinding.FragmentMarkBinding
-import ru.flocator.feature_main.internal.core.contractions.MarkContractions
 import ru.flocator.feature_main.internal.data.model.fragment.MarkFragmentState
 import ru.flocator.feature_main.internal.data.model.user_name.UsernameDto
 import ru.flocator.feature_main.internal.core.di.DaggerMainComponent
@@ -48,6 +47,14 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var markFragmentViewModel: MarkFragmentViewModel
 
+    private val markId: Long by lazy {
+        requireArguments().getLong(Contraction.MARK_ID, -1).also {
+            require(it != -1L) {
+                "Argument has not been provided to fragment!"
+            }
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -68,9 +75,6 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         val view = inflater.inflate(R.layout.fragment_mark, container, false)
 
         _binding = FragmentMarkBinding.bind(view)
-
-        val markId =
-            requireArguments().getLong(MarkContractions.MARK_ID)
 
         markFragmentViewModel.initialize(markId)
 
@@ -227,8 +231,11 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
             resources.getString(R.string.name_surname, value.firstName, value.lastName)
     }
 
+    private object Contraction {
+        const val MARK_ID = "MARK_ID"
+    }
+
     companion object {
-        private const val MARK_ID = "MARK_ID"
         const val TAG = "Mark Fragment"
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
@@ -236,7 +243,7 @@ internal class MarkFragment : ResponsiveBottomSheetDialogFragment(
         fun newInstance(markId: Long): MarkFragment {
             return MarkFragment().apply {
                 arguments = Bundle().apply {
-                    putLong(MARK_ID, markId)
+                    putLong(Contraction.MARK_ID, markId)
                 }
             }
         }

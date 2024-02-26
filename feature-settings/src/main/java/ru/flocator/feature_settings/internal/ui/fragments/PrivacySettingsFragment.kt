@@ -190,4 +190,9 @@ internal class PrivacySettingsFragment : Fragment(), SettingsSection {
             )
         }
     }
+
+    companion object {
+
+        fun newInstance(): PrivacySettingsFragment = PrivacySettingsFragment()
+    }
 }

@@ -129,7 +129,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
         })
 
         binding.registrationBtn.setOnClickListener {
-            navController.toFragment(RegFirstFragment())
+            navController.toFragment(RegFirstFragment.newInstance())
         }
 
         return binding.root
@@ -193,5 +193,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
 
     companion object {
         private const val TAG = "AuthFragment_TAG"
+
+        fun newInstance(): AuthFragment = AuthFragment()
     }
 }

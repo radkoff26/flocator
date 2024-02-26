@@ -43,8 +43,12 @@ internal class RegSecondFragment : Fragment(),
     @Inject
     internal lateinit var controller: NavController
 
-    companion object {
-        private const val TAG = "Second registration fragment"
+    private val lastname by lazy {
+        requireArguments().getString(Contraction.LAST_NAME)!!
+    }
+
+    private val firstname by lazy {
+        requireArguments().getString(Contraction.FIRST_NAME)!!
     }
 
     override fun onAttach(context: Context) {
@@ -128,23 +132,8 @@ internal class RegSecondFragment : Fragment(),
                                     binding.secondInputEditField.text.toString()
                                 )
                             )
-                            val bundle = arguments
-                            val lastname = bundle?.getString("lastname")
-                            val firstname = bundle?.getString("firstname")
-                            println(lastname)
-                            val bundleRegSecondFragment = Bundle()
-                            bundleRegSecondFragment.putString("lastname", lastname)
-                            bundleRegSecondFragment.putString("firstname", firstname)
-                            bundleRegSecondFragment.putString(
-                                "login",
-                                binding.firstInputEditField.text.toString()
-                            )
-                            bundleRegSecondFragment.putString(
-                                "email",
-                                binding.secondInputEditField.text.toString()
-                            )
-                            val regThirdFragment = RegThirdFragment()
-                            regThirdFragment.arguments = bundleRegSecondFragment
+                            val regThirdFragment =
+                                RegThirdFragment.newInstance(lastname, firstname, login, email)
                             controller.toFragment(regThirdFragment)
                         },
                         { error ->
@@ -262,4 +251,21 @@ internal class RegSecondFragment : Fragment(),
     }
 
     private data class Response(val loginResponse: Boolean, val emailResponse: Boolean)
+
+    private object Contraction {
+        const val LAST_NAME = "lastname"
+        const val FIRST_NAME = "firstname"
+    }
+
+    companion object {
+        const val TAG = "RegSecondFragment_TAG"
+
+        fun newInstance(firstName: String, lastName: String): RegSecondFragment =
+            RegSecondFragment().apply {
+                arguments = Bundle().apply {
+                    putString(Contraction.LAST_NAME, lastName)
+                    putString(Contraction.FIRST_NAME, firstName)
+                }
+            }
+    }
 }

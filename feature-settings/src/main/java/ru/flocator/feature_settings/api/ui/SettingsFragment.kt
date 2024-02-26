@@ -131,33 +131,16 @@ class SettingsFragment : BaseFragment(), SettingsSection {
             pickBirthDateAndUpdate()
         }
 
-//        binding.nameField.setOnFocusChangeListener { _, hasFocus ->
-//            if (!hasFocus) {
-//                val words = binding.nameField.text.split(" ")
-//                val firstName = words[0]
-//                var secondName = ""
-//                for (word in words.listIterator(1)) {
-//                    secondName += word
-//                }
-//                compositeDisposable.add(
-//                    settingsRepository.changeCurrentUserName(firstName, secondName)
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .subscribe({}, { Log.e("Change name", "error", it) })
-//                )
-//            }
-//        }
-
         binding.privacyLine.setOnClickListener {
-            controller.toFragment(PrivacySettingsFragment())
+            controller.toFragment(PrivacySettingsFragment.newInstance())
         }
 
         binding.blacklistLine.setOnClickListener {
-            controller.toFragment(BlackListFragment())
+            controller.toFragment(BlackListFragment.newInstance())
         }
 
         binding.changePasswordLine.setOnClickListener {
-            val changePasswordFragment = ChangePasswordFragment()
+            val changePasswordFragment = ChangePasswordFragment.newInstance()
             changePasswordFragment.show(
                 requireActivity().supportFragmentManager,
                 ChangePasswordFragment.TAG
@@ -165,7 +148,7 @@ class SettingsFragment : BaseFragment(), SettingsSection {
         }
 
         binding.exitAccountLine.setOnClickListener {
-            val exitAccountFragment = ExitAccountFragment()
+            val exitAccountFragment = ExitAccountFragment.newInstance()
             exitAccountFragment.show(
                 requireActivity().supportFragmentManager,
                 ExitAccountFragment.TAG
@@ -173,7 +156,7 @@ class SettingsFragment : BaseFragment(), SettingsSection {
         }
 
         binding.deleteAccountLine.setOnClickListener {
-            val deleteAccountFragment = DeleteAccountFragment()
+            val deleteAccountFragment = DeleteAccountFragment.newInstance()
             deleteAccountFragment.show(
                 requireActivity().supportFragmentManager,
                 DeleteAccountFragment.TAG
@@ -287,5 +270,10 @@ class SettingsFragment : BaseFragment(), SettingsSection {
         } else {
             binding.ru.isChecked = true
         }
+    }
+
+    companion object {
+
+        fun newInstance(): SettingsFragment = SettingsFragment()
     }
 }

@@ -65,8 +65,6 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddFriendBinding.inflate(inflater, container, false)
-        val args: Bundle? = arguments
-
         binding.addFriendConfirmButton.setOnClickListener {
             if (binding.userLoginText.text.toString().isNotEmpty()) {
                 compositeDisposable.add(
@@ -117,5 +115,7 @@ internal class AddFriendByLinkFragment : ResponsiveBottomSheetDialogFragment(
         const val TAG = "Add friend by link fragment"
         const val BOTTOM_SHEET_PORTRAIT_WIDTH_RATIO = 0.9
         const val BOTTOM_SHEET_LANDSCAPE_WIDTH_RATIO = 0.8
+
+        fun newInstance(): AddFriendByLinkFragment = AddFriendByLinkFragment()
     }
 }
