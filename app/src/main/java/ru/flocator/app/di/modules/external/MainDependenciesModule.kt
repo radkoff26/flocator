@@ -12,7 +12,6 @@ import javax.inject.Singleton
 
 @Module(
     includes = [
-        ConnectionModule::class,
         DataStoreModule::class,
         RestAPIModule::class,
         StorageModule::class,

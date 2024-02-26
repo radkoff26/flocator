@@ -8,8 +8,8 @@ import com.google.android.gms.maps.model.VisibleRegion
 import ru.flocator.data.database.entities.User
 import ru.flocator.map.api.configuration.MapConfiguration
 import ru.flocator.map.api.entity.MapMark
-import ru.flocator.map.internal.domain.camera.CameraStatus
-import ru.flocator.map.internal.domain.entity.MarkGroup
+import ru.flocator.map.internal.data.camera.CameraStatus
+import ru.flocator.map.internal.data.entity.MarkGroup
 import ru.flocator.map.internal.extensions.toCoordinates
 import ru.flocator.map.internal.extensions.toLatLng
 import ru.flocator.map.internal.utils.MapComparingUtils

@@ -4,7 +4,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.VisibleRegion
 import ru.flocator.data.models.location.Coordinates
 import ru.flocator.map.api.entity.MapMark
-import ru.flocator.map.internal.domain.entity.MarkGroup
+import ru.flocator.map.internal.data.entity.MarkGroup
 import ru.flocator.map.internal.extensions.toCoordinates
 import java.util.*
 import kotlin.math.pow

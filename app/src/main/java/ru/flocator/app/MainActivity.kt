@@ -16,6 +16,7 @@ import ru.flocator.app.controller.NavControllerImpl
 import ru.flocator.core.alert.ErrorDebouncingAlertPoller
 import ru.flocator.core.alert.OnDismissedCallback
 import ru.flocator.core.alert.OnErrorCallback
+import ru.flocator.core.base.activity.BaseActivity
 import ru.flocator.core.navigation.NavController
 import ru.flocator.core.navigation.NavigationRoot
 import ru.flocator.core.utils.LocationUtils
@@ -24,13 +25,9 @@ import ru.flocator.data.preferences.LanguagePreferences
 import ru.flocator.design.SnackbarComposer
 import java.util.*
 
-class MainActivity : AppCompatActivity(), NavigationRoot {
-    private val alertPoller by lazy {
-        ErrorDebouncingAlertPoller(this, object : OnErrorCallback {
-            override fun invoke(view: View, errorText: String, callback: OnDismissedCallback) {
-                SnackbarComposer.composeDesignedSnackbar(view, errorText, callback)
-            }
-        })
+class MainActivity : BaseActivity(), NavigationRoot {
+    override fun composeSnackbar(view: View, text: String, onDismissed: () -> Unit) {
+        SnackbarComposer.composeDesignedSnackbar(view, text, onDismissed)
     }
 
     private var fragmentContainer: FragmentContainerView? = null
@@ -42,7 +39,7 @@ class MainActivity : AppCompatActivity(), NavigationRoot {
             when (intent.action) {
                 Broadcasts.CONNECTION_FAILED -> {
                     fragmentContainer?.let {
-                        alertPoller.postError(it, getString(R.string.connection_lost))
+                        notifyAboutError(getString(R.string.connection_lost), it)
                     }
                 }
                 Broadcasts.AUTHORIZATION_FAILED -> {

@@ -7,9 +7,6 @@ import ru.flocator.app.data.TokenPair
 
 interface AccessRefreshDataSource {
 
-    @GET("auth/login")
-    fun login(@Query("username") login: String, @Query("password") password: String): Call<String>
-
     @GET("auth/refresh")
     fun refreshTokens(@Query("token") refreshToken: String): Call<TokenPair>
 }

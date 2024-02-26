@@ -14,20 +14,15 @@ object PhotoLoadingTool {
         return Single.create {
             val factor = qualityFactor ?: 100
             val compressionFactor = factor.toFloat() / 100
+            // TODO: remove hardcoded url
             val mUrl =
-                URL("${Constants.BASE_URL}photo/compressed?uri=$uri&compressionFactor=$compressionFactor")
+                URL("${Constants.BASE_URL}api/photo/compressed?uri=$uri&compressionFactor=$compressionFactor")
             val inputStream = mUrl.openStream()
-            var bitmap = BitmapFactory.decodeStream(inputStream)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             if (bitmap == null) {
                 it.onError(Exception("Image is not loaded!"))
                 return@create
-            }
-            if (qualityFactor != null) {
-                val outputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, qualityFactor, outputStream)
-                val byteArray = outputStream.toByteArray()
-                bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
             }
             it.onSuccess(bitmap)
         }.subscribeOn(Schedulers.io())

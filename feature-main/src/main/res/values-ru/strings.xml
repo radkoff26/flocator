@@ -19,5 +19,6 @@
     <string name="mark">Метка</string>
     <string name="exit">Закрыть</string>
     <string name="location_fetching">Получение геолокации…</string>
+    <string name="saving_error">Ошибка во время сохранения…</string>
     <string name="error">Ошибка!</string>
 </resources>

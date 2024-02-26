@@ -1,4 +1,5 @@
 [versions]
+# libs
 ktx = "1.9.0"
 app_compat = "1.6.1"
 constraint_layout = "2.1.4"
@@ -24,6 +25,12 @@ swipe_to_refresh = "1.1.0"
 room = "2.5.1"
 data_store = "1.0.0"
 
+#plugins
+android_gradle_plugin = "7.4.2"
+kotlin_android = "1.8.0"
+kotlin_plugin_serialization = "1.8.10"
+dagger_hilt = "2.44"
+
 [libraries]
 
 # Android
@@ -41,7 +48,7 @@ androidx-viewpager = { group = "androidx.viewpager2", name = "viewpager2", versi
 androidx-swipetorefresh = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swipe_to_refresh" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-rxjava2 = { group = "androidx.room", name = "room-rxjava2", version.ref = "room" }
-androidx-room-compiler = { group = "androidx.room", name = "room-rxjava2", version.ref = "room" } # kapt
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" } # kapt
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data_store" }
 
 # Google
@@ -70,3 +77,8 @@ reactive-rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref
 reactive-rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
 
 [plugins]
+android-application = { id = "com.android.application", version.ref = "android_gradle_plugin" }
+android-library = { id = "com.android.library", version.ref = "android_gradle_plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin_android" }
+kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin_plugin_serialization" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin_plugin_serialization" }

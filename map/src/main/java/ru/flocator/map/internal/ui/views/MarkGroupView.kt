@@ -10,9 +10,9 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import ru.flocator.core.utils.ViewUtils.dpToPx
 import ru.flocator.map.R
-import ru.flocator.map.internal.domain.bitmap_creator.BitmapCreator
-import ru.flocator.map.internal.domain.view.ReusableView
-import ru.flocator.map.internal.domain.view.ViewFactory
+import ru.flocator.map.internal.data.bitmap_creator.BitmapCreator
+import ru.flocator.map.internal.data.view.ReusableView
+import ru.flocator.map.internal.data.view.ViewFactory
 
 @SuppressLint("ViewConstructor")
 internal class MarkGroupView constructor(
@@ -32,7 +32,7 @@ internal class MarkGroupView constructor(
 
         countTextView.textSize = dpToPx(8, context).toFloat()
 
-        countTextView.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
+        countTextView.setTextColor(ResourcesCompat.getColor(resources, ru.flocator.design.R.color.white, null))
 
         countTextView.gravity = Gravity.CENTER
 

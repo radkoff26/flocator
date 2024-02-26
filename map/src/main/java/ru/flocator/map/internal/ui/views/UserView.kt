@@ -14,9 +14,9 @@ import com.google.android.material.imageview.ShapeableImageView
 import ru.flocator.core.extensions.findDrawable
 import ru.flocator.core.utils.ViewUtils.dpToPx
 import ru.flocator.map.R
-import ru.flocator.map.internal.domain.bitmap_creator.BitmapCreator
-import ru.flocator.map.internal.domain.view.ReusableView
-import ru.flocator.map.internal.domain.view.ViewFactory
+import ru.flocator.map.internal.data.bitmap_creator.BitmapCreator
+import ru.flocator.map.internal.data.view.ReusableView
+import ru.flocator.map.internal.data.view.ViewFactory
 
 @SuppressLint("ViewConstructor")
 internal class UserView constructor(
@@ -65,11 +65,11 @@ internal class UserView constructor(
         userNameTextView.setBackgroundColor(
             ResourcesCompat.getColor(
                 resources,
-                R.color.black_alpha_50,
+                ru.flocator.design.R.color.black_alpha_50,
                 null
             )
         )
-        userNameTextView.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
+        userNameTextView.setTextColor(ResourcesCompat.getColor(resources, ru.flocator.design.R.color.white, null))
         userNameTextView.maxLines = 1
         userNameTextView.ellipsize = TextUtils.TruncateAt.END
 
@@ -147,7 +147,7 @@ internal class UserView constructor(
         userAvatarImageView.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.base_avatar_image,
+                ru.flocator.design.R.drawable.base_avatar_image,
                 null
             )
         )

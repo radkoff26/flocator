@@ -14,7 +14,7 @@ import ru.flocator.data.database.entities.User
 import ru.flocator.data.database.internal.CoordinatesConverter
 import ru.flocator.data.database.internal.TimestampConverter
 
-@Database(entities = [Mark::class, MarkPhoto::class, User::class], version = 1)
+@Database(entities = [Mark::class, MarkPhoto::class, User::class], version = 2)
 @TypeConverters(value = [CoordinatesConverter::class, TimestampConverter::class])
 abstract class ApplicationDatabase : RoomDatabase() {
 

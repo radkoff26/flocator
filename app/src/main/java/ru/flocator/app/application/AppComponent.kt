@@ -5,7 +5,7 @@ import dagger.BindsInstance
 import dagger.Component
 import ru.flocator.app.MainActivity
 import ru.flocator.app.di.modules.app.DataStoreModule
-import ru.flocator.app.di.modules.app.ReceiverModule
+import ru.flocator.app.di.modules.app.DatabaseModule
 import ru.flocator.app.di.modules.app.RestAPIModule
 import ru.flocator.app.di.modules.external.AuthDependenciesModule
 import ru.flocator.app.di.modules.external.CommunityDependenciesModule
@@ -20,8 +20,8 @@ import javax.inject.Singleton
 @Component(
     modules = [
         DataStoreModule::class,
+        DatabaseModule::class,
         RestAPIModule::class,
-        ReceiverModule::class,
         MainDependenciesModule::class,
         AuthDependenciesModule::class,
         CommunityDependenciesModule::class,

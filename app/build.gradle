@@ -1,8 +1,8 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlin.plugin.serialization
     id 'kotlin-kapt'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
 android {
@@ -35,7 +35,6 @@ android {
     }
     buildFeatures {
         viewBinding true
-        dataBinding true
     }
 }
 
@@ -70,7 +69,7 @@ dependencies {
     implementation libs.squareup.retrofit.gson
     implementation libs.squareup.retrofit.rxjava2
 
-    implementation libs.androidx.room.runtime
+    implementation libs.google.ui.material
 }
 
 kapt {

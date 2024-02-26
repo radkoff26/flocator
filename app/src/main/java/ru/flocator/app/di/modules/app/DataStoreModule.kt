@@ -46,6 +46,5 @@ object DataStoreModule {
         UserInfoMediator(store, retrofit)
 
     private const val USER_LOCATION_DATA_STORE_FILE = "user_location_ds"
-    private const val USER_DATA_STORE_FILE = "user_data_ds"
     private const val USER_INFO_STORE_FILE = "user_info_ds"
 }

@@ -204,9 +204,9 @@ object ApiPaths {
     /**
      * DELETE
      *
-     * Params: -
+     * Params: password
      *
-     * Response: -
+     * Response: boolean
      * */
     const val USER_DELETE = "api/user"
 
@@ -227,7 +227,7 @@ object ApiPaths {
      *
      * Response: list of uris of saved photos
      * */
-    const val PHOTO_POST = "api/photo"
+    const val PHOTO_POST = "api/photo/post"
 
     /**
      * GET
@@ -244,7 +244,7 @@ object ApiPaths {
      *
      * Body: mark object
      *
-     * Response: boolean
+     * Response: -
      * */
     const val MARK_POST = "api/mark"
 

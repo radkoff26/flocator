@@ -4,20 +4,14 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import ru.flocator.core.base.fragment.BaseFragment
 import ru.flocator.core.dependencies.findDependencies
 import ru.flocator.core.extensions.findDrawable
 import ru.flocator.core.navigation.NavController
@@ -25,18 +19,22 @@ import ru.flocator.core.navigation.findNavController
 import ru.flocator.core.section.SettingsSection
 import ru.flocator.data.data_store.info.UserInfo
 import ru.flocator.data.models.language.Language
-import ru.flocator.data.preferences.LanguagePreferences
 import ru.flocator.feature_settings.R
 import ru.flocator.feature_settings.databinding.FragmentSettingsBinding
-import ru.flocator.feature_settings.internal.di.DaggerSettingsComponent
-import ru.flocator.feature_settings.internal.repository.SettingsRepository
+import ru.flocator.feature_settings.internal.core.di.DaggerSettingsComponent
 import ru.flocator.feature_settings.internal.ui.*
-import ru.flocator.feature_settings.internal.view_models.SettingsFragmentViewModel
+import ru.flocator.feature_settings.internal.ui.fragments.*
+import ru.flocator.feature_settings.internal.ui.fragments.BlackListFragment
+import ru.flocator.feature_settings.internal.ui.fragments.ChangePasswordFragment
+import ru.flocator.feature_settings.internal.ui.fragments.DeleteAccountFragment
+import ru.flocator.feature_settings.internal.ui.fragments.ExitAccountFragment
+import ru.flocator.feature_settings.internal.ui.fragments.PrivacySettingsFragment
+import ru.flocator.feature_settings.internal.ui.view_models.SettingsViewModel
 import java.sql.Timestamp
 import java.util.*
 import javax.inject.Inject
 
-class SettingsFragment : Fragment(), SettingsSection {
+class SettingsFragment : BaseFragment(), SettingsSection {
     private var _binding: FragmentSettingsBinding? = null
     private val binding: FragmentSettingsBinding
         get() = _binding!!
@@ -47,14 +45,8 @@ class SettingsFragment : Fragment(), SettingsSection {
     lateinit var controller: NavController
 
     @Inject
-    internal lateinit var settingsRepository: SettingsRepository
-
-    @Inject
-    internal lateinit var languagePreferences: LanguagePreferences
-
-    @Inject
     internal lateinit var viewModelFactory: ViewModelProvider.Factory
-    private lateinit var settingsViewModel: SettingsFragmentViewModel
+    private lateinit var settingsViewModel: SettingsViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,7 +59,7 @@ class SettingsFragment : Fragment(), SettingsSection {
             .inject(this)
 
         settingsViewModel =
-            ViewModelProvider(this, viewModelFactory)[SettingsFragmentViewModel::class.java]
+            ViewModelProvider(this, viewModelFactory)[SettingsViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -75,37 +67,12 @@ class SettingsFragment : Fragment(), SettingsSection {
         savedInstanceState: Bundle?
     ): View {
         val photoChangeLauncher =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { result ->
-                if (result != null) {
-                    compositeDisposable.add(
-                        io.reactivex.Completable.create { emitter ->
-                            val stream = context?.contentResolver?.openInputStream(result)!!
-                            compositeDisposable.add(
-                                settingsRepository.changeCurrentUserAvatar(
-                                    MultipartBody.Part.createFormData(
-                                        "photo",
-                                        result.toString(),
-                                        RequestBody.create(
-                                            MediaType.parse("image/*"),
-                                            stream.readBytes()
-                                        )
-                                    )
-                                )
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(
-                                        {},
-                                        { Log.e("Loading image from storage", "error", it) })
-                            )
-
-                            emitter.onComplete()
-                            stream.close()
-                        }
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnError { Log.e("Sending image", "error", it) }
-                            .subscribe()
-                    )
+            registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+                uri?.let { photoUri ->
+                    requireContext().contentResolver.openInputStream(photoUri).use {
+                        it ?: return@use
+                        settingsViewModel.changeUserAvatar(it.readBytes(), photoUri.toString())
+                    }
                 }
             }
         // Inflate the layout for this fragment
@@ -150,6 +117,10 @@ class SettingsFragment : Fragment(), SettingsSection {
             if (it != null) {
                 updateUserAvatar(it)
             }
+        }
+        settingsViewModel.errorLiveData.observe(viewLifecycleOwner) {
+            it ?: return@observe
+            activity().notifyAboutError(getString(it.uiMessageStringRes), binding.root)
         }
 
         binding.avatar.setOnClickListener {
@@ -288,13 +259,8 @@ class SettingsFragment : Fragment(), SettingsSection {
                 )
                 val stamp = Calendar.getInstance()
                 stamp.set(resYear, resMonth, resDay)
-                compositeDisposable.add(
-                    settingsRepository.changeCurrentUserBirthdate(
-                        Timestamp(stamp.timeInMillis)
-                    )
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({}, { Log.e("Sending user birthdate", "error", it) })
+                settingsViewModel.changeCurrentUserBirthDate(
+                    Timestamp(stamp.timeInMillis)
                 )
             },
             year,
@@ -305,16 +271,17 @@ class SettingsFragment : Fragment(), SettingsSection {
     }
 
     private fun setLanguageAndRefreshIfNecessary(language: Language) {
-        val prevLanguage = languagePreferences.getLanguage()
+        val prevLanguage = settingsViewModel.getLanguage()
         if (prevLanguage == language) {
             return
         }
-        languagePreferences.setLanguage(language)
-        requireActivity().recreate()
+        settingsViewModel.changeLanguage(language, onChanged = {
+            requireActivity().recreate()
+        })
     }
 
     private fun selectCurrentLanguage() {
-        val currentLanguage = languagePreferences.getLanguage()
+        val currentLanguage = settingsViewModel.getLanguage()
         if (currentLanguage == null || currentLanguage == Language.EN) {
             binding.en.isChecked = true
         } else {

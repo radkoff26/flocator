@@ -25,15 +25,15 @@ import ru.flocator.core.photo.PhotoLoadingTool
 import ru.flocator.core.section.CommunitySection
 import ru.flocator.feature_community.R
 import ru.flocator.feature_community.databinding.FragmentCommunityBinding
-import ru.flocator.feature_community.internal.adapters.FriendActionListener
-import ru.flocator.feature_community.internal.adapters.FriendAdapter
-import ru.flocator.feature_community.internal.adapters.PersonAdapter
-import ru.flocator.feature_community.internal.adapters.UserNewFriendActionListener
-import ru.flocator.feature_community.internal.data.UserItem
-import ru.flocator.feature_community.internal.di.DaggerCommunityComponent
-import ru.flocator.feature_community.internal.ui.AddFriendByLinkFragment
-import ru.flocator.feature_community.internal.ui.ExternalProfileFragment
-import ru.flocator.feature_community.internal.view_models.ProfileViewModel
+import ru.flocator.feature_community.internal.ui.adapters.FriendActionListener
+import ru.flocator.feature_community.internal.ui.adapters.FriendAdapter
+import ru.flocator.feature_community.internal.ui.adapters.PersonAdapter
+import ru.flocator.feature_community.internal.ui.adapters.UserNewFriendActionListener
+import ru.flocator.feature_community.internal.data.model.UserItem
+import ru.flocator.feature_community.internal.core.di.DaggerCommunityComponent
+import ru.flocator.feature_community.internal.ui.fragments.AddFriendByLinkFragment
+import ru.flocator.feature_community.internal.ui.fragments.ExternalProfileFragment
+import ru.flocator.feature_community.internal.ui.view_models.ProfileViewModel
 import javax.inject.Inject
 
 class ProfileFragment : BaseFragment(), CommunitySection {

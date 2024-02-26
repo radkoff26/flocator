@@ -15,9 +15,9 @@ import com.google.android.material.imageview.ShapeableImageView
 import ru.flocator.core.extensions.findDrawable
 import ru.flocator.core.utils.ViewUtils.dpToPx
 import ru.flocator.map.R
-import ru.flocator.map.internal.domain.bitmap_creator.BitmapCreator
-import ru.flocator.map.internal.domain.view.ReusableView
-import ru.flocator.map.internal.domain.view.ViewFactory
+import ru.flocator.map.internal.data.bitmap_creator.BitmapCreator
+import ru.flocator.map.internal.data.view.ReusableView
+import ru.flocator.map.internal.data.view.ViewFactory
 
 @SuppressLint("ViewConstructor")
 internal class MarkView constructor(
@@ -48,7 +48,7 @@ internal class MarkView constructor(
         markImage = AppCompatImageView(context)
 
         markImage.scaleType = ImageView.ScaleType.CENTER_CROP
-        markImage.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.primary, null))
+        markImage.setBackgroundColor(ResourcesCompat.getColor(resources, ru.flocator.design.R.color.primary, null))
 
         addView(markImage)
 
@@ -151,7 +151,7 @@ internal class MarkView constructor(
         userAvatarImageView.setImageDrawable(
             ResourcesCompat.getDrawable(
                 resources,
-                R.drawable.base_avatar_image,
+                ru.flocator.design.R.drawable.base_avatar_image,
                 null
             )
         )

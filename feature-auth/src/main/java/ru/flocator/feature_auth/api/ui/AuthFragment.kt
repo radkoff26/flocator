@@ -18,13 +18,14 @@ import ru.flocator.core.navigation.NavController
 import ru.flocator.core.navigation.findNavController
 import ru.flocator.core.section.AuthenticationSection
 import ru.flocator.core.utils.LocationUtils
+import ru.flocator.data.models.auth.UserCredentialsDto
 import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.databinding.FragmentAuthBinding
-import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
-import ru.flocator.feature_auth.internal.repository.RegistrationRepository
-import ru.flocator.feature_auth.internal.ui.RegFirstFragment
-import ru.flocator.feature_auth.internal.usecases.LoginUserAndSaveTokensUseCase
-import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
+import ru.flocator.feature_auth.internal.core.di.DaggerAuthComponent
+import ru.flocator.feature_auth.internal.data.repository.RegistrationRepository
+import ru.flocator.feature_auth.internal.ui.fragments.RegFirstFragment
+import ru.flocator.feature_auth.internal.domain.LoginUserAndSaveTokensUseCase
+import ru.flocator.feature_auth.internal.ui.view_models.RegistrationViewModel
 import javax.inject.Inject
 
 class AuthFragment : Fragment(), AuthenticationSection {
@@ -135,7 +136,7 @@ class AuthFragment : Fragment(), AuthenticationSection {
     }
 
     private fun login(login: String, password: String) {
-        val userCredentials = ru.flocator.data.models.auth.UserCredentialsDto(
+        val userCredentials = UserCredentialsDto(
             login = login,
             password = password
         )
@@ -191,6 +192,6 @@ class AuthFragment : Fragment(), AuthenticationSection {
     }
 
     companion object {
-        private const val TAG = "Auth fragment"
+        private const val TAG = "AuthFragment_TAG"
     }
 }

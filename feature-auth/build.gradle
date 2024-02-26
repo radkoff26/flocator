@@ -1,6 +1,6 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
     id 'kotlin-kapt'
 }
 
@@ -46,6 +46,7 @@ dependencies {
     implementation libs.google.di.dagger.core
     implementation libs.google.di.dagger.android
     implementation libs.google.di.dagger.androidsupport
+    implementation libs.androidx.ktx
     kapt libs.google.di.dagger.compiler
     kapt libs.google.di.dagger.androidprocessor
 

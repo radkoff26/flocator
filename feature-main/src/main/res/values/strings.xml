@@ -20,5 +20,6 @@
     <string name="exit">Exit</string>
     <string name="name_surname" formatted="true" translatable="false">%s %s</string>
     <string name="location_fetching">Fetching your location…</string>
+    <string name="saving_error">Error while saving…</string>
     <string name="error">Error!</string>
 </resources>

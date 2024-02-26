@@ -3,7 +3,7 @@ package ru.flocator.map.internal.utils
 import com.google.android.gms.maps.model.LatLng
 import ru.flocator.core.utils.DistanceUtils
 import ru.flocator.data.database.entities.User
-import ru.flocator.map.internal.domain.entity.MarkGroup
+import ru.flocator.map.internal.data.entity.MarkGroup
 
 internal object MapComparingUtils {
     private val ZERO = LatLng(0.0, 0.0)

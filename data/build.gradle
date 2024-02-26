@@ -1,8 +1,8 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlin.plugin.serialization
     id 'kotlin-kapt'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
 android {
@@ -44,6 +44,8 @@ dependencies {
     api libs.androidx.room.runtime
     implementation libs.androidx.room.rxjava2
     kapt libs.androidx.room.compiler
+
+    implementation libs.androidx.ktx
 
     implementation libs.google.gson
 

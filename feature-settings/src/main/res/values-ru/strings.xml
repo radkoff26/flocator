@@ -43,4 +43,8 @@
     <string name="connection_error">Нет подключения к сети…</string>
     <string name="failed_to_take_action">Не получилось выполнить данное действие…</string>
     <string name="pick_user_to_change_privacy">Выберите тех пользователей, кому вы хотите ограничить доступ к своему местоположению</string>
+    <string name="failed_to_change_avatar">Не удалось сменить аватар…</string>
+    <string name="failed_to_change_birth_date">Не удалось сменить дату рождения…</string>
+    <string name="failed_to_change_password">Не удалось сменить пароль…</string>
+    <string name="failed_to_delete_account">Не удалось удалить аккаунт…</string>
 </resources>

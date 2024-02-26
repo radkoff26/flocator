@@ -22,7 +22,7 @@ import ru.flocator.core.navigation.findNavController
 import ru.flocator.core.section.AuthenticationSection
 import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.databinding.FragmentLocationRequestBinding
-import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
+import ru.flocator.feature_auth.internal.core.di.DaggerAuthComponent
 import javax.inject.Inject
 
 class LocationRequestFragment : Fragment(),
