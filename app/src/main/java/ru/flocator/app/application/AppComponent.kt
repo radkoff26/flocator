@@ -3,7 +3,7 @@ package ru.flocator.app.application
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
-import ru.flocator.app.MainActivity
+import ru.flocator.app.activity.MainActivity
 import ru.flocator.app.di.modules.app.DataStoreModule
 import ru.flocator.app.di.modules.app.DatabaseModule
 import ru.flocator.app.di.modules.app.RestAPIModule

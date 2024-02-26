@@ -21,8 +21,7 @@ internal class LoginUserAndSaveTokensUseCase @Inject constructor(
                     .subscribeOn(Schedulers.io())
                     .subscribe(
                         {
-                            tokenPreferences.setRefreshToken(it.refreshToken)
-                            tokenPreferences.setAccessToken(it.accessToken)
+                            tokenPreferences.updateTokens(it.refreshToken, it.accessToken)
                             emitter.onComplete()
                             compositeDisposable.dispose()
                         },

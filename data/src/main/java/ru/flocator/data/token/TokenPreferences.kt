@@ -7,22 +7,33 @@ class TokenPreferences(context: Context) {
     private val tokensPreferences =
         context.getSharedPreferences(TOKEN_PREFERENCES, Context.MODE_PRIVATE)
 
+    @Synchronized
     fun getAccessToken(): String? {
         return tokensPreferences.getString(ACCESS_TOKEN, null)
     }
 
+    @Synchronized
     fun setAccessToken(token: String) {
         tokensPreferences.setString(ACCESS_TOKEN, token)
     }
 
+    @Synchronized
     fun getRefreshToken(): String? {
         return tokensPreferences.getString(REFRESH_TOKEN, null)
     }
 
+    @Synchronized
+    fun updateTokens(refreshToken: String, accessToken: String) {
+        setRefreshToken(refreshToken)
+        setAccessToken(accessToken)
+    }
+
+    @Synchronized
     fun setRefreshToken(token: String) {
         tokensPreferences.setString(REFRESH_TOKEN, token)
     }
 
+    @Synchronized
     fun clear() {
         setRefreshToken("")
         setAccessToken("")

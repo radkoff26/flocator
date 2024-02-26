@@ -1,4 +1,4 @@
-package ru.flocator.app
+package ru.flocator.app.activity
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,14 +8,16 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.FragmentContainerView
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import ru.flocator.app.Broadcasts
+import ru.flocator.app.R
 import ru.flocator.app.application.App
 import ru.flocator.app.controller.NavControllerImpl
-import ru.flocator.core.alert.ErrorDebouncingAlertPoller
-import ru.flocator.core.alert.OnDismissedCallback
-import ru.flocator.core.alert.OnErrorCallback
+import ru.flocator.app.data_source.HandshakeDataSource
 import ru.flocator.core.base.activity.BaseActivity
 import ru.flocator.core.navigation.NavController
 import ru.flocator.core.navigation.NavigationRoot
@@ -24,6 +26,7 @@ import ru.flocator.data.models.language.Language
 import ru.flocator.data.preferences.LanguagePreferences
 import ru.flocator.design.SnackbarComposer
 import java.util.*
+import javax.inject.Inject
 
 class MainActivity : BaseActivity(), NavigationRoot {
     override fun composeSnackbar(view: View, text: String, onDismissed: () -> Unit) {
@@ -48,6 +51,9 @@ class MainActivity : BaseActivity(), NavigationRoot {
             }
         }
     }
+
+    @Inject
+    internal lateinit var handshakeDataSource: HandshakeDataSource
 
     override lateinit var navController: NavController
 
@@ -115,10 +121,21 @@ class MainActivity : BaseActivity(), NavigationRoot {
     }
 
     private fun openFirstFragment() {
-        if (LocationUtils.hasLocationPermission(this)) {
-            navController.toMain()
-        } else {
-            navController.toLocationDialog()
-        }
+        val compositeDisposable = CompositeDisposable()
+        compositeDisposable.add(
+            handshakeDataSource.testHandshake()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    compositeDisposable.dispose()
+                }
+                .subscribe {
+                    if (LocationUtils.hasLocationPermission(this)) {
+                        navController.toMain()
+                    } else {
+                        navController.toLocationDialog()
+                    }
+                }
+        )
     }
 }

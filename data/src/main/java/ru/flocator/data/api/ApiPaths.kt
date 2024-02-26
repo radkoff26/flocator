@@ -51,6 +51,15 @@ object ApiPaths {
     /**
      * POST
      *
+     * Params: -
+     *
+     * Response: -
+     * */
+    const val USER_HANDSHAKE = "api/user/handshake"
+
+    /**
+     * POST
+     *
      * Params: blockedId
      *
      * Response: -

@@ -173,9 +173,6 @@ internal class MainFragmentViewModel @Inject constructor(
         compositeDisposable.add(
             userInfoMediator.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_INITIAL_FETCHING) { throwable ->
-                    throwable is LostConnectionException
-                }
                 .subscribe(
                     {
                         _userInfoLiveData.value = it
@@ -196,9 +193,6 @@ internal class MainFragmentViewModel @Inject constructor(
         compositeDisposable.add(
             userInfoMediator.getUserInfo()
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_USER_INFO_FETCHING) {
-                    it is LostConnectionException
-                }
                 .subscribe(
                     {
                         _userInfoLiveData.value = it
@@ -224,9 +218,6 @@ internal class MainFragmentViewModel @Inject constructor(
             userRepository.postUserLocation(_userLocationLiveData.value!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_LOCATION_POST) {
-                    it is LostConnectionException
-                }
                 .doOnError {
                     Log.e(TAG, "postLocation: error", it)
                 }
@@ -262,9 +253,6 @@ internal class MainFragmentViewModel @Inject constructor(
             userRepository.getAllFriendsOfUser()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_FRIENDS_FETCHING) {
-                    it is LostConnectionException
-                }
                 .subscribe(
                     { users ->
                         updateFriends(
@@ -298,9 +286,6 @@ internal class MainFragmentViewModel @Inject constructor(
             markRepository.getMarksForUser()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .retry(TIMES_TO_RETRY_MARKS_FETCHING) {
-                    it is LostConnectionException
-                }
                 .subscribe(
                     {
                         updateMarks(it)
