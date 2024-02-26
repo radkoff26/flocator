@@ -1,10 +1,10 @@
 package ru.flocator.feature_auth.api.dependencies
 
 import retrofit2.Retrofit
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_dependency.Dependencies
+import ru.flocator.core.dependencies.Dependencies
+import ru.flocator.data.token.TokenPreferences
 
-interface AuthDependencies: Dependencies {
-    val appRepository: AppRepository
+interface AuthDependencies : Dependencies {
+    val tokenPreferences: TokenPreferences
     val retrofit: Retrofit
 }

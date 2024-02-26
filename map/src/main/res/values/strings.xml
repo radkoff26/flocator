@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="user_name_on_map" formatted="true" translatable="false">%s %s</string>
+    <string name="friends_only">Friends</string>
+    <string name="marks_only">Marks</string>
+    <string name="all">All</string>
+    <string name="filter">Filter</string>
+</resources>

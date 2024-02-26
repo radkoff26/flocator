@@ -16,16 +16,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_sections.AuthenticationSection
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.AuthenticationSection
 import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.databinding.FragmentLocationRequestBinding
-import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
+import ru.flocator.feature_auth.internal.core.di.DaggerAuthComponent
 import javax.inject.Inject
 
-class LocationRequestFragment : Fragment(), AuthenticationSection {
+class LocationRequestFragment : Fragment(),
+    AuthenticationSection {
     private var _binding: FragmentLocationRequestBinding? = null
     private val binding: FragmentLocationRequestBinding
         get() = _binding!!
@@ -132,4 +133,9 @@ class LocationRequestFragment : Fragment(), AuthenticationSection {
     }
 
     private fun goToMainSection() = controller.toMain()
+
+    companion object {
+
+        fun newInstance(): LocationRequestFragment = LocationRequestFragment()
+    }
 }

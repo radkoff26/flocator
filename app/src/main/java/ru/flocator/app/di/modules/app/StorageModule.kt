@@ -3,8 +3,9 @@ package ru.flocator.app.di.modules.app
 import android.content.Context
 import dagger.Module
 import dagger.Provides
-import ru.flocator.cache.storage.SettingsStorage
-import ru.flocator.cache.storage.SettingsStorageImpl
+import ru.flocator.data.preferences.LanguagePreferences
+import ru.flocator.data.token.TokenPreferences
+import ru.flocator.map.api.MapPreferences
 import javax.inject.Singleton
 
 @Module
@@ -12,5 +13,13 @@ object StorageModule {
 
     @Provides
     @Singleton
-    fun provideSettingsStorage(context: Context): SettingsStorage = SettingsStorageImpl(context)
+    fun provideLanguagePreferences(context: Context): LanguagePreferences = LanguagePreferences(context)
+
+    @Provides
+    @Singleton
+    fun provideMapPreferences(context: Context): MapPreferences = MapPreferences(context)
+
+    @Provides
+    @Singleton
+    fun provideTokenPreferences(context: Context): TokenPreferences = TokenPreferences(context)
 }

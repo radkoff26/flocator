@@ -1,0 +1,84 @@
+[versions]
+# libs
+ktx = "1.9.0"
+app_compat = "1.6.1"
+constraint_layout = "2.1.4"
+constraint_layout_solver = "2.0.4"
+material = "1.9.0"
+dagger = "2.44"
+fragment_ktx = "1.6.2"
+gson = "2.9.0"
+play_location = "21.0.1"
+play_maps = "18.1.0"
+kotlin_coroutines = "1.8.0"
+kotlin_serialization_json = "1.5.1"
+lifecycle_live_data = "2.6.1"
+circle_image_view = "3.0.0"
+paging = "3.1.1"
+retrofit = "2.9.0"
+rxjava2 = "2.2.21"
+rxandroid = "2.1.1"
+skeleton_layout = "4.0.0"
+security_crypto = "1.1.0-alpha06"
+view_pager = "1.0.0"
+swipe_to_refresh = "1.1.0"
+room = "2.5.1"
+data_store = "1.0.0"
+
+#plugins
+android_gradle_plugin = "7.4.2"
+kotlin_android = "1.8.0"
+kotlin_plugin_serialization = "1.8.10"
+dagger_hilt = "2.44"
+
+[libraries]
+
+# Android
+androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraint_layout" }
+androidx-constraintlayoutsolver = { group = "androidx.constraintlayout", name = "constraintlayout-solver", version.ref = "constraint_layout_solver" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "app_compat" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment_ktx" }
+androidx-lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle_live_data" }
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }
+androidx-paging-rxjava2 = { group = "androidx.paging", name = "paging-rxjava2", version.ref = "paging" }
+androidx-security-core = { group = "androidx.security", name = "security-crypto", version.ref = "security_crypto" }
+androidx-security-ktx = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "security_crypto" }
+androidx-viewpager = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "view_pager" }
+androidx-swipetorefresh = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swipe_to_refresh" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-rxjava2 = { group = "androidx.room", name = "room-rxjava2", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" } # kapt
+androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data_store" }
+
+# Google
+google-ui-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+google-di-dagger-core = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
+google-di-dagger-android = { group = "com.google.dagger", name = "dagger-android", version.ref = "dagger" }
+google-di-dagger-androidsupport = { group = "com.google.dagger", name = "dagger-android-support", version.ref = "dagger" }
+google-di-dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" } # kapt
+google-di-dagger-androidprocessor = { group = "com.google.dagger", name = "dagger-android-processor", version.ref = "dagger" } # kapt
+google-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+google-play-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "play_location" }
+google-play-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "play_maps" }
+
+# Kotlin
+kotlin-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin_serialization_json" }
+kotlin-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlin_coroutines" }
+kotlin-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlin_coroutines" }
+
+# Other
+ui-circleimageview = { group = "de.hdodenhof", name = "circleimageview", version.ref = "circle_image_view" }
+ui-skeletonlayout = { group = "com.faltenreich", name = "skeletonlayout", version.ref = "skeleton_layout" }
+squareup-retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+squareup-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+squareup-retrofit-rxjava2 = { group = "com.squareup.retrofit2", name = "adapter-rxjava2", version.ref = "retrofit" }
+reactive-rxjava = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjava2" }
+reactive-rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "android_gradle_plugin" }
+android-library = { id = "com.android.library", version.ref = "android_gradle_plugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin_android" }
+kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin_plugin_serialization" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin_plugin_serialization" }

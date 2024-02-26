@@ -27,7 +27,7 @@
     <string name="fields_must_not_be_empty">Fields must not be blank!</string>
     <string name="passwords_are_not_similar">Passwords do not match!</string>
     <string name="new_password_is_similar">New password is the same as the previous one!</string>
-    <string name="password_cannot_be_empty">Password can be blank!</string>
+    <string name="password_cannot_be_empty">Password can not be blank!</string>
     <string name="incorrect_pass">Wrong password!</string>
     <string name="close_popup">Close dialog</string>
     <string name="your_friend">Your friend</string>
@@ -40,6 +40,14 @@
     <string name="blacklist_is_empty">Blacklist is empty. Well done!</string>
     <string name="privacy_no_friends">You have no one to hide your location from - let\'s find friends first!</string>
     <string name="name_and_surname">Name and surname</string>
+    <string name="connection_error">Lost connection…</string>
+    <string name="failed_to_take_action">Could not perform such action…</string>
+    <string name="pick_user_to_change_privacy">Choose those users who you would not like to allow to see your location</string>
+    <string name="failed_to_change_avatar">Failed to change avatar…</string>
+    <string name="failed_to_change_birth_date">Failed to change birth date…</string>
+    <string name="failed_to_change_password">Failed to change password…</string>
+    <string name="failed_to_delete_account">Failed to delete account…</string>
+    <string name="name_surname" translatable="false">%s %s</string>
     <string name="ru" translatable="false">ru</string>
     <string name="en" translatable="false">en</string>
 </resources>

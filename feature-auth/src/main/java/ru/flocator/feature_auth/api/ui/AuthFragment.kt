@@ -13,20 +13,19 @@ import androidx.lifecycle.ViewModelProvider
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import ru.flocator.core_api.api.AppRepository
-import ru.flocator.core_controller.NavController
-import ru.flocator.core_controller.findNavController
-import ru.flocator.core_data_store.user.data.UserCredentials
-import ru.flocator.core_dependency.findDependencies
-import ru.flocator.core_dto.auth.UserCredentialsDto
-import ru.flocator.core_sections.AuthenticationSection
-import ru.flocator.core_utils.LocationUtils
+import ru.flocator.core.dependencies.findDependencies
+import ru.flocator.core.navigation.NavController
+import ru.flocator.core.navigation.findNavController
+import ru.flocator.core.section.AuthenticationSection
+import ru.flocator.core.utils.LocationUtils
+import ru.flocator.data.models.auth.UserCredentialsDto
 import ru.flocator.feature_auth.R
 import ru.flocator.feature_auth.databinding.FragmentAuthBinding
-import ru.flocator.feature_auth.internal.di.DaggerAuthComponent
-import ru.flocator.feature_auth.internal.repository.AuthRepository
-import ru.flocator.feature_auth.internal.ui.RegFirstFragment
-import ru.flocator.feature_auth.internal.view_models.RegistrationViewModel
+import ru.flocator.feature_auth.internal.core.di.DaggerAuthComponent
+import ru.flocator.feature_auth.internal.data.repository.RegistrationRepository
+import ru.flocator.feature_auth.internal.ui.fragments.RegFirstFragment
+import ru.flocator.feature_auth.internal.domain.LoginUserAndSaveTokensUseCase
+import ru.flocator.feature_auth.internal.ui.view_models.RegistrationViewModel
 import javax.inject.Inject
 
 class AuthFragment : Fragment(), AuthenticationSection {
@@ -43,10 +42,10 @@ class AuthFragment : Fragment(), AuthenticationSection {
     internal lateinit var navController: NavController
 
     @Inject
-    internal lateinit var authRepository: AuthRepository
+    internal lateinit var loginUserAndSaveTokens: LoginUserAndSaveTokensUseCase
 
     @Inject
-    internal lateinit var appRepository: AppRepository
+    internal lateinit var registrationRepository: RegistrationRepository
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -73,32 +72,35 @@ class AuthFragment : Fragment(), AuthenticationSection {
             val login = binding.emailLoginFieldEdit.text.toString()
             val password = binding.passwordLoginFieldEdit.text.toString()
 
-            if(validateLoginField(login) && validatePasswordField(password)){
-                login(login,password)
+            if (validateLoginField(login) && validatePasswordField(password)) {
+                login(login, password)
             }
-            if (!validateLoginField(login)){
+            if (!validateLoginField(login)) {
                 binding.loginField.error = resources.getString(R.string.field_mustnt_be_empty)
                 binding.loginField.isErrorEnabled = true
             }
-            if (!validatePasswordField(password)){
-                binding.passwordLoginField.error = resources.getString(R.string.field_mustnt_be_empty)
+            if (!validatePasswordField(password)) {
+                binding.passwordLoginField.error =
+                    resources.getString(R.string.field_mustnt_be_empty)
                 binding.passwordLoginField.isErrorEnabled = true
             }
         }
 
-        binding.emailLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.loginField.error = null
-                binding.loginField.isErrorEnabled = false
+        binding.emailLoginFieldEdit.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.loginField.error = null
+                    binding.loginField.isErrorEnabled = false
+                }
             }
-        }
 
-        binding.passwordLoginFieldEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                binding.passwordLoginField.error = null
-                binding.passwordLoginField.isErrorEnabled = false
+        binding.passwordLoginFieldEdit.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    binding.passwordLoginField.error = null
+                    binding.passwordLoginField.isErrorEnabled = false
+                }
             }
-        }
 
         binding.emailLoginFieldEdit.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -127,43 +129,41 @@ class AuthFragment : Fragment(), AuthenticationSection {
         })
 
         binding.registrationBtn.setOnClickListener {
-            navController.toFragment(RegFirstFragment())
+            navController.toFragment(RegFirstFragment.newInstance())
         }
 
         return binding.root
     }
 
     private fun login(login: String, password: String) {
-        val userCredentials = UserCredentialsDto(login = login, password = password)
+        val userCredentials = UserCredentialsDto(
+            login = login,
+            password = password
+        )
         compositeDisposable.add(
-            authRepository.loginUser(userCredentials)
+            loginUserAndSaveTokens(userCredentials)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ userId ->
-                    appRepository.userCredentialsCache.updateUserCredentials(
-                        UserCredentials(
-                            userId!!,
-                            login,
-                            password
-                        )
-                    )
+                .subscribe({
                     if (LocationUtils.hasLocationPermission(requireContext())) {
                         navController.toMain()
                     } else {
-                        navController.toFragment(LocationRequestFragment())
+                        navController.toLocationDialog()
                     }
                 }, { error ->
                     compositeDisposable.add(
-                        authRepository.isLoginAvailable(login)
+                        registrationRepository.isLoginAvailable(login)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                 {
-                                    if (it){
-                                        binding.loginField.error = resources.getString(R.string.login_does_not_exits)
+                                    if (it) {
+                                        binding.loginField.error =
+                                            resources.getString(R.string.login_does_not_exits)
                                         binding.loginField.isErrorEnabled = true
                                     } else {
-                                        binding.passwordLoginField.error = resources.getString(R.string.wrong_password)
+                                        binding.passwordLoginField.error =
+                                            resources.getString(R.string.wrong_password)
                                         binding.passwordLoginField.isErrorEnabled = true
                                     }
                                 },
@@ -183,15 +183,17 @@ class AuthFragment : Fragment(), AuthenticationSection {
         _binding = null
     }
 
-    private fun validateLoginField(login:String): Boolean{
+    private fun validateLoginField(login: String): Boolean {
         return login.isNotEmpty()
     }
 
-    private fun validatePasswordField(password: String): Boolean{
+    private fun validatePasswordField(password: String): Boolean {
         return password.isNotEmpty()
     }
 
     companion object {
-        private const val TAG = "Auth fragment"
+        private const val TAG = "AuthFragment_TAG"
+
+        fun newInstance(): AuthFragment = AuthFragment()
     }
 }

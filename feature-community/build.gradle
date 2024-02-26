@@ -1,8 +1,8 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.android.library
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlin.plugin.serialization
     id 'kotlin-kapt'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
 android {
@@ -31,83 +31,58 @@ android {
     }
     buildFeatures {
         viewBinding true
-        dataBinding true
     }
 }
 
 dependencies {
-    // Project modules
-    implementation project(":core-api")
-    implementation project(":core-controller")
-    implementation project(":core-data-store")
-    implementation project(":core-dependency")
-    implementation project(":core-design")
-    implementation project(":core-sections")
-    implementation project(":core-utils")
-    implementation project(":core-view-model")
+    implementation project(':core')
+    implementation project(':data')
+    implementation project(':design')
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    implementation libs.google.di.dagger.core
+    implementation libs.google.di.dagger.android
+    implementation libs.google.di.dagger.androidsupport
+    implementation libs.androidx.ktx
+    kapt libs.google.di.dagger.compiler
+    kapt libs.google.di.dagger.androidprocessor
 
-    // Location
-    implementation "com.google.android.gms:play-services-location:$gms_location_version"
+    implementation libs.google.play.location
 
-    // Kotlin Serialization
-    implementation "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
+    implementation libs.kotlin.serialization.json
 
-    // Security
-    implementation "androidx.security:security-crypto-ktx:$android_security_version"
-    implementation "androidx.security:security-crypto:$android_security_version"
+    implementation libs.androidx.security.core
+    implementation libs.androidx.security.ktx
 
-    // Core
-    implementation "androidx.core:core-ktx:$android_core_kotlin_version"
+    implementation libs.androidx.ktx
 
-    // Android Fragment
-    implementation "androidx.fragment:fragment-ktx:$android_core_ktx_version"
+    implementation libs.androidx.fragment.ktx
 
-    // View Pager
-    implementation "androidx.viewpager2:viewpager2:$view_pager_version"
+    implementation libs.androidx.viewpager
 
-    // App Compat
-    implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation libs.androidx.appcompat
 
-    // Material
-    implementation "com.google.android.material:material:$material_version"
+    implementation libs.google.ui.material
 
-    // Constraint Layout
-    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation libs.androidx.constraintlayout
 
-    // Live Data
-    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
+    runtimeOnly libs.androidx.lifecycle.livedata
 
-    // CircleImageView
-    implementation "de.hdodenhof:circleimageview:$circle_image_view_version"
+    implementation libs.ui.circleimageview
 
-    // Maps
-    implementation "com.google.android.gms:play-services-maps:$google_maps_version"
+    implementation libs.google.play.maps
 
-    // Rx
-    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
+    implementation libs.reactive.rxjava
+    implementation libs.reactive.rxandroid
 
-    // SkeletonLayout
-    implementation "com.faltenreich:skeletonlayout:$skeleton_layout_version"
+    implementation libs.ui.skeletonlayout
 
-    // Swipe-to-Refresh
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swipe_refresh_layout_version"
+    implementation libs.androidx.swipetorefresh
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+    implementation libs.squareup.retrofit.core
+    implementation libs.squareup.retrofit.gson
+    implementation libs.squareup.retrofit.rxjava2
 
-    // Room
-    implementation "androidx.room:room-runtime:$room_version"
+    implementation libs.androidx.room.runtime
 }
 
 kapt {

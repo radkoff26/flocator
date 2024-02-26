@@ -1,8 +1,8 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.android
+    alias libs.plugins.kotlin.plugin.serialization
     id 'kotlin-kapt'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
 }
 
 android {
@@ -35,59 +35,41 @@ android {
     }
     buildFeatures {
         viewBinding true
-        dataBinding true
     }
 }
 
 dependencies {
-    // Project modules
-    implementation project(":core-api")
-    implementation project(":core-cache")
-    implementation project(":core-config")
-    implementation project(":core-connection")
-    implementation project(":core-controller")
-    implementation project(":core-data-store")
-    implementation project(":core-database")
-    implementation project(":core-dependency")
-    implementation project(":core-dto")
-    implementation project(":core-receivers")
-    implementation project(":core-sections")
-    implementation project(":core-utils")
+    implementation project(':core')
+    implementation project(':data')
+    implementation project(':design')
+    implementation project(':map')
     implementation project(":feature-auth")
     implementation project(":feature-community")
     implementation project(":feature-main")
     implementation project(":feature-settings")
 
-    // Dagger
-    implementation "com.google.dagger:dagger:$dagger_version"
-    implementation "com.google.dagger:dagger-android:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    implementation libs.google.di.dagger.core
+    implementation libs.google.di.dagger.android
+    implementation libs.google.di.dagger.androidsupport
+    kapt libs.google.di.dagger.compiler
+    kapt libs.google.di.dagger.androidprocessor
 
-    // Location
-    implementation "com.google.android.gms:play-services-location:$gms_location_version"
+    implementation libs.google.play.location
 
-    // Core
-    implementation "androidx.core:core-ktx:$android_core_kotlin_version"
+    implementation libs.androidx.ktx
 
-    // App Compat
-    implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation libs.androidx.appcompat
 
-    // Live Data
-    runtimeOnly "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_live_data_version"
+    runtimeOnly libs.androidx.lifecycle.livedata
 
-    // Rx
-    implementation "io.reactivex.rxjava2:rxjava:$rxjava_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
+    implementation libs.reactive.rxjava
+    implementation libs.reactive.rxandroid
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+    implementation libs.squareup.retrofit.core
+    implementation libs.squareup.retrofit.gson
+    implementation libs.squareup.retrofit.rxjava2
 
-    // Room
-    implementation "androidx.room:room-runtime:$room_version"
+    implementation libs.google.ui.material
 }
 
 kapt {

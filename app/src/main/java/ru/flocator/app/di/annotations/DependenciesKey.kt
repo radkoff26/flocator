@@ -1,7 +1,7 @@
 package ru.flocator.app.di.annotations
 
 import dagger.MapKey
-import ru.flocator.core_dependency.Dependencies
+import ru.flocator.core.dependencies.Dependencies
 import kotlin.reflect.KClass
 
 @MapKey

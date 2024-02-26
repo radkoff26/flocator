@@ -175,7 +175,7 @@
                     app:rippleColor="#E37676" />
             </LinearLayout>
 
-            <ru.flocator.core_design.views.LoaderImageView
+            <ru.flocator.design.views.LoaderImageView
                 android:id="@+id/loader"
                 android:layout_width="match_parent"
                 android:layout_height="140dp" />

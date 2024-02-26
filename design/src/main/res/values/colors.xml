@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1515B9</color>
+    <color name="tint">#5958CC</color>
+    <color name="secondary">#C1E2FF</color>
+    <color name="font">#474747</color>
+    <color name="danger">#DC0F0F</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="black">#121212</color>
+    <color name="button_bg">#F8F8F8</color>
+    <color name="black_alpha_50">#80000000</color>
+    <color name="additional">#EBEBEB</color>
+    <color name="gold">#F4BF00</color>
+    <color name="light_grey">#CCCCCC</color>
+    <color name="dark">#121212</color>
+</resources>
